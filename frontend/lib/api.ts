@@ -56,7 +56,7 @@ class ApiClient {
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
 
-    if (res.status === 401 && !isRetry) {
+    if (res.status === 401 && auth && !isRetry) {
       const refreshed = await this.tryRefresh();
       if (refreshed) return this.request(method, path, body, auth, true);
       this.clearTokens();
