@@ -20,3 +20,4 @@ resend==2.4.0
 weasyprint==62.3
 supabase==2.5.1
 groq==0.9.0
+sentry-sdk[fastapi]==1.45.0

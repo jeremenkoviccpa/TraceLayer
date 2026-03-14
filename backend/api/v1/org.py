@@ -190,3 +190,112 @@ async def accept_invite(
     await db.commit()
 
     return TokenResponse(access_token=access_token, refresh_token=raw_refresh)
+
+
+# ── GDPR ─────────────────────────────────────────────────────────────────────
+
+@router.get("/account/export")
+async def export_account_data(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """GDPR data export — returns all data belonging to the current user's company."""
+    from models.evidence import Evidence
+    from models.integration import Integration
+    from models.audit_log import AuditLog
+    from sqlalchemy import select
+
+    company_result = await db.execute(select(Company).where(Company.id == current_user.company_id))
+    company = company_result.scalar_one_or_none()
+
+    members_result = await db.execute(
+        select(User).where(User.company_id == current_user.company_id)
+    )
+    members = members_result.scalars().all()
+
+    integrations_result = await db.execute(
+        select(Integration).where(Integration.company_id == current_user.company_id)
+    )
+    integrations = integrations_result.scalars().all()
+
+    evidence_result = await db.execute(
+        select(Evidence).where(Evidence.company_id == current_user.company_id)
+    )
+    evidence_items = evidence_result.scalars().all()
+
+    audit_result = await db.execute(
+        select(AuditLog).where(AuditLog.company_id == current_user.company_id)
+    )
+    audit_logs = audit_result.scalars().all()
+
+    return {
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "company": {
+            "id": str(company.id),
+            "name": company.name,
+            "plan": company.plan,
+            "created_at": company.created_at.isoformat(),
+        } if company else None,
+        "members": [
+            {"id": str(m.id), "email": m.email, "role": m.role, "created_at": m.created_at.isoformat()}
+            for m in members
+        ],
+        "integrations": [
+            {"type": i.integration_type, "status": i.status, "created_at": i.created_at.isoformat()}
+            for i in integrations
+        ],
+        "evidence_count": len(evidence_items),
+        "audit_log": [
+            {
+                "action": a.action,
+                "user_email": a.user_email,
+                "resource_type": a.resource_type,
+                "created_at": a.created_at.isoformat(),
+            }
+            for a in audit_logs
+        ],
+    }
+
+
+@router.delete("/account", status_code=204)
+async def delete_account(
+    current_user: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """GDPR right to erasure — permanently deletes the company and all associated data.
+    Admin only. This action is irreversible.
+    """
+    from models.evidence import Evidence
+    from models.integration import Integration
+    from models.audit_log import AuditLog
+    from models.refresh_token import RefreshToken
+    from models.password_reset_token import PasswordResetToken
+    from models.email_verification_token import EmailVerificationToken
+    from models.report import Report
+    from sqlalchemy import delete
+
+    company_id = current_user.company_id
+
+    # Delete in dependency order
+    await db.execute(delete(AuditLog).where(AuditLog.company_id == company_id))
+    await db.execute(delete(Evidence).where(Evidence.company_id == company_id))
+    await db.execute(delete(Integration).where(Integration.company_id == company_id))
+
+    # Delete per-user tokens for all company members
+    members_result = await db.execute(select(User).where(User.company_id == company_id))
+    members = members_result.scalars().all()
+    member_ids = [m.id for m in members]
+    for uid in member_ids:
+        await db.execute(delete(RefreshToken).where(RefreshToken.user_id == uid))
+        await db.execute(delete(PasswordResetToken).where(PasswordResetToken.user_id == uid))
+        await db.execute(delete(EmailVerificationToken).where(EmailVerificationToken.user_id == uid))
+
+    # Reports — delete records (files in storage are orphaned but not a security risk)
+    await db.execute(delete(Report).where(Report.company_id == company_id))
+
+    # Delete all users then company
+    await db.execute(delete(User).where(User.company_id == company_id))
+    await db.execute(delete(Company).where(Company.id == company_id))
+
+    await db.commit()
+    logger.info("GDPR account deletion: company=%s", company_id)

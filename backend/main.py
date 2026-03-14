@@ -1,11 +1,12 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+import sentry_sdk
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 from api.v1 import audit, auth, billing, compliance, evidence, integrations, org, reports
 from collectors.scheduler import schedule_integration
@@ -15,6 +16,14 @@ from core.config import settings
 from core.database import AsyncSessionLocal
 from core.limiter import limiter
 
+if settings.sentry_dsn:
+    sentry_sdk.init(
+        dsn=settings.sentry_dsn,
+        environment=settings.app_env,
+        traces_sample_rate=0.2,
+        profiles_sample_rate=0.1,
+    )
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
@@ -23,7 +32,8 @@ logger = logging.getLogger(__name__)
 
 
 async def _run_migrations() -> None:
-    """Run Alembic migrations on startup via subprocess to avoid event-loop conflicts.
+    """Run Alembic migrations on startup, protected by a PostgreSQL advisory lock
+    so only one instance runs migrations even when multiple replicas start at once.
     Skipped in test env — tests use Base.metadata.create_all instead.
     """
     if settings.app_env == "test":
@@ -32,21 +42,31 @@ async def _run_migrations() -> None:
     import asyncio
     import subprocess
 
-    loop = asyncio.get_running_loop()
-    result = await loop.run_in_executor(
-        None,
-        lambda: subprocess.run(
-            ["alembic", "upgrade", "head"],
-            capture_output=True,
-            text=True,
-        ),
-    )
-    if result.stdout:
-        logger.info("Migrations: %s", result.stdout.strip())
-    if result.returncode != 0:
-        logger.error("Migration stderr: %s", result.stderr)
-        raise RuntimeError("Alembic migration failed — see logs above")
-    logger.info("Database migrations complete")
+    # Advisory lock ID — arbitrary stable integer (spells "TL" in decimal)
+    LOCK_ID = 84766
+
+    async with AsyncSessionLocal() as db:
+        # pg_advisory_lock blocks until the lock is available, ensuring
+        # that only one replica runs migrations at a time.
+        await db.execute(text(f"SELECT pg_advisory_lock({LOCK_ID})"))
+        try:
+            loop = asyncio.get_running_loop()
+            result = await loop.run_in_executor(
+                None,
+                lambda: subprocess.run(
+                    ["alembic", "upgrade", "head"],
+                    capture_output=True,
+                    text=True,
+                ),
+            )
+            if result.stdout:
+                logger.info("Migrations: %s", result.stdout.strip())
+            if result.returncode != 0:
+                logger.error("Migration stderr: %s", result.stderr)
+                raise RuntimeError("Alembic migration failed — see logs above")
+            logger.info("Database migrations complete")
+        finally:
+            await db.execute(text(f"SELECT pg_advisory_unlock({LOCK_ID})"))
 
 
 async def _reschedule_active_integrations() -> None:
@@ -100,6 +120,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next) -> Response:
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    if settings.app_env == "production":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
+
 app.include_router(auth.router, prefix="/v1")
 app.include_router(integrations.router, prefix="/v1")
 app.include_router(evidence.router, prefix="/v1")
@@ -112,4 +144,11 @@ app.include_router(audit.router, prefix="/v1")
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    try:
+        async with AsyncSessionLocal() as db:
+            await db.execute(text("SELECT 1"))
+        db_ok = True
+    except Exception:
+        db_ok = False
+    status = "ok" if db_ok else "degraded"
+    return {"status": status, "db": "ok" if db_ok else "error", "env": settings.app_env}

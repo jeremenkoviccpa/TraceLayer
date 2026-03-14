@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     ls_store_id: str = ""
     ls_growth_variant_id: str = ""
     ls_webhook_secret: str = ""
+    # Observability
+    sentry_dsn: str = ""
 
     class Config:
         env_file = ".env"

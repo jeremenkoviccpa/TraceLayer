@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
 import type { BillingInfo, Company } from "@/lib/types";
-import { CreditCard, Lock, Building2, Zap } from "lucide-react";
+import { CreditCard, Lock, Building2, Zap, ShieldAlert, Download } from "lucide-react";
 
 function Toast({ msg }: { msg: string }) {
   return (
@@ -102,6 +102,47 @@ export default function SettingsPage() {
       showToast(err instanceof Error ? err.message : "Failed to update company");
     } finally {
       setCompanySaving(false);
+    }
+  };
+
+  // ── GDPR ───────────────────────────────────────────────────────────────────
+  const [gdprLoading, setGdprLoading] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+
+  const handleExport = async () => {
+    setGdprLoading(true);
+    try {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/v1/org/account/export`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "tracelayer-data-export.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      showToast("Export failed — please try again");
+    } finally {
+      setGdprLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setGdprLoading(true);
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/v1/org/account`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` },
+      });
+      localStorage.clear();
+      window.location.href = "/";
+    } catch {
+      showToast("Deletion failed — please try again");
+      setGdprLoading(false);
     }
   };
 
@@ -240,6 +281,64 @@ export default function SettingsPage() {
             <div className="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
           </div>
         )}
+      </div>
+
+      {/* GDPR */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <ShieldAlert className="w-5 h-5 text-gray-400" />
+          <h2 className="text-base font-semibold text-gray-900">Your Data</h2>
+        </div>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-800">Export all data</p>
+              <p className="text-xs text-gray-500">Download everything we hold about your account in JSON format.</p>
+            </div>
+            <button
+              onClick={handleExport}
+              disabled={gdprLoading}
+              className="flex items-center gap-1.5 text-sm font-medium text-gray-700 border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60 shrink-0 ml-4"
+            >
+              <Download className="w-4 h-4" /> Export
+            </button>
+          </div>
+
+          {isAdmin && (
+            <div className="border-t border-gray-100 pt-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-red-700">Delete account</p>
+                  <p className="text-xs text-gray-500">Permanently delete your company and all data. Irreversible.</p>
+                </div>
+                {deleteConfirm ? (
+                  <div className="flex gap-2 ml-4 shrink-0">
+                    <button
+                      onClick={() => setDeleteConfirm(false)}
+                      className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={gdprLoading}
+                      className="text-xs font-semibold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg disabled:opacity-60"
+                    >
+                      {gdprLoading ? "Deleting…" : "Confirm delete"}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setDeleteConfirm(true)}
+                    className="text-sm font-medium text-red-600 border border-red-300 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors shrink-0 ml-4"
+                  >
+                    Delete account
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Company Settings — admin only */}
