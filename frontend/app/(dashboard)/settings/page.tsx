@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
 import type { BillingInfo, Company } from "@/lib/types";
@@ -290,19 +290,80 @@ export default function SettingsPage() {
 
   // ── Input class helper ────────────────────────────────────────────────────
   const inputCls =
-    "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white text-gray-900 placeholder:text-gray-400";
+    "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400 bg-white text-gray-900 placeholder:text-gray-400 transition-all";
+
+  // ── Desktop nav / active section tracking ────────────────────────────────
+  const [activeSection, setActiveSection] = useState("profile");
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const sections = contentRef.current?.querySelectorAll("section[id]");
+    if (!sections) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) setActiveSection(e.target.id); });
+      },
+      { rootMargin: "-20% 0px -70% 0px", threshold: 0 }
+    );
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
+  }, [isAdmin]);
+
+  const NAV = [
+    { id: "profile",       label: "Profile",          icon: UserIcon  },
+    { id: "security",      label: "Security",          icon: Shield    },
+    { id: "notifications", label: "Notifications",     icon: Bell      },
+    ...(isAdmin ? [{ id: "weekly-report", label: "Weekly Report", icon: Mail }] : []),
+    { id: "billing",       label: "Billing & Plan",    icon: CreditCard },
+    ...(isAdmin ? [{ id: "company", label: "Company", icon: Building2 }] : []),
+    { id: "your-data",     label: "Your Data",         icon: ShieldAlert },
+  ];
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
-    <div className="max-w-2xl">
+    <div>
       {toast && <Toast msg={toast.msg} type={toast.type} />}
 
-      <div className="mb-7">
+      {/* Page title — visible on mobile, hidden on desktop (sidebar has context) */}
+      <div className="mb-6 lg:hidden">
         <h1 className="text-xl font-bold text-gray-900">Settings</h1>
         <p className="text-sm text-gray-500 mt-0.5">Manage your account and workspace preferences.</p>
       </div>
 
+      <div className="lg:flex lg:gap-8 lg:items-start">
+
+        {/* ── Desktop sticky sidebar nav ──────────────────────────────────── */}
+        <aside className="hidden lg:block w-48 shrink-0 sticky top-8 self-start">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3 px-2">Settings</p>
+          <nav className="space-y-0.5">
+            {NAV.map(({ id, label, icon: Icon }) => {
+              const active = activeSection === id;
+              return (
+                <button
+                  key={id}
+                  onClick={() => scrollTo(id)}
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-all duration-100 text-left ${
+                    active
+                      ? "bg-brand-50 text-brand-700"
+                      : "text-gray-500 hover:text-gray-800 hover:bg-white"
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 shrink-0 ${active ? "text-brand-600" : "text-gray-400"}`} />
+                  {label}
+                </button>
+              );
+            })}
+          </nav>
+        </aside>
+
+        {/* ── Main content ─────────────────────────────────────────────────── */}
+        <div ref={contentRef} className="flex-1 min-w-0 max-w-2xl space-y-5">
+
       {/* ── A. Profile ──────────────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 mb-5">
+      <section id="profile" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
         <SectionHeader icon={UserIcon} title="Profile" />
         <form onSubmit={handleUpdateProfile} className="space-y-4">
           <div>
@@ -349,10 +410,10 @@ export default function SettingsPage() {
             </button>
           </div>
         </form>
-      </div>
+      </section>
 
       {/* ── B. Security ─────────────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 mb-5">
+      <section id="security" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
         <SectionHeader icon={Shield} title="Security" />
 
         {/* Change password */}
@@ -418,10 +479,10 @@ export default function SettingsPage() {
             Coming soon
           </span>
         </div>
-      </div>
+      </section>
 
       {/* ── C. Notifications ─────────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 mb-5">
+      <section id="notifications" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
         <SectionHeader
           icon={Bell}
           title="Notifications"
@@ -493,11 +554,11 @@ export default function SettingsPage() {
             Save preferences
           </button>
         </div>
-      </div>
+      </section>
 
       {/* ── D. Weekly Compliance Report ──────────────────────────────────────── */}
       {isAdmin && (
-        <div className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 mb-5">
+        <section id="weekly-report" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
           <SectionHeader
             icon={Mail}
             title="Weekly Compliance Report"
@@ -517,11 +578,11 @@ export default function SettingsPage() {
               {weeklyLoading ? "Sending…" : "Send preview"}
             </button>
           </div>
-        </div>
+        </section>
       )}
 
       {/* ── E. Billing & Plan ────────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 mb-5">
+      <section id="billing" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
         <SectionHeader icon={CreditCard} title="Billing &amp; Plan" />
 
         {billing ? (
@@ -590,11 +651,11 @@ export default function SettingsPage() {
             <div className="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
           </div>
         )}
-      </div>
+      </section>
 
       {/* ── F. Company (admin only) ───────────────────────────────────────────── */}
       {isAdmin && (
-        <div className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 mb-5">
+        <section id="company" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
           <SectionHeader icon={Building2} title="Company" />
           {company ? (
             <form onSubmit={handleUpdateCompany} className="space-y-4">
@@ -623,11 +684,11 @@ export default function SettingsPage() {
               <div className="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
             </div>
           )}
-        </div>
+        </section>
       )}
 
       {/* ── G. Your Data (GDPR) ───────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 mb-5">
+      <section id="your-data" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
         <SectionHeader icon={ShieldAlert} title="Your Data" />
         <div className="space-y-3">
           <div className="flex items-center justify-between">
@@ -679,7 +740,10 @@ export default function SettingsPage() {
             </div>
           )}
         </div>
-      </div>
+      </section>
+
+        </div>{/* end content */}
+      </div>{/* end lg:flex */}
     </div>
   );
 }
