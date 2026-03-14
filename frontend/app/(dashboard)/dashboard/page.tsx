@@ -53,10 +53,10 @@ function StatCard({
       ? "text-red-500"
       : "text-gray-900";
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5">
-      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</p>
-      <p className={`text-3xl font-bold mt-1 ${valueColor}`}>{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+    <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-5">
+      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide truncate">{label}</p>
+      <p className={`text-2xl md:text-3xl font-bold mt-1 ${valueColor}`}>{value}</p>
+      {sub && <p className="text-xs text-gray-400 mt-1 truncate">{sub}</p>}
     </div>
   );
 }
@@ -209,7 +209,7 @@ export default function DashboardPage() {
       )}
 
       {/* Stats row */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
         <StatCard
           label="Compliance score"
           value={compliance ? `${compliance.overall_score}%` : "—"}
@@ -239,7 +239,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Charts row */}
-      <div className="grid grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
         {/* Score trend */}
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <div className="flex items-center justify-between mb-4">
@@ -361,7 +361,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Integrations with staleness */}
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <div className="flex items-center gap-2 mb-4">

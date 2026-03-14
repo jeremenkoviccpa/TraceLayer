@@ -80,7 +80,7 @@ export default function EvidencePage() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Evidence</h1>
 
       {/* Filters */}
-      <div className="flex gap-3 mb-5">
+      <div className="flex flex-wrap gap-2 md:gap-3 mb-5">
         <select
           value={control}
           onChange={(e) => setControl(e.target.value)}
@@ -124,7 +124,8 @@ export default function EvidencePage() {
           </div>
         ) : (
           <>
-            <table className="w-full">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[560px]">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
@@ -151,6 +152,7 @@ export default function EvidencePage() {
                 ))}
               </tbody>
             </table>
+            </div>
 
             {/* Pagination */}
             {data.pages > 1 && (

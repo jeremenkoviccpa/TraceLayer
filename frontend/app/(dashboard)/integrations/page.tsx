@@ -122,8 +122,8 @@ function ConnectModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
+    <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-md p-5 sm:p-6 relative max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
@@ -268,9 +268,9 @@ export default function IntegrationsPage() {
           return (
             <div
               key={def.type}
-              className="bg-white rounded-xl border border-gray-200 p-6 flex items-center justify-between"
+              className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
             >
-              <div>
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-1">
                   <h3 className="font-semibold text-gray-900">{def.label}</h3>
                   {connected && statusBadge(connected.status)}
@@ -286,7 +286,7 @@ export default function IntegrationsPage() {
                 )}
               </div>
 
-              <div className="flex items-center gap-2 ml-4 shrink-0">
+              <div className="flex items-center gap-2 sm:ml-4 shrink-0">
                 {connected ? (
                   <>
                     <button

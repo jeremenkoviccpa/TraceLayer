@@ -94,9 +94,9 @@ export default function ReportsPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <select
             value={framework}
             onChange={(e) => setFramework(e.target.value)}
@@ -149,9 +149,9 @@ export default function ReportsPage() {
           {reports.map((r) => (
             <div
               key={r.id}
-              className="bg-white rounded-xl border border-gray-200 p-5 flex items-center justify-between"
+              className="bg-white rounded-xl border border-gray-200 p-4 md:p-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 md:gap-4">
                 <FileText className="w-8 h-8 text-gray-300 shrink-0" />
                 <div>
                   <div className="flex items-center gap-2">
@@ -176,7 +176,7 @@ export default function ReportsPage() {
                 <button
                   onClick={() => handleDownload(r)}
                   disabled={downloading === r.id}
-                  className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm rounded-lg transition-colors disabled:opacity-40"
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm rounded-lg transition-colors disabled:opacity-40 self-start sm:self-auto shrink-0"
                 >
                   <Download className="w-4 h-4" />
                   {downloading === r.id ? "Downloading…" : `Download ${r.fmt.toUpperCase()}`}
