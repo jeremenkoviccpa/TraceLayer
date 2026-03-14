@@ -5,8 +5,8 @@ Usage (from backend/ directory):
     python scripts/seed_demo.py
 
 Demo credentials:
-    Email:    demo@tracelayer.com
-    Password: Demo1234!
+    Email:    admin@tracelayer.com
+    Password: admin
 
 Re-running is safe — skips if demo company already exists.
 """
@@ -32,8 +32,8 @@ from models import Base, Company, Control, Evidence, Integration, User
 
 # ── Demo constants ──────────────────────────────────────────────────────────
 
-DEMO_EMAIL = "demo@tracelayer.com"
-DEMO_PASSWORD = "Demo1234!"
+DEMO_EMAIL = "admin@tracelayer.com"
+DEMO_PASSWORD = "admin"
 DEMO_COMPANY = "Acme Corp (Demo)"
 
 NOW = datetime.now(timezone.utc)
@@ -191,7 +191,12 @@ async def seed():
             return
 
         # Company
-        company = Company(id=uuid.uuid4(), name=DEMO_COMPANY)
+        company = Company(
+            id=uuid.uuid4(),
+            name=DEMO_COMPANY,
+            plan="growth",
+            subscription_status="active",
+        )
         db.add(company)
         await db.flush()
 
@@ -202,6 +207,7 @@ async def seed():
             password_hash=hash_password(DEMO_PASSWORD),
             company_id=company.id,
             role="admin",
+            email_verified=True,
         )
         db.add(user)
 
@@ -247,6 +253,7 @@ async def seed():
     print(f"  Company:  {DEMO_COMPANY}")
     print(f"  Email:    {DEMO_EMAIL}")
     print(f"  Password: {DEMO_PASSWORD}")
+    print(f"  Plan:     growth (unlimited)")
     print(f"  Evidence: {len(all_records)} records across AWS, GitHub, Slack")
     print()
     print("  Go to your app and log in with the credentials above.")
