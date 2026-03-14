@@ -2,7 +2,7 @@ import math
 import uuid
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
@@ -10,10 +10,12 @@ from core.deps import get_current_user
 from models.user import User
 from schemas.reports import GenerateReportRequest, ReportResponse
 from services.report_service import (
+    SIGNED_URL_EXPIRES_IN,
     create_report,
     generate_pdf_report,
     generate_report_bundle,
     get_report,
+    get_signed_report_url,
     list_reports,
 )
 from utils.pagination import Page
@@ -98,16 +100,23 @@ async def download_report(
     if report.status != "complete":
         raise HTTPException(status_code=409, detail=f"Report not ready (status: {report.status})")
 
-    if format == "pdf":
-        from reports.generator import load_pdf
-        pdf_bytes = load_pdf(str(report_id))
-        if not pdf_bytes:
-            raise HTTPException(status_code=404, detail="PDF file not found — may still be generating")
-        return Response(
-            content=pdf_bytes,
-            media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename=report-{str(report_id)[:8]}.pdf"},
+    if report.fmt != format:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Report format mismatch (stored: {report.fmt}, requested: {format})",
         )
 
-    bundle = await generate_report_bundle(report_id, current_user.company_id, db)
-    return JSONResponse(content=bundle)
+    try:
+        signed_url = await get_signed_report_url(report_id, current_user.company_id, db)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+    return JSONResponse(
+        content={
+            "url": signed_url,
+            "expires_in": SIGNED_URL_EXPIRES_IN,
+            "file_name": report.file_name,
+            "mime_type": report.mime_type,
+            "file_size": report.file_size,
+        }
+    )

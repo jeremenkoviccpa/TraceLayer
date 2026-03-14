@@ -10,12 +10,16 @@ class Settings(BaseSettings):
     jwt_access_token_expire_minutes: int = 30
     jwt_refresh_token_expire_days: int = 7
     fernet_key: str
+    supabase_url: str = ""
+    supabase_service_key: str = ""
     storage_bucket: str = ""
     storage_endpoint: str = ""
     storage_access_key: str = ""
     storage_secret_key: str = ""
     cors_origins: List[str] = ["http://localhost:3000"]
     frontend_url: str = "http://localhost:3000"
+    resend_api_key: str = ""
+    email_from: str = "TraceLayer <onboarding@resend.dev>"
 
     class Config:
         env_file = ".env"

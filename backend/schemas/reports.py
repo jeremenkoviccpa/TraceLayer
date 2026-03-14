@@ -18,6 +18,11 @@ class ReportResponse(BaseModel):
     fmt: str
     status: str
     file_url: Optional[str]
+    storage_bucket: Optional[str]
+    storage_path: Optional[str]
+    file_name: Optional[str]
+    mime_type: Optional[str]
+    file_size: Optional[int]
     generated_at: Optional[datetime]
     created_at: datetime
 

@@ -92,6 +92,11 @@ async def client(db: AsyncSession):
         patch("collectors.scheduler.stop", new_callable=AsyncMock),
         patch("api.v1.integrations.schedule_integration"),
         patch("api.v1.integrations.unschedule_integration"),
+        patch("services.report_service.upload_bytes"),
+        patch(
+            "services.report_service.create_signed_url",
+            return_value="https://storage.example.com/signed/report?token=test",
+        ),
     ):
         async with AsyncClient(
             transport=ASGITransport(app=app),

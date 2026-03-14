@@ -42,6 +42,14 @@ export default function ReportsPage() {
     load();
   }, []);
 
+  // Poll every 3s while any report is pending
+  useEffect(() => {
+    const hasPending = reports.some((r) => r.status === "pending");
+    if (!hasPending) return;
+    const timer = setInterval(load, 3000);
+    return () => clearInterval(timer);
+  }, [reports]);
+
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(""), 3000);
@@ -64,14 +72,12 @@ export default function ReportsPage() {
     if (report.status !== "complete") return;
     setDownloading(report.id);
     try {
-      const bundle = await api.downloadReport(report.id);
-      const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
+      const { url, file_name } = await api.downloadReport(report.id);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `tracelayer-report-${report.id.slice(0, 8)}.json`;
+      a.download = file_name ?? `tracelayer-report-${report.id.slice(0, 8)}.${report.fmt}`;
+      a.target = "_blank";
       a.click();
-      URL.revokeObjectURL(url);
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : "Download failed");
     } finally {
@@ -157,7 +163,7 @@ export default function ReportsPage() {
                   className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm rounded-lg transition-colors disabled:opacity-40"
                 >
                   <Download className="w-4 h-4" />
-                  {downloading === r.id ? "Downloading…" : "Download JSON"}
+                  {downloading === r.id ? "Downloading…" : `Download ${r.fmt.toUpperCase()}`}
                 </button>
               )}
             </div>

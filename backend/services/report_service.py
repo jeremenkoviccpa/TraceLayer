@@ -1,3 +1,4 @@
+import json
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
@@ -8,6 +9,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.company import Company
 from models.evidence import Evidence
 from models.report import Report
+from core.config import settings
+from services.storage_service import create_signed_url, upload_bytes
+
+SIGNED_URL_EXPIRES_IN = 3600
 
 
 async def create_report(
@@ -56,7 +61,7 @@ async def generate_report_bundle(
     company_id: uuid.UUID,
     db: AsyncSession,
 ) -> dict:
-    """Generate JSON evidence bundle and mark report complete."""
+    """Generate JSON evidence bundle, upload to storage, and mark report complete."""
     report = await _get_report_or_raise(report_id, company_id, db)
 
     try:
@@ -73,9 +78,19 @@ async def generate_report_bundle(
             "controls": by_control,
         }
 
+        payload = json.dumps(bundle).encode("utf-8")
+        bucket = report.storage_bucket or settings.storage_bucket or "reports"
+        path = f"reports/{company_id}/{report.id}.json"
+        upload_bytes(bucket, path, payload, "application/json")
+
         report.status = "complete"
         report.generated_at = now
-        report.file_url = f"/v1/reports/{report.id}/download"
+        report.file_url = f"/v1/reports/{report.id}/download?format=json"
+        report.storage_bucket = bucket
+        report.storage_path = path
+        report.file_name = f"{report.framework}_report.json"
+        report.mime_type = "application/json"
+        report.file_size = len(payload)
         await db.commit()
         return bundle
 
@@ -90,8 +105,8 @@ async def generate_pdf_report(
     company_id: uuid.UUID,
     db: AsyncSession,
 ) -> None:
-    """Generate PDF and save to disk, mark report complete."""
-    from reports.generator import render_pdf, save_pdf
+    """Generate PDF, upload to storage, mark report complete."""
+    from reports.generator import render_pdf
     from services.compliance_service import get_compliance_score
 
     report = await _get_report_or_raise(report_id, company_id, db)
@@ -121,11 +136,18 @@ async def generate_pdf_report(
         }
 
         pdf_bytes = render_pdf(context)
-        save_pdf(str(report.id), pdf_bytes)
+        bucket = report.storage_bucket or settings.storage_bucket or "reports"
+        path = f"reports/{company_id}/{report.id}.pdf"
+        upload_bytes(bucket, path, pdf_bytes, "application/pdf")
 
         report.status = "complete"
         report.generated_at = now
         report.file_url = f"/v1/reports/{report.id}/download?format=pdf"
+        report.storage_bucket = bucket
+        report.storage_path = path
+        report.file_name = f"{report.framework}_report.pdf"
+        report.mime_type = "application/pdf"
+        report.file_size = len(pdf_bytes)
         await db.commit()
 
     except Exception:
@@ -163,6 +185,18 @@ async def get_report(
         select(Report).where(Report.id == report_id, Report.company_id == company_id)
     )
     return result.scalar_one_or_none()
+
+
+async def get_signed_report_url(
+    report_id: uuid.UUID,
+    company_id: uuid.UUID,
+    db: AsyncSession,
+    expires_in: int = SIGNED_URL_EXPIRES_IN,
+) -> str:
+    report = await _get_report_or_raise(report_id, company_id, db)
+    if not report.storage_bucket or not report.storage_path:
+        raise ValueError("Report storage location not available")
+    return create_signed_url(report.storage_bucket, report.storage_path, expires_in)
 
 
 async def _get_report_or_raise(

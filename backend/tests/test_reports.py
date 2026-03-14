@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 from httpx import AsyncClient
@@ -102,10 +102,11 @@ async def test_generate_report_bundle_structure(db: AsyncSession):
 
     await _seed_evidence(db, company_id)
 
-    report = await create_report(company_id, "soc2", "full", db)
+    report = await create_report(company_id, "soc2", "full", "json", db)
     assert report.status == "pending"
 
-    bundle = await generate_report_bundle(report.id, company_id, db)
+    with patch("services.report_service.upload_bytes"):
+        bundle = await generate_report_bundle(report.id, company_id, db)
 
     assert bundle["framework"] == "soc2"
     assert bundle["total_evidence_records"] == 3
@@ -129,9 +130,6 @@ async def test_download_report_complete(client: AsyncClient, db: AsyncSession):
 
     await _seed_evidence(db, company_id)
 
-    # Generate and wait for the background task to complete
-    # In tests, FastAPI runs background tasks inline, so it should be done by the time
-    # we query the report
     gen = await client.post(
         "/v1/reports/generate",
         json={"framework": "soc2", "report_type": "full"},
@@ -139,18 +137,19 @@ async def test_download_report_complete(client: AsyncClient, db: AsyncSession):
     )
     report_id = gen.json()["id"]
 
-    # Poll until complete (background tasks run synchronously in test transport)
     res = await client.get(f"/v1/reports/{report_id}", headers=headers)
-    # If status is pending, download should return 409
-    if res.json()["status"] == "pending":
-        dl = await client.get(f"/v1/reports/{report_id}/download", headers=headers)
+    status = res.json()["status"]
+
+    dl = await client.get(f"/v1/reports/{report_id}/download", headers=headers)
+
+    if status == "pending":
         assert dl.status_code == 409
     else:
-        dl = await client.get(f"/v1/reports/{report_id}/download", headers=headers)
         assert dl.status_code == 200
-        bundle = dl.json()
-        assert "controls" in bundle
-        assert "report_id" in bundle
+        data = dl.json()
+        assert "url" in data
+        assert "expires_in" in data
+        assert "file_name" in data
 
 
 async def test_reports_list_pagination(client: AsyncClient):

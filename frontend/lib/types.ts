@@ -33,8 +33,19 @@ export interface Report {
   fmt: string;
   status: string;
   file_url: string | null;
+  file_name: string | null;
+  mime_type: string | null;
+  file_size: number | null;
   generated_at: string | null;
   created_at: string;
+}
+
+export interface DownloadResponse {
+  url: string;
+  expires_in: number;
+  file_name: string | null;
+  mime_type: string | null;
+  file_size: number | null;
 }
 
 export interface Member {

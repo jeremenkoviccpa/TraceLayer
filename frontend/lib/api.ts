@@ -1,4 +1,4 @@
-import type { ComplianceScore, Evidence, Integration, Invitation, Member, Page, Report, User } from "./types";
+import type { ComplianceScore, DownloadResponse, Evidence, Integration, Invitation, Member, Page, Report, User } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -161,13 +161,8 @@ class ApiClient {
     return this.request<Report>("GET", `/reports/${id}`);
   }
 
-  async downloadReport(id: string): Promise<unknown> {
-    const token = this.getToken();
-    const res = await fetch(`${API_URL}/v1/reports/${id}/download`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) throw new Error("Download failed");
-    return res.json();
+  async downloadReport(id: string): Promise<DownloadResponse> {
+    return this.request<DownloadResponse>("GET", `/reports/${id}/download`);
   }
 
   // ── Org ─────────────────────────────────────────────────────────────────

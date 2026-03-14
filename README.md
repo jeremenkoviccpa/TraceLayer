@@ -1,13 +1,18 @@
 # TraceLayer - Continuous Compliance Evidence Collection
 
-TraceLayer is a continuous compliance evidence collection system. It connects to company infrastructure platforms (AWS, GitHub, Slack, etc.), collects evidence related to security and compliance controls, normalizes it, stores it with an audit trail, and generates compliance reports.
+TraceLayer is a continuous compliance evidence collection system. It connects to company infrastructure platforms (AWS, GitHub, Slack), collects evidence for compliance controls, normalizes it, stores it in PostgreSQL, and generates reports.
 
 ## What This Project Does
-- Connects to external integrations (AWS, GitHub, Slack)
-- Collects and normalizes evidence for compliance controls
-- Stores evidence in PostgreSQL with auditability
-- Generates PDF and JSON reports
-- Runs scheduled background collection jobs
+- Connects to external integrations (AWS, GitHub, Slack) and validates credentials
+- Encrypts integration credentials at rest (Fernet)
+- Collects and normalizes evidence, then maps it to control categories
+- Stores evidence and report metadata in PostgreSQL
+- Generates JSON evidence bundles and PDF reports (WeasyPrint)
+- Computes compliance scores per framework based on coverage + recency
+- Runs scheduled background collection jobs (default every 24h)
+- Supports org member invites and role-based access (admin/user)
+- Rate limits auth endpoints in non-test environments
+- Exposes a `/health` endpoint
 
 ## Tech Stack
 - Backend: FastAPI, SQLAlchemy 2.0, Pydantic v2, APScheduler
@@ -23,7 +28,7 @@ Frontend (Next.js)
   -> Integration Adapters (AWS/GitHub/Slack)
   -> Evidence Normalization Layer
   -> PostgreSQL
-  -> Report Generator -> Object Storage
+  -> Report Generator (PDF saved to `/tmp/tracelayer_reports`)
 
 ## Repository Structure
 - `backend/` FastAPI backend and services
@@ -48,9 +53,9 @@ cd backend
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-alembic upgrade head
 uvicorn main:app --reload
 ```
+Migrations run automatically on app startup (skipped in `APP_ENV=test`).
 
 ### 3) Frontend
 ```bash
@@ -65,6 +70,8 @@ Create a `.env` file in `backend/` with:
 # App
 APP_ENV=development
 SECRET_KEY=<random 32-byte hex>
+CORS_ORIGINS=["http://localhost:3000"]
+FRONTEND_URL=http://localhost:3000
 
 # Database
 DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/tracelayer
@@ -76,11 +83,9 @@ JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
 # Encryption
 FERNET_KEY=<generated Fernet key>
 
-# Storage
-STORAGE_BUCKET=tracelayer-reports
-STORAGE_ENDPOINT=<supabase or s3 endpoint>
-STORAGE_ACCESS_KEY=<key>
-STORAGE_SECRET_KEY=<secret>
+# Email (Invites)
+RESEND_API_KEY=<optional>
+EMAIL_FROM="TraceLayer <onboarding@resend.dev>"
 ```
 
 ## API Overview
@@ -91,6 +96,7 @@ Auth:
 - `POST /v1/auth/login`
 - `POST /v1/auth/refresh`
 - `POST /v1/auth/logout`
+- `GET /v1/auth/me`
 
 Integrations:
 - `GET /v1/integrations`
@@ -99,22 +105,55 @@ Integrations:
 - `POST /v1/integrations/{integration_type}/collect`
 
 Evidence:
-- `GET /v1/evidence`
+- `GET /v1/evidence` (supports `control`, `integration`, `page`, `page_size`)
 
 Reports:
 - `POST /v1/reports/generate`
 - `GET /v1/reports`
 - `GET /v1/reports/{id}`
+- `GET /v1/reports/{id}/download?format=json|pdf`
+
+Org:
+- `GET /v1/org/members`
+- `DELETE /v1/org/members/{user_id}`
+- `GET /v1/org/invites`
+- `POST /v1/org/invites`
+- `DELETE /v1/org/invites/{invite_id}`
+- `POST /v1/org/invites/accept`
+
+Compliance:
+- `GET /v1/compliance/score?framework=soc2|iso27001|hipaa`
 
 ## Current Auth Model
 - JWT access token (short-lived)
-- Refresh token (stored hashed in DB)
+- Refresh token (rotated, stored hashed in DB)
 - Email + password registration/login
+- Basic role model: `admin` and `user`
 
-## Initial Integrations
-- AWS (IAM, CloudTrail)
-- GitHub (repos, collaborators, commits)
-- Slack (users, admins, workspace config)
+## Integrations & Evidence Types
+- AWS: IAM users (`iam_users`), IAM policies (`iam_policies`), CloudTrail events (`cloudtrail_logs`)
+- GitHub: org repositories (`repositories`), members (`github_members`), admin members (`github_admin_members`)
+- Slack: users (`slack_users`), workspace/team metadata (`slack_workspace`)
+
+## Integration Credentials
+- AWS: `access_key_id`, `secret_access_key`, optional `region` (defaults to `us-east-1`)
+- GitHub: `token`, `org`
+- Slack: `bot_token`
+
+## Supported Frameworks
+- SOC 2
+- ISO 27001
+- HIPAA
+
+Compliance scores are based on evidence coverage, recency, and volume.
+
+## Reports
+- JSON report: assembled evidence bundle per control category
+- PDF report: generated via WeasyPrint and stored on disk at `/tmp/tracelayer_reports`
+
+PDF generation requires WeasyPrint system deps.
+macOS: `brew install pango`
+Ubuntu: `apt-get install libpango-1.0-0 libpangoft2-1.0-0`
 
 ## Deployment
 - Backend: Railway or Render
@@ -122,10 +161,9 @@ Reports:
 - Database: Supabase
 
 ## Roadmap (Short)
-- ISO 27001 support
 - More integrations (Google Workspace, Okta, Jira)
 - Continuous monitoring and alerting
-- Compliance scoring
+- Report export to object storage
 
 ## Contributing
 PRs are welcome. Please keep changes focused and include tests when relevant.

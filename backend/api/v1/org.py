@@ -8,6 +8,7 @@ from core.deps import get_current_admin, get_current_user
 from models.user import User
 from schemas.auth import TokenResponse, UserResponse
 from schemas.org import AcceptInviteRequest, InvitationResponse, InviteRequest, MemberResponse
+from services.email_service import send_invite_email
 from services.org_service import (
     accept_invitation,
     create_invitation,
@@ -20,6 +21,9 @@ from core.security import create_access_token, create_refresh_token
 from models.refresh_token import RefreshToken
 from datetime import datetime, timedelta, timezone
 from core.config import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/org", tags=["org"])
 
@@ -84,6 +88,17 @@ async def invite_member(
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+    # Send invite email (non-blocking — failure doesn't abort the request)
+    try:
+        send_invite_email(
+            to=invite.email,
+            invite_url=invite_url,
+            company_name=current_user.company.name if current_user.company else "your organization",
+            invited_by=current_user.email,
+        )
+    except Exception as exc:
+        logger.warning("Failed to send invite email to %s: %s", invite.email, exc)
 
     return InvitationResponse(
         id=invite.id,
