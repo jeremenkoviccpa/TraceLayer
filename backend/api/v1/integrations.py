@@ -7,6 +7,7 @@ from core.database import get_db
 from core.deps import get_current_user
 from models.user import User
 from schemas.integrations import ConnectRequest, IntegrationResponse
+from services.billing_service import check_integration_limit
 from services.integration_service import (
     connect_integration,
     disconnect_integration,
@@ -34,6 +35,11 @@ async def connect(
         body.validate_type()
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+    try:
+        await check_integration_limit(current_user.company_id, db)
+    except ValueError as e:
+        raise HTTPException(status_code=402, detail=str(e))
 
     try:
         integration = await connect_integration(

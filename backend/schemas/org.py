@@ -43,6 +43,7 @@ class UpdateCompanyRequest(BaseModel):
 class CompanyResponse(BaseModel):
     id: uuid.UUID
     name: str
+    plan: str
     created_at: datetime
 
     model_config = {"from_attributes": True}

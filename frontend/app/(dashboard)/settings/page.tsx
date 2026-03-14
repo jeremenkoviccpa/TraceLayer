@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
-import type { Company } from "@/lib/types";
-import { Lock, Building2 } from "lucide-react";
+import type { BillingInfo, Company } from "@/lib/types";
+import { CreditCard, Lock, Building2, Zap } from "lucide-react";
 
 function Toast({ msg }: { msg: string }) {
   return (
@@ -58,6 +58,38 @@ export default function SettingsPage() {
       setCompanyName(c.name);
     }).catch(console.error);
   }, [isAdmin]);
+
+  // ── Billing ────────────────────────────────────────────────────────────
+  const [billing, setBilling] = useState<BillingInfo | null>(null);
+  const [billingLoading, setBillingLoading] = useState(false);
+
+  useEffect(() => {
+    api.getSubscription().then(setBilling).catch(console.error);
+  }, []);
+
+  const handleUpgrade = async () => {
+    setBillingLoading(true);
+    try {
+      const { checkout_url } = await api.createCheckout();
+      window.location.href = checkout_url;
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Could not open checkout");
+    } finally {
+      setBillingLoading(false);
+    }
+  };
+
+  const handleManageBilling = async () => {
+    setBillingLoading(true);
+    try {
+      const { portal_url } = await api.getBillingPortal();
+      window.open(portal_url, "_blank");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Could not open billing portal");
+    } finally {
+      setBillingLoading(false);
+    }
+  };
 
   const handleUpdateCompany = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,6 +166,80 @@ export default function SettingsPage() {
             </button>
           </div>
         </form>
+      </div>
+
+      {/* Billing */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <CreditCard className="w-5 h-5 text-gray-400" />
+          <h2 className="text-base font-semibold text-gray-900">Billing &amp; Plan</h2>
+        </div>
+
+        {billing ? (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  {billing.plan === "growth" ? (
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full">
+                      <Zap className="w-3 h-3" /> Growth
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center text-xs font-semibold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">
+                      Free
+                    </span>
+                  )}
+                  {billing.subscription_status && (
+                    <span className="text-xs text-gray-400 capitalize">{billing.subscription_status.replace("_", " ")}</span>
+                  )}
+                </div>
+                {billing.plan === "free" && (
+                  <p className="text-sm text-gray-500 mt-1">Up to 3 integrations. Upgrade for unlimited access.</p>
+                )}
+                {billing.plan === "growth" && (
+                  <p className="text-sm text-gray-500 mt-1">Unlimited integrations, AI advisor, priority support.</p>
+                )}
+              </div>
+
+              {isAdmin && (
+                billing.plan === "free" ? (
+                  <button
+                    onClick={handleUpgrade}
+                    disabled={billingLoading}
+                    className="flex items-center gap-1.5 bg-[var(--accent)] hover:opacity-90 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-opacity"
+                  >
+                    <Zap className="w-4 h-4" />
+                    {billingLoading ? "Loading…" : "Upgrade to Growth"}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleManageBilling}
+                    disabled={billingLoading}
+                    className="text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-300 px-4 py-2 rounded-lg transition-colors disabled:opacity-60"
+                  >
+                    {billingLoading ? "Loading…" : "Manage billing"}
+                  </button>
+                )
+              )}
+            </div>
+
+            {billing.plan === "free" && (
+              <div className="bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200 rounded-lg p-4">
+                <p className="text-sm font-semibold text-teal-800 mb-1">Growth plan — $49/mo</p>
+                <ul className="text-sm text-teal-700 space-y-0.5">
+                  <li>✓ Unlimited integrations</li>
+                  <li>✓ AI Compliance Advisor</li>
+                  <li>✓ SOC 2, ISO 27001 &amp; GDPR frameworks</li>
+                  <li>✓ Priority support</li>
+                </ul>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-12">
+            <div className="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
       </div>
 
       {/* Company Settings — admin only */}

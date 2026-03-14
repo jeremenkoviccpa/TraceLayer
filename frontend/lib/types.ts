@@ -8,7 +8,14 @@ export interface User {
 export interface Company {
   id: string;
   name: string;
+  plan: string;
   created_at: string;
+}
+
+export interface BillingInfo {
+  plan: string;
+  subscription_status: string | null;
+  ls_subscription_id: string | null;
 }
 
 export interface Integration {

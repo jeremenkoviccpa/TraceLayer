@@ -1,4 +1,4 @@
-import type { Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, Report, ScoreHistoryPoint, User } from "./types";
+import type { BillingInfo, Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, Report, ScoreHistoryPoint, User } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -247,6 +247,20 @@ class ApiClient {
 
   async getAISummary(framework = "soc2"): Promise<{ summary: string; overall_score: number; generated_at: string }> {
     return this.request("POST", `/compliance/ai-summary?framework=${framework}`);
+  }
+
+  // ── Billing ──────────────────────────────────────────────────────────────
+
+  async getSubscription(): Promise<BillingInfo> {
+    return this.request<BillingInfo>("GET", "/billing/subscription");
+  }
+
+  async createCheckout(): Promise<{ checkout_url: string }> {
+    return this.request<{ checkout_url: string }>("POST", "/billing/checkout");
+  }
+
+  async getBillingPortal(): Promise<{ portal_url: string }> {
+    return this.request<{ portal_url: string }>("POST", "/billing/portal");
   }
 }
 

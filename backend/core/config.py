@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     email_from: str = "TraceLayer <onboarding@resend.dev>"
     seed_demo: bool = False
     groq_api_key: str = ""
+    # LemonSqueezy billing
+    ls_api_key: str = ""
+    ls_store_id: str = ""
+    ls_growth_variant_id: str = ""
+    ls_webhook_secret: str = ""
 
     class Config:
         env_file = ".env"
