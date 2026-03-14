@@ -12,7 +12,14 @@ import models  # noqa: F401 — registers all models with Base.metadata
 from models.base import Base
 
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.database_url)
+
+# Normalize URL scheme for asyncpg (Railway injects postgres:// or postgresql://)
+_db_url = settings.database_url
+for _prefix in ("postgres://", "postgresql://"):
+    if _db_url.startswith(_prefix) and "+asyncpg" not in _db_url:
+        _db_url = "postgresql+asyncpg://" + _db_url[len(_prefix):]
+        break
+config.set_main_option("sqlalchemy.url", _db_url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

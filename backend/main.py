@@ -23,15 +23,25 @@ logger = logging.getLogger(__name__)
 
 
 async def _run_migrations() -> None:
-    """Run Alembic migrations on startup."""
+    """Run Alembic migrations on startup via subprocess to avoid event-loop conflicts."""
     import asyncio
-    from alembic import command
-    from alembic.config import Config
+    import subprocess
 
-    loop = asyncio.get_event_loop()
-    alembic_cfg = Config("alembic.ini")
-    await loop.run_in_executor(None, command.upgrade, alembic_cfg, "head")
-    logger.info("Database migrations applied")
+    loop = asyncio.get_running_loop()
+    result = await loop.run_in_executor(
+        None,
+        lambda: subprocess.run(
+            ["alembic", "upgrade", "head"],
+            capture_output=True,
+            text=True,
+        ),
+    )
+    if result.stdout:
+        logger.info("Migrations: %s", result.stdout.strip())
+    if result.returncode != 0:
+        logger.error("Migration stderr: %s", result.stderr)
+        raise RuntimeError("Alembic migration failed — see logs above")
+    logger.info("Database migrations complete")
 
 
 async def _reschedule_active_integrations() -> None:
