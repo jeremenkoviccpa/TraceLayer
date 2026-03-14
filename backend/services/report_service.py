@@ -2,9 +2,10 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from models.company import Company
 from models.evidence import Evidence
 from models.report import Report
 
@@ -13,6 +14,7 @@ async def create_report(
     company_id: uuid.UUID,
     framework: str,
     report_type: str,
+    fmt: str,
     db: AsyncSession,
 ) -> Report:
     report = Report(
@@ -20,6 +22,7 @@ async def create_report(
         report_type=report_type,
         framework=framework,
         status="pending",
+        fmt=fmt,
     )
     db.add(report)
     await db.commit()
@@ -27,60 +30,105 @@ async def create_report(
     return report
 
 
+async def _build_bundle(company_id: uuid.UUID, db: AsyncSession) -> tuple[dict, int]:
+    """Collect all evidence for company and return (bundle_dict, total_count)."""
+    evidence_result = await db.execute(
+        select(Evidence).where(Evidence.company_id == company_id)
+    )
+    records = list(evidence_result.scalars().all())
+
+    by_control: dict[str, list] = {}
+    for e in records:
+        by_control.setdefault(e.control, []).append({
+            "id": str(e.id),
+            "integration": e.integration,
+            "evidence_type": e.evidence_type,
+            "source_id": e.source_id,
+            "timestamp": e.timestamp.isoformat(),
+            "data": e.data,
+        })
+
+    return by_control, len(records)
+
+
 async def generate_report_bundle(
     report_id: uuid.UUID,
     company_id: uuid.UUID,
     db: AsyncSession,
 ) -> dict:
-    """
-    Generate the JSON evidence bundle for a report.
-    Called in the background after create_report().
-    """
-    report_result = await db.execute(
-        select(Report).where(Report.id == report_id, Report.company_id == company_id)
-    )
-    report = report_result.scalar_one_or_none()
-    if not report:
-        raise ValueError("Report not found")
+    """Generate JSON evidence bundle and mark report complete."""
+    report = await _get_report_or_raise(report_id, company_id, db)
 
     try:
-        evidence_result = await db.execute(
-            select(Evidence).where(Evidence.company_id == company_id)
-        )
-        records = list(evidence_result.scalars().all())
-
-        # Group evidence by control
-        by_control: dict[str, list] = {}
-        for e in records:
-            by_control.setdefault(e.control, []).append({
-                "id": str(e.id),
-                "integration": e.integration,
-                "evidence_type": e.evidence_type,
-                "source_id": e.source_id,
-                "timestamp": e.timestamp.isoformat(),
-                "data": e.data,
-            })
+        by_control, total = await _build_bundle(company_id, db)
+        now = datetime.now(timezone.utc)
 
         bundle = {
             "report_id": str(report.id),
             "company_id": str(company_id),
             "framework": report.framework,
             "report_type": report.report_type,
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-            "total_evidence_records": len(records),
+            "generated_at": now.isoformat(),
+            "total_evidence_records": total,
             "controls": by_control,
         }
 
-        now = datetime.now(timezone.utc)
         report.status = "complete"
         report.generated_at = now
-        # file_url points to the download endpoint — no external storage needed for MVP
         report.file_url = f"/v1/reports/{report.id}/download"
         await db.commit()
-
         return bundle
 
-    except Exception as e:
+    except Exception:
+        report.status = "error"
+        await db.commit()
+        raise
+
+
+async def generate_pdf_report(
+    report_id: uuid.UUID,
+    company_id: uuid.UUID,
+    db: AsyncSession,
+) -> None:
+    """Generate PDF and save to disk, mark report complete."""
+    from reports.generator import render_pdf, save_pdf
+    from services.compliance_service import get_compliance_score
+
+    report = await _get_report_or_raise(report_id, company_id, db)
+
+    try:
+        by_control, total = await _build_bundle(company_id, db)
+
+        # Get company name
+        company_result = await db.execute(
+            select(Company).where(Company.id == company_id)
+        )
+        company = company_result.scalar_one()
+
+        # Get compliance score for summary
+        score_data = await get_compliance_score(company_id, report.framework, db)
+
+        now = datetime.now(timezone.utc)
+        context = {
+            "report_id": str(report.id),
+            "company_name": company.name,
+            "framework": report.framework,
+            "report_type": report.report_type,
+            "generated_at": now.strftime("%Y-%m-%d %H:%M UTC"),
+            "total_records": total,
+            "overall_score": score_data["overall_score"],
+            "controls": by_control,
+        }
+
+        pdf_bytes = render_pdf(context)
+        save_pdf(str(report.id), pdf_bytes)
+
+        report.status = "complete"
+        report.generated_at = now
+        report.file_url = f"/v1/reports/{report.id}/download?format=pdf"
+        await db.commit()
+
+    except Exception:
         report.status = "error"
         await db.commit()
         raise
@@ -92,13 +140,16 @@ async def list_reports(
     page: int = 1,
     page_size: int = 20,
 ) -> tuple[list[Report], int]:
-    from sqlalchemy import func
     query = select(Report).where(Report.company_id == company_id)
     total = (await db.execute(select(func.count()).select_from(query.subquery()))).scalar_one()
     items = list(
-        (await db.execute(
-            query.order_by(Report.created_at.desc()).offset((page - 1) * page_size).limit(page_size)
-        )).scalars().all()
+        (
+            await db.execute(
+                query.order_by(Report.created_at.desc())
+                .offset((page - 1) * page_size)
+                .limit(page_size)
+            )
+        ).scalars().all()
     )
     return items, total
 
@@ -112,3 +163,14 @@ async def get_report(
         select(Report).where(Report.id == report_id, Report.company_id == company_id)
     )
     return result.scalar_one_or_none()
+
+
+async def _get_report_or_raise(
+    report_id: uuid.UUID,
+    company_id: uuid.UUID,
+    db: AsyncSession,
+) -> Report:
+    report = await get_report(report_id, company_id, db)
+    if not report:
+        raise ValueError("Report not found")
+    return report

@@ -7,6 +7,8 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from integrations.registry import get_adapter
+from models.associations import evidence_controls
+from models.control import Control
 from models.evidence import Evidence
 from models.integration import Integration
 from utils.encryption import decrypt_credentials
@@ -41,13 +43,20 @@ async def run_collection(
         raw_data = await adapter.collect_evidence()
         normalized = adapter.normalize(raw_data)
 
+        # Load controls into a lookup: category -> control_id
+        controls_result = await db.execute(select(Control))
+        control_map: dict[str, uuid.UUID] = {
+            c.category: c.id for c in controls_result.scalars().all()
+        }
+
         now = datetime.now(timezone.utc)
         count = 0
 
         for record in normalized:
             ts = _parse_timestamp(record.get("timestamp"), fallback=now)
 
-            stmt = pg_insert(Evidence).values(
+            # Upsert evidence, getting the ID back via RETURNING
+            insert_stmt = pg_insert(Evidence).values(
                 company_id=str(company_id),
                 integration=record["integration"],
                 control=record["control"],
@@ -56,15 +65,27 @@ async def run_collection(
                 timestamp=ts,
                 data=record["data"],
             )
-            stmt = stmt.on_conflict_do_update(
+            upsert_stmt = insert_stmt.on_conflict_do_update(
                 index_elements=["company_id", "integration", "evidence_type", "source_id"],
                 set_={
-                    "data": stmt.excluded.data,
-                    "timestamp": stmt.excluded.timestamp,
+                    "data": insert_stmt.excluded.data,
+                    "timestamp": insert_stmt.excluded.timestamp,
                     "updated_at": now,
                 },
-            )
-            await db.execute(stmt)
+            ).returning(Evidence.id)
+
+            ev_result = await db.execute(upsert_stmt)
+            evidence_id = ev_result.scalar_one()
+
+            # Link evidence to control via junction table
+            control_id = control_map.get(record["control"])
+            if control_id and evidence_id:
+                ec_stmt = pg_insert(evidence_controls).values(
+                    evidence_id=evidence_id,
+                    control_id=control_id,
+                ).on_conflict_do_nothing()
+                await db.execute(ec_stmt)
+
             count += 1
 
         integration.last_collected_at = now

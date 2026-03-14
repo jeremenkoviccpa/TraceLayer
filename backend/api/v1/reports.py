@@ -1,8 +1,8 @@
 import math
 import uuid
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from fastapi.responses import JSONResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
@@ -11,6 +11,7 @@ from models.user import User
 from schemas.reports import GenerateReportRequest, ReportResponse
 from services.report_service import (
     create_report,
+    generate_pdf_report,
     generate_report_bundle,
     get_report,
     list_reports,
@@ -20,10 +21,16 @@ from utils.pagination import Page
 router = APIRouter(prefix="/reports", tags=["reports"])
 
 
-async def _run_generation(report_id: uuid.UUID, company_id: uuid.UUID) -> None:
+async def _run_json_generation(report_id: uuid.UUID, company_id: uuid.UUID) -> None:
     from core.database import AsyncSessionLocal
     async with AsyncSessionLocal() as db:
         await generate_report_bundle(report_id, company_id, db)
+
+
+async def _run_pdf_generation(report_id: uuid.UUID, company_id: uuid.UUID) -> None:
+    from core.database import AsyncSessionLocal
+    async with AsyncSessionLocal() as db:
+        await generate_pdf_report(report_id, company_id, db)
 
 
 @router.post("/generate", response_model=ReportResponse, status_code=202)
@@ -37,9 +44,15 @@ async def generate(
         company_id=current_user.company_id,
         framework=body.framework,
         report_type=body.report_type,
+        fmt=body.format,
         db=db,
     )
-    background_tasks.add_task(_run_generation, report.id, current_user.company_id)
+
+    if body.format == "pdf":
+        background_tasks.add_task(_run_pdf_generation, report.id, current_user.company_id)
+    else:
+        background_tasks.add_task(_run_json_generation, report.id, current_user.company_id)
+
     return report
 
 
@@ -75,6 +88,7 @@ async def get_report_by_id(
 @router.get("/{report_id}/download")
 async def download_report(
     report_id: uuid.UUID,
+    format: str = Query("json", enum=["json", "pdf"]),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -82,7 +96,18 @@ async def download_report(
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
     if report.status != "complete":
-        raise HTTPException(status_code=409, detail=f"Report is not ready (status: {report.status})")
+        raise HTTPException(status_code=409, detail=f"Report not ready (status: {report.status})")
+
+    if format == "pdf":
+        from reports.generator import load_pdf
+        pdf_bytes = load_pdf(str(report_id))
+        if not pdf_bytes:
+            raise HTTPException(status_code=404, detail="PDF file not found — may still be generating")
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename=report-{str(report_id)[:8]}.pdf"},
+        )
 
     bundle = await generate_report_bundle(report_id, current_user.company_id, db)
     return JSONResponse(content=bundle)

@@ -7,6 +7,7 @@ from models.integration import Integration
 from models.evidence import Evidence
 from models.control import Control
 from models.report import Report
+from models.invitation import Invitation
 
 __all__ = [
     "Base",
@@ -18,4 +19,5 @@ __all__ = [
     "Evidence",
     "Control",
     "Report",
+    "Invitation",
 ]

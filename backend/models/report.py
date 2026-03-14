@@ -17,6 +17,7 @@ class Report(Base):
     company_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("companies.id"), nullable=False)
     report_type: Mapped[str] = mapped_column(String(50), nullable=False)
     framework: Mapped[str] = mapped_column(String(50), nullable=False)
+    fmt: Mapped[str] = mapped_column(String(10), nullable=False, default="json")  # "json" | "pdf"
     status: Mapped[str] = mapped_column(String(50), nullable=False, default="pending")
     file_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     generated_at: Mapped[Optional[datetime]] = mapped_column(TIMESTAMP(timezone=True), nullable=True)

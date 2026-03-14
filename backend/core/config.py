@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic_settings import BaseSettings
 
 
@@ -12,6 +14,7 @@ class Settings(BaseSettings):
     storage_endpoint: str = ""
     storage_access_key: str = ""
     storage_secret_key: str = ""
+    cors_origins: List[str] = ["http://localhost:3000"]
 
     class Config:
         env_file = ".env"
