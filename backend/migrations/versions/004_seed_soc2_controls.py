@@ -9,6 +9,7 @@ import uuid
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 revision: str = "004"
 down_revision: Union[str, None] = "003"
@@ -17,21 +18,21 @@ depends_on: Union[str, Sequence[str], None] = None
 
 SOC2_CONTROLS = [
     {
-        "id": str(uuid.UUID("00000000-0000-0000-0000-000000000001")),
+        "id": uuid.UUID("00000000-0000-0000-0000-000000000001"),
         "name": "Access Control",
         "framework": "soc2",
         "category": "access_control",
         "description": "Controls to manage who has access to systems and data, including user provisioning, IAM policies, and privileged access.",
     },
     {
-        "id": str(uuid.UUID("00000000-0000-0000-0000-000000000002")),
+        "id": uuid.UUID("00000000-0000-0000-0000-000000000002"),
         "name": "Logging & Monitoring",
         "framework": "soc2",
         "category": "logging_monitoring",
         "description": "Controls to ensure system activity is logged and monitored, including audit trails and alerting.",
     },
     {
-        "id": str(uuid.UUID("00000000-0000-0000-0000-000000000003")),
+        "id": uuid.UUID("00000000-0000-0000-0000-000000000003"),
         "name": "Change Management",
         "framework": "soc2",
         "category": "change_management",
@@ -43,7 +44,7 @@ SOC2_CONTROLS = [
 def upgrade() -> None:
     controls_table = sa.table(
         "controls",
-        sa.column("id", sa.String),
+        sa.column("id", postgresql.UUID(as_uuid=True)),
         sa.column("name", sa.String),
         sa.column("framework", sa.String),
         sa.column("category", sa.String),
