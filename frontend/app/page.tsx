@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -10,6 +10,7 @@ import { ComplianceQuiz } from "@/components/compliance-quiz";
 import {
   ShieldCheck, Plug, FileText, Zap, ArrowRight, CheckCircle2,
   BarChart3, Lock, Star, Clock, TrendingUp, Users, ChevronDown,
+  Menu, X,
 } from "lucide-react";
 
 // ── Integration logos ────────────────────────────────────────────────────────
@@ -236,6 +237,14 @@ const FAQ = [
   { q: "Can my whole team access the platform?", a: "Yes. You can invite team members by email. Members can view evidence and reports; admins can connect integrations, manage the team, and generate reports. Role-based access is built in." },
 ];
 
+const NAV_LINKS = [
+  { href: "#how-it-works", label: "How it works" },
+  { href: "#features",     label: "Features"     },
+  { href: "#pricing",      label: "Pricing"      },
+  { href: "#faq",          label: "FAQ"          },
+  { href: "/tools",        label: "Free Tools"   },
+];
+
 const THEME = {
   "--bg": "#f7f1e8",
   "--ink": "#1f2937",
@@ -325,6 +334,32 @@ export default function LandingPage() {
     if (!loading && user) router.replace("/dashboard");
   }, [user, loading, router]);
 
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled]     = useState(false);
+  const [hidden, setHidden]         = useState(false);
+  const [progress, setProgress]     = useState(0);
+  const lastY = useRef(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      const docH = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(docH > 0 ? (y / docH) * 100 : 0);
+      setScrolled(y > 20);
+      setHidden(y > lastY.current && y > 120);
+      lastY.current = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const smoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (!href.startsWith("#")) return;
+    e.preventDefault();
+    document.querySelector(href)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setMobileOpen(false);
+  };
+
   if (loading || user) return null;
 
   return (
@@ -332,23 +367,112 @@ export default function LandingPage() {
       className="min-h-screen bg-[var(--bg)] text-[var(--ink)] font-[family:'Sora',_ui-sans-serif,_system-ui]"
       style={THEME}
     >
+      {/* Scroll progress bar */}
+      <div className="fixed top-0 left-0 right-0 h-[2px] z-[60] bg-transparent">
+        <div
+          className="h-full bg-[var(--accent)] transition-all duration-75"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
       {/* Nav */}
-      <header className="sticky top-0 z-50 bg-[color:var(--bg)]/80 backdrop-blur border-b border-black/5">
+      <header
+        className={`fixed top-[2px] left-0 right-0 z-50 transition-all duration-300 ${
+          hidden ? "-translate-y-full" : "translate-y-0"
+        } ${scrolled
+          ? "bg-[#f7f1e8]/95 backdrop-blur-md shadow-sm border-b border-black/5"
+          : "bg-[#f7f1e8]/80 backdrop-blur-sm"
+        }`}
+      >
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <Image src="/logo-icon.png" alt="TraceLayer" width={32} height={32} className="rounded-lg" />
-            <span className="font-extrabold text-lg tracking-tight">TraceLayer</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm text-[var(--muted)] hover:text-[var(--ink)] font-medium transition-colors">
+          {/* Logo */}
+          <a href="#" onClick={(e) => smoothScroll(e, "#")} className="flex items-center gap-2.5 shrink-0">
+            <Image src="/logo-icon.png" alt="TraceLayer" width={30} height={30} className="rounded-lg" />
+            <span className="font-extrabold text-base tracking-tight">TraceLayer</span>
+          </a>
+
+          {/* Desktop links */}
+          <nav className="hidden md:flex items-center gap-1">
+            {NAV_LINKS.map((l) =>
+              l.href.startsWith("#") ? (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={(e) => smoothScroll(e, l.href)}
+                  className="text-sm text-[var(--muted)] hover:text-[var(--ink)] font-medium px-3 py-1.5 rounded-lg hover:bg-black/5 transition-all"
+                >
+                  {l.label}
+                </a>
+              ) : (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="text-sm font-semibold text-[var(--accent)] bg-[color:var(--accent)]/8 border border-[color:var(--accent)]/15 px-3 py-1.5 rounded-lg hover:bg-[color:var(--accent)]/15 transition-all"
+                >
+                  {l.label}
+                </Link>
+              )
+            )}
+          </nav>
+
+          {/* Desktop CTAs */}
+          <div className="hidden md:flex items-center gap-2">
+            <Link href="/login" className="text-sm text-[var(--muted)] hover:text-[var(--ink)] font-medium px-3 py-1.5 rounded-lg hover:bg-black/5 transition-all">
               Sign in
             </Link>
-            <Link href="/register" className="text-sm bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white font-semibold px-4 py-1.5 rounded-lg transition-colors">
+            <Link href="/register" className="text-sm bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white font-semibold px-4 py-1.5 rounded-lg transition-colors shadow-sm">
               Get started free
             </Link>
           </div>
+
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden p-2 rounded-lg hover:bg-black/5 transition-colors text-[var(--ink)]"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
+
+        {/* Mobile menu */}
+        {mobileOpen && (
+          <div className="md:hidden bg-[color:var(--bg)]/98 backdrop-blur-md border-b border-black/5 px-6 py-4 space-y-1">
+            {NAV_LINKS.map((l) =>
+              l.href.startsWith("#") ? (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={(e) => smoothScroll(e, l.href)}
+                  className="block text-sm font-medium text-[var(--ink)] px-3 py-2.5 rounded-lg hover:bg-black/5 transition-colors"
+                >
+                  {l.label}
+                </a>
+              ) : (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-sm font-semibold text-[var(--accent)] px-3 py-2.5 rounded-lg hover:bg-black/5 transition-colors"
+                >
+                  {l.label}
+                </Link>
+              )
+            )}
+            <div className="pt-3 border-t border-black/5 space-y-2">
+              <Link href="/login" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-center text-[var(--muted)] px-3 py-2.5 rounded-lg border border-black/10 hover:bg-black/5 transition-colors">
+                Sign in
+              </Link>
+              <Link href="/register" onClick={() => setMobileOpen(false)} className="block text-sm font-semibold text-center bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white px-3 py-2.5 rounded-lg transition-colors">
+                Get started free
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
+
+      {/* Spacer for fixed nav */}
+      <div className="h-14" />
 
       {/* Hero */}
       <section className="relative overflow-hidden">
@@ -461,7 +585,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="max-w-6xl mx-auto px-6 py-12 md:py-20">
+      <section id="how-it-works" className="scroll-mt-16 max-w-6xl mx-auto px-6 py-12 md:py-20">
         <div className="text-center mb-10 md:mb-14">
           <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">How it works</p>
           <h2 className="text-2xl md:text-3xl font-extrabold">Up and running in minutes</h2>
@@ -526,7 +650,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section className="bg-white/60 py-12 md:py-20">
+      <section id="features" className="scroll-mt-16 bg-white/60 py-12 md:py-20">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10 md:mb-12">
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Features</p>
@@ -578,7 +702,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section className="bg-white/60 py-12 md:py-20">
+      <section id="pricing" className="scroll-mt-16 bg-white/60 py-12 md:py-20">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10 md:mb-14">
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Pricing</p>
@@ -633,7 +757,7 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-12 md:py-20 bg-[var(--bg)]">
+      <section id="faq" className="scroll-mt-16 py-12 md:py-20 bg-[var(--bg)]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-8 md:mb-12">
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">FAQ</p>
@@ -728,30 +852,110 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-black/5 py-8 bg-[var(--bg)]">
+      <footer className="border-t border-black/5 pt-14 pb-8 bg-[var(--bg)]">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
-            <span className="font-extrabold text-lg text-[var(--ink)]">TraceLayer</span>
-            <div className="flex items-center gap-6 text-xs text-[var(--muted)]">
-              <Link href="/login" className="hover:text-[var(--ink)] transition-colors">Sign in</Link>
-              <Link href="/register" className="hover:text-[var(--ink)] transition-colors">Get started</Link>
+          {/* Top row: brand + columns */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-12">
+            {/* Brand */}
+            <div className="col-span-2 sm:col-span-1">
+              <div className="flex items-center gap-2.5 mb-3">
+                <Image src="/logo-icon.png" alt="TraceLayer" width={28} height={28} className="rounded-lg" />
+                <span className="font-extrabold text-base text-[var(--ink)]">TraceLayer</span>
+              </div>
+              <p className="text-xs text-[var(--muted)] leading-relaxed max-w-[200px]">
+                Continuous compliance automation for modern engineering teams.
+              </p>
+              <div className="flex items-center gap-3 mt-4">
+                {["SOC 2", "ISO 27001", "HIPAA"].map((f) => (
+                  <span key={f} className="text-[10px] font-semibold text-[var(--accent)] bg-[color:var(--accent)]/8 px-2 py-0.5 rounded-full border border-[color:var(--accent)]/15">
+                    {f}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Product */}
+            <div>
+              <p className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider mb-4">Product</p>
+              <ul className="space-y-2.5">
+                {[
+                  { label: "How it works", href: "#how-it-works" },
+                  { label: "Features",     href: "#features"     },
+                  { label: "Pricing",      href: "#pricing"      },
+                  { label: "FAQ",          href: "#faq"          },
+                  { label: "Free Tools",   href: "/tools"        },
+                ].map((l) => (
+                  <li key={l.label}>
+                    {l.href.startsWith("#") ? (
+                      <a
+                        href={l.href}
+                        onClick={(e) => smoothScroll(e, l.href)}
+                        className="text-xs text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
+                      >
+                        {l.label}
+                      </a>
+                    ) : (
+                      <Link href={l.href} className="text-xs font-semibold text-[var(--accent)] hover:text-[var(--accent-strong)] transition-colors">
+                        {l.label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Account */}
+            <div>
+              <p className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider mb-4">Account</p>
+              <ul className="space-y-2.5">
+                {[
+                  { label: "Sign in",       href: "/login"    },
+                  { label: "Get started",   href: "/register" },
+                ].map((l) => (
+                  <li key={l.label}>
+                    <Link href={l.href} className="text-xs text-[var(--muted)] hover:text-[var(--ink)] transition-colors">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <p className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider mb-4">Legal</p>
+              <ul className="space-y-2.5">
+                {[
+                  { label: "Privacy Policy", href: "/privacy" },
+                  { label: "Terms of Service", href: "/terms" },
+                ].map((l) => (
+                  <li key={l.label}>
+                    <Link href={l.href} className="text-xs text-[var(--muted)] hover:text-[var(--ink)] transition-colors">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <a href="mailto:hello@tracelayer.com" className="text-xs text-[var(--muted)] hover:text-[var(--ink)] transition-colors">
+                    Contact us
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>
-          <div className="flex items-center justify-between text-xs text-[var(--muted)] flex-wrap gap-3 pt-4 border-t border-black/5">
-            <div className="flex items-center gap-4">
-              {["SOC 2", "ISO 27001", "HIPAA"].map((f) => (
-                <span key={f} className="flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-[var(--accent-warm)]" /> {f}
-                </span>
-              ))}
-            </div>
-            <span>© {new Date().getFullYear()} TraceLayer. All rights reserved.</span>
+
+          {/* Bottom bar */}
+          <div className="pt-6 border-t border-black/5 flex items-center justify-between flex-wrap gap-3">
+            <span className="text-xs text-[var(--muted)]">© {new Date().getFullYear()} TraceLayer. All rights reserved.</span>
+            <span className="text-xs text-[var(--muted)]">Built for teams that move fast and stay secure.</span>
           </div>
         </div>
       </footer>
 
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap');
+
+        html { scroll-behavior: smooth; }
 
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(14px); }
