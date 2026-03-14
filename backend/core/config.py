@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     storage_access_key: str = ""
     storage_secret_key: str = ""
     cors_origins: List[str] = ["http://localhost:3000"]
+    frontend_url: str = "http://localhost:3000"
 
     class Config:
         env_file = ".env"

@@ -80,6 +80,7 @@ async def invite_member(
             email=body.email,
             role=body.role,
             db=db,
+            frontend_url=settings.frontend_url,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
