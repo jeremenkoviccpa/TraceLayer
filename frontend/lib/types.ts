@@ -94,3 +94,13 @@ export interface Page<T> {
   page_size: number;
   pages: number;
 }
+
+export interface ScoreHistoryPoint {
+  score: number;
+  ts: string;
+}
+
+export interface EvidenceActivityPoint {
+  day: string;
+  count: number;
+}

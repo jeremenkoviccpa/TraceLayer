@@ -1,12 +1,13 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, cast, Date
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.control import Control
 from models.evidence import Evidence
+from models.score_snapshot import ScoreSnapshot
 
 # Expected evidence types per framework per control category.
 # Coverage score = how many expected types are present in collected evidence.
@@ -133,9 +134,69 @@ async def get_compliance_score(
 
     overall = int(total / len(control_scores)) if control_scores else 0
 
+    # Snapshot at most once per hour per company+framework
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=1)
+    existing = await db.execute(
+        select(ScoreSnapshot.id)
+        .where(
+            ScoreSnapshot.company_id == company_id,
+            ScoreSnapshot.framework == framework,
+            ScoreSnapshot.snapshot_at >= cutoff,
+        )
+        .limit(1)
+    )
+    if not existing.scalar():
+        db.add(ScoreSnapshot(
+            company_id=company_id,
+            framework=framework,
+            overall_score=overall,
+            snapshot_at=datetime.now(timezone.utc),
+        ))
+        await db.commit()
+
     return {
         "framework": framework,
         "overall_score": overall,
         "evaluated_at": datetime.now(timezone.utc).isoformat(),
         "controls": control_scores,
     }
+
+
+async def get_score_history(
+    company_id: uuid.UUID,
+    framework: str,
+    days: int,
+    db: AsyncSession,
+) -> list[dict]:
+    since = datetime.now(timezone.utc) - timedelta(days=days)
+    rows = await db.execute(
+        select(ScoreSnapshot.overall_score, ScoreSnapshot.snapshot_at)
+        .where(
+            ScoreSnapshot.company_id == company_id,
+            ScoreSnapshot.framework == framework,
+            ScoreSnapshot.snapshot_at >= since,
+        )
+        .order_by(ScoreSnapshot.snapshot_at)
+    )
+    return [
+        {"score": row.overall_score, "ts": row.snapshot_at.isoformat()}
+        for row in rows
+    ]
+
+
+async def get_evidence_activity(
+    company_id: uuid.UUID,
+    days: int,
+    db: AsyncSession,
+) -> list[dict]:
+    since = datetime.now(timezone.utc) - timedelta(days=days)
+    rows = await db.execute(
+        select(
+            cast(Evidence.created_at, Date).label("day"),
+            func.count().label("cnt"),
+        )
+        .where(Evidence.company_id == company_id, Evidence.created_at >= since)
+        .group_by(cast(Evidence.created_at, Date))
+        .order_by(cast(Evidence.created_at, Date))
+    )
+    return [{"day": str(row.day), "count": row.cnt} for row in rows]

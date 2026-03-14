@@ -1,4 +1,4 @@
-import type { Company, ComplianceScore, DownloadResponse, Evidence, Integration, Invitation, Member, Page, Report, User } from "./types";
+import type { Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, Member, Page, Report, ScoreHistoryPoint, User } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -217,6 +217,14 @@ class ApiClient {
 
   async getComplianceScore(framework = "soc2"): Promise<ComplianceScore> {
     return this.request<ComplianceScore>("GET", `/compliance/score?framework=${framework}`);
+  }
+
+  async getScoreHistory(framework = "soc2", days = 30): Promise<ScoreHistoryPoint[]> {
+    return this.request<ScoreHistoryPoint[]>("GET", `/compliance/score-history?framework=${framework}&days=${days}`);
+  }
+
+  async getEvidenceActivity(days = 14): Promise<EvidenceActivityPoint[]> {
+    return this.request<EvidenceActivityPoint[]>("GET", `/compliance/evidence-activity?days=${days}`);
   }
 }
 

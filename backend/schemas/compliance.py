@@ -18,3 +18,13 @@ class ComplianceScoreResponse(BaseModel):
     overall_score: int
     evaluated_at: str
     controls: list[ControlScore]
+
+
+class ScoreHistoryPoint(BaseModel):
+    score: int
+    ts: str
+
+
+class EvidenceActivityPoint(BaseModel):
+    day: str
+    count: int

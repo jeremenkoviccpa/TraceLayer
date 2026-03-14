@@ -8,6 +8,7 @@ from models.evidence import Evidence
 from models.control import Control
 from models.report import Report
 from models.invitation import Invitation
+from models.score_snapshot import ScoreSnapshot
 
 __all__ = [
     "Base",
@@ -20,4 +21,5 @@ __all__ = [
     "Control",
     "Report",
     "Invitation",
+    "ScoreSnapshot",
 ]
