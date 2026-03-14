@@ -31,7 +31,10 @@ import {
   Activity,
   AlertTriangle,
   ArrowRight,
+  X,
+  PartyPopper,
 } from "lucide-react";
+import type { Report } from "@/lib/types";
 
 function StatCard({
   label,
@@ -97,6 +100,113 @@ function statusBadge(status: string) {
   return <span className={`${base} bg-gray-100 text-gray-500`}>No data</span>;
 }
 
+// ── Getting Started Checklist ─────────────────────────────────────────────────
+const CHECKLIST_KEY = "tl_checklist_dismissed";
+
+function GettingStarted({
+  hasIntegration,
+  hasEvidence,
+  hasScore,
+  hasReport,
+}: {
+  hasIntegration: boolean;
+  hasEvidence: boolean;
+  hasScore: boolean;
+  hasReport: boolean;
+}) {
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(CHECKLIST_KEY) === "1";
+  });
+
+  const steps = [
+    { label: "Create your account", done: true },
+    { label: "Connect your first integration", done: hasIntegration, href: "/integrations" },
+    { label: "Collect evidence automatically", done: hasEvidence, href: hasIntegration ? undefined : "/integrations" },
+    { label: "View your compliance score", done: hasScore, href: "/compliance" },
+    { label: "Generate a compliance report", done: hasReport, href: "/reports" },
+  ];
+
+  const completed = steps.filter((s) => s.done).length;
+  const allDone = completed === steps.length;
+
+  const handleDismiss = () => {
+    localStorage.setItem(CHECKLIST_KEY, "1");
+    setDismissed(true);
+  };
+
+  if (dismissed) return null;
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <div className="flex items-center gap-2">
+            {allDone
+              ? <PartyPopper className="w-5 h-5 text-emerald-500" />
+              : <ShieldCheck className="w-5 h-5 text-brand-500" />
+            }
+            <h2 className="text-sm font-semibold text-gray-900">
+              {allDone ? "Setup complete — you're all set!" : "Getting started"}
+            </h2>
+          </div>
+          {!allDone && (
+            <p className="text-xs text-gray-400 mt-0.5">{completed} of {steps.length} steps done</p>
+          )}
+        </div>
+        <button
+          onClick={handleDismiss}
+          className="text-gray-300 hover:text-gray-500 transition-colors shrink-0 mt-0.5"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Progress bar */}
+      <div className="h-1.5 bg-gray-100 rounded-full mb-4 overflow-hidden">
+        <div
+          className="h-full bg-brand-500 rounded-full transition-all duration-500"
+          style={{ width: `${(completed / steps.length) * 100}%` }}
+        />
+      </div>
+
+      {/* Steps */}
+      <div className="space-y-2">
+        {steps.map((step) => (
+          <div key={step.label} className="flex items-center gap-3">
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+              step.done ? "bg-emerald-100" : "bg-gray-100"
+            }`}>
+              {step.done
+                ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                : <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />
+              }
+            </div>
+            {step.href && !step.done ? (
+              <Link href={step.href} className="text-sm text-brand-600 hover:underline">
+                {step.label}
+              </Link>
+            ) : (
+              <span className={`text-sm ${step.done ? "text-gray-400 line-through" : "text-gray-700"}`}>
+                {step.label}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {allDone && (
+        <button
+          onClick={handleDismiss}
+          className="mt-4 text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2"
+        >
+          Dismiss checklist
+        </button>
+      )}
+    </div>
+  );
+}
+
 const FRAMEWORKS = [
   { value: "soc2", label: "SOC 2" },
   { value: "iso27001", label: "ISO 27001" },
@@ -116,6 +226,7 @@ export default function DashboardPage() {
   const [framework, setFramework] = useState("soc2");
   const [scoreHistory, setScoreHistory] = useState<ScoreHistoryPoint[]>([]);
   const [evidenceActivity, setEvidenceActivity] = useState<EvidenceActivityPoint[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [scoreLoading, setScoreLoading] = useState(false);
 
@@ -126,14 +237,16 @@ export default function DashboardPage() {
       api.getComplianceScore(framework),
       api.getScoreHistory(framework, 30),
       api.getEvidenceActivity(14),
+      api.getReports(1),
     ])
-      .then(([ints, ev, score, history, activity]) => {
+      .then(([ints, ev, score, history, activity, rpts]) => {
         setIntegrations(ints);
         setEvidence(ev.items);
         setEvidenceTotal(ev.total);
         setCompliance(score);
         setScoreHistory(history);
         setEvidenceActivity(activity);
+        setReports(rpts.items);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -191,22 +304,13 @@ export default function DashboardPage() {
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h1>
 
-      {/* Onboarding nudge for new accounts */}
-      {integrations.length === 0 && (
-        <Link
-          href="/onboarding"
-          className="flex items-center justify-between bg-brand-50 border border-brand-200 rounded-xl px-5 py-4 mb-6 hover:bg-brand-100 transition-colors group"
-        >
-          <div className="flex items-center gap-3">
-            <Plug className="w-5 h-5 text-brand-600 shrink-0" />
-            <div>
-              <p className="text-sm font-semibold text-brand-800">No integrations connected yet</p>
-              <p className="text-xs text-brand-600 mt-0.5">Connect your first tool to start collecting compliance evidence automatically.</p>
-            </div>
-          </div>
-          <ArrowRight className="w-4 h-4 text-brand-500 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-      )}
+      {/* Getting started checklist */}
+      <GettingStarted
+        hasIntegration={integrations.length > 0}
+        hasEvidence={evidenceTotal > 0}
+        hasScore={!!compliance && compliance.controls.length > 0}
+        hasReport={reports.length > 0}
+      />
 
       {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
