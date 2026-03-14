@@ -110,6 +110,14 @@ class ApiClient {
     });
   }
 
+  async forgotPassword(email: string): Promise<void> {
+    return this.request("POST", "/auth/forgot-password", { email }, false);
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    return this.request("POST", "/auth/reset-password", { token, new_password: newPassword }, false);
+  }
+
   // ── Integrations ────────────────────────────────────────────────────────
 
   async getIntegrations(): Promise<Integration[]> {

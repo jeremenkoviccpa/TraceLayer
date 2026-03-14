@@ -16,10 +16,11 @@ from core.security import (
     verify_password,
 )
 from models.company import Company
+from models.password_reset_token import PasswordResetToken
 from models.refresh_token import RefreshToken
 from models.user import User
-from schemas.auth import ChangePasswordRequest, LoginRequest, RefreshRequest, RegisterRequest, TokenResponse, UserResponse
-from services.email_service import send_password_changed_email, send_welcome_email
+from schemas.auth import ChangePasswordRequest, ForgotPasswordRequest, LoginRequest, RefreshRequest, RegisterRequest, ResetPasswordRequest, TokenResponse, UserResponse
+from services.email_service import send_password_changed_email, send_password_reset_email, send_welcome_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -130,6 +131,63 @@ async def logout(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
 @router.get("/me", response_model=UserResponse)
 async def me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.post("/forgot-password", status_code=status.HTTP_204_NO_CONTENT)
+@rate_limit("3/minute")
+async def forgot_password(request: Request, body: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
+    """Send a password reset email. Always returns 204 to avoid email enumeration."""
+    result = await db.execute(select(User).where(User.email == body.email))
+    user = result.scalar_one_or_none()
+    if not user:
+        return  # silent — don't reveal whether email exists
+
+    raw_token, token_hash = create_refresh_token()  # reuse same secure token generator
+    reset_token = PasswordResetToken(
+        user_id=user.id,
+        token_hash=token_hash,
+        expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+    )
+    db.add(reset_token)
+    await db.commit()
+
+    reset_url = f"{settings.frontend_url}/reset-password?token={raw_token}"
+    try:
+        send_password_reset_email(user.email, reset_url)
+    except Exception:
+        pass  # log but don't fail the request
+
+
+@router.post("/reset-password", status_code=status.HTTP_204_NO_CONTENT)
+@rate_limit("5/minute")
+async def reset_password(request: Request, body: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+    """Reset password using a token from the reset email."""
+    if len(body.new_password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+
+    token_hash = hash_token(body.token)
+    result = await db.execute(
+        select(PasswordResetToken).where(
+            PasswordResetToken.token_hash == token_hash,
+            PasswordResetToken.expires_at > datetime.now(timezone.utc),
+            PasswordResetToken.used.is_(False),
+        )
+    )
+    stored = result.scalar_one_or_none()
+    if not stored:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset link")
+
+    user_result = await db.execute(select(User).where(User.id == stored.user_id))
+    user = user_result.scalar_one()
+
+    user.password_hash = hash_password(body.new_password)
+    stored.used = True
+    await db.commit()
+
+    try:
+        send_password_changed_email(user.email)
+    except Exception:
+        pass
 
 
 @router.patch("/me", response_model=UserResponse)

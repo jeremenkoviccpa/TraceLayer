@@ -96,6 +96,29 @@ def send_collection_failure_email(to: str, integration_type: str, error: str) ->
     _send(to, subject, html)
 
 
+def send_password_reset_email(to: str, reset_url: str) -> None:
+    subject = "Reset your TraceLayer password"
+    html = f"""
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
+      <h2 style="margin:0 0 8px">Reset your password</h2>
+      <p style="color:#555;margin:0 0 24px">
+        We received a request to reset the password for your TraceLayer account.
+        Click the button below — this link expires in 1 hour.
+      </p>
+      <a href="{reset_url}"
+         style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;
+                padding:12px 24px;border-radius:8px;font-weight:600;font-size:15px">
+        Reset password
+      </a>
+      <p style="color:#999;font-size:12px;margin-top:24px">
+        If you didn't request this, you can safely ignore this email.
+        Your password will not change.
+      </p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
 def send_password_changed_email(to: str) -> None:
     subject = "Your TraceLayer password was changed"
     html = """
