@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 import {
   ShieldCheck, Plug, FileText, Zap, ArrowRight, CheckCircle2,
-  BarChart3, Lock, Star, Clock, TrendingUp, Users,
+  BarChart3, Lock, Star, Clock, TrendingUp, Users, ChevronDown,
 } from "lucide-react";
 
 // ── Integration logos ────────────────────────────────────────────────────────
@@ -224,12 +224,14 @@ const PRICING = [
 ];
 
 const FAQ = [
-  { q: "How long does setup take?", a: "Under 5 minutes. Create an account, paste an API key for your first integration, and evidence collection starts immediately." },
-  { q: "Do you store my cloud credentials?", a: "All credentials are encrypted at rest with Fernet symmetric encryption. We never store or log plaintext secrets." },
-  { q: "Which frameworks do you support?", a: "SOC 2 Type II, ISO 27001 (2022 edition), and HIPAA Security Rule. Evidence maps to all three simultaneously — no duplicate work." },
-  { q: "Can I use this for a SOC 2 Type II audit?", a: "Yes. TraceLayer collects continuous evidence across your observation period — exactly what auditors need for a Type II opinion." },
-  { q: "What integrations are supported?", a: "AWS, GitHub, Slack, Google Workspace, Jira, Okta, and Azure AD. More integrations are coming soon." },
-  { q: "Is there a free plan?", a: "Yes — TraceLayer is free to start with no credit card required. Connect integrations and generate reports immediately." },
+  { q: "How long does setup take?", a: "Under 5 minutes. Create an account, paste an API key for your first integration, and evidence collection starts immediately. No agents to deploy, no code to write." },
+  { q: "Do you store my cloud credentials?", a: "All credentials are encrypted at rest using Fernet symmetric encryption before being written to the database. We never store or log plaintext secrets, and access is scoped to your company only." },
+  { q: "Which compliance frameworks do you support?", a: "SOC 2 Type II, ISO 27001 (2022 edition), and HIPAA Security Rule. Evidence collected from your integrations maps to all three simultaneously — no duplicate work, no re-connecting anything." },
+  { q: "Can I use TraceLayer for a SOC 2 Type II audit?", a: "Yes. TraceLayer collects continuous evidence across your entire observation period with timestamps — exactly what auditors need for a Type II opinion. You can generate a formatted PDF report for your auditor on demand." },
+  { q: "What integrations are supported right now?", a: "AWS (IAM, CloudTrail), GitHub, Slack, Google Workspace, Jira, Okta, and Azure AD. Each integration collects multiple evidence types. More are on the roadmap." },
+  { q: "Is there a free plan?", a: "Yes — TraceLayer is completely free to start with no credit card required. You get access to all three frameworks, automated collection, and PDF reports from day one." },
+  { q: "How is the compliance score calculated?", a: "Each control is scored on three factors: coverage (70% weight — how many evidence types are present), recency (20% — how fresh the evidence is), and volume (10% — number of records). Scores are snapshotted up to once per hour." },
+  { q: "Can my whole team access the platform?", a: "Yes. You can invite team members by email. Members can view evidence and reports; admins can connect integrations, manage the team, and generate reports. Role-based access is built in." },
 ];
 
 const THEME = {
@@ -265,6 +267,48 @@ function MarqueeRow({ reverse = false }: { reverse?: boolean }) {
           <LogoPill key={i} name={item.name} logo={item.logo} />
         ))}
       </div>
+    </div>
+  );
+}
+
+// ── FAQ Accordion ─────────────────────────────────────────────────────────────
+
+function FaqAccordion({ items }: { items: typeof FAQ }) {
+  const [open, setOpen] = useState<number | null>(null);
+  return (
+    <div className="space-y-3">
+      {items.map((item, i) => (
+        <div
+          key={i}
+          className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
+            open === i
+              ? "bg-white border-[color:var(--accent)]/30 shadow-[0_4px_20px_rgba(15,118,110,0.1)]"
+              : "bg-white/80 border-black/5 shadow-[0_2px_8px_rgba(15,23,42,0.04)] hover:border-black/10"
+          }`}
+        >
+          <button
+            className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
+            onClick={() => setOpen(open === i ? null : i)}
+            aria-expanded={open === i}
+          >
+            <span className="font-semibold text-sm leading-snug text-[var(--ink)]">{item.q}</span>
+            <ChevronDown
+              className={`w-4 h-4 shrink-0 text-[var(--accent)] transition-transform duration-300 ${open === i ? "rotate-180" : ""}`}
+            />
+          </button>
+          {/* CSS grid trick for smooth height animation */}
+          <div
+            className="grid transition-all duration-300 ease-in-out"
+            style={{ gridTemplateRows: open === i ? "1fr" : "0fr" }}
+          >
+            <div className="overflow-hidden">
+              <p className="px-5 pb-5 text-sm text-[var(--muted)] leading-relaxed border-t border-black/5 pt-3">
+                {item.a}
+              </p>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -575,21 +619,22 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ */}
-      <section className="max-w-3xl mx-auto px-6 py-12 md:py-20">
-        <div className="text-center mb-10 md:mb-12">
-          <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">FAQ</p>
-          <h2 className="text-2xl md:text-3xl font-extrabold">Common questions</h2>
-        </div>
-        <div className="space-y-4">
-          {FAQ.map((item) => (
-            <div key={item.q} className="bg-white/80 rounded-2xl border border-black/5 p-5 shadow-[0_4px_16px_rgba(15,23,42,0.04)]">
-              <p className="font-bold text-sm mb-2 flex items-start gap-2">
-                <span className="text-[var(--accent)] shrink-0 mt-0.5">Q</span>
-                {item.q}
-              </p>
-              <p className="text-sm text-[var(--muted)] leading-relaxed pl-5">{item.a}</p>
-            </div>
-          ))}
+      <section className="py-12 md:py-20 bg-[var(--bg)]">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8 md:mb-12">
+            <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">FAQ</p>
+            <h2 className="text-2xl md:text-3xl font-extrabold">Common questions</h2>
+            <p className="text-[var(--muted)] mt-3 text-sm max-w-md mx-auto">
+              Everything you need to know before getting started.
+            </p>
+          </div>
+          <FaqAccordion items={FAQ} />
+          <p className="text-center text-sm text-[var(--muted)] mt-8">
+            Still have questions?{" "}
+            <a href="mailto:hello@tracelayer.it.com" className="text-[var(--accent)] font-semibold hover:underline">
+              Drop us a line
+            </a>
+          </p>
         </div>
       </section>
 
