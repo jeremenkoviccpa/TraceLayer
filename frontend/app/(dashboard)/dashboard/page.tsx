@@ -248,7 +248,7 @@ export default function DashboardPage() {
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
                 <Tooltip
-                  formatter={(v: number) => [`${v}%`, "Score"]}
+                  formatter={(v) => [`${v}%`, "Score"]}
                   contentStyle={{ fontSize: 12 }}
                 />
                 <Line
@@ -281,7 +281,7 @@ export default function DashboardPage() {
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                 <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
                 <Tooltip
-                  formatter={(v: number) => [v, "Records"]}
+                  formatter={(v) => [v, "Records"]}
                   contentStyle={{ fontSize: 12 }}
                 />
                 <Bar dataKey="count" fill="#6366f1" radius={[3, 3, 0, 0]} />
@@ -360,7 +360,7 @@ export default function DashboardPage() {
                       {statusIcon(i.status)}
                       <span className="text-sm font-medium capitalize">{i.integration_type}</span>
                       {staleHours > 48 && (
-                        <AlertTriangle className="w-3.5 h-3.5 text-red-400" title="Stale data" />
+                        <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
                       )}
                     </div>
                     {staleBadge(i.last_collected_at)}
