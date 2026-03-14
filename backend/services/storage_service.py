@@ -29,6 +29,18 @@ def _get_client():
     return _client
 
 
+def _ensure_bucket(client, bucket: str) -> None:
+    """Create the bucket if it doesn't already exist."""
+    try:
+        buckets = client.storage.list_buckets()
+        existing = {b.name for b in buckets} if buckets else set()
+        if bucket not in existing:
+            client.storage.create_bucket(bucket, options={"public": False})
+            logger.info("Created Supabase storage bucket: %s", bucket)
+    except Exception as exc:
+        logger.warning("Could not verify/create bucket %s: %s", bucket, exc)
+
+
 def upload_bytes(
     bucket: str,
     path: str,
@@ -36,11 +48,12 @@ def upload_bytes(
     content_type: str,
 ) -> dict[str, Any]:
     client = _get_client()
+    _ensure_bucket(client, bucket)
     storage = client.storage.from_(bucket)
     response = storage.upload(
         path,
         data,
-        {"content-type": content_type, "upsert": "true"},
+        {"content-type": content_type, "upsert": True},
     )
     return response
 

@@ -1,4 +1,5 @@
 import json
+import logging
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
@@ -11,6 +12,8 @@ from models.evidence import Evidence
 from models.report import Report
 from core.config import settings
 from services.storage_service import create_signed_url, upload_bytes
+
+logger = logging.getLogger(__name__)
 
 SIGNED_URL_EXPIRES_IN = 3600
 
@@ -95,6 +98,7 @@ async def generate_report_bundle(
         return bundle
 
     except Exception:
+        logger.exception("JSON report generation failed: report_id=%s", report_id)
         report.status = "error"
         await db.commit()
         raise
@@ -153,6 +157,7 @@ async def generate_pdf_report(
         await db.commit()
 
     except Exception:
+        logger.exception("PDF report generation failed: report_id=%s", report_id)
         report.status = "error"
         await db.commit()
         raise
