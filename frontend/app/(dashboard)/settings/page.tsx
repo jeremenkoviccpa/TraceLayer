@@ -495,7 +495,7 @@ export default function SettingsPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
                 <p className="text-sm font-medium text-gray-800">Weekly compliance digest</p>
-                <Lock className="w-3 h-3 text-gray-400 shrink-0" title="Required for compliance tracking" />
+                <Lock className="w-3 h-3 text-gray-400 shrink-0" />
               </div>
               <p className="text-xs text-gray-500 mt-0.5">A compliance score briefing every Monday morning.</p>
             </div>
