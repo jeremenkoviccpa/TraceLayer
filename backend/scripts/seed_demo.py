@@ -23,9 +23,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from cryptography.fernet import Fernet
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
 
+from core.database import AsyncSessionLocal
 from core.config import settings
 from core.security import hash_password
 from models import Base, Company, Control, Evidence, Integration, User
@@ -175,10 +174,7 @@ def _slack_evidence(company_id: uuid.UUID) -> list[dict]:
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 async def seed():
-    engine = create_async_engine(settings.database_url, echo=False)
-    Session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-
-    async with Session() as db:
+    async with AsyncSessionLocal() as db:
         # Check if already seeded
         existing = await db.execute(
             select(Company).where(Company.name == DEMO_COMPANY)
@@ -246,8 +242,6 @@ async def seed():
             ))
 
         await db.commit()
-
-    await engine.dispose()
 
     print("✓ Demo account created!")
     print(f"  Company:  {DEMO_COMPANY}")
