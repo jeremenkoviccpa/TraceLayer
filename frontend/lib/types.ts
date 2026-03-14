@@ -3,6 +3,7 @@ export interface User {
   email: string;
   company_id: string;
   role: string;
+  email_verified: boolean;
 }
 
 export interface Company {

@@ -16,11 +16,12 @@ from core.security import (
     verify_password,
 )
 from models.company import Company
+from models.email_verification_token import EmailVerificationToken
 from models.password_reset_token import PasswordResetToken
 from models.refresh_token import RefreshToken
 from models.user import User
 from schemas.auth import ChangePasswordRequest, ForgotPasswordRequest, LoginRequest, RefreshRequest, RegisterRequest, ResetPasswordRequest, TokenResponse, UserResponse
-from services.email_service import send_password_changed_email, send_password_reset_email, send_welcome_email
+from services.email_service import send_password_changed_email, send_password_reset_email, send_verification_email, send_welcome_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -56,7 +57,19 @@ async def register(request: Request, body: RegisterRequest, db: AsyncSession = D
     db.add(refresh_token)
     await db.commit()
 
+    # Send verification email
+    raw_verify, verify_hash = create_refresh_token()
+    verify_token = EmailVerificationToken(
+        user_id=user.id,
+        token_hash=verify_hash,
+        expires_at=datetime.now(timezone.utc) + timedelta(hours=24),
+    )
+    db.add(verify_token)
+    await db.commit()
+
+    verify_url = f"{settings.frontend_url}/verify-email?token={raw_verify}"
     try:
+        send_verification_email(user.email, verify_url)
         send_welcome_email(user.email, company.name)
     except Exception:
         pass
@@ -131,6 +144,56 @@ async def logout(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
 @router.get("/me", response_model=UserResponse)
 async def me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.post("/verify-email", status_code=status.HTTP_204_NO_CONTENT)
+@rate_limit("10/minute")
+async def verify_email(request: Request, token: str, db: AsyncSession = Depends(get_db)):
+    """Mark email as verified using the token from the verification email."""
+    token_hash = hash_token(token)
+    result = await db.execute(
+        select(EmailVerificationToken).where(
+            EmailVerificationToken.token_hash == token_hash,
+            EmailVerificationToken.expires_at > datetime.now(timezone.utc),
+            EmailVerificationToken.used.is_(False),
+        )
+    )
+    stored = result.scalar_one_or_none()
+    if not stored:
+        raise HTTPException(status_code=400, detail="Invalid or expired verification link")
+
+    user_result = await db.execute(select(User).where(User.id == stored.user_id))
+    user = user_result.scalar_one()
+    user.email_verified = True
+    stored.used = True
+    await db.commit()
+
+
+@router.post("/resend-verification", status_code=status.HTTP_204_NO_CONTENT)
+@rate_limit("3/minute")
+async def resend_verification(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Send a new verification email to the current user."""
+    if current_user.email_verified:
+        return  # already verified, no-op
+
+    raw_verify, verify_hash = create_refresh_token()
+    verify_token = EmailVerificationToken(
+        user_id=current_user.id,
+        token_hash=verify_hash,
+        expires_at=datetime.now(timezone.utc) + timedelta(hours=24),
+    )
+    db.add(verify_token)
+    await db.commit()
+
+    verify_url = f"{settings.frontend_url}/verify-email?token={raw_verify}"
+    try:
+        send_verification_email(current_user.email, verify_url)
+    except Exception:
+        pass
 
 
 @router.post("/forgot-password", status_code=status.HTTP_204_NO_CONTENT)

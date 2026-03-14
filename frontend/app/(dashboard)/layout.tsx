@@ -15,6 +15,7 @@ import {
   LogOut,
   Menu,
   X,
+  MailWarning,
 } from "lucide-react";
 
 const NAV = [
@@ -32,6 +33,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [resendSent, setResendSent] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+
+  const handleResend = async () => {
+    setResendLoading(true);
+    try {
+      await (await import("@/lib/api")).api.resendVerification();
+      setResendSent(true);
+    } catch {
+      // silent
+    } finally {
+      setResendLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
@@ -125,6 +140,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </button>
           <span className="font-bold text-gray-900">TraceLayer</span>
         </header>
+
+        {/* Email verification banner */}
+        {user && !user.email_verified && (
+          <div className="bg-amber-50 border-b border-amber-200 px-4 py-2.5 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 text-sm text-amber-800 flex-1">
+              <MailWarning className="w-4 h-4 shrink-0 text-amber-600" />
+              <span>Please verify your email address to ensure uninterrupted access.</span>
+            </div>
+            {resendSent ? (
+              <span className="text-xs text-amber-700 font-medium shrink-0">Email sent!</span>
+            ) : (
+              <button
+                onClick={handleResend}
+                disabled={resendLoading}
+                className="text-xs font-semibold text-amber-800 underline underline-offset-2 hover:text-amber-900 disabled:opacity-60 shrink-0 text-left sm:text-right"
+              >
+                {resendLoading ? "Sending…" : "Resend verification email"}
+              </button>
+            )}
+          </div>
+        )}
 
         <main className="flex-1 p-4 md:p-8">{children}</main>
       </div>

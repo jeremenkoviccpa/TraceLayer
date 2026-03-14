@@ -96,6 +96,28 @@ def send_collection_failure_email(to: str, integration_type: str, error: str) ->
     _send(to, subject, html)
 
 
+def send_verification_email(to: str, verify_url: str) -> None:
+    subject = "Verify your TraceLayer email address"
+    html = f"""
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
+      <h2 style="margin:0 0 8px">Verify your email</h2>
+      <p style="color:#555;margin:0 0 24px">
+        Click the button below to verify your email address and activate your TraceLayer account.
+        This link expires in 24 hours.
+      </p>
+      <a href="{verify_url}"
+         style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;
+                padding:12px 24px;border-radius:8px;font-weight:600;font-size:15px">
+        Verify email address
+      </a>
+      <p style="color:#999;font-size:12px;margin-top:24px">
+        If you didn't create a TraceLayer account, you can safely ignore this email.
+      </p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
 def send_password_reset_email(to: str, reset_url: str) -> None:
     subject = "Reset your TraceLayer password"
     html = f"""

@@ -118,6 +118,14 @@ class ApiClient {
     return this.request("POST", "/auth/reset-password", { token, new_password: newPassword }, false);
   }
 
+  async verifyEmail(token: string): Promise<void> {
+    return this.request("POST", `/auth/verify-email?token=${encodeURIComponent(token)}`, undefined, false);
+  }
+
+  async resendVerification(): Promise<void> {
+    return this.request("POST", "/auth/resend-verification");
+  }
+
   // ── Integrations ────────────────────────────────────────────────────────
 
   async getIntegrations(): Promise<Integration[]> {
