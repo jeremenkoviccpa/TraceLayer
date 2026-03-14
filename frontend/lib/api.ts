@@ -1,4 +1,4 @@
-import type { ComplianceScore, DownloadResponse, Evidence, Integration, Invitation, Member, Page, Report, User } from "./types";
+import type { Company, ComplianceScore, DownloadResponse, Evidence, Integration, Invitation, Member, Page, Report, User } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -103,6 +103,13 @@ class ApiClient {
     return this.request<User>("GET", "/auth/me");
   }
 
+  async changePassword(currentPassword: string, newPassword: string): Promise<User> {
+    return this.request<User>("PATCH", "/auth/me", {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
+  }
+
   // ── Integrations ────────────────────────────────────────────────────────
 
   async getIntegrations(): Promise<Integration[]> {
@@ -194,6 +201,16 @@ class ApiClient {
       false,
     );
     this.setTokens(data.access_token, data.refresh_token);
+  }
+
+  // ── Settings ─────────────────────────────────────────────────────────────
+
+  async getCompany(): Promise<Company> {
+    return this.request<Company>("GET", "/org/company");
+  }
+
+  async updateCompany(name: string): Promise<Company> {
+    return this.request<Company>("PATCH", "/org/company", { name });
   }
 
   // ── Compliance ───────────────────────────────────────────────────────────

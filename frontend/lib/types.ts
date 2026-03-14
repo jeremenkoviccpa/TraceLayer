@@ -5,6 +5,12 @@ export interface User {
   role: string;
 }
 
+export interface Company {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
 export interface Integration {
   id: string;
   integration_type: string;

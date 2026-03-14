@@ -34,3 +34,15 @@ class InvitationResponse(BaseModel):
 class AcceptInviteRequest(BaseModel):
     token: str
     password: str
+
+
+class UpdateCompanyRequest(BaseModel):
+    name: str
+
+
+class CompanyResponse(BaseModel):
+    id: uuid.UUID
+    name: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}

@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   FileText,
   Users,
+  Settings,
   LogOut,
 } from "lucide-react";
 
@@ -19,6 +20,7 @@ const NAV = [
   { href: "/evidence", label: "Evidence", icon: ShieldCheck },
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/team", label: "Team", icon: Users },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

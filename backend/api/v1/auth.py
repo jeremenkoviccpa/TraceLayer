@@ -18,7 +18,8 @@ from core.security import (
 from models.company import Company
 from models.refresh_token import RefreshToken
 from models.user import User
-from schemas.auth import LoginRequest, RefreshRequest, RegisterRequest, TokenResponse, UserResponse
+from schemas.auth import ChangePasswordRequest, LoginRequest, RefreshRequest, RegisterRequest, TokenResponse, UserResponse
+from services.email_service import send_password_changed_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -123,4 +124,24 @@ async def logout(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
 
 @router.get("/me", response_model=UserResponse)
 async def me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
+@router.patch("/me", response_model=UserResponse)
+async def change_password(
+    body: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if not verify_password(body.current_password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    if len(body.new_password) < 8:
+        raise HTTPException(status_code=400, detail="New password must be at least 8 characters")
+    current_user.password_hash = hash_password(body.new_password)
+    await db.commit()
+    await db.refresh(current_user)
+    try:
+        send_password_changed_email(current_user.email)
+    except Exception:
+        pass
     return current_user

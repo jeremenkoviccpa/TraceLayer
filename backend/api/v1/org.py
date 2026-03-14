@@ -7,7 +7,9 @@ from core.database import get_db
 from core.deps import get_current_admin, get_current_user
 from models.user import User
 from schemas.auth import TokenResponse, UserResponse
-from schemas.org import AcceptInviteRequest, InvitationResponse, InviteRequest, MemberResponse
+from schemas.org import AcceptInviteRequest, CompanyResponse, InvitationResponse, InviteRequest, MemberResponse, UpdateCompanyRequest
+from models.company import Company
+from sqlalchemy import select
 from services.email_service import send_invite_email
 from services.org_service import (
     accept_invitation,
@@ -26,6 +28,34 @@ import logging
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/org", tags=["org"])
+
+
+@router.get("/company", response_model=CompanyResponse)
+async def get_company(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Company).where(Company.id == current_user.company_id))
+    company = result.scalar_one_or_none()
+    if not company:
+        raise HTTPException(status_code=404, detail="Company not found")
+    return company
+
+
+@router.patch("/company", response_model=CompanyResponse)
+async def update_company(
+    body: UpdateCompanyRequest,
+    current_user: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Company).where(Company.id == current_user.company_id))
+    company = result.scalar_one_or_none()
+    if not company:
+        raise HTTPException(status_code=404, detail="Company not found")
+    company.name = body.name
+    await db.commit()
+    await db.refresh(company)
+    return company
 
 
 @router.get("/members", response_model=list[MemberResponse])

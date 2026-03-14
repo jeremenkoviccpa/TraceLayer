@@ -1,0 +1,179 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
+import { useAuth } from "@/components/auth-provider";
+import type { Company } from "@/lib/types";
+import { Lock, Building2 } from "lucide-react";
+
+function Toast({ msg }: { msg: string }) {
+  return (
+    <div className="fixed top-4 right-4 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg z-50">
+      {msg}
+    </div>
+  );
+}
+
+export default function SettingsPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
+  const [toast, setToast] = useState("");
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 3000);
+  };
+
+  // ── Change Password ────────────────────────────────────────────────────
+  const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
+  const [pwSaving, setPwSaving] = useState(false);
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pwForm.next !== pwForm.confirm) {
+      showToast("New passwords do not match");
+      return;
+    }
+    setPwSaving(true);
+    try {
+      await api.changePassword(pwForm.current, pwForm.next);
+      setPwForm({ current: "", next: "", confirm: "" });
+      showToast("Password updated");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Failed to update password");
+    } finally {
+      setPwSaving(false);
+    }
+  };
+
+  // ── Company ────────────────────────────────────────────────────────────
+  const [company, setCompany] = useState<Company | null>(null);
+  const [companyName, setCompanyName] = useState("");
+  const [companySaving, setCompanySaving] = useState(false);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    api.getCompany().then((c) => {
+      setCompany(c);
+      setCompanyName(c.name);
+    }).catch(console.error);
+  }, [isAdmin]);
+
+  const handleUpdateCompany = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCompanySaving(true);
+    try {
+      const updated = await api.updateCompany(companyName);
+      setCompany(updated);
+      showToast("Company name updated");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Failed to update company");
+    } finally {
+      setCompanySaving(false);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl">
+      {toast && <Toast msg={toast} />}
+
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
+
+      {/* Change Password */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Lock className="w-5 h-5 text-gray-400" />
+          <h2 className="text-base font-semibold text-gray-900">Change Password</h2>
+        </div>
+        <form onSubmit={handleChangePassword} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Current password
+            </label>
+            <input
+              type="password"
+              required
+              value={pwForm.current}
+              onChange={(e) => setPwForm((f) => ({ ...f, current: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              New password
+            </label>
+            <input
+              type="password"
+              required
+              minLength={8}
+              value={pwForm.next}
+              onChange={(e) => setPwForm((f) => ({ ...f, next: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Confirm new password
+            </label>
+            <input
+              type="password"
+              required
+              minLength={8}
+              value={pwForm.confirm}
+              onChange={(e) => setPwForm((f) => ({ ...f, confirm: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={pwSaving}
+              className="bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              {pwSaving ? "Saving…" : "Update password"}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Company Settings — admin only */}
+      {isAdmin && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Building2 className="w-5 h-5 text-gray-400" />
+            <h2 className="text-base font-semibold text-gray-900">Company</h2>
+          </div>
+          {company ? (
+            <form onSubmit={handleUpdateCompany} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Company name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={companySaving}
+                  className="bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                >
+                  {companySaving ? "Saving…" : "Save changes"}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="flex items-center justify-center h-16">
+              <div className="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
