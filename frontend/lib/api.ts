@@ -1,0 +1,174 @@
+import type { Evidence, Integration, Page, Report, User } from "./types";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+class ApiClient {
+  private getToken(): string | null {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("access_token");
+  }
+
+  setTokens(access: string, refresh: string) {
+    localStorage.setItem("access_token", access);
+    localStorage.setItem("refresh_token", refresh);
+  }
+
+  clearTokens() {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+  }
+
+  private async tryRefresh(): Promise<boolean> {
+    const refresh = localStorage.getItem("refresh_token");
+    if (!refresh) return false;
+    try {
+      const res = await fetch(`${API_URL}/v1/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: refresh }),
+      });
+      if (!res.ok) return false;
+      const data = await res.json();
+      this.setTokens(data.access_token, data.refresh_token);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private async request<T>(
+    method: string,
+    path: string,
+    body?: unknown,
+    auth = true,
+    isRetry = false,
+  ): Promise<T> {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (auth) {
+      const token = this.getToken();
+      if (!token) throw new Error("Not authenticated");
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const res = await fetch(`${API_URL}/v1${path}`, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+
+    if (res.status === 401 && !isRetry) {
+      const refreshed = await this.tryRefresh();
+      if (refreshed) return this.request(method, path, body, auth, true);
+      this.clearTokens();
+      window.location.href = "/login";
+      throw new Error("Session expired");
+    }
+
+    if (res.status === 204) return undefined as T;
+
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.detail ?? "Request failed");
+    return json as T;
+  }
+
+  // ── Auth ────────────────────────────────────────────────────────────────
+
+  async register(email: string, password: string, companyName: string): Promise<void> {
+    const data = await this.request<{ access_token: string; refresh_token: string }>(
+      "POST", "/auth/register",
+      { email, password, company_name: companyName },
+      false,
+    );
+    this.setTokens(data.access_token, data.refresh_token);
+  }
+
+  async login(email: string, password: string): Promise<void> {
+    const data = await this.request<{ access_token: string; refresh_token: string }>(
+      "POST", "/auth/login",
+      { email, password },
+      false,
+    );
+    this.setTokens(data.access_token, data.refresh_token);
+  }
+
+  async logout(): Promise<void> {
+    const refresh = localStorage.getItem("refresh_token");
+    if (refresh) {
+      await this.request("POST", "/auth/logout", { refresh_token: refresh }).catch(() => {});
+    }
+    this.clearTokens();
+  }
+
+  async me(): Promise<User> {
+    return this.request<User>("GET", "/auth/me");
+  }
+
+  // ── Integrations ────────────────────────────────────────────────────────
+
+  async getIntegrations(): Promise<Integration[]> {
+    return this.request<Integration[]>("GET", "/integrations");
+  }
+
+  async connectIntegration(
+    integrationType: string,
+    credentials: Record<string, string>,
+  ): Promise<Integration> {
+    return this.request<Integration>("POST", "/integrations/connect", {
+      integration_type: integrationType,
+      credentials,
+    });
+  }
+
+  async disconnectIntegration(integrationType: string): Promise<void> {
+    return this.request("DELETE", `/integrations/${integrationType}`);
+  }
+
+  async triggerCollect(integrationType: string): Promise<void> {
+    return this.request("POST", `/integrations/${integrationType}/collect`);
+  }
+
+  // ── Evidence ────────────────────────────────────────────────────────────
+
+  async getEvidence(params?: {
+    control?: string;
+    integration?: string;
+    page?: number;
+    page_size?: number;
+  }): Promise<Page<Evidence>> {
+    const q = new URLSearchParams();
+    if (params?.control) q.set("control", params.control);
+    if (params?.integration) q.set("integration", params.integration);
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.page_size) q.set("page_size", String(params.page_size));
+    const qs = q.toString();
+    return this.request<Page<Evidence>>("GET", `/evidence${qs ? `?${qs}` : ""}`);
+  }
+
+  // ── Reports ─────────────────────────────────────────────────────────────
+
+  async generateReport(framework = "soc2", reportType = "full"): Promise<Report> {
+    return this.request<Report>("POST", "/reports/generate", {
+      framework,
+      report_type: reportType,
+    });
+  }
+
+  async getReports(page = 1): Promise<Page<Report>> {
+    return this.request<Page<Report>>("GET", `/reports?page=${page}`);
+  }
+
+  async getReport(id: string): Promise<Report> {
+    return this.request<Report>("GET", `/reports/${id}`);
+  }
+
+  async downloadReport(id: string): Promise<unknown> {
+    const token = this.getToken();
+    const res = await fetch(`${API_URL}/v1/reports/${id}/download`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("Download failed");
+    return res.json();
+  }
+}
+
+export const api = new ApiClient();
