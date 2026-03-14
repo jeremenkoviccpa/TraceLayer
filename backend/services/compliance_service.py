@@ -8,19 +8,33 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.control import Control
 from models.evidence import Evidence
 
-# Expected evidence types per control category.
-# Coverage score is based on how many of these are present.
-EXPECTED_TYPES: dict[str, set[str]] = {
-    "access_control": {
-        "iam_users",
-        "iam_policies",
-        "github_members",
-        "github_admin_members",
-        "slack_users",
-        "slack_workspace",
+# Expected evidence types per framework per control category.
+# Coverage score = how many expected types are present in collected evidence.
+EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
+    "soc2": {
+        "access_control": {
+            "iam_users", "iam_policies",
+            "github_members", "github_admin_members",
+            "slack_users", "slack_workspace",
+        },
+        "logging_monitoring": {"cloudtrail_logs"},
+        "change_management": {"repositories"},
     },
-    "logging_monitoring": {"cloudtrail_logs"},
-    "change_management": {"repositories"},
+    "iso27001": {
+        "access_control": {
+            "iam_users", "iam_policies",
+            "github_members", "github_admin_members",
+            "slack_users",
+        },
+        "operations_security": {"cloudtrail_logs"},
+        "communications_security": {"slack_workspace", "slack_users"},
+        "change_management": {"repositories"},
+    },
+    "hipaa": {
+        "access_control": {"iam_users", "iam_policies"},
+        "audit_controls": {"cloudtrail_logs"},
+        "workforce_security": {"github_members", "slack_users"},
+    },
 }
 
 
@@ -92,7 +106,7 @@ async def get_compliance_score(
         covered = ev["types"]
         count = ev["count"]
         latest = ev["latest"]
-        expected = EXPECTED_TYPES.get(control.category, set())
+        expected = EXPECTED_TYPES.get(framework, {}).get(control.category, set())
 
         score = _compute_score(covered, expected, latest, count)
 

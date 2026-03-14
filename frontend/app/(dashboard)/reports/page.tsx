@@ -17,12 +17,19 @@ function statusLabel(status: string) {
   return "Generating…";
 }
 
+const FRAMEWORKS = [
+  { value: "soc2", label: "SOC 2" },
+  { value: "iso27001", label: "ISO 27001" },
+  { value: "hipaa", label: "HIPAA" },
+];
+
 export default function ReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [downloading, setDownloading] = useState<string | null>(null);
   const [toast, setToast] = useState("");
+  const [framework, setFramework] = useState("soc2");
 
   const load = () =>
     api
@@ -43,7 +50,7 @@ export default function ReportsPage() {
   const handleGenerate = async () => {
     setGenerating(true);
     try {
-      await api.generateReport("soc2", "full");
+      await api.generateReport(framework, "full");
       await load();
       showToast("Report generation started");
     } catch (err: unknown) {
@@ -82,14 +89,25 @@ export default function ReportsPage() {
 
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
-        <button
-          onClick={handleGenerate}
-          disabled={generating}
-          className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          {generating ? "Generating…" : "Generate SOC 2 report"}
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={framework}
+            onChange={(e) => setFramework(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          >
+            {FRAMEWORKS.map((f) => (
+              <option key={f.value} value={f.value}>{f.label}</option>
+            ))}
+          </select>
+          <button
+            onClick={handleGenerate}
+            disabled={generating}
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            {generating ? "Generating…" : "Generate report"}
+          </button>
+        </div>
       </div>
 
       {loading ? (

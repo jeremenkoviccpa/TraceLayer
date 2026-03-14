@@ -46,18 +46,26 @@ function scoreBarColor(score: number) {
   return "bg-red-400";
 }
 
+const FRAMEWORKS = [
+  { value: "soc2", label: "SOC 2" },
+  { value: "iso27001", label: "ISO 27001" },
+  { value: "hipaa", label: "HIPAA" },
+];
+
 export default function DashboardPage() {
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [evidence, setEvidence] = useState<Evidence[]>([]);
   const [evidenceTotal, setEvidenceTotal] = useState(0);
   const [compliance, setCompliance] = useState<ComplianceScore | null>(null);
+  const [framework, setFramework] = useState("soc2");
   const [loading, setLoading] = useState(true);
+  const [scoreLoading, setScoreLoading] = useState(false);
 
   useEffect(() => {
     Promise.all([
       api.getIntegrations(),
       api.getEvidence({ page_size: 5 }),
-      api.getComplianceScore(),
+      api.getComplianceScore(framework),
     ])
       .then(([ints, ev, score]) => {
         setIntegrations(ints);
@@ -68,6 +76,16 @@ export default function DashboardPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
+
+  const handleFrameworkChange = async (fw: string) => {
+    setFramework(fw);
+    setScoreLoading(true);
+    try {
+      setCompliance(await api.getComplianceScore(fw));
+    } catch { /* ignore */ } finally {
+      setScoreLoading(false);
+    }
+  };
 
   // Group evidence by control
   const byControl = evidence.reduce<Record<string, number>>((acc, e) => {
@@ -117,9 +135,18 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-gray-400" />
-              <h2 className="font-semibold text-gray-800">SOC 2 Compliance</h2>
+              <h2 className="font-semibold text-gray-800">Compliance Score</h2>
+              <select
+                value={framework}
+                onChange={(e) => handleFrameworkChange(e.target.value)}
+                className="ml-2 border border-gray-200 rounded-md px-2 py-1 text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              >
+                {FRAMEWORKS.map((f) => (
+                  <option key={f.value} value={f.value}>{f.label}</option>
+                ))}
+              </select>
             </div>
-            <span className={`text-2xl font-bold ${scoreColor(compliance.overall_score)}`}>
+            <span className={`text-2xl font-bold ${scoreLoading ? "opacity-40" : ""} ${scoreColor(compliance.overall_score)}`}>
               {compliance.overall_score}%
             </span>
           </div>

@@ -49,6 +49,40 @@ async def test_compliance_score_structure(client: AsyncClient):
         assert 0 <= control["score"] <= 100
 
 
+async def test_compliance_score_iso27001(client: AsyncClient):
+    headers = await auth_headers(client, "score_iso@example.com", company="IsoCo")
+    res = await client.get("/v1/compliance/score?framework=iso27001", headers=headers)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["framework"] == "iso27001"
+    categories = {c["category"] for c in data["controls"]}
+    assert "access_control" in categories
+    assert "operations_security" in categories
+    assert "change_management" in categories
+
+
+async def test_compliance_score_hipaa(client: AsyncClient):
+    headers = await auth_headers(client, "score_hipaa@example.com", company="HipaaCo")
+    res = await client.get("/v1/compliance/score?framework=hipaa", headers=headers)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["framework"] == "hipaa"
+    categories = {c["category"] for c in data["controls"]}
+    assert "access_control" in categories
+    assert "audit_controls" in categories
+    assert "workforce_security" in categories
+
+
+async def test_compliance_score_unknown_framework(client: AsyncClient):
+    """Unknown framework returns empty controls and score 0."""
+    headers = await auth_headers(client, "score_unknown@example.com")
+    res = await client.get("/v1/compliance/score?framework=unknown", headers=headers)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["overall_score"] == 0
+    assert data["controls"] == []
+
+
 async def test_compliance_score_isolated_between_companies(client: AsyncClient):
     """Two companies get independent scores."""
     headers_a = await auth_headers(client, "iso_score_a@example.com", company="IsoScoreA")
