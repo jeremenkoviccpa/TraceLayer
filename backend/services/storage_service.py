@@ -53,7 +53,7 @@ def upload_bytes(
     response = storage.upload(
         path,
         data,
-        {"content-type": content_type, "upsert": True},
+        {"content-type": content_type, "upsert": "true"},
     )
     return response
 

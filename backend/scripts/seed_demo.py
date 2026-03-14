@@ -183,7 +183,6 @@ async def seed():
             print(f"✓ Demo account already exists — skipping.")
             print(f"  Email:    {DEMO_EMAIL}")
             print(f"  Password: {DEMO_PASSWORD}")
-            await engine.dispose()
             return
 
         # Company
