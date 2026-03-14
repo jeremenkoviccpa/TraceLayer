@@ -21,6 +21,8 @@ from services.report_service import (
 )
 from utils.pagination import Page
 
+from services.audit_service import log_action
+
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/reports", tags=["reports"])
 
@@ -63,6 +65,12 @@ async def generate(
     else:
         background_tasks.add_task(_run_json_generation, report.id, current_user.company_id)
 
+    await log_action(
+        db, current_user.company_id, "report.generated",
+        user_id=current_user.id, user_email=current_user.email,
+        resource_type="report", resource_id=str(report.id),
+        metadata={"framework": body.framework, "format": body.format},
+    )
     return report
 
 
@@ -119,6 +127,12 @@ async def download_report(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+    await log_action(
+        db, current_user.company_id, "report.downloaded",
+        user_id=current_user.id, user_email=current_user.email,
+        resource_type="report", resource_id=str(report_id),
+        metadata={"framework": report.framework, "format": format},
+    )
     return JSONResponse(
         content={
             "url": signed_url,

@@ -10,6 +10,7 @@ from schemas.auth import TokenResponse, UserResponse
 from schemas.org import AcceptInviteRequest, CompanyResponse, InvitationResponse, InviteRequest, MemberResponse, UpdateCompanyRequest
 from models.company import Company
 from sqlalchemy import select
+from services.audit_service import log_action
 from services.email_service import send_invite_email
 from services.org_service import (
     accept_invitation,
@@ -55,6 +56,9 @@ async def update_company(
     company.name = body.name
     await db.commit()
     await db.refresh(company)
+    await log_action(db, current_user.company_id, "company.updated",
+        user_id=current_user.id, user_email=current_user.email,
+        metadata={"name": body.name})
     return company
 
 
@@ -78,6 +82,9 @@ async def delete_member(
         raise HTTPException(status_code=400, detail=str(e))
     if not removed:
         raise HTTPException(status_code=404, detail="Member not found")
+    await log_action(db, current_user.company_id, "member.removed",
+        user_id=current_user.id, user_email=current_user.email,
+        resource_type="user", resource_id=str(user_id))
 
 
 @router.get("/invites", response_model=list[InvitationResponse])
@@ -135,6 +142,10 @@ async def invite_member(
     except Exception as exc:
         logger.warning("Failed to send invite email to %s: %s", invite.email, exc)
 
+    await log_action(db, current_user.company_id, "member.invited",
+        user_id=current_user.id, user_email=current_user.email,
+        resource_type="invitation", resource_id=str(invite.id),
+        metadata={"email": invite.email, "role": invite.role})
     return InvitationResponse(
         id=invite.id,
         email=invite.email,

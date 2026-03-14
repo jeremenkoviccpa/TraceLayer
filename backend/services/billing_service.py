@@ -115,12 +115,17 @@ async def handle_webhook(event_name: str, data: dict, meta: dict, db: AsyncSessi
             logger.warning("Webhook %s: company %s not found", event_name, company_id)
             return
 
+        prev_plan = company.plan
         company.ls_subscription_id = ls_sub_id
         company.ls_customer_id = ls_customer_id
         company.subscription_status = status
         company.plan = "growth" if status in active_statuses else "free"
         await db.commit()
         logger.info("Billing: company=%s plan=%s status=%s", company_id, company.plan, status)
+        if prev_plan != company.plan:
+            from services.audit_service import log_action
+            action = "plan.upgraded" if company.plan == "growth" else "plan.downgraded"
+            await log_action(db, company_id, action, metadata={"status": status})
 
     elif event_name in ("subscription_cancelled", "subscription_expired"):
         # Find company by subscription ID
@@ -133,6 +138,8 @@ async def handle_webhook(event_name: str, data: dict, meta: dict, db: AsyncSessi
             company.plan = "free"
             await db.commit()
             logger.info("Billing: company=%s downgraded to free (event=%s)", company.id, event_name)
+            from services.audit_service import log_action
+            await log_action(db, company.id, "plan.downgraded", metadata={"event": event_name})
 
 
 async def check_integration_limit(company_id: uuid.UUID, db: AsyncSession) -> None:

@@ -7,6 +7,7 @@ from core.database import get_db
 from core.deps import get_current_user
 from models.user import User
 from schemas.integrations import ConnectRequest, IntegrationResponse
+from services.audit_service import log_action
 from services.billing_service import check_integration_limit
 from services.integration_service import (
     connect_integration,
@@ -57,6 +58,11 @@ async def connect(
         body.integration_type,
     )
 
+    await log_action(
+        db, current_user.company_id, "integration.connected",
+        user_id=current_user.id, user_email=current_user.email,
+        resource_type="integration", resource_id=body.integration_type,
+    )
     return integration
 
 
@@ -71,6 +77,11 @@ async def disconnect(
         raise HTTPException(status_code=404, detail="Integration not found")
 
     unschedule_integration(str(current_user.company_id), integration_type)
+    await log_action(
+        db, current_user.company_id, "integration.disconnected",
+        user_id=current_user.id, user_email=current_user.email,
+        resource_type="integration", resource_id=integration_type,
+    )
 
 
 @router.post("/{integration_type}/collect", status_code=202)

@@ -113,6 +113,20 @@ export interface EvidenceActivityPoint {
   count: number;
 }
 
+export interface AuditLog {
+  id: string;
+  company_id: string;
+  user_id: string | null;
+  user_email: string | null;
+  action: string;
+  action_label: string;
+  resource_type: string | null;
+  resource_id: string | null;
+  metadata_: Record<string, unknown> | null;
+  ip_address: string | null;
+  created_at: string;
+}
+
 export interface ManualControl {
   control_id: string;
   name: string;

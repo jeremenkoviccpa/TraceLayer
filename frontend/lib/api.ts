@@ -1,4 +1,4 @@
-import type { BillingInfo, Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, Report, ScoreHistoryPoint, User } from "./types";
+import type { AuditLog, BillingInfo, Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, Report, ScoreHistoryPoint, User } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -263,6 +263,27 @@ class ApiClient {
 
   async getAISummary(framework = "soc2"): Promise<{ summary: string; overall_score: number; generated_at: string }> {
     return this.request("POST", `/compliance/ai-summary?framework=${framework}`);
+  }
+
+  // ── Audit Log ────────────────────────────────────────────────────────────
+
+  async getAuditLog(params?: {
+    page?: number;
+    page_size?: number;
+    action?: string;
+    user_email?: string;
+    date_from?: string;
+    date_to?: string;
+  }): Promise<Page<AuditLog>> {
+    const q = new URLSearchParams();
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.page_size) q.set("page_size", String(params.page_size));
+    if (params?.action) q.set("action", params.action);
+    if (params?.user_email) q.set("user_email", params.user_email);
+    if (params?.date_from) q.set("date_from", params.date_from);
+    if (params?.date_to) q.set("date_to", params.date_to);
+    const qs = q.toString();
+    return this.request<Page<AuditLog>>("GET", `/audit-log${qs ? `?${qs}` : ""}`);
   }
 
   // ── Billing ──────────────────────────────────────────────────────────────

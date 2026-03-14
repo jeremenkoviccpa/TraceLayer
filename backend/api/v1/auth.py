@@ -21,6 +21,7 @@ from models.password_reset_token import PasswordResetToken
 from models.refresh_token import RefreshToken
 from models.user import User
 from schemas.auth import ChangePasswordRequest, ForgotPasswordRequest, LoginRequest, RefreshRequest, RegisterRequest, ResetPasswordRequest, TokenResponse, UserResponse
+from services.audit_service import log_action
 from services.email_service import send_password_changed_email, send_password_reset_email, send_verification_email, send_welcome_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -74,6 +75,7 @@ async def register(request: Request, body: RegisterRequest, db: AsyncSession = D
     except Exception:
         pass
 
+    await log_action(db, company.id, "user.login", user_id=user.id, user_email=user.email)
     return TokenResponse(access_token=access_token, refresh_token=raw_refresh)
 
 
@@ -96,6 +98,7 @@ async def login(request: Request, body: LoginRequest, db: AsyncSession = Depends
     db.add(refresh_token)
     await db.commit()
 
+    await log_action(db, user.company_id, "user.login", user_id=user.id, user_email=user.email)
     return TokenResponse(access_token=access_token, refresh_token=raw_refresh)
 
 
@@ -167,6 +170,7 @@ async def verify_email(request: Request, token: str, db: AsyncSession = Depends(
     user.email_verified = True
     stored.used = True
     await db.commit()
+    await log_action(db, user.company_id, "user.email_verified", user_id=user.id, user_email=user.email)
 
 
 @router.post("/resend-verification", status_code=status.HTTP_204_NO_CONTENT)
@@ -246,6 +250,7 @@ async def reset_password(request: Request, body: ResetPasswordRequest, db: Async
     user.password_hash = hash_password(body.new_password)
     stored.used = True
     await db.commit()
+    await log_action(db, user.company_id, "user.password_changed", user_id=user.id, user_email=user.email)
 
     try:
         send_password_changed_email(user.email)

@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   MailWarning,
+  ScrollText,
 } from "lucide-react";
 
 const NAV = [
@@ -25,6 +26,7 @@ const NAV = [
   { href: "/evidence", label: "Evidence", icon: Database },
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/team", label: "Team", icon: Users },
+  { href: "/audit-log", label: "Audit Log", icon: ScrollText },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
