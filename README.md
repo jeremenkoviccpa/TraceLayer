@@ -1,71 +1,154 @@
-# TraceLayer - Continuous Compliance Evidence Collection
+# TraceLayer
 
-TraceLayer is a continuous compliance evidence collection system. It connects to company infrastructure platforms (AWS, GitHub, Slack), collects evidence for compliance controls, normalizes it, stores it in PostgreSQL, and generates reports.
+Continuous compliance evidence collection platform. Connects to your cloud tools and SaaS apps, automatically collects evidence mapped to SOC 2, ISO 27001, and HIPAA controls, and generates audit-ready reports.
 
-## What This Project Does
-- Connects to external integrations (AWS, GitHub, Slack) and validates credentials
-- Encrypts integration credentials at rest (Fernet)
-- Collects and normalizes evidence, then maps it to control categories
-- Stores evidence and report metadata in PostgreSQL
-- Generates JSON evidence bundles and PDF reports (WeasyPrint)
-- Computes compliance scores per framework based on coverage + recency
-- Runs scheduled background collection jobs (default every 24h)
-- Supports org member invites and role-based access (admin/user)
-- Rate limits auth endpoints in non-test environments
-- Exposes a `/health` endpoint
+**Live:** Railway (backend) + Vercel (frontend)
+**Demo account:** `demo@tracelayer.com` / `Demo1234!` (set `SEED_DEMO=true` in Railway to create)
+
+---
+
+## What's Built
+
+### Core Platform
+- Multi-tenant SaaS — each company gets isolated data
+- JWT auth with refresh token rotation (httpOnly, hashed in DB)
+- Role-based access: `admin` and `member`
+- Rate-limited auth endpoints (slowapi)
+- Fernet encryption for all integration credentials at rest
+
+### Integrations (7)
+| Integration | Evidence collected |
+|---|---|
+| AWS | IAM users, IAM policies, CloudTrail logs |
+| GitHub | Repositories, org members, admin members |
+| Slack | Users, workspace metadata |
+| Google Workspace | Users, admin members, groups |
+| Jira | Projects, users |
+| Okta | Users, groups, policies |
+| Azure AD | Users, groups, role assignments |
+
+All integrations use API key / token auth — no OAuth flow required.
+
+### Compliance Engine
+- Scores per control: coverage (70%) + recency (20%) + volume (10%)
+- Frameworks: **SOC 2**, **ISO 27001**, **HIPAA**
+- Score history snapshots (max once/hour per company+framework)
+- Manual controls checklist (pending / compliant / N/A + notes) per framework
+- Evidence drill-down: click any control → filtered evidence table
+
+### Reporting
+- JSON evidence bundle (all evidence grouped by control)
+- PDF audit report (WeasyPrint): cover page, executive summary with score ring, control breakdown table, per-control evidence tables
+- Reports stored in Supabase Storage with signed download URLs
+- Background task generation (202 Accepted → poll for completion)
+
+### Dashboard
+- Compliance score with 30-day trend line (Recharts)
+- Evidence activity bar chart (14 days)
+- Control breakdown with score bars and missing evidence hints
+- Integration staleness badges (yellow >24h, red >48h)
+- Action items panel for failing/warning controls
+- Onboarding nudge for new accounts
+
+### Team & Org
+- Invite members by email (Resend) with 7-day expiry tokens
+- Accept invite flow with password setup
+- Remove members
+- Company name management
+
+### Email (Resend)
+- Welcome email on registration → links to onboarding
+- Invite email with accept link
+- Collection failure alert to company admins
+- Password changed notification
+
+### Onboarding
+- 3-step wizard: Welcome → Connect integration → Collect → Dashboard
+- Auto-skips if integrations already connected
+
+### Landing Page
+- Public marketing page at `/`
+- Auto-redirects logged-in users to dashboard
+
+---
 
 ## Tech Stack
-- Backend: FastAPI, SQLAlchemy 2.0, Pydantic v2, APScheduler
-- Auth: JWT access + refresh tokens
-- Storage: PostgreSQL (Supabase compatible)
-- Frontend: Next.js 14, React, TailwindCSS
-- Reports: Jinja2 + WeasyPrint
 
-## Architecture (High Level)
-Frontend (Next.js)
-  -> Backend API (FastAPI /v1)
-  -> Background Scheduler (APScheduler)
-  -> Integration Adapters (AWS/GitHub/Slack)
-  -> Evidence Normalization Layer
-  -> PostgreSQL
-  -> Report Generator (PDF saved to `/tmp/tracelayer_reports`)
+| Layer | Technology |
+|---|---|
+| Backend | FastAPI, SQLAlchemy 2.0 async, Pydantic v2 |
+| Auth | JWT (python-jose), bcrypt, refresh token rotation |
+| Database | PostgreSQL via asyncpg + Alembic migrations |
+| Scheduler | APScheduler (24h collection jobs) |
+| PDF | Jinja2 + WeasyPrint 62.3 |
+| Storage | Supabase Storage (signed URLs) |
+| Email | Resend |
+| Encryption | Fernet (cryptography) |
+| Frontend | Next.js 14, React, TailwindCSS, Recharts |
+| Deployment | Railway (backend), Vercel (frontend), Supabase (DB + storage) |
+
+---
 
 ## Repository Structure
-- `backend/` FastAPI backend and services
-- `frontend/` Next.js frontend
-- `docker-compose.yml` Local Postgres for development
-- `SPEC.md` Detailed system specification
+
+```
+backend/
+  api/v1/          # FastAPI routers (auth, integrations, evidence, reports, org, compliance)
+  collectors/      # Scheduler + per-job runner
+  integrations/    # Adapter per integration type + registry
+  migrations/      # Alembic versions (001–008)
+  models/          # SQLAlchemy ORM models
+  reports/         # Jinja2 template + WeasyPrint generator
+  schemas/         # Pydantic request/response schemas
+  scripts/         # seed_demo.py
+  services/        # Business logic (compliance, report, email, storage, org)
+  core/            # Config, DB, security, rate limiter, deps
+
+frontend/
+  app/
+    (auth)/        # login, register, accept-invite
+    (dashboard)/   # dashboard, integrations, evidence, compliance, reports, team, settings, onboarding
+  components/      # auth-provider, layout components
+  lib/             # api.ts (typed API client), types.ts
+```
+
+---
 
 ## Getting Started (Local)
-Requirements:
-- Python 3.11+
-- Node 18+
-- Docker
 
-### 1) Start Postgres
+**Requirements:** Python 3.11+, Node 18+, Docker
+
+### 1. Start Postgres
 ```bash
 docker-compose up -d
 ```
 
-### 2) Backend
+### 2. Backend
 ```bash
 cd backend
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+
+# macOS WeasyPrint deps
+brew install pango
+
+cp .env.example .env  # fill in values
 uvicorn main:app --reload
 ```
-Migrations run automatically on app startup (skipped in `APP_ENV=test`).
 
-### 3) Frontend
+### 3. Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
+---
+
 ## Environment Variables
-Create a `.env` file in `backend/` with:
+
+### Backend (`backend/.env`)
 ```bash
 # App
 APP_ENV=development
@@ -74,99 +157,92 @@ CORS_ORIGINS=["http://localhost:3000"]
 FRONTEND_URL=http://localhost:3000
 
 # Database
-DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/tracelayer
+DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/tracelayer
 
 # JWT
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
 JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
 
 # Encryption
-FERNET_KEY=<generated Fernet key>
+FERNET_KEY=<generated with Fernet.generate_key()>
 
-# Email (Invites)
-RESEND_API_KEY=<optional>
-EMAIL_FROM="TraceLayer <onboarding@resend.dev>"
+# Supabase Storage (reports)
+SUPABASE_URL=https://xxx.supabase.co
+SUPABASE_SERVICE_KEY=<service role key>
+STORAGE_BUCKET=reports
+
+# Email (Resend)
+RESEND_API_KEY=<optional — logs to stdout if absent>
+EMAIL_FROM=TraceLayer <noreply@yourdomain.com>
+
+# Demo seed
+SEED_DEMO=false  # set true once to create demo@tracelayer.com account
 ```
 
-## API Overview
-All routes are prefixed with `/v1`.
+### Frontend (`frontend/.env.local`)
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
 
-Auth:
-- `POST /v1/auth/register`
-- `POST /v1/auth/login`
-- `POST /v1/auth/refresh`
-- `POST /v1/auth/logout`
-- `GET /v1/auth/me`
+---
 
-Integrations:
-- `GET /v1/integrations`
-- `POST /v1/integrations/connect`
-- `DELETE /v1/integrations/{integration_type}`
-- `POST /v1/integrations/{integration_type}/collect`
+## API Reference
 
-Evidence:
-- `GET /v1/evidence` (supports `control`, `integration`, `page`, `page_size`)
+All routes prefixed with `/v1`.
 
-Reports:
-- `POST /v1/reports/generate`
-- `GET /v1/reports`
-- `GET /v1/reports/{id}`
-- `GET /v1/reports/{id}/download?format=json|pdf`
+**Auth:** `POST /auth/register` · `POST /auth/login` · `POST /auth/refresh` · `POST /auth/logout` · `GET /auth/me` · `PATCH /auth/me`
 
-Org:
-- `GET /v1/org/members`
-- `DELETE /v1/org/members/{user_id}`
-- `GET /v1/org/invites`
-- `POST /v1/org/invites`
-- `DELETE /v1/org/invites/{invite_id}`
-- `POST /v1/org/invites/accept`
+**Integrations:** `GET /integrations` · `POST /integrations/connect` · `DELETE /integrations/{type}` · `POST /integrations/{type}/collect`
 
-Compliance:
-- `GET /v1/compliance/score?framework=soc2|iso27001|hipaa`
+**Evidence:** `GET /evidence?control=&integration=&page=&page_size=`
 
-## Current Auth Model
-- JWT access token (short-lived)
-- Refresh token (rotated, stored hashed in DB)
-- Email + password registration/login
-- Basic role model: `admin` and `user`
+**Compliance:** `GET /compliance/score?framework=` · `GET /compliance/score-history` · `GET /compliance/evidence-activity` · `GET /compliance/manual-controls?framework=` · `PUT /compliance/manual-controls/{control_id}?framework=`
 
-## Integrations & Evidence Types
-- AWS: IAM users (`iam_users`), IAM policies (`iam_policies`), CloudTrail events (`cloudtrail_logs`)
-- GitHub: org repositories (`repositories`), members (`github_members`), admin members (`github_admin_members`)
-- Slack: users (`slack_users`), workspace/team metadata (`slack_workspace`)
+**Reports:** `POST /reports/generate` · `GET /reports` · `GET /reports/{id}` · `GET /reports/{id}/download?format=json|pdf`
 
-## Integration Credentials
-- AWS: `access_key_id`, `secret_access_key`, optional `region` (defaults to `us-east-1`)
-- GitHub: `token`, `org`
-- Slack: `bot_token`
+**Org:** `GET /org/company` · `PATCH /org/company` · `GET /org/members` · `DELETE /org/members/{id}` · `GET /org/invites` · `POST /org/invites` · `DELETE /org/invites/{id}` · `POST /org/invites/accept`
 
-## Supported Frameworks
-- SOC 2
-- ISO 27001
-- HIPAA
+**Health:** `GET /health`
 
-Compliance scores are based on evidence coverage, recency, and volume.
+---
 
-## Reports
-- JSON report: assembled evidence bundle per control category
-- PDF report: generated via WeasyPrint and stored on disk at `/tmp/tracelayer_reports`
+## Database Migrations
 
-PDF generation requires WeasyPrint system deps.
-macOS: `brew install pango`
-Ubuntu: `apt-get install libpango-1.0-0 libpangoft2-1.0-0`
+| # | Description |
+|---|---|
+| 001 | Initial schema (users, companies, integrations, evidence, controls, reports, invitations, refresh tokens) |
+| 002 | Invitations table |
+| 003 | Report format field |
+| 004 | Seed SOC 2 controls |
+| 005 | Seed ISO 27001 + HIPAA controls |
+| 006 | Report storage fields (bucket, path, mime type, file size) |
+| 007 | Compliance score snapshots |
+| 008 | Manual controls checklist |
 
-## Deployment
-- Backend: Railway or Render
-- Frontend: Vercel
-- Database: Supabase
+Migrations run automatically on startup via `alembic upgrade head`.
 
-## Roadmap (Short)
-- More integrations (Google Workspace, Okta, Jira)
-- Continuous monitoring and alerting
-- Report export to object storage
+---
 
-## Contributing
-PRs are welcome. Please keep changes focused and include tests when relevant.
+## Deployment (Railway + Vercel)
 
-## License
-TBD
+### Backend (Railway)
+- Root directory: `backend/`
+- Build: Docker (uses `backend/Dockerfile` — includes WeasyPrint system deps)
+- Required env vars: `SECRET_KEY`, `DATABASE_URL`, `FERNET_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`
+- Optional: `RESEND_API_KEY`, `EMAIL_FROM`, `SEED_DEMO`, `STORAGE_BUCKET`
+
+### Frontend (Vercel)
+- Root directory: `frontend/`
+- Framework: Next.js
+- Required env var: `NEXT_PUBLIC_API_URL=https://your-railway-backend.up.railway.app`
+
+---
+
+## Roadmap
+
+- [ ] Weekly compliance digest email
+- [ ] Integration reconnect UX (inline re-auth when credentials expire)
+- [ ] In-app audit log (who connected/disconnected/generated reports)
+- [ ] Stripe billing (free tier + paid plans)
+- [ ] 2FA / TOTP
+- [ ] SSO / SAML
