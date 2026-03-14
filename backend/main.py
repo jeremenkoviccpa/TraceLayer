@@ -22,20 +22,36 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+async def _run_migrations() -> None:
+    """Run Alembic migrations on startup."""
+    import asyncio
+    from alembic import command
+    from alembic.config import Config
+
+    loop = asyncio.get_event_loop()
+    alembic_cfg = Config("alembic.ini")
+    await loop.run_in_executor(None, command.upgrade, alembic_cfg, "head")
+    logger.info("Database migrations applied")
+
+
 async def _reschedule_active_integrations() -> None:
     """On startup, re-add scheduler jobs for all active integrations."""
     from models.integration import Integration
 
-    async with AsyncSessionLocal() as db:
-        result = await db.execute(select(Integration).where(Integration.status == "active"))
-        integrations_list = result.scalars().all()
-        for i in integrations_list:
-            schedule_integration(str(i.company_id), i.integration_type)
-        logger.info("Rescheduled %d active integration(s) on startup", len(integrations_list))
+    try:
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(select(Integration).where(Integration.status == "active"))
+            integrations_list = result.scalars().all()
+            for i in integrations_list:
+                schedule_integration(str(i.company_id), i.integration_type)
+            logger.info("Rescheduled %d active integration(s) on startup", len(integrations_list))
+    except Exception as exc:
+        logger.warning("Could not reschedule integrations on startup: %s", exc)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await _run_migrations()
     await _reschedule_active_integrations()
     await start_scheduler()
     yield
