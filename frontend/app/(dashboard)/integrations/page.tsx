@@ -1,9 +1,75 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-import type { Integration } from "@/lib/types";
-import { CheckCircle2, AlertCircle, Clock, RefreshCw, Trash2, Plus, X } from "lucide-react";
+import type { BillingInfo, Integration } from "@/lib/types";
+import { CheckCircle2, AlertCircle, Clock, RefreshCw, Trash2, Plus, X, Zap, Lock } from "lucide-react";
+
+const FREE_LIMIT = 3;
+
+// ── Upgrade Modal ─────────────────────────────────────────────────────────────
+function UpgradeModal({ onClose }: { onClose: () => void }) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const handleUpgrade = async () => {
+    setLoading(true);
+    try {
+      const { checkout_url } = await api.createCheckout();
+      window.location.href = checkout_url;
+    } catch {
+      router.push("/settings");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-md p-6 relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+            <Lock className="w-5 h-5 text-amber-600" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-gray-900">Integration limit reached</h2>
+            <p className="text-sm text-gray-500">Free plan allows up to {FREE_LIMIT} integrations.</p>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-xl p-4 mb-5">
+          <p className="text-sm font-semibold text-teal-800 mb-2">Upgrade to Growth — $49/mo</p>
+          <ul className="space-y-1 text-sm text-teal-700">
+            <li className="flex items-center gap-2"><Zap className="w-3.5 h-3.5 shrink-0" /> Unlimited integrations</li>
+            <li className="flex items-center gap-2"><Zap className="w-3.5 h-3.5 shrink-0" /> AI Compliance Advisor</li>
+            <li className="flex items-center gap-2"><Zap className="w-3.5 h-3.5 shrink-0" /> SOC 2, ISO 27001 &amp; GDPR</li>
+            <li className="flex items-center gap-2"><Zap className="w-3.5 h-3.5 shrink-0" /> Priority support</li>
+          </ul>
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 border border-gray-300 text-gray-700 rounded-lg px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleUpgrade}
+            disabled={loading}
+            className="flex-1 flex items-center justify-center gap-1.5 bg-[var(--accent)] hover:opacity-90 disabled:opacity-60 text-white font-medium rounded-lg px-4 py-2 text-sm transition-opacity"
+          >
+            <Zap className="w-4 h-4" />
+            {loading ? "Loading…" : "Upgrade now"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const INTEGRATION_DEFS = [
   {
@@ -97,10 +163,12 @@ function ConnectModal({
   def,
   onClose,
   onConnected,
+  onUpgradeNeeded,
 }: {
   def: (typeof INTEGRATION_DEFS)[0];
   onClose: () => void;
   onConnected: () => void;
+  onUpgradeNeeded: () => void;
 }) {
   const [fields, setFields] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -115,7 +183,14 @@ function ConnectModal({
       onConnected();
       onClose();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Connection failed");
+      const msg = err instanceof Error ? err.message : "Connection failed";
+      // 402 = free plan limit hit → show upgrade modal
+      if (msg.toLowerCase().includes("free plan") || msg.toLowerCase().includes("upgrade")) {
+        onClose();
+        onUpgradeNeeded();
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -190,21 +265,20 @@ function ConnectModal({
 
 export default function IntegrationsPage() {
   const [integrations, setIntegrations] = useState<Integration[]>([]);
+  const [billing, setBilling] = useState<BillingInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState<string | null>(null);
   const [collecting, setCollecting] = useState<string | null>(null);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [toast, setToast] = useState("");
 
   const load = () =>
-    api
-      .getIntegrations()
-      .then(setIntegrations)
+    Promise.all([api.getIntegrations(), api.getSubscription()])
+      .then(([ints, bill]) => { setIntegrations(ints); setBilling(bill); })
       .catch(console.error)
       .finally(() => setLoading(false));
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -252,15 +326,46 @@ export default function IntegrationsPage() {
         </div>
       )}
 
+      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
+
       {connecting && (
         <ConnectModal
           def={INTEGRATION_DEFS.find((d) => d.type === connecting)!}
           onClose={() => setConnecting(null)}
           onConnected={load}
+          onUpgradeNeeded={() => setShowUpgrade(true)}
         />
       )}
 
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Integrations</h1>
+
+      {/* Usage bar — free plan only */}
+      {billing?.plan === "free" && (
+        <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700">
+              {integrations.length} / {FREE_LIMIT} integrations used
+            </span>
+            <button
+              onClick={() => setShowUpgrade(true)}
+              className="flex items-center gap-1 text-xs font-semibold text-[var(--accent)] hover:opacity-80 transition-opacity"
+            >
+              <Zap className="w-3.5 h-3.5" /> Upgrade for unlimited
+            </button>
+          </div>
+          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${
+                integrations.length >= FREE_LIMIT ? "bg-red-400" : integrations.length >= 2 ? "bg-amber-400" : "bg-brand-500"
+              }`}
+              style={{ width: `${Math.min((integrations.length / FREE_LIMIT) * 100, 100)}%` }}
+            />
+          </div>
+          {integrations.length >= FREE_LIMIT && (
+            <p className="text-xs text-red-600 mt-1.5">Limit reached — upgrade to connect more integrations.</p>
+          )}
+        </div>
+      )}
 
       <div className="space-y-4">
         {INTEGRATION_DEFS.map((def) => {
@@ -312,6 +417,13 @@ export default function IntegrationsPage() {
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </>
+                ) : billing?.plan === "free" && integrations.length >= FREE_LIMIT ? (
+                  <button
+                    onClick={() => setShowUpgrade(true)}
+                    className="flex items-center gap-1.5 px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-lg transition-colors"
+                  >
+                    <Lock className="w-4 h-4" /> Upgrade
+                  </button>
                 ) : (
                   <button
                     onClick={() => setConnecting(def.type)}
