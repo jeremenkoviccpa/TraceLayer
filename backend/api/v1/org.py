@@ -119,12 +119,17 @@ async def invite_member(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+    # Fetch company name (can't access lazy relationship in async context)
+    company_result = await db.execute(select(Company).where(Company.id == current_user.company_id))
+    company = company_result.scalar_one_or_none()
+    company_name = company.name if company else "your organization"
+
     # Send invite email (non-blocking — failure doesn't abort the request)
     try:
         send_invite_email(
             to=invite.email,
             invite_url=invite_url,
-            company_name=current_user.company.name if current_user.company else "your organization",
+            company_name=company_name,
             invited_by=current_user.email,
         )
     except Exception as exc:
