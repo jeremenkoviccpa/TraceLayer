@@ -241,62 +241,113 @@ export default function CompliancePage() {
       ) : (
         <div className="space-y-8">
           {/* AI Summary */}
-          <section className="rounded-xl border border-violet-200 bg-gradient-to-br from-violet-50 to-indigo-50 p-5">
-            <div className="flex items-center justify-between gap-3 mb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-violet-600" />
+          <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            {/* Header bar */}
+            <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-5 py-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-4 h-4 text-violet-300" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">AI Compliance Advisor</p>
-                  <p className="text-xs text-gray-500">Powered by Llama 3.3 · Groq</p>
+                  <p className="text-sm font-semibold text-white leading-none mb-1">AI Compliance Advisor</p>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                    <span className="text-xs text-slate-400">Llama 3.3 · Groq</span>
+                  </div>
                 </div>
               </div>
-              <button
-                onClick={generateSummary}
-                disabled={aiLoading}
-                className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 bg-violet-100 hover:bg-violet-200 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
-              >
-                {aiLoading ? (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Sparkles className="w-3.5 h-3.5" />
-                )}
-                {aiSummary ? "Regenerate" : "Generate insight"}
-              </button>
+              {aiSummary && !aiLoading && (
+                <button
+                  onClick={generateSummary}
+                  disabled={aiLoading}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 disabled:opacity-40 px-3 py-1.5 rounded-lg transition-colors border border-white/10 shrink-0"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  Regenerate
+                </button>
+              )}
             </div>
 
-            {aiLoading && (
-              <div className="flex items-center gap-2 py-3">
-                <div className="flex gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:0ms]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:150ms]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:300ms]" />
-                </div>
-                <span className="text-xs text-violet-600">Analyzing your compliance posture…</span>
-              </div>
-            )}
-
-            {aiError && !aiLoading && (
-              <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">{aiError}</p>
-            )}
-
-            {aiSummary && !aiLoading && (
-              <div>
-                <p className="text-sm text-gray-800 leading-relaxed">{aiSummary}</p>
-                {aiGeneratedAt && (
-                  <p className="text-xs text-gray-400 mt-2">
-                    Generated {new Date(aiGeneratedAt).toLocaleTimeString()}
+            {/* Body */}
+            <div className="px-5 py-5">
+              {/* Empty state */}
+              {!aiSummary && !aiLoading && !aiError && (
+                <div className="text-center py-4">
+                  <div className="w-11 h-11 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto mb-3">
+                    <Sparkles className="w-5 h-5 text-slate-400" />
+                  </div>
+                  <p className="text-sm font-semibold text-gray-800 mb-1">Get an AI compliance briefing</p>
+                  <p className="text-xs text-gray-400 max-w-xs mx-auto mb-5 leading-relaxed">
+                    Analyzes your live evidence data and tells you exactly what&apos;s failing and the single most impactful step to fix it.
                   </p>
-                )}
-              </div>
-            )}
+                  <button
+                    onClick={generateSummary}
+                    className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors shadow-sm"
+                  >
+                    <Sparkles className="w-4 h-4 text-violet-300" />
+                    Generate insight
+                  </button>
+                </div>
+              )}
 
-            {!aiSummary && !aiLoading && !aiError && (
-              <p className="text-xs text-gray-500 italic">
-                Click &ldquo;Generate insight&rdquo; to get an AI-powered analysis of your current compliance posture and the most impactful next step.
-              </p>
-            )}
+              {/* Loading */}
+              {aiLoading && (
+                <div className="py-2">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:0ms]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:150ms]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:300ms]" />
+                    </div>
+                    <span className="text-xs text-gray-400">Analyzing your compliance posture…</span>
+                  </div>
+                  <div className="space-y-2.5">
+                    <div className="h-2.5 bg-slate-100 rounded-full animate-pulse w-full" />
+                    <div className="h-2.5 bg-slate-100 rounded-full animate-pulse w-[85%]" />
+                    <div className="h-2.5 bg-slate-100 rounded-full animate-pulse w-[70%]" />
+                  </div>
+                </div>
+              )}
+
+              {/* Error */}
+              {aiError && !aiLoading && (
+                <div className="flex items-start gap-3 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+                  <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-red-500 text-[10px] font-black">!</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-red-700">Couldn&apos;t generate summary</p>
+                    <p className="text-xs text-red-400 mt-0.5">{aiError}</p>
+                  </div>
+                  <button
+                    onClick={generateSummary}
+                    className="text-xs font-semibold text-red-600 hover:text-red-700 shrink-0"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
+
+              {/* Summary result */}
+              {aiSummary && !aiLoading && (
+                <div>
+                  <div className="border-l-[3px] border-violet-400 pl-4">
+                    <p className="text-sm text-gray-800 leading-relaxed">{aiSummary}</p>
+                  </div>
+                  {aiGeneratedAt && (
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+                      <span className="text-xs text-gray-400">
+                        Generated at {new Date(aiGeneratedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        <span className="text-xs text-gray-400">Llama 3.3 · Groq</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </section>
 
           {/* Automated controls */}
