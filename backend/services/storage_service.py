@@ -52,12 +52,22 @@ def create_signed_url(bucket: str, path: str, expires_in: int = 3600) -> str:
     if not response:
         raise RuntimeError("Failed to create signed URL")
 
+    # supabase-py 2.x returns a dict; key varies across patch versions
     if isinstance(response, dict):
-        url = response.get("signedURL") or response.get("signed_url")
+        url = (
+            response.get("signedURL")
+            or response.get("signed_url")
+            or response.get("signedUrl")
+        )
         if url:
             return url
 
-    raise RuntimeError("Signed URL missing from Supabase response")
+    # storage-py may return an object with a .signed_url attribute
+    url = getattr(response, "signed_url", None) or getattr(response, "signedURL", None)
+    if url:
+        return url
+
+    raise RuntimeError(f"Signed URL missing from Supabase response: {response!r}")
 
 
 def delete_object(bucket: str, path: str) -> None:
