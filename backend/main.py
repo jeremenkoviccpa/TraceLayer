@@ -23,7 +23,12 @@ logger = logging.getLogger(__name__)
 
 
 async def _run_migrations() -> None:
-    """Run Alembic migrations on startup via subprocess to avoid event-loop conflicts."""
+    """Run Alembic migrations on startup via subprocess to avoid event-loop conflicts.
+    Skipped in test env — tests use Base.metadata.create_all instead.
+    """
+    if settings.app_env == "test":
+        return
+
     import asyncio
     import subprocess
 
