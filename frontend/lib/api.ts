@@ -244,6 +244,10 @@ class ApiClient {
       { status, notes },
     );
   }
+
+  async getAISummary(framework = "soc2"): Promise<{ summary: string; overall_score: number; generated_at: string }> {
+    return this.request("POST", `/compliance/ai-summary?framework=${framework}`);
+  }
 }
 
 export const api = new ApiClient();

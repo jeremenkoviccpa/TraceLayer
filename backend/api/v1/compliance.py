@@ -1,4 +1,6 @@
+import logging
 import uuid
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
@@ -9,13 +11,17 @@ from core.deps import get_current_user
 from models.manual_control import ManualControl
 from models.user import User
 from schemas.compliance import (
+    AISummaryResponse,
     ComplianceScoreResponse,
     EvidenceActivityPoint,
     ManualControlItem,
     ScoreHistoryPoint,
     UpdateManualControlRequest,
 )
+from services.ai_service import generate_compliance_summary
 from services.compliance_service import get_compliance_score, get_evidence_activity, get_score_history
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/compliance", tags=["compliance"])
 
@@ -183,4 +189,27 @@ async def update_manual_control(
         status=rec.status,
         notes=rec.notes,
         updated_at=rec.updated_at.isoformat(),
+    )
+
+
+@router.post("/ai-summary", response_model=AISummaryResponse)
+async def ai_summary(
+    framework: str = Query("soc2"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    score_data = await get_compliance_score(current_user.company_id, framework, db)
+    try:
+        summary = await generate_compliance_summary(framework, score_data)
+    except ValueError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    except Exception:
+        logger.exception("AI summary generation failed for company=%s framework=%s", current_user.company_id, framework)
+        raise HTTPException(status_code=503, detail="AI summary temporarily unavailable. Try again shortly.")
+
+    return AISummaryResponse(
+        summary=summary,
+        framework=framework,
+        overall_score=score_data["overall_score"],
+        generated_at=datetime.now(timezone.utc).isoformat(),
     )

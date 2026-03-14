@@ -42,3 +42,10 @@ class ManualControlItem(BaseModel):
 class UpdateManualControlRequest(BaseModel):
     status: str  # "pending" | "compliant" | "not_applicable"
     notes: Optional[str] = None
+
+
+class AISummaryResponse(BaseModel):
+    summary: str
+    framework: str
+    overall_score: int
+    generated_at: str

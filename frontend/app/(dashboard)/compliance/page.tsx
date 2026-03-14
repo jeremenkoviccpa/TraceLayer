@@ -10,6 +10,8 @@ import {
   Circle,
   ChevronDown,
   ChevronUp,
+  Sparkles,
+  RefreshCw,
 } from "lucide-react";
 
 const FRAMEWORKS = [
@@ -165,8 +167,17 @@ export default function CompliancePage() {
   const [manualControls, setManualControls] = useState<ManualControl[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // AI summary state
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiGeneratedAt, setAiGeneratedAt] = useState<string | null>(null);
+
   const load = async (fw: string) => {
     setLoading(true);
+    setAiSummary(null);
+    setAiError(null);
+    setAiGeneratedAt(null);
     try {
       const [s, m] = await Promise.all([
         api.getComplianceScore(fw),
@@ -182,6 +193,20 @@ export default function CompliancePage() {
   };
 
   useEffect(() => { load(framework); }, [framework]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const generateSummary = async () => {
+    setAiLoading(true);
+    setAiError(null);
+    try {
+      const result = await api.getAISummary(framework);
+      setAiSummary(result.summary);
+      setAiGeneratedAt(result.generated_at);
+    } catch (e: unknown) {
+      setAiError(e instanceof Error ? e.message : "Failed to generate summary");
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const handleUpdate = (updated: ManualControl) => {
     setManualControls((prev) =>
@@ -215,6 +240,65 @@ export default function CompliancePage() {
         </div>
       ) : (
         <div className="space-y-8">
+          {/* AI Summary */}
+          <section className="rounded-xl border border-violet-200 bg-gradient-to-br from-violet-50 to-indigo-50 p-5">
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-violet-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">AI Compliance Advisor</p>
+                  <p className="text-xs text-gray-500">Powered by Llama 3.3 · Groq</p>
+                </div>
+              </div>
+              <button
+                onClick={generateSummary}
+                disabled={aiLoading}
+                className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 bg-violet-100 hover:bg-violet-200 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                {aiLoading ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5" />
+                )}
+                {aiSummary ? "Regenerate" : "Generate insight"}
+              </button>
+            </div>
+
+            {aiLoading && (
+              <div className="flex items-center gap-2 py-3">
+                <div className="flex gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:0ms]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:150ms]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:300ms]" />
+                </div>
+                <span className="text-xs text-violet-600">Analyzing your compliance posture…</span>
+              </div>
+            )}
+
+            {aiError && !aiLoading && (
+              <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">{aiError}</p>
+            )}
+
+            {aiSummary && !aiLoading && (
+              <div>
+                <p className="text-sm text-gray-800 leading-relaxed">{aiSummary}</p>
+                {aiGeneratedAt && (
+                  <p className="text-xs text-gray-400 mt-2">
+                    Generated {new Date(aiGeneratedAt).toLocaleTimeString()}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {!aiSummary && !aiLoading && !aiError && (
+              <p className="text-xs text-gray-500 italic">
+                Click &ldquo;Generate insight&rdquo; to get an AI-powered analysis of your current compliance posture and the most impactful next step.
+              </p>
+            )}
+          </section>
+
           {/* Automated controls */}
           <section>
             <div className="flex items-center gap-2 mb-4">

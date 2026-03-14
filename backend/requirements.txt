@@ -19,3 +19,4 @@ slowapi==0.1.9
 resend==2.4.0
 weasyprint==62.3
 supabase==2.5.1
+groq==0.9.0

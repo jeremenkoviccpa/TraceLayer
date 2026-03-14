@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     resend_api_key: str = ""
     email_from: str = "TraceLayer <onboarding@resend.dev>"
     seed_demo: bool = False
+    groq_api_key: str = ""
 
     class Config:
         env_file = ".env"
