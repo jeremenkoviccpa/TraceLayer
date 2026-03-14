@@ -18,6 +18,14 @@ REPORTS_DIR = Path("/tmp/tracelayer_reports")
 _jinja = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)), autoescape=True)
 
 
+def _score_color(score: int) -> str:
+    if score >= 80:
+        return "#10b981"
+    if score >= 50:
+        return "#f59e0b"
+    return "#ef4444"
+
+
 def render_pdf(context: dict) -> bytes:
     """Render the compliance report HTML template and convert to PDF bytes."""
     try:
@@ -28,6 +36,7 @@ def render_pdf(context: dict) -> bytes:
             "Run: pip install weasyprint  and install pango/cairo for your OS."
         )
 
+    context = {**context, "score_color": _score_color(context.get("overall_score", 0))}
     template = _jinja.get_template("report.html.j2")
     html_string = template.render(**context)
     return HTML(string=html_string).write_pdf()

@@ -129,9 +129,11 @@ async def generate_pdf_report(
             "company_name": company.name,
             "framework": report.framework,
             "report_type": report.report_type,
-            "generated_at": now.strftime("%Y-%m-%d %H:%M UTC"),
+            "generated_at": now.strftime("%B %d, %Y"),
+            "generated_at_full": now.strftime("%Y-%m-%d %H:%M UTC"),
             "total_records": total,
             "overall_score": score_data["overall_score"],
+            "control_scores": score_data["controls"],
             "controls": by_control,
         }
 
