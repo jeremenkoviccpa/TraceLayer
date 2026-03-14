@@ -1,4 +1,4 @@
-import type { Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, Member, Page, Report, ScoreHistoryPoint, User } from "./types";
+import type { Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, Report, ScoreHistoryPoint, User } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -226,6 +226,23 @@ class ApiClient {
 
   async getEvidenceActivity(days = 14): Promise<EvidenceActivityPoint[]> {
     return this.request<EvidenceActivityPoint[]>("GET", `/compliance/evidence-activity?days=${days}`);
+  }
+
+  async getManualControls(framework = "soc2"): Promise<ManualControl[]> {
+    return this.request<ManualControl[]>("GET", `/compliance/manual-controls?framework=${framework}`);
+  }
+
+  async updateManualControl(
+    controlId: string,
+    framework: string,
+    status: string,
+    notes: string | null,
+  ): Promise<ManualControl> {
+    return this.request<ManualControl>(
+      "PUT",
+      `/compliance/manual-controls/${controlId}?framework=${framework}`,
+      { status, notes },
+    );
   }
 }
 

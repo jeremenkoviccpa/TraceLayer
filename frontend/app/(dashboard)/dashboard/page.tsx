@@ -332,13 +332,16 @@ export default function DashboardPage() {
           </div>
           <div className="space-y-3">
             {compliance.controls.map((c) => (
-              <div key={c.category}>
+              <Link key={c.category} href={`/evidence?control=${c.category}`} className="block group">
                 <div className="flex items-center justify-between text-sm mb-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-700 font-medium">{c.name}</span>
+                    <span className="text-gray-700 font-medium group-hover:text-brand-600 transition-colors">{c.name}</span>
                     {statusBadge(c.status)}
                   </div>
-                  <span className={`font-semibold text-sm ${scoreColor(c.score)}`}>{c.score}%</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`font-semibold text-sm ${scoreColor(c.score)}`}>{c.score}%</span>
+                    <ArrowRight className="w-3 h-3 text-gray-300 group-hover:text-brand-400 transition-colors" />
+                  </div>
                 </div>
                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <div
@@ -352,7 +355,7 @@ export default function DashboardPage() {
                     <span className="text-red-400">{c.missing_types.join(", ")}</span>
                   </p>
                 )}
-              </div>
+              </Link>
             ))}
           </div>
         </div>

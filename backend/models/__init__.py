@@ -9,6 +9,7 @@ from models.control import Control
 from models.report import Report
 from models.invitation import Invitation
 from models.score_snapshot import ScoreSnapshot
+from models.manual_control import ManualControl
 
 __all__ = [
     "Base",
@@ -22,4 +23,5 @@ __all__ = [
     "Report",
     "Invitation",
     "ScoreSnapshot",
+    "ManualControl",
 ]
