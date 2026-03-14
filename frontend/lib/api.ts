@@ -185,8 +185,8 @@ class ApiClient {
     return this.request<Report>("GET", `/reports/${id}`);
   }
 
-  async downloadReport(id: string): Promise<DownloadResponse> {
-    return this.request<DownloadResponse>("GET", `/reports/${id}/download`);
+  async downloadReport(id: string, format = "json"): Promise<DownloadResponse> {
+    return this.request<DownloadResponse>("GET", `/reports/${id}/download?format=${format}`);
   }
 
   // ── Org ─────────────────────────────────────────────────────────────────

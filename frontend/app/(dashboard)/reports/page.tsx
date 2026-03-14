@@ -73,7 +73,7 @@ export default function ReportsPage() {
     if (report.status !== "complete") return;
     setDownloading(report.id);
     try {
-      const { url, file_name } = await api.downloadReport(report.id);
+      const { url, file_name } = await api.downloadReport(report.id, report.fmt);
       const a = document.createElement("a");
       a.href = url;
       a.download = file_name ?? `tracelayer-report-${report.id.slice(0, 8)}.${report.fmt}`;
