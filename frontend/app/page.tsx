@@ -271,11 +271,11 @@ export default function LandingPage() {
             <ShieldCheck className="w-3.5 h-3.5" />
             SOC 2 · ISO 27001 · HIPAA — all in one platform
           </div>
-          <h1 className="text-5xl md:text-6xl font-extrabold leading-tight mb-5 tracking-tight fade-up">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-5 tracking-tight fade-up">
             Stop chasing compliance.<br />
             <span className="text-[var(--accent)]">Let it run itself.</span>
           </h1>
-          <p className="text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 fade-up delay-1">
+          <p className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 fade-up delay-1">
             TraceLayer connects to your cloud tools and automatically collects the evidence your auditor needs —
             IAM users, audit logs, repositories, access policies — mapped to controls in real time.
           </p>
@@ -294,9 +294,9 @@ export default function LandingPage() {
               <div className="w-3 h-3 rounded-full bg-red-400" />
               <div className="w-3 h-3 rounded-full bg-yellow-400" />
               <div className="w-3 h-3 rounded-full bg-green-400" />
-              <span className="text-xs text-gray-400 ml-2 font-mono">tracelayer.app/dashboard</span>
+              <span className="text-xs text-gray-400 ml-2 font-mono hidden sm:block">tracelayer.app/dashboard</span>
             </div>
-            <div className="p-5 grid grid-cols-4 gap-3 bg-gray-50/50">
+            <div className="p-3 sm:p-5 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 bg-gray-50/50">
               {[
                 { label: "Compliance score", value: "87%", color: "text-green-600" },
                 { label: "Evidence records", value: "2,841", color: "text-gray-900" },
@@ -309,7 +309,7 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <div className="px-5 pb-5 bg-gray-50/50">
+            <div className="px-3 sm:px-5 pb-3 sm:pb-5 bg-gray-50/50">
               <div className="bg-white rounded-xl border border-gray-100 p-4">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-semibold text-gray-700">SOC 2 Control Breakdown</span>
@@ -338,7 +338,7 @@ export default function LandingPage() {
 
       {/* Stats */}
       <section className="border-y border-black/5 bg-white/60 py-10">
-        <div className="max-w-4xl mx-auto px-6 grid grid-cols-4 gap-8 text-center">
+        <div className="max-w-4xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {STATS.map((s) => (
             <div key={s.label}>
               <p className="text-4xl font-extrabold text-[var(--accent)] mb-1">{s.value}</p>
@@ -360,10 +360,10 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center mb-14">
+      <section className="max-w-6xl mx-auto px-6 py-12 md:py-20">
+        <div className="text-center mb-10 md:mb-14">
           <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">How it works</p>
-          <h2 className="text-3xl font-extrabold">Up and running in minutes</h2>
+          <h2 className="text-2xl md:text-3xl font-extrabold">Up and running in minutes</h2>
           <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto">
             No consultants. No long implementation projects. Connect your tools, and compliance evidence starts flowing automatically.
           </p>
@@ -380,11 +380,11 @@ export default function LandingPage() {
       </section>
 
       {/* Before / After */}
-      <section className="bg-[var(--ink)] py-20">
+      <section className="bg-[var(--ink)] py-12 md:py-20">
         <div className="max-w-5xl mx-auto px-6">
-          <div className="text-center mb-12">
+          <div className="text-center mb-10 md:mb-12">
             <p className="text-xs font-bold text-[color:var(--accent-warm)] uppercase tracking-widest mb-2">The old way vs TraceLayer</p>
-            <h2 className="text-3xl font-extrabold text-white">Compliance doesn&apos;t have to be painful</h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-white">Compliance doesn&apos;t have to be painful</h2>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
@@ -416,11 +416,11 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section className="bg-white/60 py-20">
+      <section className="bg-white/60 py-12 md:py-20">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-12">
+          <div className="text-center mb-10 md:mb-12">
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Features</p>
-            <h2 className="text-3xl font-extrabold">Everything you need for continuous compliance</h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold">Everything you need for continuous compliance</h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto">
               Built for engineering teams who need to move fast without sacrificing security posture.
             </p>
@@ -440,17 +440,17 @@ export default function LandingPage() {
       </section>
 
       {/* Frameworks */}
-      <section className="max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center mb-12">
+      <section className="max-w-6xl mx-auto px-6 py-12 md:py-20">
+        <div className="text-center mb-10 md:mb-12">
           <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Frameworks</p>
-          <h2 className="text-3xl font-extrabold">One platform, three frameworks</h2>
+          <h2 className="text-2xl md:text-3xl font-extrabold">One platform, three frameworks</h2>
           <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto">
             Your integrations map evidence to all frameworks simultaneously. Switch views without reconnecting anything.
           </p>
         </div>
-        <div className="flex justify-center gap-6 flex-wrap">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {FRAMEWORKS.map((f) => (
-            <div key={f.name} className="bg-[var(--card)] border border-black/5 rounded-2xl px-10 py-8 text-center min-w-[200px] shadow-[0_8px_24px_rgba(15,23,42,0.05)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.1)] transition-shadow">
+            <div key={f.name} className="bg-[var(--card)] border border-black/5 rounded-2xl px-8 py-8 text-center shadow-[0_8px_24px_rgba(15,23,42,0.05)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.1)] transition-shadow">
               <ShieldCheck className="w-9 h-9 text-[var(--accent)] mx-auto mb-3" />
               <p className="font-extrabold text-lg">{f.name}</p>
               <p className="text-xs text-[var(--muted)] mt-1 mb-3">{f.desc}</p>
@@ -461,11 +461,11 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="bg-white/60 py-20">
+      <section className="bg-white/60 py-12 md:py-20">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-12">
+          <div className="text-center mb-10 md:mb-12">
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">What teams say</p>
-            <h2 className="text-3xl font-extrabold">Trusted by security-conscious teams</h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold">Trusted by security-conscious teams</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {TESTIMONIALS.map((t) => (
@@ -493,7 +493,7 @@ export default function LandingPage() {
 
       {/* Metrics strip */}
       <section className="border-y border-black/5 bg-white/40 py-10">
-        <div className="max-w-4xl mx-auto px-6 grid grid-cols-3 gap-8 text-center">
+        <div className="max-w-4xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
           <div>
             <div className="flex items-center justify-center gap-1.5 mb-1">
               <Clock className="w-4 h-4 text-[var(--accent)]" />
@@ -519,10 +519,10 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-[var(--accent)] py-20">
+      <section className="bg-[var(--accent)] py-12 md:py-20">
         <div className="max-w-2xl mx-auto px-6 text-center">
           <p className="text-xs font-bold text-white/60 uppercase tracking-widest mb-3">Get started today</p>
-          <h2 className="text-4xl font-extrabold text-white mb-4 leading-tight">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 leading-tight">
             Your next audit starts now.
           </h2>
           <p className="text-white/80 mb-8 text-sm leading-relaxed max-w-md mx-auto">
