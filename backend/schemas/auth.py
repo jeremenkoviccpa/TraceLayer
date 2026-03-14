@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
@@ -27,11 +28,18 @@ class TokenResponse(BaseModel):
 class UserResponse(BaseModel):
     id: uuid.UUID
     email: str
+    full_name: Optional[str] = None
     company_id: uuid.UUID
     role: str
     email_verified: bool
 
     model_config = {"from_attributes": True}
+
+
+class UpdateProfileRequest(BaseModel):
+    full_name: Optional[str] = None
+
+    model_config = {"str_strip_whitespace": True}
 
 
 class ChangePasswordRequest(BaseModel):

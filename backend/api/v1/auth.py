@@ -20,7 +20,7 @@ from models.email_verification_token import EmailVerificationToken
 from models.password_reset_token import PasswordResetToken
 from models.refresh_token import RefreshToken
 from models.user import User
-from schemas.auth import ChangePasswordRequest, ForgotPasswordRequest, LoginRequest, RefreshRequest, RegisterRequest, ResetPasswordRequest, TokenResponse, UserResponse
+from schemas.auth import ChangePasswordRequest, ForgotPasswordRequest, LoginRequest, RefreshRequest, RegisterRequest, ResetPasswordRequest, TokenResponse, UpdateProfileRequest, UserResponse
 from services.audit_service import log_action
 from services.email_service import send_password_changed_email, send_password_reset_email, send_verification_email, send_welcome_email
 
@@ -275,4 +275,17 @@ async def change_password(
         send_password_changed_email(current_user.email)
     except Exception:
         pass
+    return current_user
+
+
+@router.patch("/profile", response_model=UserResponse)
+async def update_profile(
+    body: UpdateProfileRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if body.full_name is not None:
+        current_user.full_name = body.full_name or None
+    await db.commit()
+    await db.refresh(current_user)
     return current_user

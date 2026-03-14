@@ -110,6 +110,10 @@ class ApiClient {
     });
   }
 
+  async updateProfile(fullName: string): Promise<User> {
+    return this.request<User>("PATCH", "/auth/profile", { full_name: fullName });
+  }
+
   async forgotPassword(email: string): Promise<void> {
     return this.request("POST", "/auth/forgot-password", { email }, false);
   }
