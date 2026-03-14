@@ -30,10 +30,44 @@ export interface Report {
   id: string;
   framework: string;
   report_type: string;
+  fmt: string;
   status: string;
   file_url: string | null;
   generated_at: string | null;
   created_at: string;
+}
+
+export interface Member {
+  id: string;
+  email: string;
+  role: string;
+}
+
+export interface Invitation {
+  id: string;
+  email: string;
+  role: string;
+  invite_url: string;
+  accepted_at: string | null;
+  created_at: string;
+}
+
+export interface ControlScore {
+  category: string;
+  name: string;
+  score: number;
+  status: "passing" | "warning" | "failing" | "no_evidence";
+  evidence_count: number;
+  covered_types: string[];
+  missing_types: string[];
+  last_collected: string | null;
+}
+
+export interface ComplianceScore {
+  framework: string;
+  overall_score: number;
+  evaluated_at: string;
+  controls: ControlScore[];
 }
 
 export interface Page<T> {

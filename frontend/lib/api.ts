@@ -1,4 +1,4 @@
-import type { Evidence, Integration, Page, Report, User } from "./types";
+import type { ComplianceScore, Evidence, Integration, Invitation, Member, Page, Report, User } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -168,6 +168,43 @@ class ApiClient {
     });
     if (!res.ok) throw new Error("Download failed");
     return res.json();
+  }
+
+  // ── Org ─────────────────────────────────────────────────────────────────
+
+  async getMembers(): Promise<Member[]> {
+    return this.request<Member[]>("GET", "/org/members");
+  }
+
+  async removeMember(userId: string): Promise<void> {
+    return this.request("DELETE", `/org/members/${userId}`);
+  }
+
+  async getInvites(): Promise<Invitation[]> {
+    return this.request<Invitation[]>("GET", "/org/invites");
+  }
+
+  async createInvite(email: string, role: "member" | "admin"): Promise<Invitation> {
+    return this.request<Invitation>("POST", "/org/invites", { email, role });
+  }
+
+  async revokeInvite(id: string): Promise<void> {
+    return this.request("DELETE", `/org/invites/${id}`);
+  }
+
+  async acceptInvite(token: string, password: string): Promise<void> {
+    const data = await this.request<{ access_token: string; refresh_token: string }>(
+      "POST", "/org/invites/accept",
+      { token, password },
+      false,
+    );
+    this.setTokens(data.access_token, data.refresh_token);
+  }
+
+  // ── Compliance ───────────────────────────────────────────────────────────
+
+  async getComplianceScore(framework = "soc2"): Promise<ComplianceScore> {
+    return this.request<ComplianceScore>("GET", `/compliance/score?framework=${framework}`);
   }
 }
 

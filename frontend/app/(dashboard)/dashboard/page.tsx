@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import type { Evidence, Integration } from "@/lib/types";
+import type { ComplianceScore, Evidence, Integration } from "@/lib/types";
 import { ShieldCheck, Plug, AlertCircle, CheckCircle2, Clock } from "lucide-react";
 
 function StatCard({
@@ -34,21 +34,36 @@ function fmtDate(d: string | null) {
   return new Date(d).toLocaleString();
 }
 
+function scoreColor(score: number) {
+  if (score >= 80) return "text-green-600";
+  if (score >= 50) return "text-yellow-600";
+  return "text-red-500";
+}
+
+function scoreBarColor(score: number) {
+  if (score >= 80) return "bg-green-500";
+  if (score >= 50) return "bg-yellow-400";
+  return "bg-red-400";
+}
+
 export default function DashboardPage() {
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [evidence, setEvidence] = useState<Evidence[]>([]);
   const [evidenceTotal, setEvidenceTotal] = useState(0);
+  const [compliance, setCompliance] = useState<ComplianceScore | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       api.getIntegrations(),
       api.getEvidence({ page_size: 5 }),
+      api.getComplianceScore(),
     ])
-      .then(([ints, ev]) => {
+      .then(([ints, ev, score]) => {
         setIntegrations(ints);
         setEvidence(ev.items);
         setEvidenceTotal(ev.total);
+        setCompliance(score);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -73,7 +88,12 @@ export default function DashboardPage() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h1>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-4 gap-4 mb-8">
+        <StatCard
+          label="SOC 2 score"
+          value={compliance ? `${compliance.overall_score}%` : "—"}
+          sub={compliance ? `${compliance.controls.filter(c => c.status === "passing").length} / ${compliance.controls.length} controls passing` : "No data yet"}
+        />
         <StatCard
           label="Total evidence records"
           value={evidenceTotal}
@@ -90,6 +110,42 @@ export default function DashboardPage() {
           sub="SOC 2 framework"
         />
       </div>
+
+      {/* Compliance score breakdown */}
+      {compliance && compliance.controls.length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-gray-400" />
+              <h2 className="font-semibold text-gray-800">SOC 2 Compliance</h2>
+            </div>
+            <span className={`text-2xl font-bold ${scoreColor(compliance.overall_score)}`}>
+              {compliance.overall_score}%
+            </span>
+          </div>
+          <div className="space-y-3">
+            {compliance.controls.map((c) => (
+              <div key={c.category}>
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="text-gray-700 font-medium">{c.name}</span>
+                  <span className={`font-semibold ${scoreColor(c.score)}`}>{c.score}%</span>
+                </div>
+                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${scoreBarColor(c.score)}`}
+                    style={{ width: `${c.score}%` }}
+                  />
+                </div>
+                {c.missing_types.length > 0 && (
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Missing: {c.missing_types.join(", ")}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-6">
         {/* Integration statuses */}
