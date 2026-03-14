@@ -20,7 +20,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(email, password, companyName);
-      router.push("/dashboard");
+      router.push("/onboarding");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {

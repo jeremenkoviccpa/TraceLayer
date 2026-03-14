@@ -20,6 +20,7 @@ import type {
   Integration,
   ScoreHistoryPoint,
 } from "@/lib/types";
+import Link from "next/link";
 import {
   ShieldCheck,
   Plug,
@@ -29,6 +30,7 @@ import {
   TrendingUp,
   Activity,
   AlertTriangle,
+  ArrowRight,
 } from "lucide-react";
 
 function StatCard({
@@ -188,6 +190,23 @@ export default function DashboardPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h1>
+
+      {/* Onboarding nudge for new accounts */}
+      {integrations.length === 0 && (
+        <Link
+          href="/onboarding"
+          className="flex items-center justify-between bg-brand-50 border border-brand-200 rounded-xl px-5 py-4 mb-6 hover:bg-brand-100 transition-colors group"
+        >
+          <div className="flex items-center gap-3">
+            <Plug className="w-5 h-5 text-brand-600 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-brand-800">No integrations connected yet</p>
+              <p className="text-xs text-brand-600 mt-0.5">Connect your first tool to start collecting compliance evidence automatically.</p>
+            </div>
+          </div>
+          <ArrowRight className="w-4 h-4 text-brand-500 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
+      )}
 
       {/* Stats row */}
       <div className="grid grid-cols-4 gap-4 mb-6">
