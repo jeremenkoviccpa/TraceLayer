@@ -153,10 +153,11 @@ class ApiClient {
 
   // ── Reports ─────────────────────────────────────────────────────────────
 
-  async generateReport(framework = "soc2", reportType = "full"): Promise<Report> {
+  async generateReport(framework = "soc2", reportType = "full", format = "json"): Promise<Report> {
     return this.request<Report>("POST", "/reports/generate", {
       framework,
       report_type: reportType,
+      format,
     });
   }
 

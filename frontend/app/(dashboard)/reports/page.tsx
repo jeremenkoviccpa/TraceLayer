@@ -30,6 +30,7 @@ export default function ReportsPage() {
   const [downloading, setDownloading] = useState<string | null>(null);
   const [toast, setToast] = useState("");
   const [framework, setFramework] = useState("soc2");
+  const [format, setFormat] = useState("json");
 
   const load = () =>
     api
@@ -58,7 +59,7 @@ export default function ReportsPage() {
   const handleGenerate = async () => {
     setGenerating(true);
     try {
-      await api.generateReport(framework, "full");
+      await api.generateReport(framework, "full", format);
       await load();
       showToast("Report generation started");
     } catch (err: unknown) {
@@ -105,6 +106,21 @@ export default function ReportsPage() {
               <option key={f.value} value={f.value}>{f.label}</option>
             ))}
           </select>
+          <div className="flex rounded-lg border border-gray-300 overflow-hidden text-sm">
+            {["json", "pdf"].map((fmt) => (
+              <button
+                key={fmt}
+                onClick={() => setFormat(fmt)}
+                className={`px-3 py-2 font-medium transition-colors ${
+                  format === fmt
+                    ? "bg-brand-600 text-white"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {fmt.toUpperCase()}
+              </button>
+            ))}
+          </div>
           <button
             onClick={handleGenerate}
             disabled={generating}
