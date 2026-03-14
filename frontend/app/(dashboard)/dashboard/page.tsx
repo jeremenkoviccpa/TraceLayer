@@ -33,6 +33,8 @@ import {
   ArrowRight,
   X,
   PartyPopper,
+  Database,
+  ChevronRight,
 } from "lucide-react";
 import type { Report } from "@/lib/types";
 
@@ -41,25 +43,31 @@ function StatCard({
   value,
   sub,
   accent,
+  icon: Icon,
 }: {
   label: string;
   value: string | number;
   sub?: string;
-  accent?: "green" | "yellow" | "red";
+  accent?: "green" | "yellow" | "red" | "blue";
+  icon: React.ElementType;
 }) {
-  const valueColor =
-    accent === "green"
-      ? "text-green-600"
-      : accent === "yellow"
-      ? "text-yellow-600"
-      : accent === "red"
-      ? "text-red-500"
-      : "text-gray-900";
+  const styles = {
+    green:  { card: "border-emerald-100", iconBg: "bg-emerald-50", iconColor: "text-emerald-600", value: "text-emerald-600" },
+    yellow: { card: "border-amber-100",   iconBg: "bg-amber-50",   iconColor: "text-amber-600",   value: "text-amber-600"  },
+    red:    { card: "border-red-100",     iconBg: "bg-red-50",     iconColor: "text-red-500",     value: "text-red-500"    },
+    blue:   { card: "border-brand-100",   iconBg: "bg-brand-50",   iconColor: "text-brand-600",   value: "text-gray-900"   },
+  };
+  const s = accent ? styles[accent] : styles.blue;
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-5">
-      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide truncate">{label}</p>
-      <p className={`text-2xl md:text-3xl font-bold mt-1 ${valueColor}`}>{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1 truncate">{sub}</p>}
+    <div className={`bg-white rounded-2xl border ${s.card} shadow-card p-5 flex flex-col gap-4`}>
+      <div className={`w-9 h-9 rounded-xl ${s.iconBg} flex items-center justify-center`}>
+        <Icon className={`w-5 h-5 ${s.iconColor}`} />
+      </div>
+      <div>
+        <p className={`text-2xl font-bold ${s.value}`}>{value}</p>
+        <p className="text-sm font-medium text-gray-600 mt-0.5">{label}</p>
+        {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+      </div>
     </div>
   );
 }
@@ -138,7 +146,7 @@ function GettingStarted({
   if (dismissed) return null;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
+    <div className="bg-white border border-brand-100 rounded-2xl shadow-card p-5 mb-6 bg-gradient-to-r from-brand-50/50 to-white">
       <div className="flex items-start justify-between gap-4 mb-4">
         <div>
           <div className="flex items-center gap-2">
@@ -301,7 +309,7 @@ export default function DashboardPage() {
   const failingControls = compliance?.controls.filter((c) => c.status === "failing" || c.status === "warning") ?? [];
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h1>
 
       {/* Getting started checklist */}
@@ -315,6 +323,7 @@ export default function DashboardPage() {
       {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
         <StatCard
+          icon={ShieldCheck}
           label="Compliance score"
           value={compliance ? `${compliance.overall_score}%` : "—"}
           sub={
@@ -325,30 +334,35 @@ export default function DashboardPage() {
           accent={scoreAccent}
         />
         <StatCard
+          icon={Database}
           label="Evidence records"
           value={evidenceTotal.toLocaleString()}
           sub="across all integrations"
+          accent="blue"
         />
         <StatCard
+          icon={Plug}
           label="Active integrations"
           value={activeIntegrations}
           sub={`of ${integrations.length} connected`}
-          accent={activeIntegrations > 0 ? "green" : undefined}
+          accent={activeIntegrations > 0 ? "green" : "blue"}
         />
         <StatCard
+          icon={Activity}
           label="Controls monitored"
           value={compliance?.controls.length ?? 0}
           sub={`${framework.toUpperCase()} framework`}
+          accent="blue"
         />
       </div>
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
         {/* Score trend */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-gray-400" />
+              <TrendingUp className="w-4 h-4 text-brand-500" />
               <span className="font-semibold text-gray-800 text-sm">Score trend</span>
             </div>
             <select
@@ -392,9 +406,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Evidence activity */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Activity className="w-4 h-4 text-gray-400" />
+            <Activity className="w-4 h-4 text-brand-500" />
             <span className="font-semibold text-gray-800 text-sm">Evidence activity (14d)</span>
           </div>
           {activityChartData.length > 0 ? (
@@ -420,7 +434,7 @@ export default function DashboardPage() {
 
       {/* Compliance breakdown */}
       {compliance && compliance.controls.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-5 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-gray-400" />
@@ -467,9 +481,9 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Integrations with staleness */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Plug className="w-4 h-4 text-gray-400" />
+            <Plug className="w-4 h-4 text-brand-500" />
             <span className="font-semibold text-gray-800 text-sm">Integrations</span>
           </div>
           {integrations.length === 0 ? (
@@ -498,9 +512,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Remediation hints */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle className="w-4 h-4 text-gray-400" />
+            <AlertTriangle className="w-4 h-4 text-amber-500" />
             <span className="font-semibold text-gray-800 text-sm">Action items</span>
           </div>
           {failingControls.length === 0 ? (
