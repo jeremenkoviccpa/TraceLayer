@@ -1,3 +1,4 @@
+import logging
 import math
 import uuid
 
@@ -20,19 +21,26 @@ from services.report_service import (
 )
 from utils.pagination import Page
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/reports", tags=["reports"])
 
 
 async def _run_json_generation(report_id: uuid.UUID, company_id: uuid.UUID) -> None:
     from core.database import AsyncSessionLocal
-    async with AsyncSessionLocal() as db:
-        await generate_report_bundle(report_id, company_id, db)
+    try:
+        async with AsyncSessionLocal() as db:
+            await generate_report_bundle(report_id, company_id, db)
+    except Exception:
+        logger.exception("JSON report generation failed: report_id=%s", report_id)
 
 
 async def _run_pdf_generation(report_id: uuid.UUID, company_id: uuid.UUID) -> None:
     from core.database import AsyncSessionLocal
-    async with AsyncSessionLocal() as db:
-        await generate_pdf_report(report_id, company_id, db)
+    try:
+        async with AsyncSessionLocal() as db:
+            await generate_pdf_report(report_id, company_id, db)
+    except Exception:
+        logger.exception("PDF report generation failed: report_id=%s", report_id)
 
 
 @router.post("/generate", response_model=ReportResponse, status_code=202)
