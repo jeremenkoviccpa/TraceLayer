@@ -193,6 +193,45 @@ const PAIN_POINTS = [
   { before: "Consultants charging $50k+ to help", after: "Self-serve for a fraction of the cost" },
 ];
 
+const PRICING = [
+  {
+    name: "Starter",
+    price: "Free",
+    period: "",
+    desc: "Perfect for early-stage teams getting audit-ready.",
+    features: ["Up to 3 integrations", "SOC 2, ISO 27001 & HIPAA", "Automated evidence collection", "PDF & JSON reports", "2 team members"],
+    cta: "Get started free",
+    highlighted: false,
+  },
+  {
+    name: "Growth",
+    price: "$149",
+    period: "/mo",
+    desc: "For teams actively pursuing certification.",
+    features: ["All 7 integrations", "All 3 frameworks", "Daily collection", "Unlimited reports", "Unlimited team members", "Priority support"],
+    cta: "Start free trial",
+    highlighted: true,
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    period: "",
+    desc: "For larger orgs with advanced compliance needs.",
+    features: ["Everything in Growth", "Custom integrations", "SSO / SAML", "Dedicated CSM", "SLA guarantee", "Custom audit reports"],
+    cta: "Contact sales",
+    highlighted: false,
+  },
+];
+
+const FAQ = [
+  { q: "How long does setup take?", a: "Under 5 minutes. Create an account, paste an API key for your first integration, and evidence collection starts immediately." },
+  { q: "Do you store my cloud credentials?", a: "All credentials are encrypted at rest with Fernet symmetric encryption. We never store or log plaintext secrets." },
+  { q: "Which frameworks do you support?", a: "SOC 2 Type II, ISO 27001 (2022 edition), and HIPAA Security Rule. Evidence maps to all three simultaneously — no duplicate work." },
+  { q: "Can I use this for a SOC 2 Type II audit?", a: "Yes. TraceLayer collects continuous evidence across your observation period — exactly what auditors need for a Type II opinion." },
+  { q: "What integrations are supported?", a: "AWS, GitHub, Slack, Google Workspace, Jira, Okta, and Azure AD. More integrations are coming soon." },
+  { q: "Is there a free plan?", a: "Yes — TraceLayer is free to start with no credit card required. Connect integrations and generate reports immediately." },
+];
+
 const THEME = {
   "--bg": "#f7f1e8",
   "--ink": "#1f2937",
@@ -264,23 +303,28 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute -top-32 right-0 h-96 w-96 rounded-full bg-[radial-gradient(circle,_rgba(15,118,110,0.2),_transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(#0f766e18_1px,transparent_1px)] [background-size:24px_24px]" />
+        <div className="absolute -top-32 right-0 h-96 w-96 rounded-full bg-[radial-gradient(circle,_rgba(15,118,110,0.22),_transparent)]" />
         <div className="absolute -bottom-40 -left-10 h-96 w-96 rounded-full bg-[radial-gradient(circle,_rgba(249,115,22,0.18),_transparent)]" />
         <div className="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center relative">
-          <div className="inline-flex items-center gap-2 bg-white/80 text-[var(--accent)] text-xs font-semibold px-3 py-1.5 rounded-full mb-6 border border-black/5 fade-up">
-            <ShieldCheck className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 bg-white/80 text-[var(--accent)] text-xs font-semibold px-3 py-1.5 rounded-full mb-6 border border-black/5 fade-up shadow-sm">
+            <span className="relative flex h-2 w-2 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
             SOC 2 · ISO 27001 · HIPAA — all in one platform
           </div>
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-5 tracking-tight fade-up">
             Stop chasing compliance.<br />
-            <span className="text-[var(--accent)]">Let it run itself.</span>
+            <span className="bg-gradient-to-r from-[var(--accent)] via-emerald-500 to-teal-400 bg-clip-text text-transparent">Let it run itself.</span>
           </h1>
           <p className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 fade-up delay-1">
             TraceLayer connects to your cloud tools and automatically collects the evidence your auditor needs —
             IAM users, audit logs, repositories, access policies — mapped to controls in real time.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap mb-10 fade-up delay-2">
-            <Link href="/register" className="inline-flex items-center gap-2 bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
+            <Link href="/register" className="relative inline-flex items-center gap-2 bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm overflow-hidden group shadow-[0_0_24px_rgba(15,118,110,0.4)] hover:shadow-[0_0_32px_rgba(15,118,110,0.6)]">
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               Start for free <ArrowRight className="w-4 h-4" />
             </Link>
             <Link href="/login" className="inline-flex items-center gap-2 border border-black/10 hover:border-black/20 text-[var(--ink)] font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
@@ -298,14 +342,15 @@ export default function LandingPage() {
             </div>
             <div className="p-3 sm:p-5 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 bg-gray-50/50">
               {[
-                { label: "Compliance score", value: "87%", color: "text-green-600" },
-                { label: "Evidence records", value: "2,841", color: "text-gray-900" },
-                { label: "Active integrations", value: "4", color: "text-green-600" },
-                { label: "Controls monitored", value: "12", color: "text-gray-900" },
+                { label: "Score", value: "87%", color: "text-green-600", sub: "SOC 2" },
+                { label: "Evidence", value: "2,841", color: "text-gray-900", sub: "records" },
+                { label: "Integrations", value: "4", color: "text-green-600", sub: "active" },
+                { label: "Controls", value: "12", color: "text-gray-900", sub: "monitored" },
               ].map((s) => (
                 <div key={s.label} className="bg-white rounded-xl border border-gray-100 p-3 text-left">
-                  <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">{s.label}</p>
+                  <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1 leading-tight">{s.label}</p>
                   <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">{s.sub}</p>
                 </div>
               ))}
             </div>
@@ -333,29 +378,36 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="border-y border-black/5 bg-white/60 py-10">
-        <div className="max-w-4xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          {STATS.map((s) => (
-            <div key={s.label}>
-              <p className="text-4xl font-extrabold text-[var(--accent)] mb-1">{s.value}</p>
-              <p className="text-sm text-[var(--muted)] font-medium">{s.label}</p>
+          {/* Floating activity pill */}
+          <div className="flex justify-center mt-4 fade-up delay-2">
+            <div className="inline-flex items-center gap-2 bg-white/90 backdrop-blur rounded-full px-4 py-2 shadow-lg border border-black/5 text-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span className="text-gray-500">Evidence synced</span>
+              <span className="font-semibold text-gray-900">2 minutes ago</span>
+              <span className="text-gray-300">·</span>
+              <span className="text-gray-500">Next run in <span className="font-semibold text-gray-900">22h</span></span>
             </div>
-          ))}
+          </div>
         </div>
       </section>
 
-      {/* Logo marquee */}
-      <section className="py-12 overflow-hidden">
+      {/* First marquee stripe — visible in first viewport */}
+      <section className="py-10 overflow-hidden border-y border-black/5 bg-white/40">
         <p className="text-center text-xs text-[var(--muted)] font-semibold uppercase tracking-widest mb-6">
           Integrates with the tools you already use
         </p>
-        <div className="space-y-4">
-          <MarqueeRow />
-          <MarqueeRow reverse />
+        <MarqueeRow />
+      </section>
+
+      {/* Stats */}
+      <section className="bg-white/60 py-10">
+        <div className="max-w-4xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          {STATS.map((s) => (
+            <div key={s.label} className="group">
+              <p className="text-4xl font-extrabold text-[var(--accent)] mb-1 group-hover:scale-110 transition-transform duration-200">{s.value}</p>
+              <p className="text-sm text-[var(--muted)] font-medium">{s.label}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -439,6 +491,11 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Second marquee stripe — mid page */}
+      <section className="py-10 overflow-hidden border-y border-black/5 bg-white/40">
+        <MarqueeRow reverse />
+      </section>
+
       {/* Frameworks */}
       <section className="max-w-6xl mx-auto px-6 py-12 md:py-20">
         <div className="text-center mb-10 md:mb-12">
@@ -450,11 +507,87 @@ export default function LandingPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {FRAMEWORKS.map((f) => (
-            <div key={f.name} className="bg-[var(--card)] border border-black/5 rounded-2xl px-8 py-8 text-center shadow-[0_8px_24px_rgba(15,23,42,0.05)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.1)] transition-shadow">
-              <ShieldCheck className="w-9 h-9 text-[var(--accent)] mx-auto mb-3" />
+            <div key={f.name} className="bg-[var(--card)] border border-black/5 rounded-2xl px-8 py-8 text-center shadow-[0_8px_24px_rgba(15,23,42,0.05)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.1)] transition-shadow group">
+              <div className="w-12 h-12 bg-[color:var(--accent)]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-[color:var(--accent)]/20 transition-colors">
+                <ShieldCheck className="w-6 h-6 text-[var(--accent)]" />
+              </div>
               <p className="font-extrabold text-lg">{f.name}</p>
               <p className="text-xs text-[var(--muted)] mt-1 mb-3">{f.desc}</p>
               <p className="text-xs text-[var(--muted)] leading-relaxed max-w-[160px] mx-auto">{f.detail}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section className="bg-white/60 py-12 md:py-20">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-10 md:mb-14">
+            <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Pricing</p>
+            <h2 className="text-2xl md:text-3xl font-extrabold">Start free. Scale when you&apos;re ready.</h2>
+            <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto">
+              No credit card required to get started. Upgrade when you need more integrations or team members.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+            {PRICING.map((plan) => (
+              <div
+                key={plan.name}
+                className={`relative rounded-2xl border p-7 ${
+                  plan.highlighted
+                    ? "bg-[var(--ink)] border-[var(--ink)] shadow-[0_20px_60px_rgba(15,23,42,0.25)]"
+                    : "bg-[var(--card)] border-black/5 shadow-[0_8px_24px_rgba(15,23,42,0.05)]"
+                }`}
+              >
+                {plan.highlighted && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="bg-[var(--accent-warm)] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Most popular</span>
+                  </div>
+                )}
+                <p className={`text-sm font-bold mb-1 ${plan.highlighted ? "text-white/60" : "text-[var(--muted)]"}`}>{plan.name}</p>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className={`text-4xl font-black ${plan.highlighted ? "text-white" : "text-[var(--ink)]"}`}>{plan.price}</span>
+                  {plan.period && <span className={`text-sm ${plan.highlighted ? "text-white/50" : "text-[var(--muted)]"}`}>{plan.period}</span>}
+                </div>
+                <p className={`text-xs mb-6 leading-relaxed ${plan.highlighted ? "text-white/50" : "text-[var(--muted)]"}`}>{plan.desc}</p>
+                <div className="space-y-2.5 mb-7">
+                  {plan.features.map((f) => (
+                    <div key={f} className="flex items-center gap-2.5">
+                      <CheckCircle2 className={`w-4 h-4 shrink-0 ${plan.highlighted ? "text-emerald-400" : "text-[var(--accent)]"}`} />
+                      <span className={`text-xs ${plan.highlighted ? "text-white/70" : "text-[var(--ink)]"}`}>{f}</span>
+                    </div>
+                  ))}
+                </div>
+                <Link
+                  href="/register"
+                  className={`block text-center text-sm font-semibold py-2.5 rounded-xl transition-colors ${
+                    plan.highlighted
+                      ? "bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white"
+                      : "bg-[color:var(--ink)]/5 hover:bg-[color:var(--ink)]/10 text-[var(--ink)]"
+                  }`}
+                >
+                  {plan.cta}
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="max-w-3xl mx-auto px-6 py-12 md:py-20">
+        <div className="text-center mb-10 md:mb-12">
+          <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">FAQ</p>
+          <h2 className="text-2xl md:text-3xl font-extrabold">Common questions</h2>
+        </div>
+        <div className="space-y-4">
+          {FAQ.map((item) => (
+            <div key={item.q} className="bg-white/80 rounded-2xl border border-black/5 p-5 shadow-[0_4px_16px_rgba(15,23,42,0.04)]">
+              <p className="font-bold text-sm mb-2 flex items-start gap-2">
+                <span className="text-[var(--accent)] shrink-0 mt-0.5">Q</span>
+                {item.q}
+              </p>
+              <p className="text-sm text-[var(--muted)] leading-relaxed pl-5">{item.a}</p>
             </div>
           ))}
         </div>
