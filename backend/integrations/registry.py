@@ -5,6 +5,10 @@ _REGISTRY: dict[str, str] = {
     "aws": "integrations.aws.adapter.AWSIntegration",
     "github": "integrations.github.adapter.GithubIntegration",
     "slack": "integrations.slack.adapter.SlackIntegration",
+    "google_workspace": "integrations.google_workspace.adapter.GoogleWorkspaceIntegration",
+    "jira": "integrations.jira.adapter.JiraIntegration",
+    "okta": "integrations.okta.adapter.OktaIntegration",
+    "azure_ad": "integrations.azure_ad.adapter.AzureADIntegration",
 }
 
 

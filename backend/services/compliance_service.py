@@ -17,24 +17,37 @@ EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
             "iam_users", "iam_policies",
             "github_members", "github_admin_members",
             "slack_users", "slack_workspace",
+            "workspace_users", "workspace_admin_members",
+            "okta_users", "okta_groups",
+            "azure_users", "azure_roles",
+            "jira_users",
         },
         "logging_monitoring": {"cloudtrail_logs"},
-        "change_management": {"repositories"},
+        "change_management": {"repositories", "jira_projects"},
     },
     "iso27001": {
         "access_control": {
             "iam_users", "iam_policies",
             "github_members", "github_admin_members",
             "slack_users",
+            "workspace_users", "workspace_admin_members",
+            "okta_users", "okta_groups",
+            "azure_users", "azure_roles",
         },
         "operations_security": {"cloudtrail_logs"},
-        "communications_security": {"slack_workspace", "slack_users"},
-        "change_management": {"repositories"},
+        "communications_security": {"slack_workspace", "slack_users", "workspace_groups"},
+        "change_management": {"repositories", "jira_projects"},
     },
     "hipaa": {
-        "access_control": {"iam_users", "iam_policies"},
+        "access_control": {
+            "iam_users", "iam_policies",
+            "workspace_users", "okta_users", "azure_users",
+        },
         "audit_controls": {"cloudtrail_logs"},
-        "workforce_security": {"github_members", "slack_users"},
+        "workforce_security": {
+            "github_members", "slack_users",
+            "workspace_users", "okta_users", "jira_users",
+        },
     },
 }
 

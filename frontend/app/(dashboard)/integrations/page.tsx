@@ -33,6 +33,44 @@ const INTEGRATION_DEFS = [
       { key: "bot_token", label: "Bot Token", placeholder: "xoxb-••••••••", type: "password" },
     ],
   },
+  {
+    type: "google_workspace",
+    label: "Google Workspace",
+    description: "Collect users, admin accounts, and groups via Admin SDK",
+    fields: [
+      { key: "admin_email", label: "Admin Email", placeholder: "admin@yourcompany.com" },
+      { key: "service_account_json", label: "Service Account JSON", placeholder: '{"type":"service_account",...}', type: "textarea" },
+    ],
+  },
+  {
+    type: "jira",
+    label: "Jira",
+    description: "Collect projects and users for change management evidence",
+    fields: [
+      { key: "domain", label: "Domain", placeholder: "mycompany.atlassian.net" },
+      { key: "email", label: "Admin Email", placeholder: "admin@mycompany.com" },
+      { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password" },
+    ],
+  },
+  {
+    type: "okta",
+    label: "Okta",
+    description: "Collect users, groups, and password policies",
+    fields: [
+      { key: "domain", label: "Okta Domain", placeholder: "mycompany.okta.com" },
+      { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password" },
+    ],
+  },
+  {
+    type: "azure_ad",
+    label: "Azure AD",
+    description: "Collect users, groups, and directory role assignments",
+    fields: [
+      { key: "tenant_id", label: "Tenant ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+      { key: "client_id", label: "Client ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+      { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••", type: "password" },
+    ],
+  },
 ];
 
 function statusBadge(status: string) {
@@ -106,14 +144,25 @@ function ConnectModal({
           {def.fields.map((f) => (
             <div key={f.key}>
               <label className="block text-sm font-medium text-gray-700 mb-1">{f.label}</label>
-              <input
-                type={f.type ?? "text"}
-                placeholder={f.placeholder}
-                required
-                value={fields[f.key] ?? ""}
-                onChange={(e) => setFields((prev) => ({ ...prev, [f.key]: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-              />
+              {f.type === "textarea" ? (
+                <textarea
+                  placeholder={f.placeholder}
+                  required
+                  rows={5}
+                  value={fields[f.key] ?? ""}
+                  onChange={(e) => setFields((prev) => ({ ...prev, [f.key]: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
+                />
+              ) : (
+                <input
+                  type={f.type ?? "text"}
+                  placeholder={f.placeholder}
+                  required
+                  value={fields[f.key] ?? ""}
+                  onChange={(e) => setFields((prev) => ({ ...prev, [f.key]: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                />
+              )}
             </div>
           ))}
 
