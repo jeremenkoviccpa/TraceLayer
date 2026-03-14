@@ -19,7 +19,7 @@ from models.company import Company
 from models.refresh_token import RefreshToken
 from models.user import User
 from schemas.auth import ChangePasswordRequest, LoginRequest, RefreshRequest, RegisterRequest, TokenResponse, UserResponse
-from services.email_service import send_password_changed_email
+from services.email_service import send_password_changed_email, send_welcome_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -54,6 +54,11 @@ async def register(request: Request, body: RegisterRequest, db: AsyncSession = D
     )
     db.add(refresh_token)
     await db.commit()
+
+    try:
+        send_welcome_email(user.email, company.name)
+    except Exception:
+        pass
 
     return TokenResponse(access_token=access_token, refresh_token=raw_refresh)
 

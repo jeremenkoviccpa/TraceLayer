@@ -49,6 +49,53 @@ def send_invite_email(to: str, invite_url: str, company_name: str, invited_by: s
     _send(to, subject, html)
 
 
+def send_welcome_email(to: str, company_name: str) -> None:
+    subject = "Welcome to TraceLayer"
+    html = f"""
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
+      <h2 style="margin:0 0 8px">Welcome to TraceLayer</h2>
+      <p style="color:#555;margin:0 0 16px">
+        Your account for <strong>{company_name}</strong> is ready.
+        Connect your first integration to start collecting compliance evidence automatically.
+      </p>
+      <a href="{settings.frontend_url}/onboarding"
+         style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;
+                padding:12px 24px;border-radius:8px;font-weight:600;font-size:15px">
+        Get started
+      </a>
+      <p style="color:#999;font-size:12px;margin-top:24px">
+        TraceLayer — Continuous compliance evidence collection.
+      </p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
+def send_collection_failure_email(to: str, integration_type: str, error: str) -> None:
+    subject = f"TraceLayer: {integration_type} collection failed"
+    html = f"""
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
+      <h2 style="margin:0 0 8px;color:#dc2626">Collection failed</h2>
+      <p style="color:#555;margin:0 0 16px">
+        The scheduled evidence collection for <strong>{integration_type}</strong> failed.
+        Your compliance score may be out of date until this is resolved.
+      </p>
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:24px">
+        <code style="font-size:12px;color:#991b1b">{error[:300]}</code>
+      </div>
+      <a href="{settings.frontend_url}/integrations"
+         style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;
+                padding:12px 24px;border-radius:8px;font-weight:600;font-size:15px">
+        Check integrations
+      </a>
+      <p style="color:#999;font-size:12px;margin-top:24px">
+        You can reconnect the integration or trigger a manual collection from the Integrations page.
+      </p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
 def send_password_changed_email(to: str) -> None:
     subject = "Your TraceLayer password was changed"
     html = """
