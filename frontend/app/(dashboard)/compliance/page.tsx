@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import type { ComplianceScore, ManualControl } from "@/lib/types";
+import type { ComplianceScore, ManualControl, Member } from "@/lib/types";
+import { getRemediationForMissingType, getRemediationForCategory } from "@/lib/remediation";
 import {
   ShieldCheck,
   CheckCircle2,
@@ -15,6 +16,8 @@ import {
   Copy,
   Check,
   AlertCircle,
+  Wrench,
+  User as UserIcon,
 } from "lucide-react";
 
 const FRAMEWORKS = [
@@ -102,19 +105,75 @@ function EvidenceDots({
   );
 }
 
+// ── Remediation panel ─────────────────────────────────────────────────────────
+function RemediationPanel({ missingTypes, category }: { missingTypes: string[]; category: string }) {
+  const [open, setOpen] = useState(false);
+
+  const guides = missingTypes
+    .map((t) => getRemediationForMissingType(t))
+    .filter(Boolean);
+  const fallback = guides.length === 0 ? getRemediationForCategory(category) : null;
+  const allGuides = guides.length > 0 ? guides : fallback ? [fallback] : [];
+
+  if (allGuides.length === 0) return null;
+
+  return (
+    <div className="mt-2.5">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-600 hover:text-amber-700 transition-colors"
+      >
+        <Wrench className="w-3 h-3" />
+        {open ? "Hide fix guide" : "How to fix this"}
+        {open ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+      </button>
+      {open && (
+        <div className="mt-2 space-y-3">
+          {allGuides.map((guide, i) => guide && (
+            <div key={i} className="bg-amber-50 border border-amber-100 rounded-xl p-3.5">
+              <div className="flex items-center gap-1.5 mb-2">
+                <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full ${
+                  guide.urgency === "critical" ? "bg-red-100 text-red-700" :
+                  guide.urgency === "high"     ? "bg-orange-100 text-orange-700" :
+                  "bg-yellow-100 text-yellow-700"
+                }`}>{guide.urgency}</span>
+                <span className="text-xs font-semibold text-gray-700">{guide.title}</span>
+              </div>
+              <ol className="space-y-1.5">
+                {guide.steps.map((step, j) => (
+                  <li key={j} className="flex items-start gap-2 text-xs text-gray-600">
+                    <span className="w-4 h-4 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center text-[9px] font-bold shrink-0 mt-0.5">{j + 1}</span>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+              {guide.hint && (
+                <p className="text-[10px] text-gray-400 mt-2 italic">{guide.hint}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Manual control row ────────────────────────────────────────────────────────
 function ManualControlRow({
   control,
   framework,
+  members,
   onUpdate,
 }: {
   control: ManualControl;
   framework: string;
+  members: Member[];
   onUpdate: (updated: ManualControl) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [notes, setNotes] = useState(control.notes ?? "");
   const [saving, setSaving] = useState(false);
+  const [assigning, setAssigning] = useState(false);
 
   const cycleStatus = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -133,6 +192,14 @@ function ManualControlRow({
       const updated = await api.updateManualControl(control.control_id, framework, control.status, notes || null);
       onUpdate(updated);
     } catch { /* ignore */ } finally { setSaving(false); }
+  };
+
+  const handleAssign = async (ownerUserId: string | null) => {
+    setAssigning(true);
+    try {
+      const updated = await api.assignManualControl(control.control_id, framework, ownerUserId);
+      onUpdate(updated);
+    } catch { /* ignore */ } finally { setAssigning(false); }
   };
 
   const statusColors: Record<Status, string> = {
@@ -202,6 +269,29 @@ function ManualControlRow({
               </button>
             ))}
           </div>
+
+          {/* Owner assignment */}
+          {members.length > 0 && (
+            <div className="mb-3">
+              <label className="block text-xs font-medium text-gray-500 mb-1.5 flex items-center gap-1">
+                <UserIcon className="w-3 h-3" /> Owner
+              </label>
+              <select
+                value={control.owner_user_id ?? ""}
+                onChange={(e) => handleAssign(e.target.value || null)}
+                disabled={assigning}
+                className="w-full text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-500/25 focus:border-brand-400 bg-white text-gray-700 transition-all disabled:opacity-50"
+              >
+                <option value="">Unassigned</option>
+                {members.map((m) => (
+                  <option key={m.id} value={m.id}>{m.email}</option>
+                ))}
+              </select>
+              {control.owner_name && (
+                <p className="text-[10px] text-gray-400 mt-1">Currently: {control.owner_name}</p>
+              )}
+            </div>
+          )}
 
           <div className="flex gap-2">
             <textarea
@@ -390,6 +480,7 @@ export default function CompliancePage() {
   const [framework, setFramework] = useState("soc2");
   const [score, setScore]         = useState<ComplianceScore | null>(null);
   const [manualControls, setManualControls] = useState<ManualControl[]>([]);
+  const [members, setMembers]     = useState<Member[]>([]);
   const [loading, setLoading]     = useState(true);
 
   const [aiSummary, setAiSummary]         = useState<string | null>(null);
@@ -410,6 +501,7 @@ export default function CompliancePage() {
   };
 
   useEffect(() => { load(framework); }, [framework]); // eslint-disable-line
+  useEffect(() => { api.getMembers().then(setMembers).catch(() => {}); }, []);
 
   const generateSummary = async () => {
     setAiLoading(true);
@@ -505,6 +597,9 @@ export default function CompliancePage() {
                   </div>
 
                   <EvidenceDots covered={c.covered_types} missing={c.missing_types} />
+                  {(c.status === "failing" || c.status === "warning" || c.status === "no_evidence") && (
+                    <RemediationPanel missingTypes={c.missing_types} category={c.category} />
+                  )}
                 </div>
               ))}
             </div>
@@ -534,6 +629,7 @@ export default function CompliancePage() {
                   key={c.control_id}
                   control={c}
                   framework={framework}
+                  members={members}
                   onUpdate={handleUpdate}
                 />
               ))}

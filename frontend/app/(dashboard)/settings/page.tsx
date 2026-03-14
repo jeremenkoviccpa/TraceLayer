@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
-import type { BillingInfo, Company } from "@/lib/types";
+import type { AuditSession, BillingInfo, Company } from "@/lib/types";
 import {
   CreditCard,
   Lock,
@@ -15,6 +15,12 @@ import {
   Bell,
   Shield,
   User as UserIcon,
+  Eye,
+  ExternalLink,
+  Trash2,
+  Plus,
+  Copy,
+  Check,
 } from "lucide-react";
 import React from "react";
 
@@ -288,6 +294,49 @@ export default function SettingsPage() {
     }
   };
 
+  // ── Audit Sessions ─────────────────────────────────────────────────────────
+  const [auditSessions, setAuditSessions] = useState<AuditSession[]>([]);
+  const [auditLabel, setAuditLabel] = useState("");
+  const [auditCreating, setAuditCreating] = useState(false);
+  const [auditCopied, setAuditCopied] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    api.getAuditSessions().then(setAuditSessions).catch(() => {});
+  }, [isAdmin]);
+
+  const handleCreateAuditLink = async () => {
+    setAuditCreating(true);
+    try {
+      const session = await api.createAuditSession(auditLabel || undefined, 90);
+      setAuditSessions((prev) => [session, ...prev]);
+      setAuditLabel("");
+      showToast("Auditor link created");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Failed to create link", "error");
+    } finally {
+      setAuditCreating(false);
+    }
+  };
+
+  const handleRevokeAuditSession = async (id: string) => {
+    try {
+      await api.revokeAuditSession(id);
+      setAuditSessions((prev) => prev.filter((s) => s.id !== id));
+      showToast("Auditor link revoked");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Failed to revoke link", "error");
+    }
+  };
+
+  const copyAuditLink = (token: string) => {
+    const url = `${window.location.origin}/auditor/${token}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setAuditCopied(token);
+      setTimeout(() => setAuditCopied(null), 2000);
+    });
+  };
+
   // ── Input class helper ────────────────────────────────────────────────────
   const inputCls =
     "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400 bg-white text-gray-900 placeholder:text-gray-400 transition-all";
@@ -316,6 +365,7 @@ export default function SettingsPage() {
     ...(isAdmin ? [{ id: "weekly-report", label: "Weekly Report", icon: Mail }] : []),
     { id: "billing",       label: "Billing & Plan",    icon: CreditCard },
     ...(isAdmin ? [{ id: "company", label: "Company", icon: Building2 }] : []),
+    ...(isAdmin ? [{ id: "auditor-access", label: "Auditor Access", icon: Eye }] : []),
     { id: "your-data",     label: "Your Data",         icon: ShieldAlert },
   ];
 
@@ -687,7 +737,84 @@ export default function SettingsPage() {
         </section>
       )}
 
-      {/* ── G. Your Data (GDPR) ───────────────────────────────────────────────── */}
+      {/* ── G. Auditor Access (admin only) ───────────────────────────────────── */}
+      {isAdmin && (
+        <section id="auditor-access" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
+          <SectionHeader
+            icon={Eye}
+            title="Auditor Access"
+            subtitle="Generate read-only links you can share with auditors. No login required."
+          />
+
+          {/* Create form */}
+          <div className="flex gap-2 mb-5">
+            <input
+              type="text"
+              value={auditLabel}
+              onChange={(e) => setAuditLabel(e.target.value)}
+              placeholder="Label (e.g. SOC 2 Audit 2025)"
+              className={`${inputCls} flex-1`}
+              onKeyDown={(e) => { if (e.key === "Enter") handleCreateAuditLink(); }}
+            />
+            <button
+              onClick={handleCreateAuditLink}
+              disabled={auditCreating}
+              className="shrink-0 flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-3.5 py-2 rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              {auditCreating ? "Creating…" : "Create link"}
+            </button>
+          </div>
+
+          {/* Sessions list */}
+          {auditSessions.length === 0 ? (
+            <p className="text-xs text-gray-400 text-center py-4">No auditor links yet. Create one above.</p>
+          ) : (
+            <div className="space-y-2">
+              {auditSessions.map((s) => (
+                <div key={s.id} className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl px-3.5 py-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-800 truncate">{s.label || "Untitled link"}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Created {new Date(s.created_at).toLocaleDateString()}
+                      {s.expires_at && (
+                        <> · Expires {new Date(s.expires_at).toLocaleDateString()}</>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      onClick={() => copyAuditLink(s.token)}
+                      className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-800 bg-white border border-gray-200 px-2.5 py-1.5 rounded-lg transition-colors"
+                    >
+                      {auditCopied === s.token
+                        ? <><Check className="w-3.5 h-3.5 text-emerald-500" /> Copied</>
+                        : <><Copy className="w-3.5 h-3.5" /> Copy link</>
+                      }
+                    </button>
+                    <a
+                      href={`/auditor/${s.token}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-800 bg-white border border-gray-200 px-2.5 py-1.5 rounded-lg transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" /> Preview
+                    </a>
+                    <button
+                      onClick={() => handleRevokeAuditSession(s.id)}
+                      className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 bg-white border border-red-100 hover:border-red-200 px-2.5 py-1.5 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Revoke
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* ── H. Your Data (GDPR) ───────────────────────────────────────────────── */}
       <section id="your-data" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
         <SectionHeader icon={ShieldAlert} title="Your Data" />
         <div className="space-y-3">

@@ -1,4 +1,4 @@
-import type { AuditLog, BillingInfo, Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, Report, ScoreHistoryPoint, User } from "./types";
+import type { AuditLog, AuditSession, BillingInfo, Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, PublicAuditView, Report, ScoreHistoryPoint, User } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -271,6 +271,28 @@ class ApiClient {
 
   async getAISummary(framework = "soc2"): Promise<{ summary: string; overall_score: number; generated_at: string }> {
     return this.request("POST", `/compliance/ai-summary?framework=${framework}`);
+  }
+
+  async assignManualControl(controlId: string, framework: string, ownerUserId: string | null): Promise<ManualControl> {
+    return this.request<ManualControl>("PATCH", `/compliance/manual-controls/${controlId}/assign?framework=${framework}`, { owner_user_id: ownerUserId });
+  }
+
+  // ── Audit Sessions ────────────────────────────────────────────────────────
+
+  async createAuditSession(label?: string, expiresDays?: number): Promise<AuditSession> {
+    return this.request<AuditSession>("POST", "/audit-sessions", { label: label || null, expires_days: expiresDays ?? 90 });
+  }
+
+  async getAuditSessions(): Promise<AuditSession[]> {
+    return this.request<AuditSession[]>("GET", "/audit-sessions");
+  }
+
+  async revokeAuditSession(id: string): Promise<void> {
+    return this.request("DELETE", `/audit-sessions/${id}`);
+  }
+
+  async getPublicAuditView(token: string): Promise<PublicAuditView> {
+    return this.request<PublicAuditView>("GET", `/audit-sessions/view/${token}`, undefined, false);
   }
 
   // ── Audit Log ────────────────────────────────────────────────────────────

@@ -135,4 +135,34 @@ export interface ManualControl {
   status: "pending" | "compliant" | "not_applicable";
   notes: string | null;
   updated_at: string | null;
+  owner_user_id: string | null;
+  owner_name: string | null;
+}
+
+export interface AuditSession {
+  id: string;
+  token: string;
+  label: string | null;
+  expires_at: string | null;
+  created_at: string;
+}
+
+export interface PublicControlScore {
+  name: string;
+  score: number;
+  status: string;
+}
+
+export interface PublicFrameworkView {
+  framework: string;
+  label: string;
+  overall_score: number;
+  controls: PublicControlScore[];
+}
+
+export interface PublicAuditView {
+  company_name: string;
+  session_label: string | null;
+  generated_at: string;
+  frameworks: PublicFrameworkView[];
 }

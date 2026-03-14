@@ -37,11 +37,17 @@ class ManualControlItem(BaseModel):
     status: str  # "pending" | "compliant" | "not_applicable"
     notes: Optional[str]
     updated_at: Optional[str]
+    owner_user_id: Optional[str] = None
+    owner_name: Optional[str] = None
 
 
 class UpdateManualControlRequest(BaseModel):
     status: str  # "pending" | "compliant" | "not_applicable"
     notes: Optional[str] = None
+
+
+class AssignManualControlRequest(BaseModel):
+    owner_user_id: Optional[str] = None  # UUID string or null to unassign
 
 
 class AISummaryResponse(BaseModel):

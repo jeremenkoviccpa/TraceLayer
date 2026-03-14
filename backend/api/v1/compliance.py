@@ -12,6 +12,7 @@ from models.manual_control import ManualControl
 from models.user import User
 from schemas.compliance import (
     AISummaryResponse,
+    AssignManualControlRequest,
     ComplianceScoreResponse,
     EvidenceActivityPoint,
     ManualControlItem,
@@ -122,10 +123,18 @@ async def get_manual_controls(
     )
     saved = {r.control_id: r for r in result.scalars().all()}
 
+    # Load owner names in a single query
+    owner_ids = {r.owner_user_id for r in saved.values() if r.owner_user_id}
+    owners: dict = {}
+    if owner_ids:
+        owner_result = await db.execute(select(User).where(User.id.in_(owner_ids)))
+        owners = {u.id: u for u in owner_result.scalars().all()}
+
     items = []
     for defn in definitions:
         cid = defn["control_id"]
         rec = saved.get(cid)
+        owner = owners.get(rec.owner_user_id) if rec and rec.owner_user_id else None
         items.append(ManualControlItem(
             control_id=cid,
             name=defn["name"],
@@ -133,6 +142,8 @@ async def get_manual_controls(
             status=rec.status if rec else "pending",
             notes=rec.notes if rec else None,
             updated_at=rec.updated_at.isoformat() if rec else None,
+            owner_user_id=str(rec.owner_user_id) if rec and rec.owner_user_id else None,
+            owner_name=(owner.full_name or owner.email) if owner else None,
         ))
     return items
 
@@ -189,6 +200,70 @@ async def update_manual_control(
         status=rec.status,
         notes=rec.notes,
         updated_at=rec.updated_at.isoformat(),
+        owner_user_id=str(rec.owner_user_id) if rec.owner_user_id else None,
+    )
+
+
+@router.patch("/manual-controls/{control_id}/assign", response_model=ManualControlItem)
+async def assign_manual_control(
+    control_id: str,
+    body: AssignManualControlRequest,
+    framework: str = Query("soc2"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    definitions = _MANUAL_CONTROLS.get(framework, [])
+    defn = next((d for d in definitions if d["control_id"] == control_id), None)
+    if not defn:
+        raise HTTPException(status_code=404, detail="Control not found")
+
+    # Validate owner belongs to same company
+    owner = None
+    owner_uid = None
+    if body.owner_user_id:
+        try:
+            owner_uid = uuid.UUID(body.owner_user_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid owner_user_id")
+        owner_result = await db.execute(
+            select(User).where(User.id == owner_uid, User.company_id == current_user.company_id)
+        )
+        owner = owner_result.scalar_one_or_none()
+        if not owner:
+            raise HTTPException(status_code=404, detail="Owner not found in your organisation")
+
+    result = await db.execute(
+        select(ManualControl).where(
+            ManualControl.company_id == current_user.company_id,
+            ManualControl.framework == framework,
+            ManualControl.control_id == control_id,
+        )
+    )
+    rec = result.scalar_one_or_none()
+    if not rec:
+        rec = ManualControl(
+            id=uuid.uuid4(),
+            company_id=current_user.company_id,
+            framework=framework,
+            control_id=control_id,
+            status="pending",
+            updated_by_id=current_user.id,
+        )
+        db.add(rec)
+
+    rec.owner_user_id = owner_uid
+    await db.commit()
+    await db.refresh(rec)
+
+    return ManualControlItem(
+        control_id=control_id,
+        name=defn["name"],
+        description=defn["description"],
+        status=rec.status,
+        notes=rec.notes,
+        updated_at=rec.updated_at.isoformat(),
+        owner_user_id=str(rec.owner_user_id) if rec.owner_user_id else None,
+        owner_name=(owner.full_name or owner.email) if owner else None,
     )
 
 
