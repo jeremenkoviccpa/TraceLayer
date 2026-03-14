@@ -5,7 +5,7 @@ Usage (from backend/ directory):
     python scripts/seed_demo.py
 
 Demo credentials:
-    Email:    admin@tracelayer.com
+    Email:    admin@tracelayer.it.com
     Password: admin
 
 Re-running is safe — skips if demo company already exists.
@@ -32,7 +32,7 @@ from models import Base, Company, Control, Evidence, Integration, User
 
 # ── Demo constants ──────────────────────────────────────────────────────────
 
-DEMO_EMAIL = "admin@tracelayer.com"
+DEMO_EMAIL = "admin@tracelayer.it.com"
 DEMO_PASSWORD = "admin"
 DEMO_COMPANY = "Acme Corp (Demo)"
 
