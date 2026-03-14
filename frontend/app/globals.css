@@ -1,14 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --accent: #4f46e5;
+    --accent: #0f766e;
+    --bg: #f7f1e8;
+    --ink: #1f2937;
+    --muted: #5b6472;
   }
 
   body {
-    @apply bg-slate-50 text-gray-900 antialiased;
+    @apply text-gray-900 antialiased;
+    background-color: #f7f1e8;
+    font-family: 'Sora', ui-sans-serif, system-ui, sans-serif;
   }
 
   /* Slim custom scrollbar */

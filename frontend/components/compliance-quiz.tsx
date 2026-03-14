@@ -170,7 +170,7 @@ function ScoreRing({ score }: { score: number }) {
   const r = 52;
   const circ = 2 * Math.PI * r;
   const offset = circ - (score / 100) * circ;
-  const color = score >= 70 ? "#10b981" : score >= 40 ? "#f59e0b" : "#6366f1";
+  const color = score >= 70 ? "#10b981" : score >= 40 ? "#f59e0b" : "#0f766e";
 
   return (
     <div className="relative w-32 h-32 shrink-0">

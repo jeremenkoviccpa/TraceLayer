@@ -423,7 +423,7 @@ export default function DashboardPage() {
                 <Line
                   type="monotone"
                   dataKey="score"
-                  stroke="#6366f1"
+                  stroke="#0f766e"
                   strokeWidth={2}
                   dot={false}
                   activeDot={{ r: 4 }}
@@ -453,7 +453,7 @@ export default function DashboardPage() {
                   formatter={(v) => [v, "Records"]}
                   contentStyle={{ fontSize: 12 }}
                 />
-                <Bar dataKey="count" fill="#6366f1" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="count" fill="#0f766e" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (

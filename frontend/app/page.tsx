@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/components/auth-provider";
 import { ComplianceQuiz } from "@/components/compliance-quiz";
 import {
@@ -334,7 +335,10 @@ export default function LandingPage() {
       {/* Nav */}
       <header className="sticky top-0 z-50 bg-[color:var(--bg)]/80 backdrop-blur border-b border-black/5">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <span className="font-extrabold text-lg tracking-tight">TraceLayer</span>
+          <div className="flex items-center gap-2.5">
+            <Image src="/logo-icon.png" alt="TraceLayer" width={32} height={32} className="rounded-lg" />
+            <span className="font-extrabold text-lg tracking-tight">TraceLayer</span>
+          </div>
           <div className="flex items-center gap-3">
             <Link href="/login" className="text-sm text-[var(--muted)] hover:text-[var(--ink)] font-medium transition-colors">
               Sign in

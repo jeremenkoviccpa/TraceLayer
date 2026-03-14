@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
+import Image from "next/image";
 import {
   LayoutDashboard,
   Plug,
@@ -60,7 +61,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-warm-100">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-gray-400">Loading…</p>
@@ -77,7 +78,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const initials = user.email.slice(0, 2).toUpperCase();
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-warm-100">
       {/* Mobile backdrop */}
       {sidebarOpen && (
         <div
@@ -95,9 +96,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Logo */}
         <div className="px-4 h-16 border-b border-gray-100 flex items-center justify-between shrink-0">
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-sm shadow-brand-600/30">
-              <ShieldCheck className="w-4 h-4 text-white" />
-            </div>
+            <Image src="/logo-icon.png" alt="TraceLayer" width={32} height={32} className="rounded-lg" />
             <span className="text-base font-bold text-gray-900 tracking-tight">TraceLayer</span>
           </Link>
           <button
@@ -158,9 +157,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-brand-600 rounded-md flex items-center justify-center">
-              <ShieldCheck className="w-3.5 h-3.5 text-white" />
-            </div>
+            <Image src="/logo-icon.png" alt="TraceLayer" width={24} height={24} className="rounded-md" />
             <span className="font-bold text-gray-900 text-sm">TraceLayer</span>
           </div>
         </header>

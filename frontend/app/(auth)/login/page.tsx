@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/components/auth-provider";
-import { ShieldCheck, Eye, EyeOff, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, CheckCircle2 } from "lucide-react";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -32,7 +33,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left branded panel */}
-      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-brand-600 via-brand-700 to-indigo-900 flex-col justify-between p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-brand-500 via-brand-600 to-brand-900 flex-col justify-between p-12 relative overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -40,8 +41,8 @@ export default function LoginPage() {
         </div>
 
         <div className="relative flex items-center gap-3">
-          <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/20">
-            <ShieldCheck className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/20 overflow-hidden">
+            <Image src="/logo-icon.png" alt="TraceLayer" width={32} height={32} />
           </div>
           <span className="text-xl font-bold text-white tracking-tight">TraceLayer</span>
         </div>
@@ -77,9 +78,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm animate-fade-in">
           {/* Mobile logo */}
           <div className="flex items-center gap-2.5 mb-10 lg:hidden">
-            <div className="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center shadow-sm">
-              <ShieldCheck className="w-5 h-5 text-white" />
-            </div>
+            <Image src="/logo-icon.png" alt="TraceLayer" width={36} height={36} className="rounded-xl" />
             <span className="text-lg font-bold text-gray-900">TraceLayer</span>
           </div>
 
