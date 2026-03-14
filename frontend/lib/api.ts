@@ -189,6 +189,10 @@ class ApiClient {
     return this.request<DownloadResponse>("GET", `/reports/${id}/download?format=${format}`);
   }
 
+  async sendWeeklyPreview(): Promise<{ message: string }> {
+    return this.request<{ message: string }>("POST", "/reports/weekly-preview");
+  }
+
   // ── Org ─────────────────────────────────────────────────────────────────
 
   async getMembers(): Promise<Member[]> {

@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 scheduler = AsyncIOScheduler()
 
 
+
 def schedule_integration(
     company_id: str,
     integration_type: str,
@@ -42,3 +43,20 @@ async def start() -> None:
 async def stop() -> None:
     scheduler.shutdown(wait=False)
     logger.info("Scheduler stopped")
+
+
+def schedule_weekly_reports() -> None:
+    """Schedule weekly compliance digest emails every Monday at 09:00 UTC."""
+    from services.weekly_report_service import send_weekly_reports
+
+    scheduler.add_job(
+        send_weekly_reports,
+        "cron",
+        day_of_week="mon",
+        hour=9,
+        minute=0,
+        id="weekly_compliance_reports",
+        replace_existing=True,
+        misfire_grace_time=3600,
+    )
+    logger.info("Scheduled weekly compliance reports (Mon 09:00 UTC)")

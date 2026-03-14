@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
-from core.deps import get_current_user
+from core.deps import get_current_user, get_current_admin
 from models.user import User
 from schemas.reports import GenerateReportRequest, ReportResponse
 from services.report_service import (
@@ -142,3 +142,70 @@ async def download_report(
             "file_size": report.file_size,
         }
     )
+
+
+@router.post("/weekly-preview", status_code=202)
+async def weekly_report_preview(
+    current_user: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Manually trigger a weekly compliance report email for the requesting admin.
+    Useful for previewing / testing the weekly digest without waiting for Monday 09:00 UTC.
+    """
+    from datetime import datetime, timezone, timedelta
+    from services.compliance_service import get_compliance_score
+    from services.email_service import send_weekly_compliance_report
+    from core.config import settings
+
+    FRAMEWORKS = [
+        {"value": "soc2",     "label": "SOC 2"},
+        {"value": "iso27001", "label": "ISO 27001"},
+        {"value": "hipaa",    "label": "HIPAA"},
+    ]
+
+    # Build week label identical to the scheduled job
+    today = datetime.now(timezone.utc)
+    monday = today - timedelta(days=today.weekday())
+    sunday = monday + timedelta(days=6)
+    week_label = "{} – {}, {}".format(
+        monday.strftime("%b %-d"),
+        sunday.strftime("%b %-d"),
+        sunday.year,
+    )
+
+    framework_scores = []
+    for fw in FRAMEWORKS:
+        try:
+            score_data = await get_compliance_score(current_user.company_id, fw["value"], db)
+            framework_scores.append({
+                "framework": fw["value"],
+                "label": fw["label"],
+                "score": score_data["overall_score"],
+                "controls": score_data["controls"],
+            })
+        except Exception as exc:
+            logger.warning("Could not compute %s score for preview: %s", fw["value"], exc)
+
+    company_name = current_user.company.name if current_user.company else "Your Company"
+
+    try:
+        send_weekly_compliance_report(
+            to=current_user.email,
+            company_name=company_name,
+            framework_scores=framework_scores,
+            week_label=week_label,
+            frontend_url=settings.frontend_url,
+        )
+    except Exception as exc:
+        logger.error("weekly-preview email failed for user %s: %s", current_user.email, exc)
+        raise HTTPException(status_code=500, detail="Failed to send preview email.")
+
+    await log_action(
+        db, current_user.company_id, "report.weekly_preview_sent",
+        user_id=current_user.id, user_email=current_user.email,
+        resource_type="report", resource_id=None,
+        metadata={"week_label": week_label},
+    )
+
+    return {"detail": f"Weekly compliance report preview sent to {current_user.email}."}

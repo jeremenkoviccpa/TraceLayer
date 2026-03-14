@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
 import type { BillingInfo, Company } from "@/lib/types";
-import { CreditCard, Lock, Building2, Zap, ShieldAlert, Download } from "lucide-react";
+import { CreditCard, Lock, Building2, Zap, ShieldAlert, Download, Mail } from "lucide-react";
 
 function Toast({ msg }: { msg: string }) {
   return (
@@ -102,6 +102,22 @@ export default function SettingsPage() {
       showToast(err instanceof Error ? err.message : "Failed to update company");
     } finally {
       setCompanySaving(false);
+    }
+  };
+
+  // ── GDPR ───────────────────────────────────────────────────────────────────
+  // ── Weekly report preview ─────────────────────────────────────────────────
+  const [weeklyLoading, setWeeklyLoading] = useState(false);
+
+  const handleSendPreview = async () => {
+    setWeeklyLoading(true);
+    try {
+      await api.sendWeeklyPreview();
+      showToast("Preview sent — check your inbox");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Failed to send preview");
+    } finally {
+      setWeeklyLoading(false);
     }
   };
 
@@ -282,6 +298,33 @@ export default function SettingsPage() {
           </div>
         )}
       </div>
+
+      {/* Weekly compliance report */}
+      {isAdmin && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+          <div className="flex items-center gap-2 mb-1">
+            <Mail className="w-5 h-5 text-brand-500" />
+            <h2 className="text-base font-semibold text-gray-900">Weekly Compliance Report</h2>
+          </div>
+          <p className="text-sm text-gray-500 mb-4">
+            Every Monday at 9 AM UTC all admins receive a compliance digest email with your scores, control status, and top action items.
+          </p>
+          <div className="flex items-center justify-between gap-4 bg-brand-50 border border-brand-100 rounded-xl px-4 py-3">
+            <div>
+              <p className="text-sm font-medium text-brand-800">Send preview to yourself</p>
+              <p className="text-xs text-brand-600 mt-0.5">Get a sample of this week&apos;s report right now.</p>
+            </div>
+            <button
+              onClick={handleSendPreview}
+              disabled={weeklyLoading}
+              className="shrink-0 flex items-center gap-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+            >
+              <Mail className="w-4 h-4" />
+              {weeklyLoading ? "Sending…" : "Send preview"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* GDPR */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
