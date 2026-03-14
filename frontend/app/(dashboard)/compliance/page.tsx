@@ -69,7 +69,7 @@ function scoreBarColor(score: number) {
   return "bg-red-400";
 }
 
-// ── Evidence dot chart ─────────────────────────────────────────────────────────
+// ── Evidence dot chips ─────────────────────────────────────────────────────────
 function EvidenceDots({
   covered,
   missing,
@@ -79,25 +79,23 @@ function EvidenceDots({
 }) {
   if (covered.length === 0 && missing.length === 0) return null;
   return (
-    <div className="flex flex-wrap gap-1.5 mt-2">
+    <div className="flex flex-wrap gap-1.5 mt-2.5">
       {covered.map((t) => (
         <span
           key={`c-${t}`}
-          title={t}
-          className="group relative flex items-center gap-1 max-w-full"
+          className="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[11px] font-medium px-2 py-0.5 rounded-full"
         >
-          <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
-          <span className="text-[11px] text-emerald-700 font-medium truncate max-w-[120px] sm:max-w-[160px]">{t}</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+          {t}
         </span>
       ))}
       {missing.map((t) => (
         <span
           key={`m-${t}`}
-          title={t}
-          className="group relative flex items-center gap-1 max-w-full"
+          className="inline-flex items-center gap-1 bg-red-50 border border-red-100 text-red-600 text-[11px] font-medium px-2 py-0.5 rounded-full"
         >
-          <span className="w-2 h-2 rounded-full bg-red-400 shrink-0" />
-          <span className="text-[11px] text-red-500 font-medium truncate max-w-[120px] sm:max-w-[160px]">{t}</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+          {t}
         </span>
       ))}
     </div>

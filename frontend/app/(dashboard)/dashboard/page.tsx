@@ -100,6 +100,38 @@ function scoreBarColor(score: number) {
   return "bg-red-400";
 }
 
+function EvidenceDots({
+  covered,
+  missing,
+}: {
+  covered: string[];
+  missing: string[];
+}) {
+  if (covered.length === 0 && missing.length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-1.5 mt-2">
+      {covered.map((t) => (
+        <span
+          key={`c-${t}`}
+          className="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[11px] font-medium px-2 py-0.5 rounded-full"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+          {t}
+        </span>
+      ))}
+      {missing.map((t) => (
+        <span
+          key={`m-${t}`}
+          className="inline-flex items-center gap-1 bg-red-50 border border-red-100 text-red-600 text-[11px] font-medium px-2 py-0.5 rounded-full"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+          {t}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function statusBadge(status: string) {
   const base = "text-xs font-medium px-2 py-0.5 rounded-full";
   if (status === "passing") return <span className={`${base} bg-green-50 text-green-700`}>Passing</span>;
@@ -467,12 +499,7 @@ export default function DashboardPage() {
                     style={{ width: `${c.score}%` }}
                   />
                 </div>
-                {c.missing_types.length > 0 && (
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    Missing:{" "}
-                    <span className="text-red-400">{c.missing_types.join(", ")}</span>
-                  </p>
-                )}
+                <EvidenceDots covered={c.covered_types} missing={c.missing_types} />
               </Link>
             ))}
           </div>
@@ -527,10 +554,20 @@ export default function DashboardPage() {
                   <div>
                     <p className="text-sm font-medium text-gray-800">{c.name}</p>
                     {c.missing_types.length > 0 && (
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        Connect an integration that provides:{" "}
-                        <span className="font-medium">{c.missing_types.join(", ")}</span>
-                      </p>
+                      <div className="mt-1.5">
+                        <p className="text-[11px] text-gray-400 mb-1">Needs integration for:</p>
+                        <div className="flex flex-wrap gap-1">
+                          {c.missing_types.map((t) => (
+                            <span
+                              key={t}
+                              className="inline-flex items-center gap-1 bg-red-50 border border-red-100 text-red-600 text-[11px] font-medium px-2 py-0.5 rounded-full"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
