@@ -64,9 +64,22 @@ async def _reschedule_active_integrations() -> None:
         logger.warning("Could not reschedule integrations on startup: %s", exc)
 
 
+async def _seed_demo_data() -> None:
+    """Seed demo company/user/evidence if SEED_DEMO=true."""
+    if not settings.seed_demo:
+        return
+    try:
+        from scripts.seed_demo import seed
+        await seed()
+        logger.info("Demo seed complete")
+    except Exception as exc:
+        logger.warning("Demo seed failed (non-fatal): %s", exc)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await _run_migrations()
+    await _seed_demo_data()
     await _reschedule_active_integrations()
     await start_scheduler()
     yield
