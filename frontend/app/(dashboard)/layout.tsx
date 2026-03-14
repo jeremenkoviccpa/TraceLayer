@@ -9,6 +9,7 @@ import {
   Plug,
   ShieldCheck,
   FileText,
+  Database,
   Users,
   Settings,
   LogOut,
@@ -17,7 +18,8 @@ import {
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/integrations", label: "Integrations", icon: Plug },
-  { href: "/evidence", label: "Evidence", icon: ShieldCheck },
+  { href: "/compliance", label: "Compliance", icon: ShieldCheck },
+  { href: "/evidence", label: "Evidence", icon: Database },
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/team", label: "Team", icon: Users },
   { href: "/settings", label: "Settings", icon: Settings },

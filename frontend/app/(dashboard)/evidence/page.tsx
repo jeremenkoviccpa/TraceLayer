@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import type { Evidence, Page } from "@/lib/types";
 import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
@@ -50,8 +51,9 @@ function EvidenceRow({ evidence }: { evidence: Evidence }) {
 }
 
 export default function EvidencePage() {
+  const searchParams = useSearchParams();
   const [data, setData] = useState<Page<Evidence> | null>(null);
-  const [control, setControl] = useState("");
+  const [control, setControl] = useState(searchParams.get("control") ?? "");
   const [integration, setIntegration] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);

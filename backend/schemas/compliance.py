@@ -28,3 +28,17 @@ class ScoreHistoryPoint(BaseModel):
 class EvidenceActivityPoint(BaseModel):
     day: str
     count: int
+
+
+class ManualControlItem(BaseModel):
+    control_id: str
+    name: str
+    description: str
+    status: str  # "pending" | "compliant" | "not_applicable"
+    notes: Optional[str]
+    updated_at: Optional[str]
+
+
+class UpdateManualControlRequest(BaseModel):
+    status: str  # "pending" | "compliant" | "not_applicable"
+    notes: Optional[str] = None

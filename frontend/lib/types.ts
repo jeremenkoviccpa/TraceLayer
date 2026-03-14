@@ -104,3 +104,12 @@ export interface EvidenceActivityPoint {
   day: string;
   count: number;
 }
+
+export interface ManualControl {
+  control_id: string;
+  name: string;
+  description: string;
+  status: "pending" | "compliant" | "not_applicable";
+  notes: string | null;
+  updated_at: string | null;
+}
