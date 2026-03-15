@@ -210,3 +210,90 @@ export interface QuestionnaireResult {
   generated_at: string;
   answers: QuestionnaireAnswer[];
 }
+
+export interface TrainingRecord {
+  id: string;
+  company_id: string;
+  assignee_email: string;
+  assignee_name: string | null;
+  title: string;
+  description: string | null;
+  due_date: string | null;
+  completed_at: string | null;
+  status: "pending" | "completed" | "overdue";
+  annual: boolean;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PenTest {
+  id: string;
+  company_id: string;
+  vendor_name: string;
+  status: "scheduled" | "in_progress" | "completed" | "remediated";
+  scope: string | null;
+  conducted_at: string | null;
+  next_scheduled_at: string | null;
+  critical_count: number;
+  high_count: number;
+  medium_count: number;
+  low_count: number;
+  summary: string | null;
+  file_url: string | null;
+  remediation_notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Vendor {
+  id: string;
+  company_id: string;
+  name: string;
+  category: string;
+  risk_level: "low" | "medium" | "high" | "critical";
+  website: string | null;
+  contact_email: string | null;
+  soc2_certified: boolean;
+  iso27001_certified: boolean;
+  hipaa_certified: boolean;
+  review_date: string | null;
+  notes: string | null;
+  report_file_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AccessReview {
+  id: string;
+  company_id: string;
+  title: string;
+  period: string;
+  reviewer_user_id: string | null;
+  reviewer_name: string | null;
+  status: "open" | "in_progress" | "completed";
+  due_date: string | null;
+  completed_at: string | null;
+  users_reviewed: number;
+  access_changes: number;
+  scope: string | null;
+  findings: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ReadinessData {
+  framework: string;
+  readiness_score: number;
+  automated_score: number;
+  manual_score: number;
+  weeks_estimate: number;
+  stage: string;
+  manual_total: number;
+  manual_compliant: number;
+  controls_passing: number;
+  controls_failing: number;
+  controls_no_evidence: number;
+  controls_total: number;
+}

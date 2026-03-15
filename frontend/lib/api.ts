@@ -1,4 +1,4 @@
-import type { AuditLog, AuditSession, BillingInfo, Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, Policy, PublicAuditView, QuestionnaireResult, QuestionnaireType, Report, Risk, ScoreHistoryPoint, User } from "./types";
+import type { AccessReview, AuditLog, AuditSession, BillingInfo, Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, PenTest, Policy, PublicAuditView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, ScoreHistoryPoint, TrainingRecord, User, Vendor } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -366,6 +366,84 @@ class ApiClient {
 
   async generateQuestionnaire(questionnaireType: string): Promise<QuestionnaireResult> {
     return this.request<QuestionnaireResult>("POST", "/questionnaire/generate", { questionnaire_type: questionnaireType });
+  }
+
+  // ── Readiness ─────────────────────────────────────────────────────────────
+
+  async getReadiness(framework = "soc2"): Promise<ReadinessData> {
+    return this.request<ReadinessData>("GET", `/compliance/readiness?framework=${framework}`);
+  }
+
+  // ── Training ──────────────────────────────────────────────────────────────
+
+  async getTraining(): Promise<TrainingRecord[]> {
+    return this.request<TrainingRecord[]>("GET", "/training");
+  }
+
+  async createTraining(body: Partial<TrainingRecord>): Promise<TrainingRecord> {
+    return this.request<TrainingRecord>("POST", "/training", body);
+  }
+
+  async updateTraining(id: string, body: Partial<TrainingRecord>): Promise<TrainingRecord> {
+    return this.request<TrainingRecord>("PATCH", `/training/${id}`, body);
+  }
+
+  async deleteTraining(id: string): Promise<void> {
+    return this.request("DELETE", `/training/${id}`);
+  }
+
+  // ── Pen Tests ─────────────────────────────────────────────────────────────
+
+  async getPenTests(): Promise<PenTest[]> {
+    return this.request<PenTest[]>("GET", "/pen-tests");
+  }
+
+  async createPenTest(body: Partial<PenTest>): Promise<PenTest> {
+    return this.request<PenTest>("POST", "/pen-tests", body);
+  }
+
+  async updatePenTest(id: string, body: Partial<PenTest>): Promise<PenTest> {
+    return this.request<PenTest>("PATCH", `/pen-tests/${id}`, body);
+  }
+
+  async deletePenTest(id: string): Promise<void> {
+    return this.request("DELETE", `/pen-tests/${id}`);
+  }
+
+  // ── Vendors ───────────────────────────────────────────────────────────────
+
+  async getVendors(): Promise<Vendor[]> {
+    return this.request<Vendor[]>("GET", "/vendors");
+  }
+
+  async createVendor(body: Partial<Vendor>): Promise<Vendor> {
+    return this.request<Vendor>("POST", "/vendors", body);
+  }
+
+  async updateVendor(id: string, body: Partial<Vendor>): Promise<Vendor> {
+    return this.request<Vendor>("PATCH", `/vendors/${id}`, body);
+  }
+
+  async deleteVendor(id: string): Promise<void> {
+    return this.request("DELETE", `/vendors/${id}`);
+  }
+
+  // ── Access Reviews ────────────────────────────────────────────────────────
+
+  async getAccessReviews(): Promise<AccessReview[]> {
+    return this.request<AccessReview[]>("GET", "/access-reviews");
+  }
+
+  async createAccessReview(body: Partial<AccessReview>): Promise<AccessReview> {
+    return this.request<AccessReview>("POST", "/access-reviews", body);
+  }
+
+  async updateAccessReview(id: string, body: Partial<AccessReview>): Promise<AccessReview> {
+    return this.request<AccessReview>("PATCH", `/access-reviews/${id}`, body);
+  }
+
+  async deleteAccessReview(id: string): Promise<void> {
+    return this.request("DELETE", `/access-reviews/${id}`);
   }
 
   // ── Evidence Upload ───────────────────────────────────────────────────────

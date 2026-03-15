@@ -267,6 +267,69 @@ async def assign_manual_control(
     )
 
 
+@router.get("/readiness")
+async def readiness(
+    framework: str = Query("soc2"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return a readiness score (0-100) with estimated weeks to certification."""
+    score_data = await get_compliance_score(current_user.company_id, framework, db)
+    overall = score_data["overall_score"]
+
+    # Manual controls completion rate
+    definitions = _MANUAL_CONTROLS.get(framework, [])
+    mc_result = await db.execute(
+        select(ManualControl).where(
+            ManualControl.company_id == current_user.company_id,
+            ManualControl.framework == framework,
+        )
+    )
+    saved = {r.control_id: r for r in mc_result.scalars().all()}
+    compliant = sum(1 for d in definitions if saved.get(d["control_id"]) and saved[d["control_id"]].status == "compliant")
+    mc_pct = int(compliant / len(definitions) * 100) if definitions else 0
+
+    # Blended readiness: 70% automated controls, 30% manual controls
+    readiness_score = int(overall * 0.70 + mc_pct * 0.30)
+
+    # Estimate weeks at current pace (heuristic)
+    if readiness_score >= 90:
+        weeks_estimate = 0
+        stage = "ready"
+    elif readiness_score >= 75:
+        weeks_estimate = 3
+        stage = "final_push"
+    elif readiness_score >= 55:
+        weeks_estimate = 8
+        stage = "in_progress"
+    elif readiness_score >= 30:
+        weeks_estimate = 16
+        stage = "early"
+    else:
+        weeks_estimate = 24
+        stage = "just_started"
+
+    controls = score_data.get("controls", [])
+    passing = sum(1 for c in controls if c["status"] == "passing")
+    failing = sum(1 for c in controls if c["status"] == "failing")
+    no_evidence = sum(1 for c in controls if c["status"] == "no_evidence")
+
+    return {
+        "framework": framework,
+        "readiness_score": readiness_score,
+        "automated_score": overall,
+        "manual_score": mc_pct,
+        "weeks_estimate": weeks_estimate,
+        "stage": stage,
+        "manual_total": len(definitions),
+        "manual_compliant": compliant,
+        "controls_passing": passing,
+        "controls_failing": failing,
+        "controls_no_evidence": no_evidence,
+        "controls_total": len(controls),
+    }
+
+
 @router.post("/ai-summary", response_model=AISummaryResponse)
 async def ai_summary(
     framework: str = Query("soc2"),
