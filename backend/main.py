@@ -8,7 +8,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from sqlalchemy import select, text
 
-from api.v1 import audit, audit_sessions, auth, auth_google, billing, compliance, evidence, integrations, org, reports
+from api.v1 import audit, audit_sessions, auth, auth_google, billing, compliance, evidence, integrations, org, policies, questionnaire, reports, risks
 from collectors.scheduler import schedule_integration
 from collectors.scheduler import start as start_scheduler
 from collectors.scheduler import stop as stop_scheduler
@@ -144,6 +144,9 @@ app.include_router(compliance.router, prefix="/v1")
 app.include_router(billing.router, prefix="/v1")
 app.include_router(audit.router, prefix="/v1")
 app.include_router(audit_sessions.router, prefix="/v1")
+app.include_router(risks.router, prefix="/v1")
+app.include_router(policies.router, prefix="/v1")
+app.include_router(questionnaire.router, prefix="/v1")
 
 
 @app.get("/health")

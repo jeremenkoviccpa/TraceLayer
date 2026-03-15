@@ -1,4 +1,4 @@
-import type { AuditLog, AuditSession, BillingInfo, Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, PublicAuditView, Report, ScoreHistoryPoint, User } from "./types";
+import type { AuditLog, AuditSession, BillingInfo, Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, Policy, PublicAuditView, QuestionnaireResult, QuestionnaireType, Report, Risk, ScoreHistoryPoint, User } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -328,6 +328,63 @@ class ApiClient {
 
   async getBillingPortal(): Promise<{ portal_url: string }> {
     return this.request<{ portal_url: string }>("POST", "/billing/portal");
+  }
+
+  // ── Risks ─────────────────────────────────────────────────────────────────
+
+  async getRisks(): Promise<Risk[]> {
+    return this.request<Risk[]>("GET", "/risks");
+  }
+
+  async createRisk(body: Partial<Risk>): Promise<Risk> {
+    return this.request<Risk>("POST", "/risks", body);
+  }
+
+  async updateRisk(id: string, body: Partial<Risk>): Promise<Risk> {
+    return this.request<Risk>("PATCH", `/risks/${id}`, body);
+  }
+
+  async deleteRisk(id: string): Promise<void> {
+    return this.request("DELETE", `/risks/${id}`);
+  }
+
+  // ── Policies ──────────────────────────────────────────────────────────────
+
+  async getPolicies(): Promise<Policy[]> {
+    return this.request<Policy[]>("GET", "/policies");
+  }
+
+  async savePolicy(slug: string, content: string): Promise<Policy> {
+    return this.request<Policy>("PUT", `/policies/${slug}`, { content });
+  }
+
+  // ── Questionnaire ─────────────────────────────────────────────────────────
+
+  async getQuestionnaireTypes(): Promise<QuestionnaireType[]> {
+    return this.request<QuestionnaireType[]>("GET", "/questionnaire/types");
+  }
+
+  async generateQuestionnaire(questionnaireType: string): Promise<QuestionnaireResult> {
+    return this.request<QuestionnaireResult>("POST", "/questionnaire/generate", { questionnaire_type: questionnaireType });
+  }
+
+  // ── Evidence Upload ───────────────────────────────────────────────────────
+
+  async uploadEvidence(file: File, control: string, evidenceType: string): Promise<Evidence> {
+    const token = this.getToken();
+    if (!token) throw new Error("Not authenticated");
+    const form = new FormData();
+    form.append("file", file);
+    form.append("control", control);
+    form.append("evidence_type", evidenceType);
+    const res = await fetch(`${API_URL}/v1/evidence/upload`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.detail ?? "Upload failed");
+    return json as Evidence;
   }
 }
 

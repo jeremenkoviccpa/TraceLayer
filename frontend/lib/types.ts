@@ -166,3 +166,47 @@ export interface PublicAuditView {
   generated_at: string;
   frameworks: PublicFrameworkView[];
 }
+
+export interface Risk {
+  id: string;
+  company_id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  likelihood: number;
+  impact: number;
+  status: "open" | "mitigated" | "accepted";
+  owner_user_id: string | null;
+  owner_name: string | null;
+  notes: string | null;
+  risk_level: "critical" | "high" | "medium" | "low";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Policy {
+  slug: string;
+  title: string;
+  category: string;
+  content: string;
+  updated_at: string | null;
+}
+
+export interface QuestionnaireType {
+  id: string;
+  name: string;
+}
+
+export interface QuestionnaireAnswer {
+  id: string;
+  question: string;
+  answer: string;
+}
+
+export interface QuestionnaireResult {
+  questionnaire_type: string;
+  name: string;
+  company_name: string;
+  generated_at: string;
+  answers: QuestionnaireAnswer[];
+}

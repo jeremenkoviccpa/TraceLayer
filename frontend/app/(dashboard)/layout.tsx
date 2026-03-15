@@ -18,17 +18,23 @@ import {
   X,
   MailWarning,
   ScrollText,
+  AlertTriangle,
+  BookOpen,
+  ClipboardList,
 } from "lucide-react";
 
 const NAV = [
-  { href: "/dashboard",   label: "Dashboard",   icon: LayoutDashboard },
-  { href: "/integrations",label: "Integrations", icon: Plug },
-  { href: "/compliance",  label: "Compliance",   icon: ShieldCheck },
-  { href: "/evidence",    label: "Evidence",     icon: Database },
-  { href: "/reports",     label: "Reports",      icon: FileText },
-  { href: "/team",        label: "Team",         icon: Users },
-  { href: "/audit-log",   label: "Audit Log",    icon: ScrollText },
-  { href: "/settings",    label: "Settings",     icon: Settings },
+  { href: "/dashboard",     label: "Dashboard",    icon: LayoutDashboard },
+  { href: "/integrations",  label: "Integrations", icon: Plug },
+  { href: "/compliance",    label: "Compliance",   icon: ShieldCheck },
+  { href: "/risks",         label: "Risk Register", icon: AlertTriangle },
+  { href: "/policies",      label: "Policies",     icon: BookOpen },
+  { href: "/evidence",      label: "Evidence",     icon: Database },
+  { href: "/questionnaire", label: "Questionnaire", icon: ClipboardList },
+  { href: "/reports",       label: "Reports",      icon: FileText },
+  { href: "/team",          label: "Team",         icon: Users },
+  { href: "/audit-log",     label: "Audit Log",    icon: ScrollText },
+  { href: "/settings",      label: "Settings",     icon: Settings },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
