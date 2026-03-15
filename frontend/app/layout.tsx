@@ -3,15 +3,97 @@ import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
 import { CookieConsent } from "@/components/cookie-consent";
 
+const BASE_URL = "https://www.tracelayer.it.com";
+
 export const metadata: Metadata = {
-  title: "TraceLayer",
-  description: "Continuous compliance evidence collection",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "TraceLayer — Automated SOC 2 & Compliance for Startups",
+    template: "%s | TraceLayer",
+  },
+  description:
+    "TraceLayer continuously collects compliance evidence and monitors your SOC 2, ISO 27001, HIPAA, GDPR, and PCI DSS posture across 18+ integrations. Get audit-ready without the manual work.",
+  keywords: [
+    "SOC 2 compliance software",
+    "compliance automation",
+    "ISO 27001 automation",
+    "HIPAA compliance tool",
+    "continuous compliance monitoring",
+    "audit evidence collection",
+    "compliance software for startups",
+    "SOC 2 readiness",
+    "GDPR compliance",
+    "PCI DSS compliance",
+  ],
+  authors: [{ name: "TraceLayer", url: BASE_URL }],
+  creator: "TraceLayer",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: BASE_URL,
+    siteName: "TraceLayer",
+    title: "TraceLayer — Automated SOC 2 & Compliance for Startups",
+    description:
+      "Continuously collect SOC 2, ISO 27001, HIPAA & GDPR evidence across 18+ integrations. Get audit-ready without the manual work.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "TraceLayer — Automated Compliance for Startups" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TraceLayer — Automated SOC 2 & Compliance for Startups",
+    description:
+      "Continuously collect SOC 2, ISO 27001, HIPAA & GDPR evidence across 18+ integrations. Get audit-ready without the manual work.",
+    images: ["/opengraph-image"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: "/logo-icon.png",
+    apple: "/logo-icon.png",
+  },
+  alternates: {
+    canonical: BASE_URL,
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "TraceLayer",
+  url: BASE_URL,
+  description:
+    "Automated compliance evidence collection and monitoring for SOC 2, ISO 27001, HIPAA, GDPR, and PCI DSS.",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+    description: "Free plan available",
+  },
+  creator: {
+    "@type": "Organization",
+    name: "TraceLayer",
+    url: BASE_URL,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <AuthProvider>{children}</AuthProvider>
         <CookieConsent />
       </body>
