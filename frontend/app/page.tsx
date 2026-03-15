@@ -788,10 +788,7 @@ export default function LandingPage() {
         <p className="text-center text-[11px] text-[var(--muted)] font-bold uppercase tracking-widest mb-6">
           Integrates with the tools you already use
         </p>
-        <div className="space-y-3">
-          <MarqueeRow />
-          <MarqueeRow reverse />
-        </div>
+        <MarqueeRow />
       </section>
 
       {/* ── Stats ─────────────────────────────────────────────────────────────── */}
