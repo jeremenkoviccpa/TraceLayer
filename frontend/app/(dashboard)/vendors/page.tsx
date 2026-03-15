@@ -76,7 +76,7 @@ function Modal({
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Risk level</label>
-              <select value={form.risk_level} onChange={(e) => setForm((p) => ({ ...p, risk_level: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30">
+              <select value={form.risk_level} onChange={(e) => setForm((p) => ({ ...p, risk_level: e.target.value as Vendor["risk_level"] }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30">
                 {RISK_LEVELS.map((r) => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
               </select>
             </div>
