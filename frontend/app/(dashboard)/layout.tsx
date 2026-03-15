@@ -28,23 +28,54 @@ import {
   Target,
 } from "lucide-react";
 
-const NAV = [
-  { href: "/dashboard",      label: "Dashboard",       icon: LayoutDashboard },
-  { href: "/readiness",      label: "Readiness",       icon: Target },
-  { href: "/integrations",   label: "Integrations",    icon: Plug },
-  { href: "/compliance",     label: "Compliance",      icon: ShieldCheck },
-  { href: "/risks",          label: "Risk Register",   icon: AlertTriangle },
-  { href: "/policies",       label: "Policies",        icon: BookOpen },
-  { href: "/evidence",       label: "Evidence",        icon: Database },
-  { href: "/training",       label: "Training",        icon: GraduationCap },
-  { href: "/pen-tests",      label: "Pen Tests",       icon: ShieldAlert },
-  { href: "/vendors",        label: "Vendors",         icon: Building2 },
-  { href: "/access-reviews", label: "Access Reviews",  icon: UserCheck },
-  { href: "/questionnaire",  label: "Questionnaire",   icon: ClipboardList },
-  { href: "/reports",        label: "Reports",         icon: FileText },
-  { href: "/team",           label: "Team",            icon: Users },
-  { href: "/audit-log",      label: "Audit Log",       icon: ScrollText },
-  { href: "/settings",       label: "Settings",        icon: Settings },
+type NavItem = { href: string; label: string; icon: React.ElementType };
+type NavGroup = { title?: string; items: NavItem[] };
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    items: [
+      { href: "/dashboard",  label: "Dashboard",  icon: LayoutDashboard },
+      { href: "/readiness",  label: "Readiness",  icon: Target },
+    ],
+  },
+  {
+    title: "Evidence",
+    items: [
+      { href: "/compliance", label: "Controls",     icon: ShieldCheck },
+      { href: "/evidence",   label: "Evidence",     icon: Database },
+      { href: "/integrations", label: "Integrations", icon: Plug },
+    ],
+  },
+  {
+    title: "Security",
+    items: [
+      { href: "/risks",          label: "Risk Register",   icon: AlertTriangle },
+      { href: "/pen-tests",      label: "Pen Tests",       icon: ShieldAlert },
+      { href: "/vendors",        label: "Vendor Risk",     icon: Building2 },
+      { href: "/access-reviews", label: "Access Reviews",  icon: UserCheck },
+    ],
+  },
+  {
+    title: "People",
+    items: [
+      { href: "/training", label: "Training", icon: GraduationCap },
+      { href: "/policies", label: "Policies", icon: BookOpen },
+    ],
+  },
+  {
+    title: "Reporting",
+    items: [
+      { href: "/reports",       label: "Reports",       icon: FileText },
+      { href: "/questionnaire", label: "Questionnaire", icon: ClipboardList },
+    ],
+  },
+  {
+    items: [
+      { href: "/team",      label: "Team",      icon: Users },
+      { href: "/audit-log", label: "Audit Log", icon: ScrollText },
+      { href: "/settings",  label: "Settings",  icon: Settings },
+    ],
+  },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -124,24 +155,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          {NAV.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
-                  active
-                    ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-                }`}
-              >
-                <Icon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-gray-400"}`} />
-                {label}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+          <div className="space-y-5">
+            {NAV_GROUPS.map((group, gi) => (
+              <div key={gi}>
+                {group.title && (
+                  <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                    {group.title}
+                  </p>
+                )}
+                <div className="space-y-0.5">
+                  {group.items.map(({ href, label, icon: Icon }) => {
+                    const active = pathname === href;
+                    return (
+                      <Link
+                        key={href}
+                        href={href}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150 ${
+                          active
+                            ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20"
+                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                        }`}
+                      >
+                        <Icon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-gray-400"}`} />
+                        {label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
         </nav>
 
         {/* User */}
