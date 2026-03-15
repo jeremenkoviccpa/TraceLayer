@@ -40,12 +40,12 @@ export default function LoginPage() {
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
         </div>
 
-        <div className="relative flex items-center gap-3">
+        <Link href="/" aria-label="Go to TraceLayer landing page" className="relative flex items-center gap-3">
           <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/20 overflow-hidden">
             <Image src="/logo-icon.png" alt="TraceLayer" width={32} height={32} />
           </div>
           <span className="text-xl font-bold text-white tracking-tight">TraceLayer</span>
-        </div>
+        </Link>
 
         <div className="relative">
           <h2 className="text-3xl font-bold text-white leading-tight mb-4">
@@ -77,10 +77,10 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-6 bg-white">
         <div className="w-full max-w-sm animate-fade-in">
           {/* Mobile logo */}
-          <div className="flex items-center gap-2.5 mb-10 lg:hidden">
+          <Link href="/" aria-label="Go to TraceLayer landing page" className="flex items-center gap-2.5 mb-10 lg:hidden">
             <Image src="/logo-icon.png" alt="TraceLayer" width={36} height={36} className="rounded-xl" />
             <span className="text-lg font-bold text-gray-900">TraceLayer</span>
-          </div>
+          </Link>
 
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Welcome back</h1>
