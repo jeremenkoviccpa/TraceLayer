@@ -85,7 +85,7 @@ function Modal({
               <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
               <select
                 value={form.status}
-                onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))}
+                onChange={(e) => setForm((p) => ({ ...p, status: e.target.value as PenTest["status"] }))}
                 className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30"
               >
                 {STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
