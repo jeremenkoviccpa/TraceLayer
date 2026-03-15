@@ -358,30 +358,31 @@ const PRICING = [
     desc: "Perfect for early-stage teams getting audit-ready.",
     features: [
       "Up to 3 integrations",
-      "SOC 2, ISO 27001 & HIPAA",
+      "SOC 2, ISO 27001 & HIPAA frameworks",
       "Automated evidence collection",
       "Risk Register & Policy Templates",
       "Training tracker",
-      "PDF & JSON reports",
-      "2 team members",
+      "Vendor risk & pen test tracking",
+      "Access review workflows",
+      "JSON reports",
+      "Up to 3 team members",
     ],
     cta: "Get started free",
     highlighted: false,
   },
   {
     name: "Growth",
-    price: "$149",
+    price: "$99",
     period: "/mo",
     desc: "For teams actively pursuing certification.",
     features: [
-      "All 18+ integrations",
+      "Unlimited integrations (18+)",
       "All 7 frameworks (incl. GDPR, PCI DSS, CCPA, NIST CSF)",
-      "Daily evidence collection",
-      "Readiness Timeline & score",
-      "Vendor risk & pen test tracking",
-      "Access review workflows",
-      "Security questionnaire auto-fill",
-      "Public trust page",
+      "PDF & CSV reports",
+      "AI Compliance Advisor",
+      "AI Questionnaire Autofill",
+      "AI Audit Package",
+      "Trust Center (public page)",
       "Unlimited team members",
       "Priority support",
     ],
@@ -441,7 +442,7 @@ const FAQ = [
   },
   {
     q: "Is there a free plan?",
-    a: "Yes — TraceLayer is free to start with no credit card required. You get access to SOC 2, ISO 27001, and HIPAA frameworks, automated collection, Risk Register, Policy Templates, Training Tracker, and PDF reports from day one.",
+    a: "Yes — TraceLayer is free to start with no credit card required. The free plan includes SOC 2, ISO 27001, and HIPAA frameworks, automated evidence collection, Risk Register, Policy Templates, Training Tracker, Vendor hub, Access Reviews, and JSON reports for up to 3 integrations and 3 team members. PDF reports, AI features, Trust Center, and unlimited integrations require the Growth plan at $99/mo.",
   },
   {
     q: "How is the compliance score calculated?",
@@ -1052,7 +1053,7 @@ export default function LandingPage() {
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Pricing</p>
             <h2 className="text-2xl md:text-4xl font-extrabold">Start free. Scale when you&apos;re ready.</h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto leading-relaxed">
-              No credit card required to get started. Upgrade when you need more integrations, frameworks, or team members.
+              No credit card required to get started. Upgrade to Growth for AI features, PDF reports, Trust Center, and unlimited integrations.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">

@@ -1,44 +1,64 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Lock, Zap } from "lucide-react";
+import { Lock, Zap, Sparkles } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
 
 interface PlanGateProps {
   children: React.ReactNode;
-  /** Label shown in the upgrade prompt */
   feature?: string;
-  /** "blur" = children visible but blurred + overlay. "hide" = children replaced entirely. "inline" = just show the prompt, no children. */
   mode?: "blur" | "hide" | "inline";
 }
 
 function UpgradePrompt({ feature, compact }: { feature: string; compact?: boolean }) {
   const router = useRouter();
+
   if (compact) {
     return (
       <button
         onClick={() => router.push("/settings#billing")}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 px-2.5 py-1 rounded-lg transition-colors"
+        className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border border-amber-200/80 bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 hover:from-amber-100 hover:to-orange-100 hover:border-amber-300 transition-all duration-150 shadow-sm"
       >
-        <Lock className="w-3 h-3" />
-        Growth only · Upgrade
+        <Lock className="w-3 h-3 text-amber-500" />
+        Growth only
+        <span className="w-px h-3 bg-amber-200" />
+        <span className="text-brand-600 font-bold">Upgrade →</span>
       </button>
     );
   }
+
   return (
-    <div className="flex flex-col items-center text-center p-8 max-w-sm mx-auto">
-      <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center mb-4 border border-amber-100">
-        <Lock className="w-7 h-7 text-amber-500" />
+    <div className="flex flex-col items-center text-center py-8 px-7 max-w-xs mx-auto">
+      {/* Icon */}
+      <div className="relative mb-5">
+        <div className="w-14 h-14 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl flex items-center justify-center border border-amber-100 shadow-sm shadow-amber-100">
+          <Lock className="w-6 h-6 text-amber-500" />
+        </div>
+        <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-gradient-to-br from-brand-500 to-teal-500 flex items-center justify-center shadow-md">
+          <Sparkles className="w-2.5 h-2.5 text-white" />
+        </div>
       </div>
-      <h3 className="font-semibold text-gray-900 text-base mb-2">{feature}</h3>
-      <p className="text-sm text-gray-500 mb-5 leading-relaxed">
-        Upgrade to Growth to unlock AI-powered features, PDF reports, unlimited integrations, and more.
+
+      {/* Eyebrow */}
+      <p className="text-[10px] font-extrabold tracking-widest uppercase text-brand-600 mb-2">
+        Growth Plan
       </p>
+
+      {/* Headline */}
+      <h3 className="text-[15px] font-bold text-gray-900 mb-2 leading-snug">{feature}</h3>
+
+      {/* Body */}
+      <p className="text-xs text-gray-400 leading-relaxed mb-6">
+        Unlock AI-powered features, PDF reports, Trust Center, and unlimited integrations.
+      </p>
+
+      {/* CTA */}
       <button
         onClick={() => router.push("/settings#billing")}
-        className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors shadow-sm"
+        className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-600 to-teal-600 hover:from-brand-500 hover:to-teal-500 text-white font-semibold text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-brand-900/20 hover:shadow-brand-900/30 hover:-translate-y-px active:translate-y-0 transition-all duration-150"
       >
-        <Zap className="w-4 h-4" /> Upgrade to Growth — $49/mo
+        <Zap className="w-3.5 h-3.5" />
+        Upgrade to Growth — $99/mo
       </button>
     </div>
   );
@@ -51,10 +71,7 @@ export function PlanGate({
 }: PlanGateProps) {
   const { plan, loading } = usePlan();
 
-  // While loading, render children normally (avoids flicker for pro users)
   if (loading) return <>{children}</>;
-
-  // Pro users: render as-is
   if (plan === "growth") return <>{children}</>;
 
   if (mode === "inline") {
@@ -63,20 +80,27 @@ export function PlanGate({
 
   if (mode === "hide") {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-card">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
         <UpgradePrompt feature={feature} />
       </div>
     );
   }
 
-  // mode === "blur" (default): show children blurred with overlay
+  // blur mode
   return (
     <div className="relative rounded-2xl overflow-hidden">
-      <div className="select-none pointer-events-none" style={{ filter: "blur(5px)", opacity: 0.35 }}>
+      {/* Blurred content */}
+      <div
+        className="select-none pointer-events-none"
+        style={{ filter: "blur(6px)", opacity: 0.28 }}
+      >
         {children}
       </div>
-      <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-[2px]">
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-card-md p-6 max-w-sm mx-4 w-full">
+
+      {/* Overlay */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/80 to-white/50 backdrop-blur-[1px]" />
+        <div className="relative bg-white/95 border border-gray-100 rounded-2xl shadow-2xl shadow-black/[0.08] ring-1 ring-black/[0.03]">
           <UpgradePrompt feature={feature} />
         </div>
       </div>

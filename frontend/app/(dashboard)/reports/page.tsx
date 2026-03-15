@@ -354,9 +354,13 @@ export default function ReportsPage() {
                   <button
                     onClick={() => router.push("/settings#billing")}
                     title="PDF reports require the Growth plan"
-                    className="flex items-center gap-1 px-3 py-2 font-semibold text-amber-400 hover:bg-amber-500/10 transition-colors border-l border-slate-600"
+                    className="relative flex items-center gap-1.5 px-3 py-2 font-semibold text-slate-500 hover:text-slate-300 transition-colors border-l border-slate-700 group"
                   >
-                    <Lock className="w-3 h-3" /> PDF
+                    <Lock className="w-3 h-3 text-amber-500/80 group-hover:text-amber-400 transition-colors" />
+                    <span className="group-hover:text-slate-300 transition-colors">PDF</span>
+                    <span className="absolute -top-2 -right-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[8px] font-black uppercase rounded px-1 py-0.5 leading-none shadow-sm">
+                      Pro
+                    </span>
                   </button>
                 )}
               </div>
