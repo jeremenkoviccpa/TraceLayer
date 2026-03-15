@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/components/auth-provider";
-import { ComplianceQuiz } from "@/components/compliance-quiz";
 import {
   ShieldCheck, Plug, FileText, Zap, ArrowRight, CheckCircle2,
   BarChart3, Lock, Star, Clock, TrendingUp, Users, ChevronDown,
@@ -636,15 +635,6 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Lead magnet: Free compliance readiness quiz */}
-      <section className="bg-[var(--ink)] py-14 md:py-24 overflow-hidden relative">
-        <div className="absolute -top-32 right-0 w-96 h-96 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.18),transparent)]" />
-        <div className="absolute -bottom-20 -left-10 w-80 h-80 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.12),transparent)]" />
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 relative">
-          <ComplianceQuiz />
         </div>
       </section>
 
