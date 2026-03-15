@@ -9,7 +9,8 @@ import { useAuth } from "@/components/auth-provider";
 import {
   ShieldCheck, Plug, FileText, Zap, ArrowRight, CheckCircle2,
   BarChart3, Lock, Star, Clock, TrendingUp, Users, ChevronDown,
-  Menu, X,
+  Menu, X, AlertTriangle, BookOpen, GraduationCap, Target,
+  Globe, ClipboardList, Building2, UserCheck,
 } from "lucide-react";
 
 // ── Integration logos ────────────────────────────────────────────────────────
@@ -106,8 +107,8 @@ const INTEGRATION_LOGOS = [
 const STATS = [
   { value: "7", label: "Integrations" },
   { value: "3", label: "Frameworks" },
-  { value: "24h", label: "Collection cycle" },
-  { value: "100%", label: "Automated" },
+  { value: "10+", label: "Compliance modules" },
+  { value: "100%", label: "Automated evidence" },
 ];
 
 const FRAMEWORKS = [
@@ -128,24 +129,39 @@ const FEATURES = [
     desc: "Evidence runs every 24 hours without you touching anything — IAM users, audit logs, repositories, access policies, and more.",
   },
   {
-    icon: BarChart3,
-    title: "Real-time compliance score",
-    desc: "See your SOC 2, ISO 27001, or HIPAA posture at a glance. Per-control breakdown shows exactly what evidence is missing.",
+    icon: Target,
+    title: "Readiness Timeline",
+    desc: "See your exact readiness score and a week-by-week estimate to SOC 2 Type I — with stage-specific actions to close the gap.",
   },
   {
-    icon: FileText,
-    title: "Audit-ready PDF reports",
-    desc: "Generate a formatted evidence report in one click with a cover page, executive summary, and per-control evidence tables.",
+    icon: AlertTriangle,
+    title: "Risk Register",
+    desc: "Log risks with likelihood × impact scoring. Assign owners, track status, and satisfy SOC 2 risk assessment requirements.",
   },
   {
-    icon: ShieldCheck,
-    title: "Manual controls checklist",
-    desc: "Track policies, training completion, and vendor assessments alongside automated evidence. Mark compliant or N/A with notes.",
+    icon: BookOpen,
+    title: "Policy Templates",
+    desc: "8 pre-written SOC 2 & ISO 27001 policies. Customize and adopt in one click — incident response, BCP, vendor risk, and more.",
   },
   {
-    icon: Lock,
-    title: "Secure by default",
-    desc: "Credentials encrypted at rest with Fernet. JWT auth with refresh token rotation. RBAC admin/member roles.",
+    icon: GraduationCap,
+    title: "Training Tracker",
+    desc: "Assign security awareness training to employees. Track completion, flag overdue, and generate CC1.4 evidence automatically.",
+  },
+  {
+    icon: Building2,
+    title: "Vendor Due Diligence",
+    desc: "Track all vendors with risk levels, SOC 2 / ISO / HIPAA certifications, review dates, and contact info for CC9.2.",
+  },
+  {
+    icon: UserCheck,
+    title: "Access Review Workflows",
+    desc: "Run formal quarterly access reviews with reviewer sign-off, users reviewed count, and documented findings for CC6.3.",
+  },
+  {
+    icon: Globe,
+    title: "Public Trust Page",
+    desc: "Share a live compliance posture page with customers and investors — verified by TraceLayer, updated continuously.",
   },
 ];
 
@@ -190,9 +206,11 @@ const TESTIMONIALS = [
 
 const PAIN_POINTS = [
   { before: "Spreadsheets tracking evidence manually", after: "Automated collection every 24 hours" },
-  { before: "Months of prep before an audit", after: "Always audit-ready with live evidence" },
-  { before: "One framework at a time", after: "SOC 2, ISO 27001, and HIPAA simultaneously" },
-  { before: "Consultants charging $50k+ to help", after: "Self-serve for a fraction of the cost" },
+  { before: "No idea how close you are to audit-ready", after: "Live readiness score with weeks-to-audit estimate" },
+  { before: "Training completion tracked in email threads", after: "Training tracker with SOC 2 CC1.4 evidence" },
+  { before: "Vendor compliance stored in shared folders", after: "Vendor hub with certs, risk levels, and review dates" },
+  { before: "Quarterly access reviews done ad hoc", after: "Formal access review cycles with documented sign-off" },
+  { before: "Consultants charging $50k+ to help", after: "Full compliance program self-served at startup cost" },
 ];
 
 const PRICING = [
@@ -201,7 +219,7 @@ const PRICING = [
     price: "Free",
     period: "",
     desc: "Perfect for early-stage teams getting audit-ready.",
-    features: ["Up to 3 integrations", "SOC 2, ISO 27001 & HIPAA", "Automated evidence collection", "PDF & JSON reports", "2 team members"],
+    features: ["Up to 3 integrations", "SOC 2, ISO 27001 & HIPAA", "Automated evidence collection", "Risk Register & Policies", "Training tracker", "PDF & JSON reports", "2 team members"],
     cta: "Get started free",
     highlighted: false,
   },
@@ -210,7 +228,7 @@ const PRICING = [
     price: "$149",
     period: "/mo",
     desc: "For teams actively pursuing certification.",
-    features: ["All 7 integrations", "All 3 frameworks", "Daily collection", "Unlimited reports", "Unlimited team members", "Priority support"],
+    features: ["All 7 integrations", "All 3 frameworks", "Daily collection", "Readiness Timeline", "Vendor & pen test tracking", "Access review workflows", "Questionnaire auto-fill", "Public trust page", "Unlimited team members", "Priority support"],
     cta: "Start free trial",
     highlighted: true,
   },
@@ -227,13 +245,15 @@ const PRICING = [
 
 const FAQ = [
   { q: "How long does setup take?", a: "Under 5 minutes. Create an account, paste an API key for your first integration, and evidence collection starts immediately. No agents to deploy, no code to write." },
+  { q: "What is the Readiness Timeline?", a: "The Readiness Timeline calculates a blended score (70% automated controls, 30% manual controls) and estimates how many weeks you are from SOC 2 Type I readiness at your current pace. It updates in real time and surfaces stage-specific next actions." },
+  { q: "Does TraceLayer cover training and vendor management?", a: "Yes. The Training Tracker lets you assign security awareness courses to employees by email, track completion, flag overdue assignments, and produce CC1.4 evidence. The Vendor hub tracks all third-party vendors with risk levels, SOC 2/ISO/HIPAA certifications, review dates, and contact info for CC9.2." },
+  { q: "What are Access Review Workflows?", a: "Access Reviews let you create formal quarterly review cycles, assign a reviewer, document scope, record how many users were reviewed and how many access changes were made, and capture findings — all with a completed-at timestamp for auditor sign-off evidence (CC6.3)." },
   { q: "Do you store my cloud credentials?", a: "All credentials are encrypted at rest using Fernet symmetric encryption before being written to the database. We never store or log plaintext secrets, and access is scoped to your company only." },
   { q: "Which compliance frameworks do you support?", a: "SOC 2 Type II, ISO 27001 (2022 edition), and HIPAA Security Rule. Evidence collected from your integrations maps to all three simultaneously — no duplicate work, no re-connecting anything." },
-  { q: "Can I use TraceLayer for a SOC 2 Type II audit?", a: "Yes. TraceLayer collects continuous evidence across your entire observation period with timestamps — exactly what auditors need for a Type II opinion. You can generate a formatted PDF report for your auditor on demand." },
+  { q: "Can I use TraceLayer for a SOC 2 Type II audit?", a: "Yes. TraceLayer collects continuous evidence across your entire observation period with timestamps — exactly what auditors need for a Type II opinion. You can generate a formatted PDF report for your auditor on demand, and share a read-only auditor access link." },
   { q: "What integrations are supported right now?", a: "AWS (IAM, CloudTrail), GitHub, Slack, Google Workspace, Jira, Okta, and Azure AD. Each integration collects multiple evidence types. More are on the roadmap." },
-  { q: "Is there a free plan?", a: "Yes — TraceLayer is completely free to start with no credit card required. You get access to all three frameworks, automated collection, and PDF reports from day one." },
+  { q: "Is there a free plan?", a: "Yes — TraceLayer is completely free to start with no credit card required. You get access to all three frameworks, automated collection, Risk Register, Policy Templates, Training Tracker, and PDF reports from day one." },
   { q: "How is the compliance score calculated?", a: "Each control is scored on three factors: coverage (70% weight — how many evidence types are present), recency (20% — how fresh the evidence is), and volume (10% — number of records). Scores are snapshotted up to once per hour." },
-  { q: "Can my whole team access the platform?", a: "Yes. You can invite team members by email. Members can view evidence and reports; admins can connect integrations, manage the team, and generate reports. Role-based access is built in." },
 ];
 
 const NAV_LINKS = [
@@ -491,8 +511,7 @@ export default function LandingPage() {
             <span className="bg-gradient-to-r from-[var(--accent)] via-emerald-500 to-teal-400 bg-clip-text text-transparent">Let it run itself.</span>
           </h1>
           <p className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 fade-up delay-1">
-            TraceLayer connects to your cloud tools and automatically collects the evidence your auditor needs —
-            IAM users, audit logs, repositories, access policies — mapped to controls in real time.
+            TraceLayer is your complete compliance program — automated evidence collection, risk register, policy templates, training tracker, vendor management, access reviews, and a live readiness score. Everything in one platform.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap mb-10 fade-up delay-2">
             <Link href="/register" className="relative inline-flex items-center gap-2 bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm overflow-hidden group shadow-[0_0_24px_rgba(15,118,110,0.4)] hover:shadow-[0_0_32px_rgba(15,118,110,0.6)]">
@@ -510,14 +529,14 @@ export default function LandingPage() {
               <div className="w-3 h-3 rounded-full bg-red-400" />
               <div className="w-3 h-3 rounded-full bg-yellow-400" />
               <div className="w-3 h-3 rounded-full bg-green-400" />
-              <span className="text-xs text-gray-400 ml-2 font-mono hidden sm:block">tracelayer.app/dashboard</span>
+              <span className="text-xs text-gray-400 ml-2 font-mono hidden sm:block">tracelayer.app/readiness</span>
             </div>
             <div className="p-3 sm:p-5 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 bg-gray-50/50">
               {[
-                { label: "Score", value: "87%", color: "text-green-600", sub: "SOC 2" },
+                { label: "Readiness", value: "78%", color: "text-amber-600", sub: "SOC 2 Type I" },
                 { label: "Evidence", value: "2,841", color: "text-gray-900", sub: "records" },
-                { label: "Integrations", value: "4", color: "text-green-600", sub: "active" },
-                { label: "Controls", value: "12", color: "text-gray-900", sub: "monitored" },
+                { label: "Training", value: "9/12", color: "text-emerald-600", sub: "completed" },
+                { label: "Est. time", value: "~6wk", color: "text-gray-900", sub: "to audit" },
               ].map((s) => (
                 <div key={s.label} className="bg-white rounded-xl border border-gray-100 p-3 text-left">
                   <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1 leading-tight">{s.label}</p>
@@ -526,16 +545,16 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <div className="px-3 sm:px-5 pb-3 sm:pb-5 bg-gray-50/50">
+            <div className="px-3 sm:px-5 pb-3 sm:pb-5 bg-gray-50/50 grid sm:grid-cols-2 gap-3">
               <div className="bg-white rounded-xl border border-gray-100 p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-semibold text-gray-700">SOC 2 Control Breakdown</span>
-                  <span className="text-xs text-green-600 font-bold">87%</span>
+                  <span className="text-xs font-semibold text-gray-700">SOC 2 Controls</span>
+                  <span className="text-xs text-amber-600 font-bold">82%</span>
                 </div>
                 {[
                   { name: "Access Control", score: 92 },
                   { name: "Logging & Monitoring", score: 85 },
-                  { name: "Change Management", score: 78 },
+                  { name: "Change Management", score: 68 },
                 ].map((c) => (
                   <div key={c.name} className="mb-2">
                     <div className="flex justify-between text-xs text-gray-500 mb-1">
@@ -543,10 +562,28 @@ export default function LandingPage() {
                       <span className="font-semibold">{c.score}%</span>
                     </div>
                     <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-green-500 rounded-full" style={{ width: `${c.score}%` }} />
+                      <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${c.score}%` }} />
                     </div>
                   </div>
                 ))}
+              </div>
+              <div className="bg-white rounded-xl border border-gray-100 p-4">
+                <p className="text-xs font-semibold text-gray-700 mb-3">Next steps</p>
+                <div className="space-y-2">
+                  {[
+                    { label: "Schedule annual pen test", done: false },
+                    { label: "Complete vendor reviews", done: false },
+                    { label: "Run Q1 access review", done: true },
+                    { label: "Policy templates adopted", done: true },
+                  ].map((item) => (
+                    <div key={item.label} className="flex items-center gap-2">
+                      <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${item.done ? "bg-emerald-100" : "bg-gray-100"}`}>
+                        {item.done && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
+                      </div>
+                      <span className={`text-[11px] ${item.done ? "text-gray-400 line-through" : "text-gray-700"}`}>{item.label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -603,6 +640,46 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Complete Platform Module Grid */}
+      <section className="bg-white/60 py-10 md:py-16 border-y border-black/5">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-8">
+            <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Complete platform</p>
+            <h2 className="text-2xl md:text-3xl font-extrabold">Every tool your compliance program needs</h2>
+            <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto">
+              Not just evidence collection. A full compliance stack for startups chasing SOC 2, ISO 27001, or HIPAA.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {[
+              { icon: Zap,          label: "Evidence Collection",  desc: "Automated, 24h" },
+              { icon: BarChart3,    label: "Compliance Score",     desc: "Real-time" },
+              { icon: Target,       label: "Readiness Timeline",   desc: "Weeks to audit" },
+              { icon: AlertTriangle,label: "Risk Register",        desc: "CC3 & CC9" },
+              { icon: BookOpen,     label: "Policy Templates",     desc: "8 pre-written" },
+              { icon: GraduationCap,label: "Training Tracker",     desc: "CC1.4 evidence" },
+              { icon: ShieldCheck,  label: "Pen Test Tracker",     desc: "Annual requirement" },
+              { icon: Building2,    label: "Vendor Diligence",     desc: "CC9.2" },
+              { icon: UserCheck,    label: "Access Reviews",       desc: "CC6.3 sign-off" },
+              { icon: ClipboardList,label: "Questionnaire Fill",   desc: "AI-assisted" },
+              { icon: Globe,        label: "Trust Page",           desc: "Live public page" },
+              { icon: FileText,     label: "Audit Reports",        desc: "PDF & JSON" },
+              { icon: Lock,         label: "Auditor Portal",       desc: "Read-only access" },
+              { icon: Users,        label: "Team RBAC",            desc: "Admin & member" },
+              { icon: Plug,         label: "7 Integrations",       desc: "AWS, GitHub, Okta…" },
+            ].map(({ icon: Icon, label, desc }) => (
+              <div key={label} className="bg-[var(--card)] rounded-2xl border border-black/5 p-4 hover:shadow-md transition-shadow group">
+                <div className="w-8 h-8 bg-[color:var(--accent)]/10 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[color:var(--accent)]/20 transition-colors">
+                  <Icon className="w-4 h-4 text-[var(--accent)]" />
+                </div>
+                <p className="text-xs font-bold text-[var(--ink)] leading-snug">{label}</p>
+                <p className="text-[10px] text-[var(--muted)] mt-0.5">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Before / After */}
       <section className="bg-[var(--ink)] py-12 md:py-20">
         <div className="max-w-5xl mx-auto px-6">
@@ -644,9 +721,9 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10 md:mb-12">
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Features</p>
-            <h2 className="text-2xl md:text-3xl font-extrabold">Everything you need for continuous compliance</h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold">A complete compliance program, not just a tool</h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto">
-              Built for engineering teams who need to move fast without sacrificing security posture.
+              Built for startups who need to move fast without sacrificing security posture — from first integration to audit day.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -832,7 +909,7 @@ export default function LandingPage() {
             Your next audit starts now.
           </h2>
           <p className="text-white/80 mb-8 text-sm leading-relaxed max-w-md mx-auto">
-            Create your account, connect your first integration, and see your compliance score in under 5 minutes. No credit card required.
+            Create your account and get your full compliance program running in minutes — evidence collection, risk register, policies, training, vendors, and a live readiness score. No credit card required.
           </p>
           <Link href="/register" className="inline-flex items-center gap-2 bg-white hover:bg-white/90 text-[var(--accent)] font-bold px-8 py-3.5 rounded-xl transition-colors text-sm">
             Get started free <ArrowRight className="w-4 h-4" />
