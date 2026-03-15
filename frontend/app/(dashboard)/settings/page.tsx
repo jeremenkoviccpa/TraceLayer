@@ -436,8 +436,8 @@ export default function SettingsPage() {
       </div>
 
       {/* ── Mobile / tablet horizontal section nav ────────────────────────── */}
-      <div className="lg:hidden -mx-1 mb-5 overflow-x-auto no-scrollbar">
-        <div className="flex gap-1.5 px-1 pb-0.5 w-max">
+      <div className="lg:hidden -mx-1 mb-5 overflow-x-auto no-scrollbar" style={{ maskImage: "linear-gradient(to right, black 88%, transparent 100%)" }}>
+        <div className="flex gap-1.5 px-1 pb-0.5 w-max pr-6">
           {NAV.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -525,7 +525,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={profileSaving}
-              className="bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
               {profileSaving ? "Saving…" : "Save profile"}
             </button>
@@ -581,7 +581,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={pwSaving || pwMismatch}
-              className="bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
               {pwSaving ? "Saving…" : "Update password"}
             </button>
@@ -699,7 +699,7 @@ export default function SettingsPage() {
             type="button"
             onClick={handleSaveNotifPrefs}
             disabled={notifLoading}
-            className="bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
           >
             {notifLoading ? "Saving…" : "Save preferences"}
           </button>
@@ -861,7 +861,7 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={companySaving}
-                  className="bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                  className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
                 >
                   {companySaving ? "Saving…" : "Save changes"}
                 </button>
@@ -1128,7 +1128,7 @@ export default function SettingsPage() {
                   type="button"
                   onClick={handleSaveTrustSettings}
                   disabled={trustSaving}
-                  className="bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                  className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
                 >
                   {trustSaving ? "Saving…" : "Save Trust Center"}
                 </button>

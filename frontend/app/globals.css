@@ -43,6 +43,16 @@
   to   { transform: translateX(0); }
 }
 
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @layer components {
   .page-header {
     @apply text-2xl font-bold text-gray-900 mb-6;
