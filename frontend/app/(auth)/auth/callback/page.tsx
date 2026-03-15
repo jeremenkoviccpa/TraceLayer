@@ -1,11 +1,10 @@
 "use client";
 
 import { Suspense, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 
 function CallbackHandler() {
-  const router = useRouter();
   const params = useSearchParams();
 
   useEffect(() => {
@@ -14,13 +13,14 @@ function CallbackHandler() {
     const error = params.get("error");
 
     if (error || !access || !refresh) {
-      router.replace(`/login?error=${error ?? "oauth_failed"}`);
+      window.location.href = `/login?error=${error ?? "oauth_failed"}`;
       return;
     }
 
     api.setTokens(access, refresh);
     const isNewUser = params.get("new_user") === "1";
-    router.replace(isNewUser ? "/onboarding" : "/dashboard");
+    // Full page reload so AuthProvider re-initialises with the new tokens
+    window.location.href = isNewUser ? "/onboarding" : "/dashboard";
   }, []); // eslint-disable-line
 
   return null;
