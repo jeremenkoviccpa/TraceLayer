@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -252,6 +252,21 @@ export default function DashboardPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Touch swipe to switch frameworks (mobile only — touch events don't fire on desktop)
+  const touchStartX = useRef<number | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(delta) < 50) return;
+    const idx = FRAMEWORKS.findIndex((f) => f.value === framework);
+    if (delta < 0 && idx < FRAMEWORKS.length - 1) handleFrameworkChange(FRAMEWORKS[idx + 1].value);
+    else if (delta > 0 && idx > 0) handleFrameworkChange(FRAMEWORKS[idx - 1].value);
+  };
+
   const handleFrameworkChange = async (fw: string) => {
     setFramework(fw);
     setScoreLoading(true);
@@ -346,7 +361,11 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {/* Score hero card */}
-        <div className="md:col-span-2 lg:col-span-2 relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 overflow-hidden">
+        <div
+          className="md:col-span-2 lg:col-span-2 relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 overflow-hidden"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Radial glow */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-brand-500/15 rounded-full blur-3xl pointer-events-none" />
           <div className="relative">
@@ -362,22 +381,46 @@ export default function DashboardPage() {
                   )}
                 </div>
                 <p className="text-4xl font-black text-white mb-3">{score}<span className="text-xl text-white/30">%</span></p>
-                {/* Framework tabs */}
-                <div className="flex gap-1 bg-white/10 rounded-xl p-1 overflow-x-auto no-scrollbar">
-                  {FRAMEWORKS.map((fw) => (
-                    <button
-                      key={fw.value}
-                      onClick={() => handleFrameworkChange(fw.value)}
-                      disabled={scoreLoading}
-                      className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 whitespace-nowrap ${
-                        framework === fw.value
-                          ? "bg-white text-slate-900 shadow-sm"
-                          : "text-white/50 hover:text-white/80"
-                      }`}
-                    >
-                      {fw.label}
-                    </button>
-                  ))}
+
+                {/* Framework tabs — desktop: scrollable pill row; mobile: active chip + swipe dots */}
+                <div className="hidden sm:block overflow-x-auto no-scrollbar">
+                  <div className="flex gap-1 bg-white/10 rounded-xl p-1 w-max">
+                    {FRAMEWORKS.map((fw) => (
+                      <button
+                        key={fw.value}
+                        onClick={() => handleFrameworkChange(fw.value)}
+                        disabled={scoreLoading}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 whitespace-nowrap ${
+                          framework === fw.value
+                            ? "bg-white text-slate-900 shadow-sm"
+                            : "text-white/50 hover:text-white/80"
+                        }`}
+                      >
+                        {fw.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Mobile: active framework chip + position dots */}
+                <div className="sm:hidden">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="bg-white text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">
+                      {FRAMEWORKS.find((f) => f.value === framework)?.label}
+                    </span>
+                    <span className="text-[10px] text-white/30">← swipe →</span>
+                  </div>
+                  <div className="flex gap-1">
+                    {FRAMEWORKS.map((fw) => (
+                      <button
+                        key={fw.value}
+                        onClick={() => handleFrameworkChange(fw.value)}
+                        disabled={scoreLoading}
+                        className={`h-1 rounded-full transition-all duration-300 disabled:opacity-50 ${
+                          framework === fw.value ? "bg-white w-4" : "bg-white/25 w-1.5"
+                        }`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
               {/* Readiness badge — desktop only */}
