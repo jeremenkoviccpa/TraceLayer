@@ -68,7 +68,7 @@ async def register(request: Request, body: RegisterRequest, db: AsyncSession = D
     db.add(verify_token)
     await db.commit()
 
-    verify_url = f"{settings.frontend_url}/verify-email?token={raw_verify}"
+    verify_url = f"{settings.app_frontend_url}/verify-email?token={raw_verify}"
     try:
         send_verification_email(user.email, verify_url)
         send_welcome_email(user.email, company.name)
@@ -193,7 +193,7 @@ async def resend_verification(
     db.add(verify_token)
     await db.commit()
 
-    verify_url = f"{settings.frontend_url}/verify-email?token={raw_verify}"
+    verify_url = f"{settings.app_frontend_url}/verify-email?token={raw_verify}"
     try:
         send_verification_email(current_user.email, verify_url)
     except Exception:
@@ -218,7 +218,7 @@ async def forgot_password(request: Request, body: ForgotPasswordRequest, db: Asy
     db.add(reset_token)
     await db.commit()
 
-    reset_url = f"{settings.frontend_url}/reset-password?token={raw_token}"
+    reset_url = f"{settings.app_frontend_url}/reset-password?token={raw_token}"
     try:
         send_password_reset_email(user.email, reset_url)
     except Exception:

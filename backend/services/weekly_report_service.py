@@ -70,7 +70,7 @@ async def send_weekly_reports() -> None:
                         company_name=company.name,
                         framework_scores=framework_scores,
                         week_label=week,
-                        frontend_url=settings.frontend_url,
+                        frontend_url=settings.app_frontend_url,
                     )
                     logger.info("Sent weekly report to %s (company: %s)", admin.email, company.name)
 

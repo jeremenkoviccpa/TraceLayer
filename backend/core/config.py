@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     storage_access_key: str = ""
     storage_secret_key: str = ""
     cors_origins: List[str] = ["http://localhost:3000"]
-    frontend_url: str = "http://localhost:3000"
+    app_frontend_url: str = "http://localhost:3000"
     resend_api_key: str = ""
     email_from: str = "TraceLayer <onboarding@resend.dev>"
     seed_demo: bool = False

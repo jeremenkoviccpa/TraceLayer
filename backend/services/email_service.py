@@ -58,7 +58,7 @@ def send_welcome_email(to: str, company_name: str) -> None:
         Your account for <strong>{company_name}</strong> is ready.
         Connect your first integration to start collecting compliance evidence automatically.
       </p>
-      <a href="{settings.frontend_url}/onboarding"
+      <a href="{settings.app_frontend_url}/onboarding"
          style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;
                 padding:12px 24px;border-radius:8px;font-weight:600;font-size:15px">
         Get started
@@ -83,7 +83,7 @@ def send_collection_failure_email(to: str, integration_type: str, error: str) ->
       <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:24px">
         <code style="font-size:12px;color:#991b1b">{error[:300]}</code>
       </div>
-      <a href="{settings.frontend_url}/integrations"
+      <a href="{settings.app_frontend_url}/integrations"
          style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;
                 padding:12px 24px;border-radius:8px;font-weight:600;font-size:15px">
         Check integrations

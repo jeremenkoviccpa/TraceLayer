@@ -189,7 +189,7 @@ async def run_daily_alerts(db: AsyncSession) -> None:
                         to=admin.email,
                         company_name=company.name,
                         alerts=alerts,
-                        frontend_url=settings.frontend_url,
+                        frontend_url=settings.app_frontend_url,
                     )
                 except Exception as exc:
                     logger.warning(

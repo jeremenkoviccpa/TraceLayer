@@ -35,7 +35,7 @@ async def create_checkout_url(company_id: uuid.UUID, user_email: str) -> str:
                     "custom": {"company_id": str(company_id)},
                 },
                 "product_options": {
-                    "redirect_url": f"{settings.frontend_url}/billing/success",
+                    "redirect_url": f"{settings.app_frontend_url}/billing/success",
                 },
             },
             "relationships": {

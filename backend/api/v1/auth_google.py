@@ -52,9 +52,9 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
                 token_res.status_code,
                 token_res.text,
                 f"{settings.backend_url}/v1/auth/google/callback",
-                settings.frontend_url,
+                settings.app_frontend_url,
             )
-            return RedirectResponse(f"{settings.frontend_url}/login?error=google_failed")
+            return RedirectResponse(f"{settings.app_frontend_url}/login?error=google_failed")
 
         token_data = token_res.json()
 
@@ -66,7 +66,7 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
 
     email = userinfo.get("email")
     if not email:
-        return RedirectResponse(f"{settings.frontend_url}/login?error=no_email")
+        return RedirectResponse(f"{settings.app_frontend_url}/login?error=no_email")
 
     full_name = userinfo.get("name", "")
 
@@ -108,4 +108,4 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
     await log_action(db, user.company_id, "user.login", user_id=user.id, user_email=user.email)
 
     qs = urllib.parse.urlencode({"access_token": access_token, "refresh_token": raw_refresh})
-    return RedirectResponse(f"{settings.frontend_url}/auth/callback?{qs}")
+    return RedirectResponse(f"{settings.app_frontend_url}/auth/callback?{qs}")

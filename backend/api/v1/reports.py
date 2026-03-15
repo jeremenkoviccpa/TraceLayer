@@ -258,7 +258,7 @@ async def weekly_report_preview(
             company_name=company_name,
             framework_scores=framework_scores,
             week_label=week_label,
-            frontend_url=settings.frontend_url,
+            frontend_url=settings.app_frontend_url,
         )
     except Exception as exc:
         logger.error("weekly-preview email failed for user %s: %s", current_user.email, exc)
