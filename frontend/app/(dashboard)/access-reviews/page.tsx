@@ -100,7 +100,7 @@ function Modal({
         </div>
         <div className="px-5 py-4 border-t border-gray-100 flex justify-end gap-2">
           <button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-xl">Cancel</button>
-          <button onClick={handleSubmit} disabled={saving || !form.title || !form.period} className="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl disabled:opacity-40">
+          <button onClick={handleSubmit} disabled={saving || !form.title || !form.period} className="px-4 py-2 text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white rounded-xl disabled:opacity-40">
             {saving ? "Creating…" : "Create review"}
           </button>
         </div>
@@ -201,7 +201,7 @@ function UpdateModal({
         </div>
         <div className="px-5 py-4 border-t border-gray-100 flex justify-end gap-2">
           <button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-xl">Cancel</button>
-          <button onClick={handleSubmit} disabled={saving} className="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl disabled:opacity-40">
+          <button onClick={handleSubmit} disabled={saving} className="px-4 py-2 text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white rounded-xl disabled:opacity-40">
             {saving ? "Saving…" : "Save"}
           </button>
         </div>
@@ -255,8 +255,8 @@ export default function AccessReviewsPage() {
         {/* Row 1: icon + title + action */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center shrink-0">
-              <UserCheck className="w-5 h-5 text-blue-400" />
+            <div className="w-10 h-10 rounded-xl bg-brand-500/20 flex items-center justify-center shrink-0">
+              <UserCheck className="w-5 h-5 text-brand-400" />
             </div>
             <div>
               <h1 className="text-lg font-bold text-white leading-tight">Access Reviews</h1>
@@ -265,7 +265,7 @@ export default function AccessReviewsPage() {
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors shrink-0"
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors shrink-0"
           >
             <Plus className="w-4 h-4" /> New review
           </button>
@@ -274,19 +274,19 @@ export default function AccessReviewsPage() {
         {/* Row 2: stats grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
-            <p className="text-3xl font-bold text-blue-400">{reviews.length}</p>
+            <p className="text-3xl font-bold text-brand-400">{reviews.length}</p>
             <p className="text-xs text-slate-400 mt-1">Total reviews</p>
           </div>
           <div>
-            <p className={`text-3xl font-bold ${open > 0 ? "text-amber-400" : "text-blue-400"}`}>{open}</p>
+            <p className={`text-3xl font-bold ${open > 0 ? "text-amber-400" : "text-brand-400"}`}>{open}</p>
             <p className="text-xs text-slate-400 mt-1">Open</p>
           </div>
           <div>
-            <p className={`text-3xl font-bold ${inProgress > 0 ? "text-sky-400" : "text-blue-400"}`}>{inProgress}</p>
+            <p className={`text-3xl font-bold ${inProgress > 0 ? "text-sky-400" : "text-brand-400"}`}>{inProgress}</p>
             <p className="text-xs text-slate-400 mt-1">In progress</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-blue-400">{completed}</p>
+            <p className="text-3xl font-bold text-brand-400">{completed}</p>
             <p className="text-xs text-slate-400 mt-1">Completed</p>
           </div>
         </div>
@@ -294,14 +294,14 @@ export default function AccessReviewsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center h-40">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : reviews.length === 0 ? (
         <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-12 text-center">
           <UserCheck className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <p className="text-sm font-medium text-gray-600 mb-1">No access reviews yet</p>
           <p className="text-xs text-gray-400 mb-4">Create quarterly reviews to document formal sign-off on user access for SOC 2 CC6.3.</p>
-          <button onClick={() => setShowModal(true)} className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-xl text-sm">
+          <button onClick={() => setShowModal(true)} className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2 rounded-xl text-sm">
             <Plus className="w-4 h-4" /> Create first review
           </button>
         </div>
@@ -310,7 +310,7 @@ export default function AccessReviewsPage() {
           {reviews.map((r) => {
             const StatusIcon = STATUS_ICONS[r.status] ?? Clock;
             return (
-              <div key={r.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              <div key={r.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-card">
                 <div className="px-5 py-4 flex items-center gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 flex-wrap">
