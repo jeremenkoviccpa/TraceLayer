@@ -14,7 +14,7 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column("companies", sa.Column("notification_prefs", JSONB, nullable=False, server_default="'{}'"))
+    op.add_column("companies", sa.Column("notification_prefs", JSONB, nullable=False, server_default=sa.text("'{}'")))
     op.add_column("companies", sa.Column("slack_webhook_url", sa.Text, nullable=True))
 
 
