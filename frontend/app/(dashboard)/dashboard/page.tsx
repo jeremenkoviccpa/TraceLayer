@@ -327,7 +327,7 @@ export default function DashboardPage() {
     : null;
 
   return (
-    <div className="animate-fade-in space-y-5">
+    <div className="animate-fade-in space-y-5 overflow-x-hidden">
 
       {/* ── Header ── */}
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -362,25 +362,25 @@ export default function DashboardPage() {
 
         {/* Score hero card */}
         <div
-          className="md:col-span-2 lg:col-span-2 relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 overflow-hidden"
+          className="md:col-span-2 lg:col-span-2 relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-4 sm:p-6 overflow-hidden"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
           {/* Radial glow */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-brand-500/15 rounded-full blur-3xl pointer-events-none" />
           <div className="relative">
-            <div className="flex items-center gap-4 sm:gap-6">
+            <div className="flex items-center gap-3 sm:gap-6">
               <ScoreRing score={scoreLoading ? score : score} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className="text-sm font-semibold text-white/60">Compliance score</span>
+                  <span className="text-xs sm:text-sm font-semibold text-white/60">Compliance score</span>
                   {trend !== null && (
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${trend >= 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
                       {trend >= 0 ? "+" : ""}{trend}% vs prev
                     </span>
                   )}
                 </div>
-                <p className="text-4xl font-black text-white mb-3">{score}<span className="text-xl text-white/30">%</span></p>
+                <p className="text-3xl sm:text-4xl font-black text-white mb-3">{score}<span className="text-xl text-white/30">%</span></p>
 
                 {/* Framework tabs — desktop: scrollable pill row; mobile: active chip + swipe dots */}
                 <div className="hidden sm:block overflow-x-auto no-scrollbar">
