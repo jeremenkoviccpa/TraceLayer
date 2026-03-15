@@ -372,10 +372,10 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3 sm:gap-6">
               <ScoreRing score={scoreLoading ? score : score} />
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <div className="flex flex-col gap-0.5 mb-1">
                   <span className="text-xs sm:text-sm font-semibold text-white/60">Compliance score</span>
                   {trend !== null && (
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${trend >= 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full w-fit ${trend >= 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
                       {trend >= 0 ? "+" : ""}{trend}% vs prev
                     </span>
                   )}
