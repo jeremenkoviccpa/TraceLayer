@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
-import type { AuditSession, BillingInfo, Company, TrustPageSettings } from "@/lib/types";
+import type { AuditSession, BillingInfo, Company, NotificationSettings, TrustPageSettings } from "@/lib/types";
 import {
   CreditCard,
   Lock,
@@ -88,27 +88,6 @@ function Toggle({ enabled, onChange }: { enabled: boolean; onChange: (v: boolean
   );
 }
 
-// ── Notification prefs helpers ─────────────────────────────────────────────────
-
-const NOTIF_KEY = "tl_notif_prefs";
-
-interface NotifPrefs {
-  failures: boolean;
-  score_drops: boolean;
-  updates: boolean;
-}
-
-function loadNotifPrefs(): NotifPrefs {
-  if (typeof window === "undefined") return { failures: true, score_drops: true, updates: true };
-  try {
-    const raw = localStorage.getItem(NOTIF_KEY);
-    if (raw) return { failures: true, score_drops: true, updates: true, ...JSON.parse(raw) };
-  } catch {
-    // ignore
-  }
-  return { failures: true, score_drops: true, updates: true };
-}
-
 // ── Main Page ──────────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
@@ -166,15 +145,27 @@ export default function SettingsPage() {
   };
 
   // ── Notifications ─────────────────────────────────────────────────────────
-  const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>({ failures: true, score_drops: true, updates: true });
+  const defaultNotifSettings: NotificationSettings = {
+    prefs: { training_overdue: true, access_review_overdue: true, vendor_needs_review: true, evidence_stale: true, weekly_digest: true },
+    slack_webhook_url: null,
+  };
+  const [notifSettings, setNotifSettings] = useState<NotificationSettings>(defaultNotifSettings);
+  const [notifLoading, setNotifLoading] = useState(false);
 
   useEffect(() => {
-    setNotifPrefs(loadNotifPrefs());
+    api.getNotificationSettings().then(setNotifSettings).catch(() => {});
   }, []);
 
-  const handleSaveNotifPrefs = () => {
-    localStorage.setItem(NOTIF_KEY, JSON.stringify(notifPrefs));
-    showToast("Notification preferences saved");
+  const handleSaveNotifPrefs = async () => {
+    setNotifLoading(true);
+    try {
+      await api.updateNotificationSettings(notifSettings);
+      showToast("Notification preferences saved");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Failed to save preferences", "error");
+    } finally {
+      setNotifLoading(false);
+    }
   };
 
   // ── Weekly report preview ──────────────────────────────────────────────────
@@ -590,72 +581,100 @@ export default function SettingsPage() {
         <SectionHeader
           icon={Bell}
           title="Notifications"
-          subtitle="Choose which emails you receive from TraceLayer."
+          subtitle="Choose which alerts you receive from TraceLayer."
         />
 
         <div className="space-y-4">
-          {/* Weekly digest — locked ON */}
+          {/* Weekly digest */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5">
-                <p className="text-sm font-medium text-gray-800">Weekly compliance digest</p>
-                <Lock className="w-3 h-3 text-gray-400 shrink-0" />
-              </div>
+              <p className="text-sm font-medium text-gray-800">Weekly compliance digest</p>
               <p className="text-xs text-gray-500 mt-0.5">A compliance score briefing every Monday morning.</p>
             </div>
-            <Toggle enabled={true} onChange={() => {}} />
-          </div>
-
-          <div className="border-t border-gray-100" />
-
-          {/* Collection failures */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-800">Collection failures</p>
-              <p className="text-xs text-gray-500 mt-0.5">Alert when an integration fails to collect evidence.</p>
-            </div>
             <Toggle
-              enabled={notifPrefs.failures}
-              onChange={(v) => setNotifPrefs((p) => ({ ...p, failures: v }))}
+              enabled={notifSettings.prefs.weekly_digest}
+              onChange={(v) => setNotifSettings((s) => ({ ...s, prefs: { ...s.prefs, weekly_digest: v } }))}
             />
           </div>
 
           <div className="border-t border-gray-100" />
 
-          {/* Score drop alerts */}
+          {/* Training overdue */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-800">Score drop alerts</p>
-              <p className="text-xs text-gray-500 mt-0.5">Email when your compliance score drops more than 10 points.</p>
+              <p className="text-sm font-medium text-gray-800">Training overdue</p>
+              <p className="text-xs text-gray-500 mt-0.5">Alert when a training assignment is past its due date.</p>
             </div>
             <Toggle
-              enabled={notifPrefs.score_drops}
-              onChange={(v) => setNotifPrefs((p) => ({ ...p, score_drops: v }))}
+              enabled={notifSettings.prefs.training_overdue}
+              onChange={(v) => setNotifSettings((s) => ({ ...s, prefs: { ...s.prefs, training_overdue: v } }))}
             />
           </div>
 
           <div className="border-t border-gray-100" />
 
-          {/* Product updates */}
+          {/* Access review overdue */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-800">Product updates</p>
-              <p className="text-xs text-gray-500 mt-0.5">New features, improvements, and important announcements.</p>
+              <p className="text-sm font-medium text-gray-800">Access review overdue</p>
+              <p className="text-xs text-gray-500 mt-0.5">Alert when an access review passes its due date.</p>
             </div>
             <Toggle
-              enabled={notifPrefs.updates}
-              onChange={(v) => setNotifPrefs((p) => ({ ...p, updates: v }))}
+              enabled={notifSettings.prefs.access_review_overdue}
+              onChange={(v) => setNotifSettings((s) => ({ ...s, prefs: { ...s.prefs, access_review_overdue: v } }))}
             />
           </div>
+
+          <div className="border-t border-gray-100" />
+
+          {/* Vendor needs review */}
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-800">Vendor needs review</p>
+              <p className="text-xs text-gray-500 mt-0.5">Alert when a vendor&apos;s review date has passed.</p>
+            </div>
+            <Toggle
+              enabled={notifSettings.prefs.vendor_needs_review}
+              onChange={(v) => setNotifSettings((s) => ({ ...s, prefs: { ...s.prefs, vendor_needs_review: v } }))}
+            />
+          </div>
+
+          <div className="border-t border-gray-100" />
+
+          {/* Evidence stale */}
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-800">Stale evidence</p>
+              <p className="text-xs text-gray-500 mt-0.5">Alert when evidence hasn&apos;t been collected in over 7 days.</p>
+            </div>
+            <Toggle
+              enabled={notifSettings.prefs.evidence_stale}
+              onChange={(v) => setNotifSettings((s) => ({ ...s, prefs: { ...s.prefs, evidence_stale: v } }))}
+            />
+          </div>
+        </div>
+
+        {/* Slack webhook */}
+        <div className="mt-5 pt-5 border-t border-gray-100">
+          <p className="text-sm font-medium text-gray-800 mb-1">Slack webhook URL</p>
+          <p className="text-xs text-gray-500 mb-2">Post alerts to a Slack channel. Leave blank to disable.</p>
+          <input
+            type="url"
+            value={notifSettings.slack_webhook_url ?? ""}
+            onChange={(e) => setNotifSettings((s) => ({ ...s, slack_webhook_url: e.target.value || null }))}
+            placeholder="https://hooks.slack.com/services/…"
+            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400"
+          />
         </div>
 
         <div className="flex justify-end mt-5">
           <button
             type="button"
             onClick={handleSaveNotifPrefs}
-            className="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            disabled={notifLoading}
+            className="bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
           >
-            Save preferences
+            {notifLoading ? "Saving…" : "Save preferences"}
           </button>
         </div>
       </section>

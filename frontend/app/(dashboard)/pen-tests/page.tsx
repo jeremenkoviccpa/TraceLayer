@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { PenTest } from "@/lib/types";
 import { ShieldAlert, Plus, Trash2, X, ChevronDown, ChevronUp } from "lucide-react";
+import { DocumentUpload } from "@/components/document-upload";
 
 const STATUS_STYLES: Record<string, string> = {
   scheduled: "bg-blue-50 text-blue-700",
@@ -281,6 +282,7 @@ export default function PenTestsPage() {
                   {t.summary && <div><p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Summary</p><p className="text-sm text-gray-700">{t.summary}</p></div>}
                   {t.remediation_notes && <div><p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Remediation</p><p className="text-sm text-gray-700">{t.remediation_notes}</p></div>}
                   {t.next_scheduled_at && <p className="text-xs text-gray-400">Next test scheduled: {new Date(t.next_scheduled_at).toLocaleDateString()}</p>}
+                  <DocumentUpload resourceType="pen_test" resourceId={t.id} />
                 </div>
               )}
             </div>

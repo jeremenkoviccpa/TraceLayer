@@ -337,6 +337,30 @@ export interface PublicTrustPolicy {
   slug: string;
 }
 
+export interface Document {
+  id: string;
+  resource_type: string;
+  resource_id: string | null;
+  filename: string;
+  file_size: number;
+  mime_type: string;
+  uploader_email: string | null;
+  created_at: string;
+}
+
+export interface NotificationPrefs {
+  training_overdue: boolean;
+  access_review_overdue: boolean;
+  vendor_needs_review: boolean;
+  evidence_stale: boolean;
+  weekly_digest: boolean;
+}
+
+export interface NotificationSettings {
+  prefs: NotificationPrefs;
+  slack_webhook_url: string | null;
+}
+
 export interface PublicTrustPageView {
   company_name: string;
   slug: string;

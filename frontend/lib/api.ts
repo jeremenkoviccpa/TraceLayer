@@ -1,4 +1,4 @@
-import type { AccessReview, AutofillResult, AuditLog, AuditSession, BillingInfo, Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, ScoreHistoryPoint, TrainingRecord, TrustPageSettings, User, Vendor } from "./types";
+import type { AccessReview, AutofillResult, AuditLog, AuditSession, BillingInfo, Company, ComplianceScore, Document, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, NotificationSettings, Page, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, ScoreHistoryPoint, TrainingRecord, TrustPageSettings, User, Vendor } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -466,6 +466,49 @@ class ApiClient {
 
   async getPublicTrustPage(slug: string): Promise<PublicTrustPageView> {
     return this.request<PublicTrustPageView>("GET", `/trust/public/${slug}`, undefined, false);
+  }
+
+  // ── Documents ─────────────────────────────────────────────────────────────
+
+  async getDocuments(resourceType: string, resourceId?: string): Promise<Document[]> {
+    const q = new URLSearchParams({ resource_type: resourceType });
+    if (resourceId) q.set("resource_id", resourceId);
+    return this.request<Document[]>("GET", `/documents?${q}`);
+  }
+
+  async uploadDocument(file: File, resourceType: string, resourceId?: string): Promise<Document> {
+    const token = this.getToken();
+    if (!token) throw new Error("Not authenticated");
+    const form = new FormData();
+    form.append("file", file);
+    form.append("resource_type", resourceType);
+    if (resourceId) form.append("resource_id", resourceId);
+    const res = await fetch(`${API_URL}/v1/documents/upload`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.detail ?? "Upload failed");
+    return json as Document;
+  }
+
+  async deleteDocument(id: string): Promise<void> {
+    return this.request("DELETE", `/documents/${id}`);
+  }
+
+  async getDocumentUrl(id: string): Promise<{ url: string }> {
+    return this.request<{ url: string }>("GET", `/documents/${id}/url`);
+  }
+
+  // ── Notifications ─────────────────────────────────────────────────────────
+
+  async getNotificationSettings(): Promise<NotificationSettings> {
+    return this.request<NotificationSettings>("GET", "/notifications/prefs");
+  }
+
+  async updateNotificationSettings(body: NotificationSettings): Promise<NotificationSettings> {
+    return this.request<NotificationSettings>("PUT", "/notifications/prefs", body);
   }
 
   // ── Evidence Upload ───────────────────────────────────────────────────────
