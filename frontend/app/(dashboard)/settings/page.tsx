@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
-import type { AuditSession, BillingInfo, Company } from "@/lib/types";
+import type { AuditSession, BillingInfo, Company, TrustPageSettings } from "@/lib/types";
 import {
   CreditCard,
   Lock,
@@ -22,6 +22,7 @@ import {
   Copy,
   Check,
   Settings,
+  Globe,
 } from "lucide-react";
 import React from "react";
 
@@ -338,6 +339,43 @@ export default function SettingsPage() {
     });
   };
 
+  // ── Trust Center ───────────────────────────────────────────────────────────
+  const [trustSettings, setTrustSettings] = useState<TrustPageSettings | null>(null);
+  const [trustSaving, setTrustSaving] = useState(false);
+  const [trustCopied, setTrustCopied] = useState(false);
+  const [trustSlugInput, setTrustSlugInput] = useState("");
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    api.getTrustPageSettings().then((s) => {
+      setTrustSettings(s);
+      setTrustSlugInput(s.slug);
+    }).catch(() => {});
+  }, [isAdmin]);
+
+  const handleSaveTrustSettings = async () => {
+    if (!trustSettings) return;
+    setTrustSaving(true);
+    try {
+      const updated = await api.updateTrustPageSettings({ ...trustSettings, slug: trustSlugInput });
+      setTrustSettings(updated);
+      setTrustSlugInput(updated.slug);
+      showToast("Trust Center settings saved");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Failed to save settings", "error");
+    } finally {
+      setTrustSaving(false);
+    }
+  };
+
+  const copyTrustLink = () => {
+    if (!trustSettings) return;
+    navigator.clipboard.writeText(`${window.location.origin}/trust/${trustSettings.slug}`).then(() => {
+      setTrustCopied(true);
+      setTimeout(() => setTrustCopied(false), 2000);
+    });
+  };
+
   // ── Input class helper ────────────────────────────────────────────────────
   const inputCls =
     "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400 bg-white text-gray-900 placeholder:text-gray-400 transition-all";
@@ -367,6 +405,7 @@ export default function SettingsPage() {
     { id: "billing",       label: "Billing & Plan",    icon: CreditCard },
     ...(isAdmin ? [{ id: "company", label: "Company", icon: Building2 }] : []),
     ...(isAdmin ? [{ id: "auditor-access", label: "Auditor Access", icon: Eye }] : []),
+    ...(isAdmin ? [{ id: "trust-center",  label: "Trust Center",   icon: Globe }] : []),
     { id: "your-data",     label: "Your Data",         icon: ShieldAlert },
   ];
 
@@ -824,6 +863,183 @@ export default function SettingsPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* ── Trust Center (admin only) ────────────────────────────────────────── */}
+      {isAdmin && (
+        <section id="trust-center" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
+          <SectionHeader
+            icon={Globe}
+            title="Trust Center"
+            subtitle="A public page showing your live compliance posture to customers and investors."
+          />
+
+          {trustSettings ? (
+            <div className="space-y-5">
+              {/* Enable toggle */}
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-800">Enable Trust Center</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Make your compliance page publicly accessible.</p>
+                </div>
+                <Toggle
+                  enabled={trustSettings.is_enabled}
+                  onChange={(v) => setTrustSettings((s) => s ? { ...s, is_enabled: v } : s)}
+                />
+              </div>
+
+              <div className="border-t border-gray-100" />
+
+              {/* Public URL */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">Public URL</label>
+                <div className="flex gap-2">
+                  <div className="flex-1 flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white focus-within:ring-2 focus-within:ring-brand-500/30 focus-within:border-brand-400 transition-all">
+                    <span className="px-2.5 py-2 text-xs text-gray-400 bg-gray-50 border-r border-gray-200 whitespace-nowrap shrink-0">
+                      /trust/
+                    </span>
+                    <input
+                      type="text"
+                      value={trustSlugInput}
+                      onChange={(e) => setTrustSlugInput(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                      className="flex-1 px-3 py-2 text-sm text-gray-900 bg-transparent outline-none min-w-0"
+                      placeholder="your-company"
+                    />
+                  </div>
+                  <button
+                    onClick={copyTrustLink}
+                    className="shrink-0 flex items-center gap-1.5 text-xs font-medium text-gray-600 border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    {trustCopied
+                      ? <><Check className="w-3.5 h-3.5 text-emerald-500" /> Copied</>
+                      : <><Copy className="w-3.5 h-3.5" /> Copy</>
+                    }
+                  </button>
+                  <a
+                    href={`/trust/${trustSettings.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 flex items-center gap-1.5 text-xs font-medium text-gray-600 border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> Preview
+                  </a>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-100" />
+
+              {/* Frameworks */}
+              <div>
+                <p className="text-xs font-medium text-gray-600 mb-2">Frameworks to display</p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { id: "soc2", label: "SOC 2" },
+                    { id: "iso27001", label: "ISO 27001" },
+                    { id: "hipaa", label: "HIPAA" },
+                    { id: "gdpr", label: "GDPR" },
+                    { id: "pci_dss", label: "PCI DSS" },
+                    { id: "ccpa", label: "CCPA" },
+                    { id: "nist_csf", label: "NIST CSF" },
+                  ].map((fw) => {
+                    const active = trustSettings.frameworks.includes(fw.id);
+                    return (
+                      <button
+                        key={fw.id}
+                        type="button"
+                        onClick={() => setTrustSettings((s) => {
+                          if (!s) return s;
+                          const next = active
+                            ? s.frameworks.filter((f) => f !== fw.id)
+                            : [...s.frameworks, fw.id];
+                          return { ...s, frameworks: next.length > 0 ? next : s.frameworks };
+                        })}
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+                          active
+                            ? "bg-brand-600 text-white border-brand-600"
+                            : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        {fw.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-100" />
+
+              {/* Visibility toggles */}
+              <div className="space-y-3.5">
+                <p className="text-xs font-medium text-gray-600">What to show publicly</p>
+                {(
+                  [
+                    { key: "show_score",        label: "Compliance scores",      desc: "Show framework scores and control breakdown" },
+                    { key: "show_policies",     label: "Adopted policies",       desc: "List your security policy titles" },
+                    { key: "show_integrations", label: "Connected integrations", desc: "Show which tools you use for evidence collection" },
+                  ] as { key: keyof TrustPageSettings; label: string; desc: string }[]
+                ).map(({ key, label, desc }) => (
+                  <div key={key} className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-800">{label}</p>
+                      <p className="text-xs text-gray-500">{desc}</p>
+                    </div>
+                    <Toggle
+                      enabled={trustSettings[key] as boolean}
+                      onChange={(v) => setTrustSettings((s) => s ? { ...s, [key]: v } : s)}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-gray-100" />
+
+              {/* Custom headline */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                  Custom headline <span className="text-gray-400 font-normal">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={trustSettings.custom_headline ?? ""}
+                  onChange={(e) => setTrustSettings((s) => s ? { ...s, custom_headline: e.target.value || null } : s)}
+                  placeholder="e.g. Security-first cloud platform"
+                  className={inputCls}
+                  maxLength={120}
+                />
+              </div>
+
+              {/* Custom message */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                  Custom message <span className="text-gray-400 font-normal">(optional)</span>
+                </label>
+                <textarea
+                  value={trustSettings.custom_message ?? ""}
+                  onChange={(e) => setTrustSettings((s) => s ? { ...s, custom_message: e.target.value || null } : s)}
+                  placeholder="Tell customers about your security program…"
+                  className={`${inputCls} resize-none`}
+                  rows={3}
+                  maxLength={500}
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleSaveTrustSettings}
+                  disabled={trustSaving}
+                  className="bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                >
+                  {trustSaving ? "Saving…" : "Save Trust Center"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-16">
+              <div className="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
             </div>
           )}
         </section>

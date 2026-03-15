@@ -10,6 +10,7 @@ from models.report import Report
 from models.invitation import Invitation
 from models.score_snapshot import ScoreSnapshot
 from models.manual_control import ManualControl
+from models.trust_page import TrustPage
 
 __all__ = [
     "Base",
@@ -24,4 +25,5 @@ __all__ = [
     "Invitation",
     "ScoreSnapshot",
     "ManualControl",
+    "TrustPage",
 ]

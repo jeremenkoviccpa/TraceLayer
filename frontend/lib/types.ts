@@ -297,3 +297,45 @@ export interface ReadinessData {
   controls_no_evidence: number;
   controls_total: number;
 }
+
+export interface TrustPageSettings {
+  is_enabled: boolean;
+  slug: string;
+  show_score: boolean;
+  show_policies: boolean;
+  show_integrations: boolean;
+  custom_headline: string | null;
+  custom_message: string | null;
+  frameworks: string[];
+}
+
+export interface PublicTrustControlScore {
+  name: string;
+  score: number;
+  status: string;
+}
+
+export interface PublicTrustFramework {
+  framework: string;
+  label: string;
+  overall_score: number;
+  controls: PublicTrustControlScore[];
+}
+
+export interface PublicTrustPolicy {
+  slug: string;
+}
+
+export interface PublicTrustPageView {
+  company_name: string;
+  slug: string;
+  custom_headline: string | null;
+  custom_message: string | null;
+  show_score: boolean;
+  show_policies: boolean;
+  show_integrations: boolean;
+  frameworks: PublicTrustFramework[];
+  policies: PublicTrustPolicy[] | null;
+  integrations: string[] | null;
+  generated_at: string;
+}

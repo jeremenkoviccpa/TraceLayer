@@ -1,4 +1,4 @@
-import type { AccessReview, AuditLog, AuditSession, BillingInfo, Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, PenTest, Policy, PublicAuditView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, ScoreHistoryPoint, TrainingRecord, User, Vendor } from "./types";
+import type { AccessReview, AuditLog, AuditSession, BillingInfo, Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, ScoreHistoryPoint, TrainingRecord, TrustPageSettings, User, Vendor } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -444,6 +444,20 @@ class ApiClient {
 
   async deleteAccessReview(id: string): Promise<void> {
     return this.request("DELETE", `/access-reviews/${id}`);
+  }
+
+  // ── Trust Center ──────────────────────────────────────────────────────────
+
+  async getTrustPageSettings(): Promise<TrustPageSettings> {
+    return this.request<TrustPageSettings>("GET", "/trust/settings");
+  }
+
+  async updateTrustPageSettings(body: Partial<TrustPageSettings>): Promise<TrustPageSettings> {
+    return this.request<TrustPageSettings>("PUT", "/trust/settings", body);
+  }
+
+  async getPublicTrustPage(slug: string): Promise<PublicTrustPageView> {
+    return this.request<PublicTrustPageView>("GET", `/trust/public/${slug}`, undefined, false);
   }
 
   // ── Evidence Upload ───────────────────────────────────────────────────────
