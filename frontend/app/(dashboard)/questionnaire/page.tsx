@@ -353,17 +353,17 @@ export default function QuestionnairePage() {
           <div className="flex-1">
             <h1 className="text-xl font-bold text-white">Security Questionnaire</h1>
             <p className="text-sm text-slate-400 mt-0.5">Answer vendor security questionnaires faster with AI — grounded in your real compliance data.</p>
-            <div className="flex items-center gap-6 mt-4">
+            <div className="flex flex-wrap gap-3 sm:gap-6 mt-4">
               <div>
                 <p className="text-2xl font-bold" style={{ color: "#14B8A6" }}>AI</p>
                 <p className="text-xs text-slate-500 mt-0.5">Powered by Groq</p>
               </div>
-              <div className="w-px h-8 bg-slate-700" />
+              <div className="hidden sm:block w-px h-8 bg-slate-700 self-center" />
               <div>
                 <p className="text-2xl font-bold" style={{ color: "#A855F7" }}>3</p>
                 <p className="text-xs text-slate-500 mt-0.5">Questionnaire templates</p>
               </div>
-              <div className="w-px h-8 bg-slate-700" />
+              <div className="hidden sm:block w-px h-8 bg-slate-700 self-center" />
               <div>
                 <p className="text-2xl font-bold text-slate-300">50</p>
                 <p className="text-xs text-slate-500 mt-0.5">Max questions / run</p>

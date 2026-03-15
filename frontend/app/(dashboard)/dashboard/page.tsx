@@ -320,12 +320,12 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-2">
           <Link href="/reports"
-            className="flex items-center gap-2 text-sm font-semibold text-gray-600 border border-gray-200 hover:border-gray-300 px-3.5 py-2 rounded-xl hover:bg-gray-50 transition-all">
-            <FileText className="w-4 h-4" /> Report
+            className="flex items-center gap-2 text-sm font-semibold text-gray-600 border border-gray-200 hover:border-gray-300 px-3 sm:px-3.5 py-2 rounded-xl hover:bg-gray-50 transition-all">
+            <FileText className="w-4 h-4" /> <span className="hidden sm:inline">Report</span>
           </Link>
           <Link href="/compliance"
-            className="flex items-center gap-2 text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white px-3.5 py-2 rounded-xl transition-colors">
-            <Zap className="w-4 h-4" /> View compliance
+            className="flex items-center gap-2 text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white px-3 sm:px-3.5 py-2 rounded-xl transition-colors">
+            <Zap className="w-4 h-4" /> <span className="hidden sm:inline">View compliance</span>
           </Link>
         </div>
       </div>
@@ -342,7 +342,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {/* Score hero card */}
-        <div className="lg:col-span-2 relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 overflow-hidden">
+        <div className="md:col-span-2 lg:col-span-2 relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 overflow-hidden">
           {/* Radial glow */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-brand-500/15 rounded-full blur-3xl pointer-events-none" />
           <div className="relative flex items-center gap-6 flex-wrap">

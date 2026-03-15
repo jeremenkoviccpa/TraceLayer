@@ -176,7 +176,7 @@ export default function EvidencePage() {
         {/* Cyan glow blob */}
         <div className="pointer-events-none absolute -top-16 -left-16 w-72 h-72 rounded-full bg-cyan-500/10 blur-3xl" />
 
-        <div className="relative px-7 py-7 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative px-4 sm:px-7 py-5 sm:py-7 flex flex-col gap-4 sm:gap-6 sm:flex-row sm:items-center sm:justify-between">
           {/* Left — icon + copy */}
           <div className="flex items-start gap-5">
             <div className="shrink-0 flex items-center justify-center w-14 h-14 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 shadow-lg shadow-cyan-500/10">
@@ -190,25 +190,25 @@ export default function EvidencePage() {
                 Automatically collected compliance evidence from your integrations.
               </p>
               {/* Stats row */}
-              <div className="flex flex-wrap gap-6 mt-4">
+              <div className="flex flex-wrap gap-3 sm:gap-6 mt-4">
                 <StatCard
                   label="Total records"
                   value={totalRecords.toLocaleString()}
                   colorClass="text-cyan-400"
                 />
-                <div className="w-px bg-slate-700 self-stretch" />
+                <div className="w-px bg-slate-700 self-stretch hidden sm:block" />
                 <StatCard
                   label="Collected today"
                   value={todayCount}
                   colorClass="text-teal-400"
                 />
-                <div className="w-px bg-slate-700 self-stretch" />
+                <div className="w-px bg-slate-700 self-stretch hidden sm:block" />
                 <StatCard
                   label="Integrations active"
                   value={activeIntegrations}
                   colorClass="text-blue-400"
                 />
-                <div className="w-px bg-slate-700 self-stretch" />
+                <div className="w-px bg-slate-700 self-stretch hidden sm:block" />
                 <StatCard
                   label="Frameworks covered"
                   value={frameworks}

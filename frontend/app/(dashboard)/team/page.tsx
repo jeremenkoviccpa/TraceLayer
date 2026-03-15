@@ -125,33 +125,33 @@ export default function TeamPage() {
       )}
 
       {/* Dark Hero Card */}
-      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 shadow-xl">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-4 flex-1">
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-5 sm:p-6 shadow-xl">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-4 flex-1 min-w-0">
             {/* Icon */}
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(99,102,241,0.2)" }}>
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(99,102,241,0.2)" }}>
               <Users className="w-5 h-5" style={{ color: "#6366F1" }} />
             </div>
-            {/* Title */}
-            <div>
+            {/* Title + Stats */}
+            <div className="flex-1 min-w-0">
               <h1 className="text-xl font-bold text-white">Team</h1>
               <p className="text-sm text-slate-400 mt-0.5">Manage your team members and their roles.</p>
               {/* Stats */}
-              <div className="flex items-center gap-6 mt-4">
+              <div className="flex flex-wrap gap-4 sm:gap-6 mt-4">
                 <div>
                   <p className="text-2xl font-bold" style={{ color: "#6366F1" }}>
                     {loading ? "—" : members.length}
                   </p>
                   <p className="text-xs text-slate-400 mt-0.5">Total members</p>
                 </div>
-                <div className="w-px h-8 bg-slate-700" />
+                <div className="hidden sm:block w-px h-8 bg-slate-700 self-center" />
                 <div>
                   <p className="text-2xl font-bold text-violet-400">
                     {loading ? "—" : adminCount}
                   </p>
                   <p className="text-xs text-slate-400 mt-0.5">Admins</p>
                 </div>
-                <div className="w-px h-8 bg-slate-700" />
+                <div className="hidden sm:block w-px h-8 bg-slate-700 self-center" />
                 <div>
                   <p className="text-2xl font-bold text-slate-300">
                     {loading ? "—" : memberCount}
@@ -165,7 +165,7 @@ export default function TeamPage() {
           {isAdmin && (
             <button
               onClick={() => setShowInviteForm(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shrink-0 transition-opacity hover:opacity-90"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shrink-0 transition-opacity hover:opacity-90 self-start sm:self-auto"
               style={{ backgroundColor: "#6366F1" }}
             >
               <Plus className="w-4 h-4" />

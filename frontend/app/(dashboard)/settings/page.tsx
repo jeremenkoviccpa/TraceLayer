@@ -435,6 +435,26 @@ export default function SettingsPage() {
         )}
       </div>
 
+      {/* ── Mobile / tablet horizontal section nav ────────────────────────── */}
+      <div className="lg:hidden -mx-1 mb-5 overflow-x-auto no-scrollbar">
+        <div className="flex gap-1.5 px-1 pb-0.5 w-max">
+          {NAV.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => scrollTo(id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                activeSection === id
+                  ? "bg-gray-900 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
+              }`}
+            >
+              <Icon className="w-3 h-3 shrink-0" />
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="lg:flex lg:gap-8 lg:items-start">
 
         {/* ── Desktop sticky sidebar nav ──────────────────────────────────── */}
@@ -464,7 +484,7 @@ export default function SettingsPage() {
         <div ref={contentRef} className="flex-1 min-w-0 max-w-2xl space-y-5">
 
       {/* ── A. Profile ──────────────────────────────────────────────────────── */}
-      <section id="profile" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
+      <section id="profile" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
         <SectionHeader icon={UserIcon} title="Profile" color="brand" />
         <form onSubmit={handleUpdateProfile} className="space-y-4">
           <div>
@@ -514,7 +534,7 @@ export default function SettingsPage() {
       </section>
 
       {/* ── B. Security ─────────────────────────────────────────────────────── */}
-      <section id="security" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
+      <section id="security" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
         <SectionHeader icon={Shield} title="Security" color="amber" />
 
         {/* Change password */}
@@ -583,7 +603,7 @@ export default function SettingsPage() {
       </section>
 
       {/* ── C. Notifications ─────────────────────────────────────────────────── */}
-      <section id="notifications" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
+      <section id="notifications" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
         <SectionHeader
           icon={Bell}
           title="Notifications"
@@ -688,7 +708,7 @@ export default function SettingsPage() {
 
       {/* ── D. Weekly Compliance Report ──────────────────────────────────────── */}
       {isAdmin && (
-        <section id="weekly-report" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
+        <section id="weekly-report" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
           <SectionHeader
             icon={Mail}
             title="Weekly Compliance Report"
@@ -713,7 +733,7 @@ export default function SettingsPage() {
       )}
 
       {/* ── E. Billing & Plan ────────────────────────────────────────────────── */}
-      <section id="billing" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
+      <section id="billing" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
         <SectionHeader icon={CreditCard} title="Billing &amp; Plan" color="emerald" />
 
         {billing ? (
@@ -823,7 +843,7 @@ export default function SettingsPage() {
 
       {/* ── F. Company (admin only) ───────────────────────────────────────────── */}
       {isAdmin && (
-        <section id="company" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
+        <section id="company" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
           <SectionHeader icon={Building2} title="Company" color="brand" />
           {company ? (
             <form onSubmit={handleUpdateCompany} className="space-y-4">
@@ -857,7 +877,7 @@ export default function SettingsPage() {
 
       {/* ── G. Auditor Access (admin only) ───────────────────────────────────── */}
       {isAdmin && (
-        <section id="auditor-access" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
+        <section id="auditor-access" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
           <SectionHeader
             icon={Eye}
             title="Auditor Access"
@@ -935,7 +955,7 @@ export default function SettingsPage() {
 
       {/* ── Trust Center (admin only) ────────────────────────────────────────── */}
       {isAdmin && (
-        <section id="trust-center" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
+        <section id="trust-center" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
           <SectionHeader
             icon={Globe}
             title="Trust Center"
@@ -1121,7 +1141,7 @@ export default function SettingsPage() {
       )}
 
       {/* ── H. Your Data (GDPR) ───────────────────────────────────────────────── */}
-      <section id="your-data" className="rounded-2xl border border-gray-100 shadow-card bg-white p-6 scroll-mt-8">
+      <section id="your-data" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
         <SectionHeader icon={ShieldAlert} title="Your Data" color="red" />
         <div className="space-y-3">
           <div className="flex items-center justify-between">

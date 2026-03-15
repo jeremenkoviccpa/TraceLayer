@@ -161,22 +161,22 @@ export default function RisksPage() {
             </div>
 
             {/* Stats row */}
-            <div className="flex flex-wrap gap-4">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 sm:gap-4">
               <div className="flex flex-col">
                 <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Critical</span>
                 <span className="text-2xl font-black text-red-400">{counts.critical}</span>
               </div>
-              <div className="w-px self-stretch bg-slate-700/60" />
+              <div className="hidden sm:block w-px self-stretch bg-slate-700/60" />
               <div className="flex flex-col">
                 <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">High</span>
                 <span className="text-2xl font-black text-orange-400">{counts.high}</span>
               </div>
-              <div className="w-px self-stretch bg-slate-700/60" />
+              <div className="hidden sm:block w-px self-stretch bg-slate-700/60" />
               <div className="flex flex-col">
                 <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Open risks</span>
                 <span className="text-2xl font-black text-amber-400">{openCount}</span>
               </div>
-              <div className="w-px self-stretch bg-slate-700/60" />
+              <div className="hidden sm:block w-px self-stretch bg-slate-700/60" />
               <div className="flex flex-col">
                 <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Mitigated</span>
                 <span className="text-2xl font-black text-emerald-400">{mitigatedCount}</span>
@@ -375,7 +375,7 @@ export default function RisksPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="mb-2 block text-xs font-medium text-gray-600">Likelihood (1–5)</label>
                   <div className="flex gap-1.5">
