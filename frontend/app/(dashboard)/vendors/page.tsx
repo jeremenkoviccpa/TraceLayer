@@ -159,7 +159,7 @@ export default function VendorsPage() {
       {/* Dark hero card */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 mb-6">
         {/* Row 1: icon + title + action */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
               <Building2 className="w-5 h-5 text-amber-400" />
@@ -178,7 +178,7 @@ export default function VendorsPage() {
         </div>
 
         {/* Row 2: stats grid */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
             <p className="text-3xl font-bold text-amber-400">{vendors.length}</p>
             <p className="text-xs text-slate-400 mt-1">Total vendors</p>
@@ -213,60 +213,63 @@ export default function VendorsPage() {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Vendor</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Category</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Risk</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Certifications</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Last review</th>
-                <th className="px-5 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {vendors.map((v) => (
-                <tr key={v.id} className="hover:bg-gray-50/50">
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-gray-900">{v.name}</span>
-                      {v.website && (
-                        <a href={v.website} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-amber-500">
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
-                    </div>
-                    {v.contact_email && <p className="text-xs text-gray-400">{v.contact_email}</p>}
-                  </td>
-                  <td className="px-5 py-3.5 text-gray-500 capitalize">{v.category}</td>
-                  <td className="px-5 py-3.5">
-                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full capitalize ${RISK_STYLES[v.risk_level]}`}>
-                      {v.risk_level}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-1.5">
-                      {v.soc2_certified
-                        ? <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded"><CheckCircle2 className="w-2.5 h-2.5" />SOC 2</span>
-                        : <span className="flex items-center gap-1 text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded"><Circle className="w-2.5 h-2.5" />SOC 2</span>}
-                      {v.iso27001_certified
-                        ? <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded"><CheckCircle2 className="w-2.5 h-2.5" />ISO</span>
-                        : <span className="flex items-center gap-1 text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded"><Circle className="w-2.5 h-2.5" />ISO</span>}
-                    </div>
-                  </td>
-                  <td className="px-5 py-3.5 text-gray-500 text-xs">
-                    {v.review_date ? new Date(v.review_date).toLocaleDateString() : <span className="text-amber-500 font-medium">Not reviewed</span>}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-2 justify-end">
-                      <button onClick={() => setEditing(v)} className="text-xs font-semibold text-gray-500 hover:text-gray-700 border border-gray-200 px-2.5 py-1 rounded-lg">Edit</button>
-                      <button onClick={() => handleDelete(v.id)} className="text-gray-300 hover:text-red-400 p-1"><Trash2 className="w-4 h-4" /></button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[480px]">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Vendor</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Category</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Risk</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden md:table-cell">Certifications</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden lg:table-cell">Last review</th>
+                  <th className="px-5 py-3" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {vendors.map((v) => (
+                  <tr key={v.id} className="hover:bg-gray-50/50">
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-gray-900">{v.name}</span>
+                        {v.website && (
+                          <a href={v.website} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-amber-500">
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
+                      </div>
+                      {v.contact_email && <p className="text-xs text-gray-400 hidden sm:block">{v.contact_email}</p>}
+                      <p className="text-xs text-gray-400 sm:hidden mt-0.5 capitalize">{v.category} · {v.review_date ? new Date(v.review_date).toLocaleDateString() : <span className="text-amber-500">Not reviewed</span>}</p>
+                    </td>
+                    <td className="px-5 py-3.5 text-gray-500 capitalize hidden sm:table-cell">{v.category}</td>
+                    <td className="px-5 py-3.5">
+                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full capitalize ${RISK_STYLES[v.risk_level]}`}>
+                        {v.risk_level}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5 hidden md:table-cell">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {v.soc2_certified
+                          ? <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded"><CheckCircle2 className="w-2.5 h-2.5" />SOC 2</span>
+                          : <span className="flex items-center gap-1 text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded"><Circle className="w-2.5 h-2.5" />SOC 2</span>}
+                        {v.iso27001_certified
+                          ? <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded"><CheckCircle2 className="w-2.5 h-2.5" />ISO</span>
+                          : <span className="flex items-center gap-1 text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded"><Circle className="w-2.5 h-2.5" />ISO</span>}
+                      </div>
+                    </td>
+                    <td className="px-5 py-3.5 text-gray-500 text-xs hidden lg:table-cell">
+                      {v.review_date ? new Date(v.review_date).toLocaleDateString() : <span className="text-amber-500 font-medium">Not reviewed</span>}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-2 justify-end">
+                        <button onClick={() => setEditing(v)} className="text-xs font-semibold text-gray-500 hover:text-gray-700 border border-gray-200 px-2.5 py-1 rounded-lg">Edit</button>
+                        <button onClick={() => handleDelete(v.id)} className="text-gray-300 hover:text-red-400 p-1"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

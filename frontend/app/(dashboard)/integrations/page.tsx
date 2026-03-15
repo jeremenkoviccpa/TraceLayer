@@ -639,7 +639,7 @@ export default function IntegrationsPage() {
         {filteredGroups.map((group) => (
           <div key={group.title}>
             <h2 className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-3">{group.title}</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {group.integrations.map((def) => {
                 const connected = integrations.find((i) => i.integration_type === def.type);
                 return (

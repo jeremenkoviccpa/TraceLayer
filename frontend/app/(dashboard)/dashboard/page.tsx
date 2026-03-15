@@ -317,7 +317,7 @@ export default function DashboardPage() {
       />
 
       {/* ── Hero row: Score card + mini stats ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {/* Score hero card */}
         <div className="lg:col-span-2 relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 overflow-hidden">
@@ -416,7 +416,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Charts ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Score trend */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
           <div className="flex items-center justify-between mb-5">
@@ -523,12 +523,12 @@ export default function DashboardPage() {
       )}
 
       {/* ── Bottom row: Quick links + Integrations + Action items ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {/* Quick links */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
           <p className="text-sm font-semibold text-gray-800 mb-4">Platform</p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {QUICK_LINKS.map(({ href, label, icon: Icon, bg, fg }) => (
               <Link
                 key={href}

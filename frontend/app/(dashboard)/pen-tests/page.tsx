@@ -181,7 +181,7 @@ export default function PenTestsPage() {
       {/* Dark hero card */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 mb-6">
         {/* Row 1: icon + title + action */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-rose-500/20 flex items-center justify-center shrink-0">
               <ShieldAlert className="w-5 h-5 text-rose-400" />
@@ -200,7 +200,7 @@ export default function PenTestsPage() {
         </div>
 
         {/* Row 2: stats grid */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
             <p className="text-3xl font-bold text-rose-400">{tests.length}</p>
             <p className="text-xs text-slate-400 mt-1">Tests tracked</p>
