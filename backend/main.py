@@ -101,7 +101,7 @@ async def _seed_demo_data() -> None:
 async def lifespan(app: FastAPI):
     logger.info("Config: frontend_url=%s backend_url=%s", settings.app_frontend_url, settings.backend_url)
     logger.info("Config: ls_api_key=%s ls_store_id=%s ls_variant_id=%s",
-                bool(settings.ls_api_key), settings.ls_store_id, settings.ls_growth_variant_id)
+                bool(settings.ls_api_key), settings.app_ls_store_id, settings.ls_growth_variant_id)
     await _run_migrations()
     await _seed_demo_data()
     await _reschedule_active_integrations()

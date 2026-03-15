@@ -23,7 +23,7 @@ def _headers() -> dict:
 
 async def create_checkout_url(company_id: uuid.UUID, user_email: str) -> str:
     """Create a LemonSqueezy hosted checkout URL for the Growth plan."""
-    if not settings.ls_api_key or not settings.ls_store_id or not settings.ls_growth_variant_id:
+    if not settings.ls_api_key or not settings.app_ls_store_id or not settings.ls_growth_variant_id:
         raise ValueError("LemonSqueezy is not configured on this server.")
 
     payload = {
@@ -39,7 +39,7 @@ async def create_checkout_url(company_id: uuid.UUID, user_email: str) -> str:
                 },
             },
             "relationships": {
-                "store": {"data": {"type": "stores", "id": settings.ls_store_id}},
+                "store": {"data": {"type": "stores", "id": settings.app_ls_store_id}},
                 "variant": {"data": {"type": "variants", "id": settings.ls_growth_variant_id}},
             },
         }

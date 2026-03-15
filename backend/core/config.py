@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     # LemonSqueezy billing
     ls_api_key: str = ""
-    ls_store_id: str = ""
+    app_ls_store_id: str = ""
     ls_growth_variant_id: str = ""
     ls_webhook_secret: str = ""
     # Google OAuth
