@@ -453,18 +453,18 @@ export default function DashboardPage() {
             )}
           </div>
           {/* Bottom stat strip */}
-          <div className="relative mt-5 pt-4 border-t border-white/10 grid grid-cols-3 gap-4 text-center">
+          <div className="relative mt-5 pt-4 border-t border-white/10 grid grid-cols-3 gap-2 text-center">
             <div>
               <p className="text-lg font-bold text-white">{passingControls}</p>
-              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide">Passing</p>
+              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide whitespace-nowrap">Passing</p>
             </div>
             <div>
               <p className="text-lg font-bold text-white">{failingControls.length}</p>
-              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide">Need attention</p>
+              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide whitespace-nowrap">Failing</p>
             </div>
             <div>
               <p className="text-lg font-bold text-white">{compliance?.controls.length ?? 0}</p>
-              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide">Controls total</p>
+              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide whitespace-nowrap">Controls</p>
             </div>
           </div>
         </div>
