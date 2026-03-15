@@ -709,60 +709,60 @@ export default function SettingsPage() {
         <SectionHeader icon={CreditCard} title="Billing &amp; Plan" />
 
         {billing ? (
-          <div className="space-y-4">
+          <div className="space-y-5">
+            {/* Current plan status */}
             <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  {billing.plan === "growth" ? (
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full">
-                      <Zap className="w-3 h-3" /> Growth
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center text-xs font-semibold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">
-                      Free
-                    </span>
-                  )}
-                  {billing.subscription_status && (
-                    <span className="text-xs text-gray-400 capitalize">
-                      {billing.subscription_status.replace("_", " ")}
-                    </span>
-                  )}
-                </div>
-                {billing.plan === "free" && (
-                  <p className="text-sm text-gray-500 mt-1">3 integrations · JSON reports · Core features. AI features &amp; PDF reports require Growth.</p>
+              <div className="flex items-center gap-3">
+                {billing.plan === "growth" ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full">
+                    <Zap className="w-3 h-3" /> Growth
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center text-xs font-bold bg-gray-100 text-gray-500 px-3 py-1.5 rounded-full">
+                    Free plan
+                  </span>
                 )}
-                {billing.plan === "growth" && (
-                  <p className="text-sm text-gray-500 mt-1">Unlimited integrations, AI features, PDF reports, Trust Center.</p>
+                {billing.subscription_status && billing.plan === "growth" && (
+                  <span className="text-xs text-gray-400 capitalize">
+                    {billing.subscription_status.replace(/_/g, " ")}
+                  </span>
                 )}
               </div>
-
-              {isAdmin &&
-                (billing.plan === "free" ? (
-                  <button
-                    onClick={handleUpgrade}
-                    disabled={billingLoading}
-                    className="flex items-center gap-1.5 bg-[var(--accent)] hover:opacity-90 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-opacity"
-                  >
-                    <Zap className="w-4 h-4" />
-                    {billingLoading ? "Loading…" : "Upgrade to Growth"}
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleManageBilling}
-                    disabled={billingLoading}
-                    className="text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-300 px-4 py-2 rounded-lg transition-colors disabled:opacity-60"
-                  >
-                    {billingLoading ? "Loading…" : "Manage billing"}
-                  </button>
-                ))}
+              {isAdmin && billing.plan === "growth" && (
+                <button
+                  onClick={handleManageBilling}
+                  disabled={billingLoading}
+                  className="text-sm font-medium text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-300 px-4 py-1.5 rounded-lg transition-colors disabled:opacity-60"
+                >
+                  {billingLoading ? "Loading…" : "Manage billing"}
+                </button>
+              )}
             </div>
 
+            {/* Free plan upgrade card */}
             {billing.plan === "free" && (
-              <div className="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-xl p-4">
-                <p className="text-sm font-semibold text-teal-800 mb-3">Unlock Growth — $99/mo</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 text-sm text-teal-700 mb-3">
+              <div className="rounded-2xl border border-gray-100 bg-gradient-to-br from-slate-900 to-slate-800 overflow-hidden">
+                {/* Header */}
+                <div className="px-6 pt-6 pb-4 border-b border-white/10">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-teal-400 uppercase tracking-widest mb-1">Growth Plan</p>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl font-black text-white">$99</span>
+                        <span className="text-sm text-white/40">/mo</span>
+                      </div>
+                    </div>
+                    <div className="w-12 h-12 rounded-2xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center">
+                      <Zap className="w-6 h-6 text-teal-400" />
+                    </div>
+                  </div>
+                  <p className="text-sm text-white/50 mt-2">Everything you need to get certified and stay compliant.</p>
+                </div>
+
+                {/* Feature grid */}
+                <div className="px-6 py-4 grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 gap-x-6">
                   {[
-                    "Unlimited integrations (free: 3)",
+                    "Unlimited integrations",
                     "PDF & CSV reports",
                     "AI Compliance Advisor",
                     "AI Questionnaire Autofill",
@@ -771,22 +771,38 @@ export default function SettingsPage() {
                     "Unlimited team members",
                     "Priority support",
                   ].map((f) => (
-                    <div key={f} className="flex items-center gap-1.5">
-                      <Zap className="w-3 h-3 shrink-0 text-teal-500" />
-                      <span>{f}</span>
+                    <div key={f} className="flex items-center gap-2 text-sm text-white/70">
+                      <div className="w-4 h-4 rounded-full bg-teal-500/20 flex items-center justify-center shrink-0">
+                        <Zap className="w-2.5 h-2.5 text-teal-400" />
+                      </div>
+                      {f}
                     </div>
                   ))}
                 </div>
+
+                {/* CTA */}
                 {isAdmin && (
-                  <button
-                    onClick={handleUpgrade}
-                    disabled={billingLoading}
-                    className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-semibold py-2 rounded-lg transition-colors"
-                  >
-                    <Zap className="w-3.5 h-3.5" />
-                    {billingLoading ? "Loading…" : "Upgrade to Growth"}
-                  </button>
+                  <div className="px-6 pb-6 pt-2">
+                    <button
+                      onClick={handleUpgrade}
+                      disabled={billingLoading}
+                      className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 disabled:opacity-60 text-white text-sm font-bold py-3 rounded-xl transition-all shadow-lg shadow-teal-900/30 hover:-translate-y-px active:translate-y-0"
+                    >
+                      <Zap className="w-4 h-4" />
+                      {billingLoading ? "Opening checkout…" : "Upgrade to Growth — $99/mo"}
+                    </button>
+                  </div>
                 )}
+              </div>
+            )}
+
+            {/* Growth plan — current features summary */}
+            {billing.plan === "growth" && (
+              <div className="rounded-xl bg-emerald-50 border border-emerald-100 px-5 py-4">
+                <p className="text-sm font-semibold text-emerald-800 mb-2">You&apos;re on Growth</p>
+                <p className="text-xs text-emerald-700 leading-relaxed">
+                  Unlimited integrations · PDF &amp; CSV reports · AI features · Trust Center · Unlimited team members
+                </p>
               </div>
             )}
           </div>

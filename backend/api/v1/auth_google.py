@@ -73,6 +73,7 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
     # Find or create user
     result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
+    is_new_user = user is None
 
     if not user:
         company_name = (
@@ -107,5 +108,8 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
 
     await log_action(db, user.company_id, "user.login", user_id=user.id, user_email=user.email)
 
-    qs = urllib.parse.urlencode({"access_token": access_token, "refresh_token": raw_refresh})
+    params = {"access_token": access_token, "refresh_token": raw_refresh}
+    if is_new_user:
+        params["new_user"] = "1"
+    qs = urllib.parse.urlencode(params)
     return RedirectResponse(f"{settings.app_frontend_url}/auth/callback?{qs}")

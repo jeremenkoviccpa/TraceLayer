@@ -19,7 +19,8 @@ function CallbackHandler() {
     }
 
     api.setTokens(access, refresh);
-    router.replace("/dashboard");
+    const isNewUser = params.get("new_user") === "1";
+    router.replace(isNewUser ? "/onboarding" : "/dashboard");
   }, []); // eslint-disable-line
 
   return null;
