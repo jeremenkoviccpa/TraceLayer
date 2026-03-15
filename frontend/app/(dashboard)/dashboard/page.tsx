@@ -16,7 +16,7 @@ import {
   TrendingUp, Activity, AlertTriangle, ArrowRight, X,
   PartyPopper, Database, Target, GraduationCap, Building2,
   UserCheck, ShieldAlert, BookOpen, ClipboardList, Zap,
-  FileText, Globe,
+  FileText, Globe, ChevronRight,
 } from "lucide-react";
 import type { Report } from "@/lib/types";
 
