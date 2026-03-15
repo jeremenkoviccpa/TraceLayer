@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 
-export default function AuthCallbackPage() {
+function CallbackHandler() {
   const router = useRouter();
   const params = useSearchParams();
 
@@ -22,12 +22,23 @@ export default function AuthCallbackPage() {
     router.replace("/dashboard");
   }, []); // eslint-disable-line
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-gray-400">Signing you in…</p>
-      </div>
+  return null;
+}
+
+const Spinner = () => (
+  <div className="min-h-screen flex items-center justify-center bg-white">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+      <p className="text-sm text-gray-400">Signing you in…</p>
     </div>
+  </div>
+);
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={<Spinner />}>
+      <Spinner />
+      <CallbackHandler />
+    </Suspense>
   );
 }
