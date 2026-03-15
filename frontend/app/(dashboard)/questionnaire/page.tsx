@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { AutofillAnswerItem, AutofillResult, QuestionnaireAnswer, QuestionnaireResult, QuestionnaireType } from "@/lib/types";
-import { Sparkles, Copy, Check, Download, ChevronDown, ChevronUp, ClipboardList, BarChart3, Wand2, FileQuestion } from "lucide-react";
+import { Sparkles, Copy, Check, Download, ChevronDown, ChevronUp, ClipboardList, Wand2, FileQuestion } from "lucide-react";
 
 type Tab = "templates" | "custom";
 
@@ -71,8 +71,8 @@ function TemplatesTab() {
     URL.revokeObjectURL(url);
   };
 
-  const totalQuestions = result?.answers.length ?? 0;
-  const answeredCount = result ? result.answers.filter((qa) => getAnswer(qa).trim().length > 0).length : 0;
+  const totalQuestions = result?.answers?.length ?? 0;
+  const answeredCount = result ? (result.answers ?? []).filter((qa) => getAnswer(qa).trim().length > 0).length : 0;
   const completionRate = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
 
   return (
@@ -124,7 +124,7 @@ function TemplatesTab() {
               <div>
                 <p className="text-sm font-semibold text-gray-800">{result.name}</p>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  {result.answers.length} questions · {result.company_name} · Generated {new Date(result.generated_at).toLocaleString()}
+                  {result.answers?.length ?? 0} questions · {result.company_name} · Generated {result.generated_at ? new Date(result.generated_at).toLocaleString() : ""}
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -147,7 +147,7 @@ function TemplatesTab() {
           </div>
 
           <div className="space-y-2">
-            {result.answers.map((qa, i) => {
+            {(result.answers ?? []).map((qa, i) => {
               const isOpen = expanded === qa.id;
               const hasEdit = !!edits[qa.id];
               return (
@@ -288,7 +288,7 @@ function CustomQuestionsTab() {
               <div>
                 <p className="text-sm font-semibold text-gray-800">AI-drafted answers</p>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  {result.answers.length} questions · {result.company_name} · Generated {new Date(result.generated_at).toLocaleString()}
+                  {result.answers?.length ?? 0} questions · {result.company_name} · Generated {result.generated_at ? new Date(result.generated_at).toLocaleString() : ""}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -301,7 +301,7 @@ function CustomQuestionsTab() {
           </div>
 
           <div className="space-y-2">
-            {result.answers.map((item, i) => {
+            {(result.answers ?? []).map((item, i) => {
               const isOpen = expanded === i;
               const hasEdit = edits[i] !== undefined;
               return (

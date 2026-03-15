@@ -222,7 +222,8 @@ class QuestionnaireGenerateResponse(BaseModel):
     questionnaire_type: str
     name: str
     company_name: str
-    items: list[QuestionAnswer]
+    generated_at: str
+    answers: list[QuestionAnswer]
 
 
 class AutofillRequest(BaseModel):
@@ -287,8 +288,10 @@ async def generate_questionnaire(
     company = company_result.scalar_one_or_none()
     company_name = company.name if company else "Your Company"
 
+    from datetime import datetime, timezone
+
     qt = QUESTIONNAIRE_TYPES[body.questionnaire_type]
-    items = [
+    answers = [
         QuestionAnswer(
             id=q["id"],
             question=q["question"],
@@ -301,7 +304,8 @@ async def generate_questionnaire(
         questionnaire_type=body.questionnaire_type,
         name=qt["name"],
         company_name=company_name,
-        items=items,
+        generated_at=datetime.now(timezone.utc).isoformat(),
+        answers=answers,
     )
 
 
