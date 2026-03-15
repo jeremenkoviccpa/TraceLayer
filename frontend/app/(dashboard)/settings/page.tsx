@@ -729,10 +729,10 @@ export default function SettingsPage() {
                   )}
                 </div>
                 {billing.plan === "free" && (
-                  <p className="text-sm text-gray-500 mt-1">Up to 3 integrations. Upgrade for unlimited access.</p>
+                  <p className="text-sm text-gray-500 mt-1">3 integrations · JSON reports · Core features. AI features &amp; PDF reports require Growth.</p>
                 )}
                 {billing.plan === "growth" && (
-                  <p className="text-sm text-gray-500 mt-1">Unlimited integrations, AI advisor, priority support.</p>
+                  <p className="text-sm text-gray-500 mt-1">Unlimited integrations, AI features, PDF reports, Trust Center.</p>
                 )}
               </div>
 
@@ -758,14 +758,35 @@ export default function SettingsPage() {
             </div>
 
             {billing.plan === "free" && (
-              <div className="bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200 rounded-lg p-4">
-                <p className="text-sm font-semibold text-teal-800 mb-1">Growth plan — $49/mo</p>
-                <ul className="text-sm text-teal-700 space-y-0.5">
-                  <li>✓ Unlimited integrations</li>
-                  <li>✓ AI Compliance Advisor</li>
-                  <li>✓ SOC 2, ISO 27001 &amp; GDPR frameworks</li>
-                  <li>✓ Priority support</li>
-                </ul>
+              <div className="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-xl p-4">
+                <p className="text-sm font-semibold text-teal-800 mb-3">Unlock Growth — $49/mo</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 text-sm text-teal-700 mb-3">
+                  {[
+                    "Unlimited integrations (free: 3)",
+                    "PDF & CSV reports",
+                    "AI Compliance Advisor",
+                    "AI Questionnaire Autofill",
+                    "AI Audit Package",
+                    "Trust Center (public page)",
+                    "Unlimited team members",
+                    "Priority support",
+                  ].map((f) => (
+                    <div key={f} className="flex items-center gap-1.5">
+                      <Zap className="w-3 h-3 shrink-0 text-teal-500" />
+                      <span>{f}</span>
+                    </div>
+                  ))}
+                </div>
+                {isAdmin && (
+                  <button
+                    onClick={handleUpgrade}
+                    disabled={billingLoading}
+                    className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-semibold py-2 rounded-lg transition-colors"
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    {billingLoading ? "Loading…" : "Upgrade to Growth"}
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -904,10 +925,19 @@ export default function SettingsPage() {
                   <p className="text-sm font-medium text-gray-800">Enable Trust Center</p>
                   <p className="text-xs text-gray-500 mt-0.5">Make your compliance page publicly accessible.</p>
                 </div>
-                <Toggle
-                  enabled={trustSettings.is_enabled}
-                  onChange={(v) => setTrustSettings((s) => s ? { ...s, is_enabled: v } : s)}
-                />
+                {billing?.plan === "growth" ? (
+                  <Toggle
+                    enabled={trustSettings.is_enabled}
+                    onChange={(v) => setTrustSettings((s) => s ? { ...s, is_enabled: v } : s)}
+                  />
+                ) : (
+                  <button
+                    onClick={handleUpgrade}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    <Lock className="w-3 h-3" /> Growth only
+                  </button>
+                )}
               </div>
 
               <div className="border-t border-gray-100" />

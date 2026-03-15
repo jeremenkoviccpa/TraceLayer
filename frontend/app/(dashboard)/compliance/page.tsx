@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { ComplianceScore, ManualControl, Member } from "@/lib/types";
+import { PlanGate } from "@/components/plan-gate";
 import { getRemediationForMissingType, getRemediationForCategory } from "@/lib/remediation";
 import {
   ShieldCheck,
@@ -565,6 +566,7 @@ export default function CompliancePage() {
         <div className="space-y-6">
 
           {/* AI Advisor */}
+          <PlanGate feature="AI Compliance Advisor" mode="blur">
           <AIAdvisor
             framework={framework}
             onGenerate={generateSummary}
@@ -573,6 +575,7 @@ export default function CompliancePage() {
             generatedAt={aiGeneratedAt}
             error={aiError}
           />
+          </PlanGate>
 
           {/* Automated controls */}
           <section>

@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
 from core.deps import get_current_user
+from core.plan_gate import require_growth
 from models.user import User
 from services.ai_service import autofill_questionnaire
 
@@ -314,6 +315,7 @@ async def ai_autofill_questionnaire(
     body: AutofillRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_growth),
 ):
     from datetime import datetime, timezone
 

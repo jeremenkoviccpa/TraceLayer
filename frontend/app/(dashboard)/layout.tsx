@@ -29,7 +29,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Zap,
 } from "lucide-react";
+import { usePlan } from "@/hooks/usePlan";
 
 type NavItem = { href: string; label: string; icon: React.ElementType };
 type NavGroup = { title?: string; items: NavItem[] };
@@ -91,6 +93,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [resendSent, setResendSent] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const { isPro } = usePlan();
 
   // Persist collapse state
   useEffect(() => {
@@ -257,6 +260,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             ))}
           </div>
         </nav>
+
+        {/* Free plan upgrade nudge — shown only when sidebar is expanded */}
+        {!isPro && !collapsed && (
+          <div className="px-3 pb-2 shrink-0">
+            <Link
+              href="/settings#billing"
+              className="flex items-center gap-2.5 bg-gradient-to-r from-brand-600 to-teal-600 hover:from-brand-500 hover:to-teal-500 text-white rounded-xl px-3 py-2.5 transition-all group"
+            >
+              <Zap className="w-4 h-4 shrink-0 text-teal-200" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold leading-none">Upgrade to Growth</p>
+                <p className="text-[10px] text-white/60 mt-0.5 truncate">Unlock AI + PDF reports</p>
+              </div>
+            </Link>
+          </div>
+        )}
 
         {/* Collapse toggle — desktop only */}
         <div className={`hidden md:flex border-t border-gray-100 py-2 shrink-0 ${collapsed ? "justify-center px-2" : "px-3"}`}>

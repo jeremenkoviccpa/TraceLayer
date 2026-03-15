@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import type { Report } from "@/lib/types";
 import {
@@ -12,7 +13,9 @@ import {
   Plus,
   BarChart2,
   CalendarDays,
+  Lock,
 } from "lucide-react";
+import { usePlan } from "@/hooks/usePlan";
 
 // ── Status helpers ──────────────────────────────────────────────
 
@@ -179,6 +182,8 @@ function HeroStat({
 // ── Page ─────────────────────────────────────────────────────────
 
 export default function ReportsPage() {
+  const { isPro } = usePlan();
+  const router = useRouter();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -324,19 +329,36 @@ export default function ReportsPage() {
 
               {/* Format toggle */}
               <div className="flex rounded-lg border border-slate-600 overflow-hidden text-sm">
-                {["json", "pdf"].map((fmt) => (
+                <button
+                  onClick={() => setFormat("json")}
+                  className={`px-3 py-2 font-semibold transition-colors ${
+                    format === "json"
+                      ? "bg-emerald-600 text-white"
+                      : "text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+                  }`}
+                >
+                  JSON
+                </button>
+                {isPro ? (
                   <button
-                    key={fmt}
-                    onClick={() => setFormat(fmt)}
+                    onClick={() => setFormat("pdf")}
                     className={`px-3 py-2 font-semibold transition-colors ${
-                      format === fmt
+                      format === "pdf"
                         ? "bg-emerald-600 text-white"
                         : "text-slate-400 hover:bg-slate-700 hover:text-slate-200"
                     }`}
                   >
-                    {fmt.toUpperCase()}
+                    PDF
                   </button>
-                ))}
+                ) : (
+                  <button
+                    onClick={() => router.push("/settings#billing")}
+                    title="PDF reports require the Growth plan"
+                    className="flex items-center gap-1 px-3 py-2 font-semibold text-amber-400 hover:bg-amber-500/10 transition-colors border-l border-slate-600"
+                  >
+                    <Lock className="w-3 h-3" /> PDF
+                  </button>
+                )}
               </div>
 
               {/* Generate */}

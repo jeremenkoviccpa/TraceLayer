@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
 from core.deps import get_current_user
+from core.plan_gate import require_growth
 from models.manual_control import ManualControl
 from models.user import User
 from schemas.compliance import (
@@ -399,6 +400,7 @@ async def ai_summary(
     framework: str = Query("soc2"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_growth),
 ):
     score_data = await get_compliance_score(current_user.company_id, framework, db)
     try:

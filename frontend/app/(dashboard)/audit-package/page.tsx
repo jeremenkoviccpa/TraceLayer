@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { api } from "@/lib/api";
 import type { Report } from "@/lib/types";
+import { PlanGate } from "@/components/plan-gate";
 import {
   Sparkles,
   Download,
@@ -301,6 +302,7 @@ export default function AuditPackagePage() {
           </div>
 
           {/* Right: generator card */}
+          <PlanGate feature="AI Audit Package" mode="hide">
           <div className="shrink-0 w-full md:w-72 bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-5 space-y-4">
 
             {/* Framework picker */}
@@ -356,6 +358,7 @@ export default function AuditPackagePage() {
               <p className="text-xs text-red-300 text-center">{error}</p>
             )}
           </div>
+          </PlanGate>
         </div>
       </div>
 
@@ -407,6 +410,7 @@ export default function AuditPackagePage() {
       </div>
 
       {/* ── Previous packages ─────────────────────────────────────────── */}
+      <PlanGate feature="AI Audit Package — Generated reports" mode="hide">
       <div>
         <h2 className="text-lg font-bold text-gray-900 mb-4">Generated Packages</h2>
 
@@ -447,6 +451,7 @@ export default function AuditPackagePage() {
           </div>
         )}
       </div>
+      </PlanGate>
 
     </div>
   );

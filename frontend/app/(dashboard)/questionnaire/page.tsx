@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { AutofillAnswerItem, AutofillResult, QuestionnaireAnswer, QuestionnaireResult, QuestionnaireType } from "@/lib/types";
 import { Sparkles, Copy, Check, Download, ChevronDown, ChevronUp, ClipboardList, Wand2, FileQuestion } from "lucide-react";
+import { PlanGate } from "@/components/plan-gate";
 
 type Tab = "templates" | "custom";
 
@@ -390,7 +391,11 @@ export default function QuestionnairePage() {
         </button>
       </div>
 
-      {tab === "custom" ? <CustomQuestionsTab /> : <TemplatesTab />}
+      {tab === "custom" ? (
+        <PlanGate feature="AI Questionnaire Autofill" mode="blur">
+          <CustomQuestionsTab />
+        </PlanGate>
+      ) : <TemplatesTab />}
     </div>
   );
 }

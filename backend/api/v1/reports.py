@@ -5,10 +5,13 @@ import uuid
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
 from core.deps import get_current_user, get_current_admin
+from core.plan_gate import require_growth
+from models.company import Company
 from models.user import User
 from schemas.reports import GenerateReportRequest, ReportResponse
 from services.report_service import (
@@ -71,6 +74,16 @@ async def generate(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    # Gate PDF/CSV formats to Growth plan
+    if body.format in ("pdf", "csv"):
+        result_company = await db.execute(select(Company).where(Company.id == current_user.company_id))
+        company_obj = result_company.scalar_one_or_none()
+        if not company_obj or company_obj.plan != "growth":
+            raise HTTPException(
+                status_code=402,
+                detail="PDF and CSV reports require the Growth plan. JSON reports are available on the free plan.",
+            )
+
     report = await create_report(
         company_id=current_user.company_id,
         framework=body.framework,
@@ -99,6 +112,7 @@ async def generate_audit_package_endpoint(
     background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_growth),
 ):
     """Generate an AI-powered audit package PDF with full compliance data and AI narrative."""
     report = await create_report(
