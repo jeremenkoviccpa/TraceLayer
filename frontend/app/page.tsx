@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/components/auth-provider";
+import { api } from "@/lib/api";
 import {
   ShieldCheck, Plug, FileText, Zap, ArrowRight, CheckCircle2,
   BarChart3, Lock, Star, Clock, TrendingUp, Users, ChevronDown,
@@ -386,7 +387,7 @@ const PRICING = [
       "Unlimited team members",
       "Priority support",
     ],
-    cta: "Start free trial",
+    cta: "Get Growth",
     highlighted: true,
   },
   {
@@ -545,6 +546,24 @@ export default function LandingPage() {
   useEffect(() => {
     if (!loading && user) router.replace("/dashboard");
   }, [user, loading, router]);
+
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  const handleGrowthCta = async () => {
+    if (user) {
+      setCheckoutLoading(true);
+      try {
+        const { checkout_url } = await api.createCheckout();
+        window.location.href = checkout_url;
+      } catch {
+        router.push("/settings#billing");
+      } finally {
+        setCheckoutLoading(false);
+      }
+    } else {
+      router.push("/register");
+    }
+  };
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled]     = useState(false);
@@ -1087,16 +1106,27 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
-                <Link
-                  href="/register"
-                  className={`block text-center text-sm font-semibold py-2.5 rounded-xl transition-colors ${
-                    plan.highlighted
-                      ? "bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white"
-                      : "bg-[color:var(--ink)]/6 hover:bg-[color:var(--ink)]/10 text-[var(--ink)]"
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
+                {plan.highlighted ? (
+                  <button
+                    onClick={handleGrowthCta}
+                    disabled={checkoutLoading}
+                    className="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2.5 rounded-xl transition-colors bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white disabled:opacity-60"
+                  >
+                    {checkoutLoading ? (
+                      <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <Zap className="w-4 h-4" />
+                    )}
+                    {checkoutLoading ? "Opening checkout…" : plan.cta}
+                  </button>
+                ) : (
+                  <Link
+                    href="/register"
+                    className="block text-center text-sm font-semibold py-2.5 rounded-xl transition-colors bg-[color:var(--ink)]/6 hover:bg-[color:var(--ink)]/10 text-[var(--ink)]"
+                  >
+                    {plan.cta}
+                  </Link>
+                )}
               </div>
             ))}
           </div>
