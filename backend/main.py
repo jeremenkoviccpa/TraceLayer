@@ -99,6 +99,7 @@ async def _seed_demo_data() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logger.info("Config: frontend_url=%s backend_url=%s", settings.frontend_url, settings.backend_url)
     await _run_migrations()
     await _seed_demo_data()
     await _reschedule_active_integrations()
