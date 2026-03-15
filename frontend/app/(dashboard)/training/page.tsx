@@ -142,6 +142,7 @@ export default function TrainingPage() {
   const [records, setRecords] = useState<TrainingRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const load = () => api.getTraining().then(setRecords).catch(() => {}).finally(() => setLoading(false));
 
@@ -295,12 +296,19 @@ export default function TrainingPage() {
                               Mark complete
                             </button>
                           )}
-                          <button
-                            onClick={() => handleDelete(r.id)}
-                            className="text-gray-300 hover:text-red-400 transition-colors p-1"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {deletingId === r.id ? (
+                            <>
+                              <button onClick={() => setDeletingId(null)} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg">Cancel</button>
+                              <button onClick={() => { handleDelete(r.id); setDeletingId(null); }} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2 py-1 rounded-lg">Delete</button>
+                            </>
+                          ) : (
+                            <button
+                              onClick={() => setDeletingId(r.id)}
+                              className="text-gray-300 hover:text-red-400 transition-colors p-1"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

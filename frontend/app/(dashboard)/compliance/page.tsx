@@ -552,8 +552,14 @@ export default function CompliancePage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+        <div className="space-y-6">
+          <div className="h-36 bg-gray-100 rounded-2xl animate-pulse" />
+          <div className="space-y-2">
+            {[0,1,2,3,4,5].map((i) => <div key={i} className="h-16 bg-gray-100 rounded-2xl animate-pulse" />)}
+          </div>
+          <div className="space-y-2">
+            {[0,1,2,3].map((i) => <div key={i} className="h-14 bg-gray-100 rounded-2xl animate-pulse" />)}
+          </div>
         </div>
       ) : (
         <div className="space-y-6">

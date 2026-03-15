@@ -208,7 +208,7 @@ export default function ReportsPage() {
 
   const showToast = (msg: string) => {
     setToast(msg);
-    setTimeout(() => setToast(""), 3000);
+    setTimeout(() => setToast(""), 5000);
   };
 
   const handleGenerate = async () => {

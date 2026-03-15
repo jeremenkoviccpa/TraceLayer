@@ -73,6 +73,7 @@ export default function RisksPage() {
   const [saving, setSaving]       = useState(false);
   const [sortCol, setSortCol]     = useState<"risk_level" | "status" | "category">("risk_level");
   const [sortAsc, setSortAsc]     = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([api.getRisks(), api.getMembers()])
@@ -285,12 +286,19 @@ export default function RisksPage() {
                     className="px-4 py-3.5 text-right"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <button
-                      onClick={() => handleDelete(r.id)}
-                      className="rounded-lg p-1.5 text-gray-300 transition-colors hover:bg-red-50 hover:text-red-500"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    {deletingId === r.id ? (
+                      <div className="flex items-center gap-1 justify-end">
+                        <button onClick={() => setDeletingId(null)} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg">Cancel</button>
+                        <button onClick={() => { handleDelete(r.id); setDeletingId(null); }} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2 py-1 rounded-lg">Delete</button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setDeletingId(r.id)}
+                        className="rounded-lg p-1.5 text-gray-300 transition-colors hover:bg-red-50 hover:text-red-500"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

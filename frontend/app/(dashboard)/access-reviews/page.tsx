@@ -217,6 +217,7 @@ export default function AccessReviewsPage() {
   const [showModal, setShowModal] = useState(false);
   const [updating, setUpdating] = useState<AccessReview | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -329,7 +330,14 @@ export default function AccessReviewsPage() {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button onClick={() => setUpdating(r)} className="text-xs font-semibold text-gray-500 hover:text-gray-700 border border-gray-200 px-2.5 py-1 rounded-lg">Update</button>
-                    <button onClick={() => handleDelete(r.id)} className="text-gray-300 hover:text-red-400 p-1"><Trash2 className="w-4 h-4" /></button>
+                    {deletingId === r.id ? (
+                      <>
+                        <button onClick={() => setDeletingId(null)} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg">Cancel</button>
+                        <button onClick={() => { handleDelete(r.id); setDeletingId(null); }} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2 py-1 rounded-lg">Delete</button>
+                      </>
+                    ) : (
+                      <button onClick={() => setDeletingId(r.id)} className="text-gray-300 hover:text-red-400 p-1"><Trash2 className="w-4 h-4" /></button>
+                    )}
                     <button onClick={() => setExpanded(expanded === r.id ? null : r.id)} className="text-gray-400 hover:text-gray-600 p-1">
                       {expanded === r.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </button>

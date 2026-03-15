@@ -149,6 +149,7 @@ export default function PenTestsPage() {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<PenTest | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     api.getPenTests().then(setTests).catch(() => {}).finally(() => setLoading(false));
@@ -261,7 +262,14 @@ export default function PenTestsPage() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button onClick={() => setEditing(t)} className="text-xs font-semibold text-gray-500 hover:text-gray-700 border border-gray-200 px-2.5 py-1 rounded-lg">Edit</button>
-                  <button onClick={() => handleDelete(t.id)} className="text-gray-300 hover:text-red-400 p-1"><Trash2 className="w-4 h-4" /></button>
+                  {deletingId === t.id ? (
+                    <>
+                      <button onClick={() => setDeletingId(null)} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg">Cancel</button>
+                      <button onClick={() => { handleDelete(t.id); setDeletingId(null); }} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2 py-1 rounded-lg">Delete</button>
+                    </>
+                  ) : (
+                    <button onClick={() => setDeletingId(t.id)} className="text-gray-300 hover:text-red-400 p-1"><Trash2 className="w-4 h-4" /></button>
+                  )}
                   <button onClick={() => setExpanded(expanded === t.id ? null : t.id)} className="text-gray-400 hover:text-gray-600 p-1">
                     {expanded === t.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </button>

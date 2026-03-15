@@ -266,8 +266,30 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+      <div className="animate-fade-in space-y-5">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="space-y-1.5">
+            <div className="h-7 w-32 bg-gray-200 rounded-xl animate-pulse" />
+            <div className="h-4 w-48 bg-gray-100 rounded-xl animate-pulse" />
+          </div>
+          <div className="flex gap-2">
+            <div className="h-9 w-24 bg-gray-100 rounded-xl animate-pulse" />
+            <div className="h-9 w-36 bg-gray-100 rounded-xl animate-pulse" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="md:col-span-2 h-52 bg-gray-200 rounded-2xl animate-pulse" />
+          <div className="flex flex-col gap-3">
+            {[0,1,2,3].map((i) => <div key={i} className="h-[52px] bg-gray-100 rounded-2xl animate-pulse" />)}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="h-52 bg-gray-100 rounded-2xl animate-pulse" />
+          <div className="h-52 bg-gray-100 rounded-2xl animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[0,1,2].map((i) => <div key={i} className="h-64 bg-gray-100 rounded-2xl animate-pulse" />)}
+        </div>
       </div>
     );
   }
