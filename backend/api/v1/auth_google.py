@@ -47,6 +47,13 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
             "grant_type": "authorization_code",
         })
         if not token_res.is_success:
+            logger.error(
+                "Google token exchange failed: status=%s body=%s redirect_uri=%s frontend_url=%s",
+                token_res.status_code,
+                token_res.text,
+                f"{settings.backend_url}/v1/auth/google/callback",
+                settings.frontend_url,
+            )
             return RedirectResponse(f"{settings.frontend_url}/login?error=google_failed")
 
         token_data = token_res.json()
