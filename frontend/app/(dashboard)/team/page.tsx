@@ -115,7 +115,7 @@ export default function TeamPage() {
   const memberCount = members.filter((m) => m.role !== "admin").length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-x-hidden">
       {/* Toast */}
       {toast && (
         <div className="fixed top-4 right-4 bg-gray-900 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg z-50 flex items-center gap-2">

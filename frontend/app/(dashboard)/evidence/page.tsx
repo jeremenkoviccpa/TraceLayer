@@ -161,7 +161,7 @@ export default function EvidencePage() {
     : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-x-hidden">
       {/* ── Dark Hero Card ── */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 shadow-xl">
         {/* Subtle grid texture */}
@@ -290,7 +290,7 @@ export default function EvidencePage() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[620px]">
+              <table className="w-full min-w-[540px]">
                 <thead>
                   <tr className="border-b border-gray-100">
                     <th className="px-5 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">

@@ -343,7 +343,7 @@ export default function QuestionnairePage() {
   const [tab, setTab] = useState<Tab>("custom");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-x-hidden">
       {/* Dark Hero Card */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 shadow-xl">
         <div className="flex items-start gap-4">

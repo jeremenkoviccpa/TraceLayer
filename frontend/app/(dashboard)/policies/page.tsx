@@ -56,7 +56,7 @@ export default function PoliciesPage() {
   })();
 
   return (
-    <div className="animate-fade-in flex h-full flex-col space-y-6">
+    <div className="animate-fade-in flex h-full flex-col space-y-6 overflow-x-hidden">
 
       {/* ── Dark hero card ── */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 shadow-xl">

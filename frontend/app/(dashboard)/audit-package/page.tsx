@@ -276,7 +276,7 @@ export default function AuditPackagePage() {
   const completePackages = packages.filter(p => p.status !== "pending");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 overflow-x-hidden">
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-800 to-teal-800 p-8 md:p-10 text-white shadow-xl">

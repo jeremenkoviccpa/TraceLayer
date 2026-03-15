@@ -133,7 +133,7 @@ export default function RisksPage() {
       : null;
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="animate-fade-in space-y-6 overflow-x-hidden">
 
       {/* ── Dark hero card ── */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 shadow-xl">
@@ -330,7 +330,7 @@ export default function RisksPage() {
             </div>
 
             {/* Modal body */}
-            <div className="max-h-[calc(90vh-8rem)] overflow-y-auto px-6 py-5 space-y-4">
+            <div className="max-h-[calc(90vh-8rem)] overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4">
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-600">Title *</label>
                 <input

@@ -274,7 +274,7 @@ export default function ReportsPage() {
     : "—";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-x-hidden">
       {/* ── Toast ── */}
       {toast && (
         <div className="fixed top-4 right-4 bg-slate-900 text-white text-sm px-4 py-2.5 rounded-xl shadow-xl z-50 border border-slate-700 animate-in fade-in slide-in-from-top-2 duration-200">

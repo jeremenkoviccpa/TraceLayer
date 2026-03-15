@@ -89,7 +89,7 @@ export default function ReadinessPage() {
   const fwLabel = FRAMEWORKS.find((f) => f.id === framework)?.label ?? "SOC 2";
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in overflow-x-hidden">
       {/* Dark hero */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 mb-6 overflow-hidden relative">
         {/* bg glow */}
@@ -99,7 +99,7 @@ export default function ReadinessPage() {
 
         <div className="relative">
           {/* Header row */}
-          <div className="flex items-start justify-between gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center shrink-0">
                 <Target className="w-5 h-5 text-teal-400"/>
@@ -110,7 +110,7 @@ export default function ReadinessPage() {
               </div>
             </div>
             {/* Framework selector */}
-            <div className="flex flex-wrap gap-1.5 justify-end">
+            <div className="flex flex-wrap gap-1.5 justify-start sm:justify-end">
               {FRAMEWORKS.map((fw) => (
                 <button key={fw.id} onClick={() => setFramework(fw.id)}
                   className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${

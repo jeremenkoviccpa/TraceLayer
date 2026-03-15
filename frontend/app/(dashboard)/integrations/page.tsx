@@ -582,7 +582,7 @@ export default function IntegrationsPage() {
   );
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in overflow-x-hidden">
       {toast && (
         <div className="fixed top-4 right-4 bg-gray-900 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg z-50">
           {toast}
@@ -609,7 +609,7 @@ export default function IntegrationsPage() {
 
       {/* Usage bar — free plan */}
       {isFreePlan && (
-        <div className="bg-white border border-gray-100 shadow-card rounded-2xl p-4 mb-6 flex items-center gap-4">
+        <div className="bg-white border border-gray-100 shadow-card rounded-2xl p-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <div className="flex-1">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-sm font-medium text-gray-700">{integrations.length} / {FREE_LIMIT} integrations used</span>

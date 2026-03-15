@@ -157,7 +157,7 @@ export default function VendorsPage() {
   const needsReview = vendors.filter((v) => !v.review_date).length;
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in overflow-x-hidden">
 
       {/* Dark hero card */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 mb-6">
@@ -181,7 +181,7 @@ export default function VendorsPage() {
         </div>
 
         {/* Row 2: stats grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
           <div>
             <p className="text-3xl font-bold text-brand-400">{vendors.length}</p>
             <p className="text-xs text-slate-400 mt-1">Total vendors</p>
@@ -217,7 +217,7 @@ export default function VendorsPage() {
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-card">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[480px]">
+            <table className="w-full text-sm min-w-[420px]">
               <thead>
                 <tr className="border-b border-gray-100">
                   <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Vendor</th>

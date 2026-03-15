@@ -248,7 +248,7 @@ export default function AccessReviewsPage() {
   const inProgress = reviews.filter((r) => r.status === "in_progress").length;
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in overflow-x-hidden">
 
       {/* Dark hero card */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 mb-6">
@@ -272,7 +272,7 @@ export default function AccessReviewsPage() {
         </div>
 
         {/* Row 2: stats grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           <div>
             <p className="text-3xl font-bold text-brand-400">{reviews.length}</p>
             <p className="text-xs text-slate-400 mt-1">Total reviews</p>
@@ -311,7 +311,7 @@ export default function AccessReviewsPage() {
             const StatusIcon = STATUS_ICONS[r.status] ?? Clock;
             return (
               <div key={r.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-card">
-                <div className="px-5 py-4 flex items-center gap-4">
+                <div className="px-4 sm:px-5 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 flex-wrap">
                       <span className="font-semibold text-gray-900">{r.title}</span>
@@ -328,7 +328,7 @@ export default function AccessReviewsPage() {
                       {r.access_changes > 0 && <span>{r.access_changes} access changes</span>}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap self-end sm:self-auto sm:shrink-0">
                     <button onClick={() => setUpdating(r)} className="text-xs font-semibold text-gray-500 hover:text-gray-700 border border-gray-200 px-2.5 py-1 rounded-lg">Update</button>
                     {deletingId === r.id ? (
                       <>

@@ -178,7 +178,7 @@ export default function PenTestsPage() {
   const highFindings = tests.reduce((a, t) => a + t.high_count, 0);
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in overflow-x-hidden">
 
       {/* Dark hero card */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 mb-6">
@@ -239,7 +239,7 @@ export default function PenTestsPage() {
         <div className="space-y-3">
           {tests.map((t) => (
             <div key={t.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-card">
-              <div className="px-5 py-4 flex items-center gap-4">
+              <div className="px-4 sm:px-5 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="font-semibold text-gray-900">{t.vendor_name}</span>
@@ -261,7 +261,7 @@ export default function PenTestsPage() {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap self-end sm:self-auto sm:shrink-0">
                   <button onClick={() => setEditing(t)} className="text-xs font-semibold text-gray-500 hover:text-gray-700 border border-gray-200 px-2.5 py-1 rounded-lg">Edit</button>
                   {deletingId === t.id ? (
                     <>

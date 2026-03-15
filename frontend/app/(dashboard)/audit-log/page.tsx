@@ -133,7 +133,7 @@ export default function AuditLogPage() {
   const totalEvents = data?.total ?? 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-x-hidden">
       {/* Dark Hero Card */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 shadow-xl">
         <div className="flex items-start gap-4">
@@ -271,7 +271,7 @@ export default function AuditLogPage() {
 
         {/* Pagination */}
         {data && data.pages > 1 && (
-          <div className="px-5 py-3.5 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
+          <div className="px-4 sm:px-5 py-3 sm:py-3.5 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 bg-gray-50/50">
             <span className="text-xs text-gray-400">
               {data.total.toLocaleString()} events &middot; page {data.page} of {data.pages}
             </span>
