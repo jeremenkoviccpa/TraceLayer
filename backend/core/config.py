@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     ls_store_id: str = ""
     ls_growth_variant_id: str = ""
     ls_webhook_secret: str = ""
+    # Google OAuth
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    backend_url: str = "http://localhost:8000"
     # Observability
     sentry_dsn: str = ""
 

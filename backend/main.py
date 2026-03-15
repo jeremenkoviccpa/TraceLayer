@@ -8,7 +8,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from sqlalchemy import select, text
 
-from api.v1 import audit, audit_sessions, auth, billing, compliance, evidence, integrations, org, reports
+from api.v1 import audit, audit_sessions, auth, auth_google, billing, compliance, evidence, integrations, org, reports
 from collectors.scheduler import schedule_integration
 from collectors.scheduler import start as start_scheduler
 from collectors.scheduler import stop as stop_scheduler
@@ -135,6 +135,7 @@ async def security_headers(request: Request, call_next) -> Response:
     return response
 
 app.include_router(auth.router, prefix="/v1")
+app.include_router(auth_google.router, prefix="/v1")
 app.include_router(integrations.router, prefix="/v1")
 app.include_router(evidence.router, prefix="/v1")
 app.include_router(reports.router, prefix="/v1")
