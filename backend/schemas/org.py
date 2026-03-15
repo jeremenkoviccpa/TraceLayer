@@ -45,5 +45,6 @@ class CompanyResponse(BaseModel):
     name: str
     plan: str
     created_at: datetime
+    onboarding_completed: bool
 
     model_config = {"from_attributes": True}

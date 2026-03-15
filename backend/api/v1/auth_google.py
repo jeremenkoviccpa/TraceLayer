@@ -73,7 +73,7 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
             if full_name
             else email.split("@")[0]
         )
-        company = Company(name=company_name)
+        company = Company(name=company_name, onboarding_completed=False)
         db.add(company)
         await db.flush()
 

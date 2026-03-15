@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import String, func
+from sqlalchemy import Boolean, String, func, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import TIMESTAMP, Text
@@ -26,6 +26,9 @@ class Company(Base):
     # Notifications
     notification_prefs: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default="{}")
     slack_webhook_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    # Onboarding
+    onboarding_completed: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
 
     users: Mapped[list["User"]] = relationship(back_populates="company")
     integrations: Mapped[list["Integration"]] = relationship(back_populates="company")

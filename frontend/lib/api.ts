@@ -242,6 +242,10 @@ class ApiClient {
     return this.request<Company>("PATCH", "/org/company", { name });
   }
 
+  async completeOnboarding(): Promise<void> {
+    return this.request("POST", "/org/onboarding/complete");
+  }
+
   // ── Compliance ───────────────────────────────────────────────────────────
 
   async getComplianceScore(framework = "soc2"): Promise<ComplianceScore> {

@@ -43,6 +43,20 @@ async def get_company(
     return company
 
 
+@router.post("/onboarding/complete", status_code=204)
+async def complete_onboarding(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Mark onboarding as completed for the current user's company."""
+    result = await db.execute(select(Company).where(Company.id == current_user.company_id))
+    company = result.scalar_one_or_none()
+    if not company:
+        raise HTTPException(status_code=404, detail="Company not found")
+    company.onboarding_completed = True
+    await db.commit()
+
+
 @router.patch("/company", response_model=CompanyResponse)
 async def update_company(
     body: UpdateCompanyRequest,

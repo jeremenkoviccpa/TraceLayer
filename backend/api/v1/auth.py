@@ -34,7 +34,7 @@ async def register(request: Request, body: RegisterRequest, db: AsyncSession = D
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    company = Company(name=body.company_name)
+    company = Company(name=body.company_name, onboarding_completed=False)
     db.add(company)
     await db.flush()
 

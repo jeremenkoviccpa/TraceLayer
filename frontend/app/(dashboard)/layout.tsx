@@ -90,6 +90,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [collapsed, setCollapsed] = useState(false);
   const [resendSent, setResendSent] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
 
   // Persist collapse state
   useEffect(() => {
@@ -119,6 +120,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
   }, [user, loading, router]);
+
+  // Redirect new users to onboarding (checked once per session)
+  useEffect(() => {
+    if (loading || !user || onboardingChecked) return;
+    if (sessionStorage.getItem("onboarding_done") === "true") {
+      setOnboardingChecked(true);
+      return;
+    }
+    (async () => {
+      try {
+        const { api: apiClient } = await import("@/lib/api");
+        const company = await apiClient.getCompany();
+        if (!company.onboarding_completed) {
+          router.replace("/onboarding");
+          return;
+        }
+        sessionStorage.setItem("onboarding_done", "true");
+      } catch {
+        // non-fatal
+      } finally {
+        setOnboardingChecked(true);
+      }
+    })();
+  }, [user, loading, router, onboardingChecked]);
 
   useEffect(() => {
     setMobileOpen(false);

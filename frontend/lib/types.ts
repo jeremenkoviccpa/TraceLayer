@@ -12,6 +12,7 @@ export interface Company {
   name: string;
   plan: string;
   created_at: string;
+  onboarding_completed: boolean;
 }
 
 export interface BillingInfo {
