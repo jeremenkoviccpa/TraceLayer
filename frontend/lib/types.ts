@@ -211,6 +211,17 @@ export interface QuestionnaireResult {
   answers: QuestionnaireAnswer[];
 }
 
+export interface AutofillAnswerItem {
+  question: string;
+  answer: string;
+}
+
+export interface AutofillResult {
+  company_name: string;
+  generated_at: string;
+  answers: AutofillAnswerItem[];
+}
+
 export interface TrainingRecord {
   id: string;
   company_id: string;

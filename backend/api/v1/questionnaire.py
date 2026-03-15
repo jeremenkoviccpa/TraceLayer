@@ -1,13 +1,14 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
 from core.deps import get_current_user
 from models.user import User
+from services.ai_service import autofill_questionnaire
 
 logger = logging.getLogger(__name__)
 
@@ -224,6 +225,31 @@ class QuestionnaireGenerateResponse(BaseModel):
     items: list[QuestionAnswer]
 
 
+class AutofillRequest(BaseModel):
+    questions: list[str]
+
+    @field_validator("questions")
+    @classmethod
+    def validate_questions(cls, v: list[str]) -> list[str]:
+        v = [q.strip() for q in v if q.strip()]
+        if not v:
+            raise ValueError("At least one question is required")
+        if len(v) > 50:
+            raise ValueError("Maximum 50 questions per request")
+        return v
+
+
+class AutofillAnswerItem(BaseModel):
+    question: str
+    answer: str
+
+
+class AutofillResponse(BaseModel):
+    company_name: str
+    generated_at: str
+    answers: list[AutofillAnswerItem]
+
+
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
 @router.get("/types", response_model=list[QuestionnaireTypeItem])
@@ -276,4 +302,33 @@ async def generate_questionnaire(
         name=qt["name"],
         company_name=company_name,
         items=items,
+    )
+
+
+@router.post("/ai-autofill", response_model=AutofillResponse)
+async def ai_autofill_questionnaire(
+    body: AutofillRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    from datetime import datetime, timezone
+
+    from models.company import Company
+
+    company_result = await db.execute(select(Company).where(Company.id == current_user.company_id))
+    company = company_result.scalar_one_or_none()
+    company_name = company.name if company else "Your Company"
+
+    try:
+        answers = await autofill_questionnaire(current_user.company_id, body.questions, db)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.exception("AI autofill failed")
+        raise HTTPException(status_code=502, detail=f"AI service error: {e}")
+
+    return AutofillResponse(
+        company_name=company_name,
+        generated_at=datetime.now(timezone.utc).isoformat(),
+        answers=[AutofillAnswerItem(question=a["question"], answer=a["answer"]) for a in answers],
     )

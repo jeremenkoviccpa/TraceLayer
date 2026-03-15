@@ -1,4 +1,4 @@
-import type { AccessReview, AuditLog, AuditSession, BillingInfo, Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, ScoreHistoryPoint, TrainingRecord, TrustPageSettings, User, Vendor } from "./types";
+import type { AccessReview, AutofillResult, AuditLog, AuditSession, BillingInfo, Company, ComplianceScore, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, Page, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, ScoreHistoryPoint, TrainingRecord, TrustPageSettings, User, Vendor } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -366,6 +366,10 @@ class ApiClient {
 
   async generateQuestionnaire(questionnaireType: string): Promise<QuestionnaireResult> {
     return this.request<QuestionnaireResult>("POST", "/questionnaire/generate", { questionnaire_type: questionnaireType });
+  }
+
+  async aiAutofillQuestionnaire(questions: string[]): Promise<AutofillResult> {
+    return this.request<AutofillResult>("POST", "/questionnaire/ai-autofill", { questions });
   }
 
   // ── Readiness ─────────────────────────────────────────────────────────────
