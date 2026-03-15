@@ -531,24 +531,29 @@ export default function CompliancePage() {
   return (
     <div className="animate-fade-in">
       {/* Page header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Compliance</h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-3">Compliance</h1>
 
-        {/* Framework pill selector */}
-        <div className="flex gap-2 overflow-x-auto no-scrollbar">
-          {FRAMEWORKS.map((f) => (
-            <button
-              key={f.value}
-              onClick={() => setFramework(f.value)}
-              className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-150 ${
-                framework === f.value
-                  ? "bg-brand-600 text-white shadow-sm shadow-brand-600/25"
-                  : "bg-white border border-gray-200 text-gray-500 hover:border-brand-300 hover:text-brand-600"
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
+        {/* Framework pill selector — scrollable on mobile */}
+        <div
+          className="overflow-x-auto no-scrollbar -mx-1"
+          style={{ maskImage: "linear-gradient(to right, black 85%, transparent 100%)" }}
+        >
+          <div className="flex gap-2 px-1 pb-0.5 w-max pr-6">
+            {FRAMEWORKS.map((f) => (
+              <button
+                key={f.value}
+                onClick={() => setFramework(f.value)}
+                className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-150 ${
+                  framework === f.value
+                    ? "bg-brand-600 text-white shadow-sm shadow-brand-600/25"
+                    : "bg-white border border-gray-200 text-gray-500 hover:border-brand-300 hover:text-brand-600"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -620,13 +625,15 @@ export default function CompliancePage() {
 
           {/* Manual controls */}
           <section>
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <CheckCircle2 className="w-4 h-4 text-brand-500 shrink-0" />
-              <h2 className="font-semibold text-gray-800 text-sm">Manual controls</h2>
-              <span className="text-xs text-gray-400">
-                {manualCompliant}/{manualTotal} complete
-              </span>
-              <div className="ml-auto h-1.5 w-28 bg-gray-100 rounded-full overflow-hidden shrink-0">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <div className="flex items-center gap-2 min-w-0">
+                <CheckCircle2 className="w-4 h-4 text-brand-500 shrink-0" />
+                <h2 className="font-semibold text-gray-800 text-sm">Manual controls</h2>
+                <span className="text-xs text-gray-400 shrink-0">
+                  {manualCompliant}/{manualTotal}
+                </span>
+              </div>
+              <div className="h-1.5 w-24 bg-gray-100 rounded-full overflow-hidden shrink-0">
                 <div
                   className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                   style={{ width: `${manualTotal > 0 ? (manualCompliant / manualTotal) * 100 : 0}%` }}
