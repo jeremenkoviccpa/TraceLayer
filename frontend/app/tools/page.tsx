@@ -159,12 +159,12 @@ export default function ToolsPage() {
       </section>
 
       {/* Divider between tools */}
-      <div className="bg-white/40 border-y border-black/5 py-6">
+      <div className="bg-slate-800 border-y border-white/10 py-6">
         <div className="max-w-4xl mx-auto px-6 flex items-center justify-between flex-wrap gap-4">
-          <p className="text-sm font-semibold text-gray-700">Done with Tool 1? Run the Gap Scanner next.</p>
+          <p className="text-sm font-semibold text-white/70">Done with Tool 1? Run the Gap Scanner next.</p>
           <a
             href="#gap-scanner"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-teal-700 bg-teal-50 border border-teal-100 px-4 py-2 rounded-lg hover:bg-teal-100 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-teal-300 bg-teal-500/10 border border-teal-500/20 px-4 py-2 rounded-lg hover:bg-teal-500/20 transition-colors"
           >
             Go to SOC 2 Gap Scanner <ArrowRight className="w-3.5 h-3.5" />
           </a>
@@ -172,21 +172,24 @@ export default function ToolsPage() {
       </div>
 
       {/* ── Tool 2: SOC 2 Gap Scanner ──────────────────────────────────────────── */}
-      <section id="gap-scanner" className="scroll-mt-16 py-14 md:py-20">
-        <div className="max-w-6xl mx-auto px-6 mb-12">
+      <section id="gap-scanner" className="scroll-mt-16 bg-slate-900 py-14 md:py-20 overflow-hidden relative">
+        <div className="absolute -top-32 left-0 w-96 h-96 rounded-full bg-[radial-gradient(circle,rgba(20,184,166,0.15),transparent)]" />
+        <div className="absolute -bottom-20 right-0 w-80 h-80 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.10),transparent)]" />
+
+        <div className="max-w-6xl mx-auto px-6 mb-12 relative">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 bg-teal-100 rounded-xl flex items-center justify-center border border-teal-200">
-              <Shield className="w-4 h-4 text-teal-600" />
+            <div className="w-8 h-8 bg-teal-500/20 rounded-xl flex items-center justify-center border border-teal-500/30">
+              <Shield className="w-4 h-4 text-teal-400" />
             </div>
-            <span className="text-xs font-bold text-teal-700 uppercase tracking-widest">Tool 2</span>
+            <span className="text-xs font-bold text-teal-400 uppercase tracking-widest">Tool 2</span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2">SOC 2 Gap Scanner</h2>
-          <p className="text-gray-500 text-sm max-w-lg">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-2">SOC 2 Gap Scanner</h2>
+          <p className="text-white/60 text-sm max-w-lg">
             Walk through 10 critical SOC 2 controls. See which ones you&apos;d fail in a real audit — with the exact language your auditor will use.
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 relative">
           <GapScanner />
         </div>
       </section>

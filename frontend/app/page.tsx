@@ -242,7 +242,6 @@ const NAV_LINKS = [
   { href: "#features",     label: "Features"     },
   { href: "#pricing",      label: "Pricing"      },
   { href: "#faq",          label: "FAQ"          },
-  { href: "/tools",        label: "Free Tools"   },
 ];
 
 const THEME = {
@@ -883,7 +882,6 @@ export default function LandingPage() {
                   { label: "Features",     href: "#features"     },
                   { label: "Pricing",      href: "#pricing"      },
                   { label: "FAQ",          href: "#faq"          },
-                  { label: "Free Tools",   href: "/tools"        },
                 ].map((l) => (
                   <li key={l.label}>
                     {l.href.startsWith("#") ? (
