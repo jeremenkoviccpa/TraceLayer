@@ -28,6 +28,7 @@ import {
   Target,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
 } from "lucide-react";
 
 type NavItem = { href: string; label: string; icon: React.ElementType };
@@ -67,8 +68,9 @@ const NAV_GROUPS: NavGroup[] = [
   {
     title: "Reporting",
     items: [
-      { href: "/reports",       label: "Reports",       icon: FileText },
-      { href: "/questionnaire", label: "Questionnaire", icon: ClipboardList },
+      { href: "/reports",        label: "Reports",        icon: FileText },
+      { href: "/questionnaire",  label: "Questionnaire",  icon: ClipboardList },
+      { href: "/audit-package",  label: "Audit Package",  icon: Sparkles },
     ],
   },
   {

@@ -4,6 +4,7 @@ import uuid
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
@@ -45,6 +46,24 @@ async def _run_pdf_generation(report_id: uuid.UUID, company_id: uuid.UUID) -> No
         logger.exception("PDF report generation failed: report_id=%s", report_id)
 
 
+async def _run_audit_package_generation(
+    report_id: uuid.UUID,
+    company_id: uuid.UUID,
+    framework: str,
+) -> None:
+    from core.database import AsyncSessionLocal
+    from services.audit_package_service import generate_audit_package
+    try:
+        async with AsyncSessionLocal() as db:
+            await generate_audit_package(report_id, company_id, framework, db)
+    except Exception:
+        logger.exception("Audit package generation failed: report_id=%s", report_id)
+
+
+class AuditPackageRequest(BaseModel):
+    framework: str = "soc2"
+
+
 @router.post("/generate", response_model=ReportResponse, status_code=202)
 async def generate(
     body: GenerateReportRequest,
@@ -70,6 +89,36 @@ async def generate(
         user_id=current_user.id, user_email=current_user.email,
         resource_type="report", resource_id=str(report.id),
         metadata={"framework": body.framework, "format": body.format},
+    )
+    return report
+
+
+@router.post("/audit-package", response_model=ReportResponse, status_code=202)
+async def generate_audit_package_endpoint(
+    body: AuditPackageRequest,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Generate an AI-powered audit package PDF with full compliance data and AI narrative."""
+    report = await create_report(
+        company_id=current_user.company_id,
+        framework=body.framework,
+        report_type="audit_package",
+        fmt="pdf",
+        db=db,
+    )
+    background_tasks.add_task(
+        _run_audit_package_generation,
+        report.id,
+        current_user.company_id,
+        body.framework,
+    )
+    await log_action(
+        db, current_user.company_id, "report.audit_package_generated",
+        user_id=current_user.id, user_email=current_user.email,
+        resource_type="report", resource_id=str(report.id),
+        metadata={"framework": body.framework},
     )
     return report
 

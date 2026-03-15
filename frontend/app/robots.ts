@@ -21,6 +21,7 @@ export default function robots(): MetadataRoute.Robots {
           "/policies",
           "/reports",
           "/questionnaire",
+          "/audit-package",
           "/team",
           "/audit-log",
           "/settings",
