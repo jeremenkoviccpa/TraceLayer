@@ -3,15 +3,15 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Policy } from "@/lib/types";
-import { FileText, Save, CheckCircle2, Clock } from "lucide-react";
+import { BookOpen, Save, CheckCircle2, Clock, FileText } from "lucide-react";
 
 export default function PoliciesPage() {
-  const [policies, setPolicies]   = useState<Policy[]>([]);
-  const [selected, setSelected]   = useState<Policy | null>(null);
-  const [content, setContent]     = useState("");
-  const [loading, setLoading]     = useState(true);
-  const [saving, setSaving]       = useState(false);
-  const [saved, setSaved]         = useState(false);
+  const [policies, setPolicies] = useState<Policy[]>([]);
+  const [selected, setSelected] = useState<Policy | null>(null);
+  const [content, setContent]   = useState("");
+  const [loading, setLoading]   = useState(true);
+  const [saving, setSaving]     = useState(false);
+  const [saved, setSaved]       = useState(false);
 
   useEffect(() => {
     api.getPolicies()
@@ -43,84 +43,184 @@ export default function PoliciesPage() {
 
   const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
 
+  const lastUpdatedLabel = (() => {
+    const dates = policies
+      .map((p) => p.updated_at ? new Date(p.updated_at).getTime() : null)
+      .filter((d): d is number => d !== null);
+    if (dates.length === 0) return "Never";
+    return new Date(Math.max(...dates)).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  })();
+
   return (
-    <div className="animate-fade-in h-full">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Policy Templates</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Pre-written SOC 2 & ISO 27001 policies. Customize and adopt in one click.</p>
+    <div className="animate-fade-in flex h-full flex-col space-y-6">
+
+      {/* ── Dark hero card ── */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 shadow-xl">
+        {/* subtle grid texture */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        />
+
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          {/* Left: icon + copy */}
+          <div className="flex-1 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/20 ring-1 ring-violet-500/30">
+                <BookOpen className="h-5 w-5 text-violet-400" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white leading-tight">Policy Templates</h1>
+                <p className="text-sm text-slate-400">Pre-written SOC 2 & ISO 27001 policies. Customize and adopt.</p>
+              </div>
+            </div>
+
+            {/* Stats row */}
+            <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Total policies</span>
+                <span className="text-2xl font-black text-violet-400">{policies.length}</span>
+              </div>
+              <div className="w-px self-stretch bg-slate-700/60" />
+              <div className="flex flex-col">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Last updated</span>
+                <span className="mt-0.5 text-sm font-semibold text-slate-300">{lastUpdatedLabel}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
+      {/* ── Main 2-panel layout ── */}
       {loading ? (
-        <div className="flex items-center justify-center h-40">
-          <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+        <div className="flex h-40 items-center justify-center">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
         </div>
       ) : (
-        <div className="flex gap-5 h-[calc(100vh-13rem)]">
-          {/* Sidebar */}
-          <div className="w-56 shrink-0 space-y-0.5 overflow-y-auto">
-            {policies.map((p) => (
-              <button
-                key={p.slug}
-                onClick={() => selectPolicy(p)}
-                className={`w-full text-left px-3 py-2.5 rounded-xl text-sm transition-all ${
-                  selected?.slug === p.slug
-                    ? "bg-brand-600 text-white font-semibold shadow-sm"
-                    : "text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <FileText className={`w-3.5 h-3.5 shrink-0 ${selected?.slug === p.slug ? "text-white/80" : "text-gray-400"}`} />
-                  <span className="leading-snug line-clamp-2">{p.title}</span>
-                </div>
-                {p.updated_at && (
-                  <p className={`text-[10px] mt-0.5 ml-5.5 ${selected?.slug === p.slug ? "text-white/60" : "text-gray-400"}`}>
-                    Saved
-                  </p>
-                )}
-              </button>
-            ))}
+        <div className="flex min-h-0 flex-1 gap-5" style={{ height: "calc(100vh - 18rem)" }}>
+
+          {/* ── Left sidebar: policy list ── */}
+          <div className="w-64 shrink-0 overflow-y-auto rounded-2xl border border-gray-100 bg-white p-2 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <p className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+              Policies
+            </p>
+            <div className="space-y-0.5">
+              {policies.map((p) => {
+                const isActive = selected?.slug === p.slug;
+                return (
+                  <button
+                    key={p.slug}
+                    onClick={() => selectPolicy(p)}
+                    className={`w-full rounded-xl px-3 py-2.5 text-left transition-all ${
+                      isActive
+                        ? "bg-violet-600 shadow-sm shadow-violet-500/20"
+                        : "hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className="flex items-start gap-2">
+                      <FileText
+                        className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${
+                          isActive ? "text-violet-200" : "text-gray-400"
+                        }`}
+                      />
+                      <div className="min-w-0">
+                        <p
+                          className={`line-clamp-2 text-sm leading-snug ${
+                            isActive ? "font-semibold text-white" : "font-medium text-gray-700"
+                          }`}
+                        >
+                          {p.title}
+                        </p>
+                        {p.updated_at && (
+                          <p
+                            className={`mt-0.5 flex items-center gap-1 text-[10px] ${
+                              isActive ? "text-violet-300" : "text-gray-400"
+                            }`}
+                          >
+                            <Clock className="h-2.5 w-2.5" />
+                            {new Date(p.updated_at).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Editor */}
-          {selected && (
-            <div className="flex-1 flex flex-col bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 shrink-0">
+          {/* ── Right: editor panel ── */}
+          {selected ? (
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+
+              {/* Editor header */}
+              <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-5 py-3.5">
                 <div>
-                  <h2 className="font-bold text-gray-900 text-sm">{selected.title}</h2>
-                  <p className="text-xs text-gray-400">{selected.category}</p>
-                </div>
-                <div className="flex items-center gap-3">
+                  <h2 className="font-bold text-gray-900">{selected.title}</h2>
                   {selected.updated_at && (
-                    <span className="hidden sm:flex items-center gap-1 text-xs text-gray-400">
-                      <Clock className="w-3 h-3" />
-                      Last saved {new Date(selected.updated_at).toLocaleDateString()}
-                    </span>
+                    <p className="mt-0.5 flex items-center gap-1 text-xs text-gray-400">
+                      <Clock className="h-3 w-3" />
+                      Last saved{" "}
+                      {new Date(selected.updated_at).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </p>
                   )}
-                  <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="flex items-center gap-1.5 text-sm font-semibold px-3.5 py-2 rounded-xl transition-colors disabled:opacity-50 bg-brand-600 hover:bg-brand-700 text-white"
-                  >
-                    {saved
-                      ? <><CheckCircle2 className="w-3.5 h-3.5" /> Saved</>
-                      : saving
-                        ? "Saving…"
-                        : <><Save className="w-3.5 h-3.5" /> Save policy</>
-                    }
-                  </button>
                 </div>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all disabled:opacity-50 ${
+                    saved
+                      ? "bg-emerald-500 shadow-emerald-500/20"
+                      : "bg-violet-600 shadow-violet-500/20 hover:bg-violet-500"
+                  }`}
+                >
+                  {saved ? (
+                    <><CheckCircle2 className="h-3.5 w-3.5" /> Saved</>
+                  ) : saving ? (
+                    "Saving…"
+                  ) : (
+                    <><Save className="h-3.5 w-3.5" /> Save policy</>
+                  )}
+                </button>
               </div>
+
+              {/* Textarea */}
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="flex-1 w-full px-5 py-4 text-sm text-gray-800 leading-relaxed resize-none focus:outline-none font-mono"
+                className="flex-1 w-full resize-none px-5 py-4 font-mono text-sm leading-relaxed text-gray-800 focus:outline-none"
                 spellCheck={false}
               />
-              <div className="px-5 py-2 border-t border-gray-100 flex items-center justify-between">
+
+              {/* Footer */}
+              <div className="flex shrink-0 items-center justify-between border-t border-gray-100 px-5 py-2.5">
                 <p className="text-xs text-gray-400">{wordCount} words</p>
                 <p className="text-xs text-gray-400">Plain text — copy into your policy doc or wiki</p>
+              </div>
+            </div>
+          ) : (
+            /* No policy selected (edge case) */
+            <div className="flex flex-1 items-center justify-center rounded-2xl border border-gray-100 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+              <div className="text-center">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50">
+                  <BookOpen className="h-6 w-6 text-violet-400" />
+                </div>
+                <p className="text-sm font-medium text-gray-600">Select a policy to start editing</p>
               </div>
             </div>
           )}

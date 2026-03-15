@@ -68,7 +68,7 @@ function Modal({ onClose, onSave }: { onClose: () => void; onSave: (data: Partia
             <select
               value={form.title}
               onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
             >
               {TRAINING_TITLES.map((t) => <option key={t}>{t}</option>)}
             </select>
@@ -81,7 +81,7 @@ function Modal({ onClose, onSave }: { onClose: () => void; onSave: (data: Partia
                 value={form.assignee_email}
                 onChange={(e) => setForm((p) => ({ ...p, assignee_email: e.target.value }))}
                 placeholder="alice@acme.com"
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
               />
             </div>
             <div>
@@ -90,7 +90,7 @@ function Modal({ onClose, onSave }: { onClose: () => void; onSave: (data: Partia
                 value={form.assignee_name}
                 onChange={(e) => setForm((p) => ({ ...p, assignee_name: e.target.value }))}
                 placeholder="Alice Smith"
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
               />
             </div>
           </div>
@@ -100,7 +100,7 @@ function Modal({ onClose, onSave }: { onClose: () => void; onSave: (data: Partia
               type="date"
               value={form.due_date}
               onChange={(e) => setForm((p) => ({ ...p, due_date: e.target.value }))}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
             />
           </div>
           <div>
@@ -110,7 +110,7 @@ function Modal({ onClose, onSave }: { onClose: () => void; onSave: (data: Partia
               onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
               rows={2}
               placeholder="Any instructions or context…"
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
             />
           </div>
           <label className="flex items-center gap-2 cursor-pointer">
@@ -128,7 +128,7 @@ function Modal({ onClose, onSave }: { onClose: () => void; onSave: (data: Partia
           <button
             onClick={handleSubmit}
             disabled={saving || !form.assignee_email}
-            className="px-4 py-2 text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white rounded-xl disabled:opacity-40"
+            className="px-4 py-2 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl disabled:opacity-40"
           >
             {saving ? "Saving…" : "Assign"}
           </button>
@@ -172,44 +172,59 @@ export default function TrainingPage() {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Training Tracker</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Track security awareness training for SOC 2 CC1.4 compliance.</p>
-        </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2 rounded-xl text-sm"
-        >
-          <Plus className="w-4 h-4" /> Assign training
-        </button>
-      </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        {[
-          { label: "Completion rate", value: `${pct}%`, color: pct >= 80 ? "text-emerald-600" : "text-amber-600" },
-          { label: "Completed", value: completed, color: "text-emerald-600" },
-          { label: "Pending", value: pending, color: "text-amber-600" },
-          { label: "Overdue", value: overdue, color: overdue > 0 ? "text-red-600" : "text-gray-400" },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="bg-white rounded-2xl border border-gray-100 shadow-card p-4">
-            <p className="text-xs text-gray-400 mb-1">{label}</p>
-            <p className={`text-2xl font-bold ${color}`}>{value}</p>
+      {/* Dark hero card */}
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 mb-6">
+        {/* Row 1: icon + title + action */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0">
+              <GraduationCap className="w-5 h-5 text-indigo-400" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-white leading-tight">Training Tracker</h1>
+              <p className="text-sm text-slate-400 mt-0.5">Track security awareness training for SOC 2 CC1.4 compliance.</p>
+            </div>
           </div>
-        ))}
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors shrink-0"
+          >
+            <Plus className="w-4 h-4" /> Assign training
+          </button>
+        </div>
+
+        {/* Row 2: stats grid */}
+        <div className="grid grid-cols-4 gap-4">
+          <div>
+            <p className={`text-3xl font-bold ${pct >= 80 ? "text-indigo-400" : pct >= 50 ? "text-amber-400" : "text-red-400"}`}>{pct}%</p>
+            <p className="text-xs text-slate-400 mt-1">Completion rate</p>
+          </div>
+          <div>
+            <p className="text-3xl font-bold text-indigo-400">{completed}</p>
+            <p className="text-xs text-slate-400 mt-1">Completed</p>
+          </div>
+          <div>
+            <p className="text-3xl font-bold text-indigo-400">{pending}</p>
+            <p className="text-xs text-slate-400 mt-1">Pending</p>
+          </div>
+          <div>
+            <p className={`text-3xl font-bold ${overdue > 0 ? "text-red-400" : "text-indigo-400"}`}>{overdue}</p>
+            <p className="text-xs text-slate-400 mt-1">Overdue</p>
+          </div>
+        </div>
       </div>
 
       {/* Progress bar */}
       {records.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-4 mb-6">
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-6">
           <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
             <span>Overall completion</span>
             <span className="font-semibold">{completed}/{records.length} employees trained</span>
           </div>
           <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-700 ${pct >= 80 ? "bg-emerald-500" : pct >= 50 ? "bg-amber-400" : "bg-red-400"}`}
+              className={`h-full rounded-full transition-all duration-700 ${pct >= 80 ? "bg-indigo-500" : pct >= 50 ? "bg-amber-400" : "bg-red-400"}`}
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -218,7 +233,7 @@ export default function TrainingPage() {
 
       {loading ? (
         <div className="flex items-center justify-center h-40">
-          <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : records.length === 0 ? (
         <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-12 text-center">
@@ -227,13 +242,13 @@ export default function TrainingPage() {
           <p className="text-xs text-gray-400 mb-4">Assign security training to your team to satisfy SOC 2 CC1.4.</p>
           <button
             onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2 rounded-xl text-sm"
+            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-xl text-sm"
           >
             <Plus className="w-4 h-4" /> Assign first training
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">

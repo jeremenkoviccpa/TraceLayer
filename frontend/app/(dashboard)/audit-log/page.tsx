@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api";
 import type { AuditLog, Page } from "@/lib/types";
-import { ScrollText, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { ScrollText, Search, ChevronLeft, ChevronRight, CalendarDays, Clock } from "lucide-react";
 
 const ACTION_OPTIONS = [
   { value: "", label: "All actions" },
@@ -22,7 +22,26 @@ const ACTION_OPTIONS = [
   { value: "plan.downgraded", label: "Plan downgraded" },
 ];
 
-const ACTION_COLORS: Record<string, string> = {
+// Dot color for timeline entries (based on action type)
+const ACTION_DOT: Record<string, string> = {
+  "user.login": "bg-blue-400",
+  "user.logout": "bg-gray-400",
+  "user.password_changed": "bg-amber-400",
+  "user.email_verified": "bg-emerald-400",
+  "integration.connected": "bg-emerald-400",
+  "integration.disconnected": "bg-red-400",
+  "integration.collect_triggered": "bg-blue-400",
+  "report.generated": "bg-violet-400",
+  "report.downloaded": "bg-violet-400",
+  "member.invited": "bg-teal-400",
+  "member.removed": "bg-red-400",
+  "invite.revoked": "bg-amber-400",
+  "company.updated": "bg-gray-400",
+  "plan.upgraded": "bg-emerald-400",
+  "plan.downgraded": "bg-amber-400",
+};
+
+const ACTION_BADGE: Record<string, string> = {
   "user.login": "bg-blue-50 text-blue-700",
   "user.logout": "bg-gray-100 text-gray-600",
   "user.password_changed": "bg-amber-50 text-amber-700",
@@ -48,6 +67,26 @@ function formatDate(iso: string) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function formatTimeOnly(iso: string) {
+  return new Date(iso).toLocaleString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function isToday(iso: string) {
+  const d = new Date(iso);
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+}
+
+function isThisWeek(iso: string) {
+  const d = new Date(iso);
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  return d >= weekAgo;
 }
 
 export default function AuditLogPage() {
@@ -88,117 +127,170 @@ export default function AuditLogPage() {
     setPage(1);
   };
 
+  // Compute stats from loaded page (approximation for display)
+  const todayCount = data?.items.filter((l) => isToday(l.created_at)).length ?? 0;
+  const weekCount = data?.items.filter((l) => isThisWeek(l.created_at)).length ?? 0;
+  const totalEvents = data?.total ?? 0;
+
   return (
-    <div>
-      <div className="flex items-center gap-2 mb-6">
-        <ScrollText className="w-5 h-5 text-gray-400" />
-        <h1 className="text-2xl font-bold text-gray-900">Audit Log</h1>
+    <div className="space-y-6">
+      {/* Dark Hero Card */}
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 shadow-xl">
+        <div className="flex items-start gap-4">
+          {/* Icon */}
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(100,116,139,0.25)" }}>
+            <ScrollText className="w-5 h-5" style={{ color: "#94a3b8" }} />
+          </div>
+          {/* Title + stats */}
+          <div className="flex-1">
+            <h1 className="text-xl font-bold text-white">Audit Log</h1>
+            <p className="text-sm text-slate-400 mt-0.5">Immutable record of all actions taken in your compliance workspace.</p>
+            <div className="flex items-center gap-6 mt-4">
+              <div>
+                <p className="text-2xl font-bold text-slate-300">
+                  {loading ? "—" : todayCount}
+                </p>
+                <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
+                  <Clock className="w-3 h-3" /> Today
+                </p>
+              </div>
+              <div className="w-px h-8 bg-slate-700" />
+              <div>
+                <p className="text-2xl font-bold text-slate-300">
+                  {loading ? "—" : weekCount}
+                </p>
+                <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
+                  <CalendarDays className="w-3 h-3" /> This week
+                </p>
+              </div>
+              <div className="w-px h-8 bg-slate-700" />
+              <div>
+                <p className="text-2xl font-bold text-slate-300">
+                  {loading ? "—" : totalEvents.toLocaleString()}
+                </p>
+                <p className="text-xs text-slate-500 mt-0.5">Total events</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-5">
-        <select
-          value={action}
-          onChange={(e) => handleActionChange(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
-        >
-          {ACTION_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
-
-        <form onSubmit={handleEmailSearch} className="flex gap-2 flex-1">
-          <input
-            type="text"
-            placeholder="Filter by email…"
-            value={emailInput}
-            onChange={(e) => setEmailInput(e.target.value)}
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-          />
-          <button
-            type="submit"
-            className="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium px-3 py-2 rounded-lg transition-colors"
+      <div className="bg-white rounded-2xl border border-gray-100 p-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <select
+            value={action}
+            onChange={(e) => handleActionChange(e.target.value)}
+            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400 bg-white text-gray-700"
           >
-            <Search className="w-4 h-4" />
-            Search
-          </button>
-        </form>
+            {ACTION_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+
+          <form onSubmit={handleEmailSearch} className="flex gap-2 flex-1">
+            <input
+              type="text"
+              placeholder="Filter by email…"
+              value={emailInput}
+              onChange={(e) => setEmailInput(e.target.value)}
+              className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400"
+            />
+            <button
+              type="submit"
+              className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+            >
+              <Search className="w-3.5 h-3.5" />
+              Search
+            </button>
+          </form>
+        </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px]">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50 text-left">
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Time</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">User</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Action</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Resource</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                Array.from({ length: 8 }).map((_, i) => (
-                  <tr key={i} className="border-b border-gray-100">
-                    <td className="px-4 py-3"><div className="h-4 bg-gray-100 rounded animate-pulse w-32" /></td>
-                    <td className="px-4 py-3"><div className="h-4 bg-gray-100 rounded animate-pulse w-40" /></td>
-                    <td className="px-4 py-3"><div className="h-5 bg-gray-100 rounded-full animate-pulse w-28" /></td>
-                    <td className="px-4 py-3"><div className="h-4 bg-gray-100 rounded animate-pulse w-24" /></td>
-                  </tr>
-                ))
-              ) : data?.items.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-4 py-12 text-center text-sm text-gray-400">
-                    No audit events found.
-                  </td>
-                </tr>
-              ) : (
-                data?.items.map((log) => (
-                  <tr key={log.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
-                      {formatDate(log.created_at)}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700 truncate max-w-[180px]">
-                      {log.user_email ?? <span className="text-gray-400 italic">system</span>}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full ${ACTION_COLORS[log.action] ?? "bg-gray-100 text-gray-600"}`}>
-                        {log.action_label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
-                      {log.resource_type ? (
-                        <span className="capitalize">{log.resource_type}{log.resource_id ? ` · ${log.resource_id.slice(0, 8)}` : ""}</span>
-                      ) : "—"}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      {/* Timeline List */}
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        {loading ? (
+          <div className="divide-y divide-gray-50">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 px-5 py-4">
+                <div className="w-2.5 h-2.5 rounded-full bg-gray-100 animate-pulse shrink-0" />
+                <div className="flex-1 flex gap-4">
+                  <div className="h-4 bg-gray-100 rounded animate-pulse w-32" />
+                  <div className="h-4 bg-gray-100 rounded animate-pulse w-40" />
+                  <div className="h-5 bg-gray-100 rounded-full animate-pulse w-28 ml-auto" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : data?.items.length === 0 ? (
+          <div className="px-5 py-16 text-center">
+            <ScrollText className="w-8 h-8 text-gray-200 mx-auto mb-3" />
+            <p className="text-sm text-gray-400">No audit events found.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-50">
+            {data?.items.map((log) => (
+              <div
+                key={log.id}
+                className="flex items-start gap-4 px-5 py-4 hover:bg-slate-50/60 transition-colors group"
+              >
+                {/* Timeline dot */}
+                <div className="flex flex-col items-center shrink-0 mt-1.5">
+                  <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${ACTION_DOT[log.action] ?? "bg-gray-300"}`} />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                  {/* User */}
+                  <p className="text-sm font-medium text-gray-800 truncate min-w-0 sm:w-48">
+                    {log.user_email ?? <span className="text-gray-400 italic font-normal">system</span>}
+                  </p>
+
+                  {/* Action badge */}
+                  <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ${ACTION_BADGE[log.action] ?? "bg-gray-100 text-gray-600"}`}>
+                    {log.action_label}
+                  </span>
+
+                  {/* Resource */}
+                  {log.resource_type && (
+                    <span className="text-xs text-gray-400 shrink-0 capitalize">
+                      {log.resource_type}{log.resource_id ? ` · ${log.resource_id.slice(0, 8)}` : ""}
+                    </span>
+                  )}
+                </div>
+
+                {/* Timestamp */}
+                <div className="shrink-0 text-right">
+                  <p className="text-xs font-medium text-gray-500 whitespace-nowrap">{formatTimeOnly(log.created_at)}</p>
+                  <p className="text-[10px] text-gray-300 mt-0.5 whitespace-nowrap">{formatDate(log.created_at).split(",")[0]}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Pagination */}
         {data && data.pages > 1 && (
-          <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
-            <span className="text-xs text-gray-500">
-              {data.total} events · page {data.page} of {data.pages}
+          <div className="px-5 py-3.5 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
+            <span className="text-xs text-gray-400">
+              {data.total.toLocaleString()} events &middot; page {data.page} of {data.pages}
             </span>
-            <div className="flex gap-1">
+            <div className="flex items-center gap-1">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-40 transition-colors"
+                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-600 rounded-lg hover:bg-white hover:border hover:border-gray-200 disabled:opacity-40 transition-all"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-3.5 h-3.5" />
+                Prev
               </button>
               <button
                 onClick={() => setPage((p) => Math.min(data.pages, p + 1))}
                 disabled={page === data.pages}
-                className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-40 transition-colors"
+                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-600 rounded-lg hover:bg-white hover:border hover:border-gray-200 disabled:opacity-40 transition-all"
               >
-                <ChevronRight className="w-4 h-4" />
+                Next
+                <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>

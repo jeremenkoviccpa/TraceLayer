@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { QuestionnaireAnswer, QuestionnaireResult, QuestionnaireType } from "@/lib/types";
-import { Sparkles, Copy, Check, Download, ChevronDown, ChevronUp } from "lucide-react";
+import { Sparkles, Copy, Check, Download, ChevronDown, ChevronUp, ClipboardList, BarChart3 } from "lucide-react";
 
 export default function QuestionnairePage() {
   const [types, setTypes]       = useState<QuestionnaireType[]>([]);
@@ -56,22 +56,78 @@ export default function QuestionnairePage() {
     URL.revokeObjectURL(url);
   };
 
+  // Compute stats
+  const totalQuestions = result?.answers.length ?? 0;
+  const answeredCount = result
+    ? result.answers.filter((qa) => {
+        const ans = getAnswer(qa);
+        return ans && ans.trim().length > 0;
+      }).length
+    : 0;
+  const completionRate = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+
   return (
-    <div className="animate-fade-in">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Questionnaire Auto-fill</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Generate pre-filled answers to security questionnaires from your compliance data.</p>
+    <div className="space-y-6">
+      {/* Dark Hero Card */}
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 shadow-xl">
+        <div className="flex items-start gap-4">
+          {/* Icon */}
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(168,85,247,0.2)" }}>
+            <ClipboardList className="w-5 h-5" style={{ color: "#A855F7" }} />
+          </div>
+          {/* Title + stats */}
+          <div className="flex-1">
+            <h1 className="text-xl font-bold text-white">Security Questionnaire</h1>
+            <p className="text-sm text-slate-400 mt-0.5">Answer security questionnaires faster with AI-assisted responses.</p>
+            <div className="flex items-center gap-6 mt-4">
+              <div>
+                <p className="text-2xl font-bold" style={{ color: "#A855F7" }}>
+                  {result ? answeredCount : "—"}
+                </p>
+                <p className="text-xs text-slate-500 mt-0.5">Questions answered</p>
+              </div>
+              <div className="w-px h-8 bg-slate-700" />
+              <div>
+                <p className="text-2xl font-bold" style={{ color: "#A855F7" }}>
+                  {result ? `${completionRate}%` : "—"}
+                </p>
+                <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
+                  <BarChart3 className="w-3 h-3" /> Completion rate
+                </p>
+              </div>
+              {result && (
+                <>
+                  <div className="w-px h-8 bg-slate-700" />
+                  <div>
+                    <p className="text-2xl font-bold text-slate-300">{totalQuestions}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">Total questions</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Generator */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-5 mb-6">
+      {/* Generator Card */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(168,85,247,0.1)" }}>
+            <Sparkles className="w-4 h-4" style={{ color: "#A855F7" }} />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-800">Generate answers</p>
+            <p className="text-xs text-gray-400">AI-assisted from your compliance data</p>
+          </div>
+        </div>
+
         <div className="flex items-end gap-3 flex-wrap">
           <div className="flex-1 min-w-48">
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Questionnaire type</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">Questionnaire type</label>
             <select
               value={selected}
               onChange={(e) => setSelected(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-400"
             >
               {types.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
             </select>
@@ -79,12 +135,19 @@ export default function QuestionnairePage() {
           <button
             onClick={generate}
             disabled={loading || !selected}
-            className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors disabled:opacity-40"
+            className="flex items-center gap-2 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-opacity disabled:opacity-40 shadow-md"
+            style={{ backgroundColor: "#A855F7" }}
           >
             {loading ? (
-              <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Generating…</>
+              <>
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Generating…
+              </>
             ) : (
-              <><Sparkles className="w-4 h-4 text-violet-300" /> Generate answers</>
+              <>
+                <Sparkles className="w-4 h-4" />
+                Generate answers
+              </>
             )}
           </button>
         </div>
@@ -95,56 +158,105 @@ export default function QuestionnairePage() {
 
       {result && (
         <>
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-            <div>
-              <p className="text-sm font-semibold text-gray-800">{result.name}</p>
-              <p className="text-xs text-gray-400">{result.answers.length} questions · {result.company_name} · Generated {new Date(result.generated_at).toLocaleString()}</p>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={copyAll}
-                className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                {copied ? <><Check className="w-3.5 h-3.5 text-emerald-500" /> Copied</> : <><Copy className="w-3.5 h-3.5" /> Copy all</>}
-              </button>
-              <button
-                onClick={downloadCsv}
-                className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <Download className="w-3.5 h-3.5" /> Export CSV
-              </button>
+          {/* Result Header */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-5">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <p className="text-sm font-semibold text-gray-800">{result.name}</p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {result.answers.length} questions &middot; {result.company_name} &middot; Generated {new Date(result.generated_at).toLocaleString()}
+                </p>
+              </div>
+
+              {/* Completion bar */}
+              <div className="flex items-center gap-3">
+                <div className="hidden sm:block w-32">
+                  <div className="flex justify-between text-[10px] font-medium text-gray-400 mb-1">
+                    <span>Progress</span>
+                    <span>{completionRate}%</span>
+                  </div>
+                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${completionRate}%`, backgroundColor: "#A855F7" }}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={copyAll}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    {copied
+                      ? <><Check className="w-3.5 h-3.5 text-emerald-500" /> Copied</>
+                      : <><Copy className="w-3.5 h-3.5" /> Copy all</>
+                    }
+                  </button>
+                  <button
+                    onClick={downloadCsv}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" /> Export CSV
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Q&A list */}
+          {/* Q&A List */}
           <div className="space-y-2">
-            {result.answers.map((qa, i) => (
-              <div key={qa.id} className="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden">
-                <button
-                  className="w-full flex items-start gap-3 px-5 py-4 text-left"
-                  onClick={() => setExpanded(expanded === qa.id ? null : qa.id)}
+            {result.answers.map((qa, i) => {
+              const isOpen = expanded === qa.id;
+              const hasEdit = !!edits[qa.id];
+              return (
+                <div
+                  key={qa.id}
+                  className={`bg-white rounded-2xl border overflow-hidden transition-all ${isOpen ? "border-purple-200 shadow-sm" : "border-gray-100 hover:border-purple-100"}`}
                 >
-                  <span className="w-5 h-5 rounded-full bg-brand-50 text-brand-700 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
-                  <p className="flex-1 text-sm font-medium text-gray-800 leading-snug">{qa.question}</p>
-                  {expanded === qa.id
-                    ? <ChevronUp className="w-4 h-4 text-gray-300 shrink-0 mt-0.5" />
-                    : <ChevronDown className="w-4 h-4 text-gray-300 shrink-0 mt-0.5" />
-                  }
-                </button>
-                {expanded === qa.id && (
-                  <div className="border-t border-gray-100 px-5 py-3 bg-gray-50/50">
-                    <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Answer — click to edit</label>
-                    <textarea
-                      value={getAnswer(qa)}
-                      onChange={(e) => setEdits((prev) => ({ ...prev, [qa.id]: e.target.value }))}
-                      rows={3}
-                      className="w-full text-sm text-gray-700 leading-relaxed bg-white border border-gray-200 rounded-xl px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-brand-500/30"
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
+                  <button
+                    className="w-full flex items-start gap-3.5 px-5 py-4 text-left group"
+                    onClick={() => setExpanded(isOpen ? null : qa.id)}
+                  >
+                    {/* Question number */}
+                    <span
+                      className="w-6 h-6 rounded-lg text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 transition-colors"
+                      style={{
+                        backgroundColor: isOpen ? "rgba(168,85,247,0.15)" : "rgba(168,85,247,0.08)",
+                        color: "#A855F7",
+                      }}
+                    >
+                      {i + 1}
+                    </span>
+                    {/* Question text */}
+                    <p className="flex-1 text-sm font-medium text-gray-800 leading-snug">{qa.question}</p>
+                    {/* Edit indicator */}
+                    {hasEdit && !isOpen && (
+                      <span className="text-[10px] font-semibold text-purple-500 bg-purple-50 px-2 py-0.5 rounded-full shrink-0">Edited</span>
+                    )}
+                    {/* Chevron */}
+                    {isOpen
+                      ? <ChevronUp className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                      : <ChevronDown className="w-4 h-4 text-gray-300 shrink-0 mt-0.5 group-hover:text-purple-300 transition-colors" />
+                    }
+                  </button>
+
+                  {isOpen && (
+                    <div className="border-t border-purple-100 px-5 py-4 bg-purple-50/30">
+                      <label className="block text-[10px] font-semibold uppercase tracking-wide mb-2" style={{ color: "#A855F7" }}>
+                        Answer — click to edit
+                      </label>
+                      <textarea
+                        value={getAnswer(qa)}
+                        onChange={(e) => setEdits((prev) => ({ ...prev, [qa.id]: e.target.value }))}
+                        rows={3}
+                        className="w-full text-sm text-gray-700 leading-relaxed bg-white border border-purple-200 rounded-xl px-3.5 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-400 transition-colors"
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </>
       )}

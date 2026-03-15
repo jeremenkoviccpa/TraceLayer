@@ -4,7 +4,33 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
 import type { Invitation, Member } from "@/lib/types";
-import { Users, Mail, Trash2, Plus, Copy, Check } from "lucide-react";
+import { Users, Mail, Trash2, Plus, Copy, Check, Shield, UserCheck } from "lucide-react";
+
+function getInitials(email: string) {
+  return email.slice(0, 2).toUpperCase();
+}
+
+function getRoleColor(role: string) {
+  if (role === "admin") return "bg-violet-500";
+  return "bg-indigo-400";
+}
+
+function RoleBadge({ role }: { role: string }) {
+  if (role === "admin") {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">
+        <Shield className="w-2.5 h-2.5" />
+        Admin
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+      <UserCheck className="w-2.5 h-2.5" />
+      Member
+    </span>
+  );
+}
 
 export default function TeamPage() {
   const { user } = useAuth();
@@ -15,6 +41,7 @@ export default function TeamPage() {
   const [inviteRole, setInviteRole] = useState<"member" | "admin">("member");
   const [sending, setSending] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [showInviteForm, setShowInviteForm] = useState(false);
   const [toast, setToast] = useState("");
 
   const showToast = (msg: string) => {
@@ -45,8 +72,8 @@ export default function TeamPage() {
     try {
       const inv = await api.createInvite(inviteEmail, inviteRole);
       setInviteEmail("");
+      setShowInviteForm(false);
       await load();
-      // Auto-copy invite URL
       await navigator.clipboard.writeText(inv.invite_url).catch(() => {});
       showToast("Invite created — link copied to clipboard");
     } catch (err: unknown) {
@@ -84,126 +111,221 @@ export default function TeamPage() {
   };
 
   const isAdmin = user?.role === "admin";
+  const adminCount = members.filter((m) => m.role === "admin").length;
+  const memberCount = members.filter((m) => m.role !== "admin").length;
 
   return (
-    <div>
+    <div className="space-y-6">
+      {/* Toast */}
       {toast && (
-        <div className="fixed top-4 right-4 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg z-50">
+        <div className="fixed top-4 right-4 bg-gray-900 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg z-50 flex items-center gap-2">
+          <Check className="w-3.5 h-3.5 text-green-400" />
           {toast}
         </div>
       )}
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Team</h1>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Members */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Users className="w-4 h-4 text-gray-400" />
-            <h2 className="font-semibold text-gray-800">Members ({members.length})</h2>
-          </div>
-
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <div className="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+      {/* Dark Hero Card */}
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 shadow-xl">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-4 flex-1">
+            {/* Icon */}
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(99,102,241,0.2)" }}>
+              <Users className="w-5 h-5" style={{ color: "#6366F1" }} />
             </div>
-          ) : (
-            <div className="space-y-2">
-              {members.map((m) => (
-                <div key={m.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{m.email}</p>
-                    <p className="text-xs text-gray-400 capitalize">{m.role}</p>
-                  </div>
-                  {isAdmin && m.id !== user?.id && (
-                    <button
-                      onClick={() => handleRemove(m.id)}
-                      className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-                      title="Remove member"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
+            {/* Title */}
+            <div>
+              <h1 className="text-xl font-bold text-white">Team</h1>
+              <p className="text-sm text-slate-400 mt-0.5">Manage your team members and their roles.</p>
+              {/* Stats */}
+              <div className="flex items-center gap-6 mt-4">
+                <div>
+                  <p className="text-2xl font-bold" style={{ color: "#6366F1" }}>
+                    {loading ? "—" : members.length}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-0.5">Total members</p>
                 </div>
-              ))}
+                <div className="w-px h-8 bg-slate-700" />
+                <div>
+                  <p className="text-2xl font-bold text-violet-400">
+                    {loading ? "—" : adminCount}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-0.5">Admins</p>
+                </div>
+                <div className="w-px h-8 bg-slate-700" />
+                <div>
+                  <p className="text-2xl font-bold text-slate-300">
+                    {loading ? "—" : memberCount}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-0.5">Members</p>
+                </div>
+              </div>
             </div>
+          </div>
+          {/* Action Button */}
+          {isAdmin && (
+            <button
+              onClick={() => setShowInviteForm(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shrink-0 transition-opacity hover:opacity-90"
+              style={{ backgroundColor: "#6366F1" }}
+            >
+              <Plus className="w-4 h-4" />
+              Invite member
+            </button>
           )}
         </div>
+      </div>
 
-        {/* Invite */}
-        {isAdmin && (
-          <div className="space-y-4">
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Plus className="w-4 h-4 text-gray-400" />
-                <h2 className="font-semibold text-gray-800">Invite someone</h2>
+      {/* Invite Form Modal */}
+      {showInviteForm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-2xl p-6 w-full max-w-sm">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: "rgba(99,102,241,0.1)" }}>
+                <Plus className="w-4 h-4" style={{ color: "#6366F1" }} />
               </div>
-
-              <form onSubmit={handleInvite} className="space-y-3">
+              <h2 className="font-semibold text-gray-900">Invite someone</h2>
+            </div>
+            <form onSubmit={handleInvite} className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">Email address</label>
                 <input
                   type="email"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   required
                   placeholder="colleague@company.com"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400"
                 />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">Role</label>
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value as "member" | "admin")}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400"
                 >
                   <option value="member">Member</option>
                   <option value="admin">Admin</option>
                 </select>
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowInviteForm(false)}
+                  className="flex-1 border border-gray-200 text-gray-600 text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
                 <button
                   type="submit"
                   disabled={sending}
-                  className="w-full bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                  className="flex-1 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-opacity disabled:opacity-60"
+                  style={{ backgroundColor: "#6366F1" }}
                 >
                   {sending ? "Sending…" : "Send invite"}
                 </button>
-              </form>
-            </div>
-
-            {/* Pending invites */}
-            {invites.length > 0 && (
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Mail className="w-4 h-4 text-gray-400" />
-                  <h2 className="font-semibold text-gray-800">Pending invites</h2>
-                </div>
-                <div className="space-y-2">
-                  {invites.map((inv) => (
-                    <div key={inv.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                      <div>
-                        <p className="text-sm text-gray-900">{inv.email}</p>
-                        <p className="text-xs text-gray-400 capitalize">{inv.role}</p>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => handleCopy(inv.invite_url, inv.id)}
-                          className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded transition-colors"
-                          title="Copy invite link"
-                        >
-                          {copied === inv.id ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
-                        </button>
-                        <button
-                          onClick={() => handleRevoke(inv.id)}
-                          className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-                          title="Revoke invite"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
-            )}
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Members Grid */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6">
+        <div className="flex items-center gap-2 mb-5">
+          <Users className="w-4 h-4 text-gray-400" />
+          <h2 className="font-semibold text-gray-800">Members</h2>
+          <span className="ml-auto text-xs text-gray-400 font-medium">{members.length} total</span>
+        </div>
+
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-20 bg-gray-50 rounded-xl animate-pulse" />
+            ))}
+          </div>
+        ) : members.length === 0 ? (
+          <div className="text-center py-12 text-sm text-gray-400">No members yet.</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {members.map((m) => (
+              <div
+                key={m.id}
+                className="flex items-center gap-3 p-4 rounded-xl border border-gray-100 hover:border-indigo-100 hover:bg-indigo-50/30 transition-all group"
+              >
+                {/* Avatar */}
+                <div className={`w-9 h-9 rounded-xl ${getRoleColor(m.role)} flex items-center justify-center shrink-0`}>
+                  <span className="text-white text-xs font-bold">{getInitials(m.email)}</span>
+                </div>
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">{m.email}</p>
+                  <div className="mt-1">
+                    <RoleBadge role={m.role} />
+                  </div>
+                </div>
+                {/* Remove */}
+                {isAdmin && m.id !== user?.id && (
+                  <button
+                    onClick={() => handleRemove(m.id)}
+                    className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                    title="Remove member"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>
+
+      {/* Pending Invites */}
+      {isAdmin && invites.length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-6">
+          <div className="flex items-center gap-2 mb-5">
+            <Mail className="w-4 h-4 text-gray-400" />
+            <h2 className="font-semibold text-gray-800">Pending invites</h2>
+            <span className="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">
+              {invites.length}
+            </span>
+          </div>
+          <div className="space-y-2">
+            {invites.map((inv) => (
+              <div
+                key={inv.id}
+                className="flex items-center justify-between p-3 rounded-xl border border-dashed border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/20 transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                    <Mail className="w-3.5 h-3.5 text-gray-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-900 font-medium">{inv.email}</p>
+                    <RoleBadge role={inv.role} />
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => handleCopy(inv.invite_url, inv.id)}
+                    className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    title="Copy invite link"
+                  >
+                    {copied === inv.id ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                  <button
+                    onClick={() => handleRevoke(inv.id)}
+                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Revoke invite"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
