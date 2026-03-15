@@ -415,12 +415,12 @@ export default function SettingsPage() {
   };
 
   return (
-    <div>
+    <div className="overflow-x-hidden">
       {toast && <Toast msg={toast.msg} type={toast.type} />}
 
       {/* Page header */}
       <div className="flex items-center justify-between mb-6">
-        <div>
+        <div className="min-w-0">
           <h1 className="text-xl font-bold text-gray-900">Settings</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage your account and workspace.</p>
         </div>
@@ -715,15 +715,15 @@ export default function SettingsPage() {
             subtitle="Every Monday at 9 AM UTC all admins receive a compliance digest email with your scores, control status, and top action items."
             color="brand"
           />
-          <div className="flex items-center justify-between gap-4 bg-brand-50 border border-brand-100 rounded-xl px-4 py-3">
-            <div>
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-brand-50 border border-brand-100 rounded-xl px-4 py-3">
+            <div className="min-w-0">
               <p className="text-sm font-medium text-brand-800">Send preview to yourself</p>
               <p className="text-xs text-brand-600 mt-0.5">Get a sample of this week&apos;s report right now.</p>
             </div>
             <button
               onClick={handleSendPreview}
               disabled={weeklyLoading}
-              className="shrink-0 flex items-center gap-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
             >
               <Mail className="w-4 h-4" />
               {weeklyLoading ? "Sending…" : "Send preview"}
