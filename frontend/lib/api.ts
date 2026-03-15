@@ -197,6 +197,10 @@ class ApiClient {
     return this.request<{ message: string }>("POST", "/reports/weekly-preview");
   }
 
+  async generateAuditPackage(framework = "soc2"): Promise<Report> {
+    return this.request<Report>("POST", "/reports/audit-package", { framework });
+  }
+
   // ── Org ─────────────────────────────────────────────────────────────────
 
   async getMembers(): Promise<Member[]> {
