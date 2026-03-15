@@ -454,6 +454,7 @@ const NAV_LINKS = [
   { href: "#features",     label: "Features"     },
   { href: "#pricing",      label: "Pricing"      },
   { href: "#faq",          label: "FAQ"          },
+  { href: "/tools",        label: "Free Tools"   },
 ];
 
 const THEME = {
@@ -599,16 +600,26 @@ export default function LandingPage() {
           </a>
 
           <nav className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                onClick={(e) => smoothScroll(e, l.href)}
-                className="text-sm text-[var(--muted)] hover:text-[var(--ink)] font-medium px-3 py-1.5 rounded-lg hover:bg-black/5 transition-all"
-              >
-                {l.label}
-              </a>
-            ))}
+            {NAV_LINKS.map((l) =>
+              l.href.startsWith("#") ? (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={(e) => smoothScroll(e, l.href)}
+                  className="text-sm text-[var(--muted)] hover:text-[var(--ink)] font-medium px-3 py-1.5 rounded-lg hover:bg-black/5 transition-all"
+                >
+                  {l.label}
+                </a>
+              ) : (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="text-sm font-semibold text-[var(--accent)] bg-[color:var(--accent)]/8 border border-[color:var(--accent)]/15 px-3 py-1.5 rounded-lg hover:bg-[color:var(--accent)]/15 transition-all"
+                >
+                  {l.label}
+                </Link>
+              )
+            )}
           </nav>
 
           <div className="hidden md:flex items-center gap-2">
@@ -631,16 +642,27 @@ export default function LandingPage() {
 
         {mobileOpen && (
           <div className="md:hidden bg-[color:var(--bg)]/98 backdrop-blur-md border-b border-black/5 px-6 py-4 space-y-1">
-            {NAV_LINKS.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                onClick={(e) => smoothScroll(e, l.href)}
-                className="block text-sm font-medium text-[var(--ink)] px-3 py-2.5 rounded-lg hover:bg-black/5 transition-colors"
-              >
-                {l.label}
-              </a>
-            ))}
+            {NAV_LINKS.map((l) =>
+              l.href.startsWith("#") ? (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={(e) => smoothScroll(e, l.href)}
+                  className="block text-sm font-medium text-[var(--ink)] px-3 py-2.5 rounded-lg hover:bg-black/5 transition-colors"
+                >
+                  {l.label}
+                </a>
+              ) : (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-sm font-semibold text-[var(--accent)] px-3 py-2.5 rounded-lg hover:bg-black/5 transition-colors"
+                >
+                  {l.label}
+                </Link>
+              )
+            )}
             <div className="pt-3 border-t border-black/5 space-y-2">
               <Link href="/login" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-center text-[var(--muted)] px-3 py-2.5 rounded-lg border border-black/10 hover:bg-black/5 transition-colors">
                 Sign in
