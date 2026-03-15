@@ -256,7 +256,7 @@ export default function TrainingPage() {
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2">
                         <span className="text-gray-700">{r.title}</span>
-                        {r.annual && <RefreshCw className="w-3 h-3 text-gray-400" title="Annual renewal" />}
+                        {r.annual && <span title="Annual renewal"><RefreshCw className="w-3 h-3 text-gray-400" /></span>}
                       </div>
                     </td>
                     <td className="px-5 py-3.5 text-gray-500">
