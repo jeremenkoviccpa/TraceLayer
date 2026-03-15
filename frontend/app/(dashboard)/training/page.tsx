@@ -128,7 +128,7 @@ function Modal({ onClose, onSave }: { onClose: () => void; onSave: (data: Partia
           <button
             onClick={handleSubmit}
             disabled={saving || !form.assignee_email}
-            className="px-4 py-2 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl disabled:opacity-40"
+            className="px-4 py-2 text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white rounded-xl disabled:opacity-40"
           >
             {saving ? "Saving…" : "Assign"}
           </button>
@@ -179,8 +179,8 @@ export default function TrainingPage() {
         {/* Row 1: icon + title + action */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0">
-              <GraduationCap className="w-5 h-5 text-indigo-400" />
+            <div className="w-10 h-10 rounded-xl bg-brand-500/20 flex items-center justify-center shrink-0">
+              <GraduationCap className="w-5 h-5 text-brand-400" />
             </div>
             <div>
               <h1 className="text-lg font-bold text-white leading-tight">Training Tracker</h1>
@@ -189,7 +189,7 @@ export default function TrainingPage() {
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors shrink-0"
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors shrink-0"
           >
             <Plus className="w-4 h-4" /> Assign training
           </button>
@@ -198,19 +198,19 @@ export default function TrainingPage() {
         {/* Row 2: stats grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
-            <p className={`text-3xl font-bold ${pct >= 80 ? "text-indigo-400" : pct >= 50 ? "text-amber-400" : "text-red-400"}`}>{pct}%</p>
+            <p className={`text-3xl font-bold ${pct >= 80 ? "text-brand-400" : pct >= 50 ? "text-amber-400" : "text-red-400"}`}>{pct}%</p>
             <p className="text-xs text-slate-400 mt-1">Completion rate</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-indigo-400">{completed}</p>
+            <p className="text-3xl font-bold text-brand-400">{completed}</p>
             <p className="text-xs text-slate-400 mt-1">Completed</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-indigo-400">{pending}</p>
+            <p className="text-3xl font-bold text-brand-400">{pending}</p>
             <p className="text-xs text-slate-400 mt-1">Pending</p>
           </div>
           <div>
-            <p className={`text-3xl font-bold ${overdue > 0 ? "text-red-400" : "text-indigo-400"}`}>{overdue}</p>
+            <p className={`text-3xl font-bold ${overdue > 0 ? "text-red-400" : "text-brand-400"}`}>{overdue}</p>
             <p className="text-xs text-slate-400 mt-1">Overdue</p>
           </div>
         </div>
@@ -218,14 +218,14 @@ export default function TrainingPage() {
 
       {/* Progress bar */}
       {records.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-4 mb-6">
           <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
             <span>Overall completion</span>
             <span className="font-semibold">{completed}/{records.length} employees trained</span>
           </div>
           <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-700 ${pct >= 80 ? "bg-indigo-500" : pct >= 50 ? "bg-amber-400" : "bg-red-400"}`}
+              className={`h-full rounded-full transition-all duration-700 ${pct >= 80 ? "bg-brand-500" : pct >= 50 ? "bg-amber-400" : "bg-red-400"}`}
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -234,7 +234,7 @@ export default function TrainingPage() {
 
       {loading ? (
         <div className="flex items-center justify-center h-40">
-          <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : records.length === 0 ? (
         <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-12 text-center">
@@ -243,13 +243,13 @@ export default function TrainingPage() {
           <p className="text-xs text-gray-400 mb-4">Assign security training to your team to satisfy SOC 2 CC1.4.</p>
           <button
             onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-xl text-sm"
+            className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2 rounded-xl text-sm"
           >
             <Plus className="w-4 h-4" /> Assign first training
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-card">
           <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[480px]">
               <thead>

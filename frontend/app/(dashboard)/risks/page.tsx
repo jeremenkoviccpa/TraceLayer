@@ -44,7 +44,7 @@ function RatingButton({ value, selected, onClick }: { value: number; selected: b
       onClick={onClick}
       className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
         selected
-          ? "bg-orange-500 text-white shadow-sm"
+          ? "bg-brand-600 text-white shadow-sm"
           : "bg-gray-100 text-gray-500 hover:bg-gray-200"
       }`}
     >
@@ -151,8 +151,8 @@ export default function RisksPage() {
           {/* Left: icon + copy + stats */}
           <div className="flex-1 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/20 ring-1 ring-orange-500/30">
-                <AlertTriangle className="h-5 w-5 text-orange-400" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500/20 ring-1 ring-brand-500/30">
+                <AlertTriangle className="h-5 w-5 text-brand-400" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-white leading-tight">Risk Register</h1>
@@ -188,7 +188,7 @@ export default function RisksPage() {
           <div className="flex shrink-0 items-start">
             <button
               onClick={openCreate}
-              className="flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-all hover:bg-orange-400 hover:shadow-orange-400/30 active:scale-95"
+              className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition-all hover:bg-brand-500 hover:shadow-brand-500/30 active:scale-95"
             >
               <Plus className="h-4 w-4" />
               Add risk
@@ -200,24 +200,24 @@ export default function RisksPage() {
       {/* ── Table / empty / loading ── */}
       {loading ? (
         <div className="flex h-40 items-center justify-center">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
         </div>
       ) : sorted.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-100 bg-white py-20 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-50">
-            <AlertTriangle className="h-7 w-7 text-orange-400" />
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50">
+            <AlertTriangle className="h-7 w-7 text-brand-500" />
           </div>
           <p className="text-sm font-semibold text-gray-700">No risks recorded yet</p>
           <p className="mt-1 text-xs text-gray-400">Add your first risk to start tracking your compliance posture.</p>
           <button
             onClick={openCreate}
-            className="mt-5 flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-orange-400 active:scale-95"
+            className="mt-5 flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-brand-500 active:scale-95"
           >
             <Plus className="h-4 w-4" /> Add risk
           </button>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-card">
           <table className="w-full text-sm">
             <thead className="border-b border-gray-100 bg-gray-50/80">
               <tr>
@@ -316,8 +316,8 @@ export default function RisksPage() {
             {/* Modal header */}
             <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-50">
-                  <AlertTriangle className="h-4 w-4 text-orange-500" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-brand-50">
+                  <AlertTriangle className="h-4 w-4 text-brand-500" />
                 </div>
                 <h2 className="font-bold text-gray-900">{editing ? "Edit risk" : "Add risk"}</h2>
               </div>
@@ -337,7 +337,7 @@ export default function RisksPage() {
                   type="text"
                   value={form.title ?? ""}
                   onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                  className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-orange-400/30 focus:border-orange-400"
+                  className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400"
                   placeholder="e.g. Shared admin credentials in AWS"
                 />
               </div>
@@ -348,7 +348,7 @@ export default function RisksPage() {
                   value={form.description ?? ""}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   rows={2}
-                  className="w-full resize-none rounded-xl border border-gray-200 px-3 py-2.5 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-orange-400/30 focus:border-orange-400"
+                  className="w-full resize-none rounded-xl border border-gray-200 px-3 py-2.5 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400"
                 />
               </div>
 
@@ -358,7 +358,7 @@ export default function RisksPage() {
                   <select
                     value={form.category ?? "General"}
                     onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-                    className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400/30"
+                    className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                   >
                     {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
                   </select>
@@ -368,7 +368,7 @@ export default function RisksPage() {
                   <select
                     value={form.status ?? "open"}
                     onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as Risk["status"] }))}
-                    className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400/30"
+                    className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                   >
                     {STATUSES.map((s) => <option key={s} value={s} className="capitalize">{s}</option>)}
                   </select>
@@ -424,7 +424,7 @@ export default function RisksPage() {
                   <select
                     value={form.owner_user_id ?? ""}
                     onChange={(e) => setForm((f) => ({ ...f, owner_user_id: e.target.value || null }))}
-                    className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400/30"
+                    className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                   >
                     <option value="">Unassigned</option>
                     {members.map((m) => <option key={m.id} value={m.id}>{m.email}</option>)}
@@ -438,7 +438,7 @@ export default function RisksPage() {
                   value={form.notes ?? ""}
                   onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
                   rows={2}
-                  className="w-full resize-none rounded-xl border border-gray-200 px-3 py-2.5 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-orange-400/30"
+                  className="w-full resize-none rounded-xl border border-gray-200 px-3 py-2.5 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                   placeholder="Describe the mitigation plan or acceptance rationale…"
                 />
               </div>
@@ -458,7 +458,7 @@ export default function RisksPage() {
               <button
                 onClick={handleSave}
                 disabled={saving || !form.title}
-                className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-orange-500/20 transition-all hover:bg-orange-400 disabled:opacity-40"
+                className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-brand-600/20 transition-all hover:bg-brand-500 disabled:opacity-40"
               >
                 {saving ? "Saving…" : editing ? "Save changes" : "Add risk"}
               </button>

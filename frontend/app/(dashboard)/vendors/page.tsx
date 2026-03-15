@@ -66,18 +66,18 @@ function Modal({
         <div className="px-5 py-4 space-y-4">
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Vendor name *</label>
-            <input value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. AWS, Stripe, Okta" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
+            <input value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. AWS, Stripe, Okta" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>
-              <select value={form.category} onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+              <select value={form.category} onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30">
                 {CATEGORIES.map((c) => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Risk level</label>
-              <select value={form.risk_level} onChange={(e) => setForm((p) => ({ ...p, risk_level: e.target.value as Vendor["risk_level"] }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+              <select value={form.risk_level} onChange={(e) => setForm((p) => ({ ...p, risk_level: e.target.value as Vendor["risk_level"] }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30">
                 {RISK_LEVELS.map((r) => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
               </select>
             </div>
@@ -85,16 +85,16 @@ function Modal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Website</label>
-              <input value={form.website} onChange={(e) => setForm((p) => ({ ...p, website: e.target.value }))} placeholder="https://aws.amazon.com" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
+              <input value={form.website} onChange={(e) => setForm((p) => ({ ...p, website: e.target.value }))} placeholder="https://aws.amazon.com" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Contact email</label>
-              <input value={form.contact_email} onChange={(e) => setForm((p) => ({ ...p, contact_email: e.target.value }))} placeholder="security@vendor.com" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
+              <input value={form.contact_email} onChange={(e) => setForm((p) => ({ ...p, contact_email: e.target.value }))} placeholder="security@vendor.com" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
             </div>
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Last review date</label>
-            <input type="date" value={form.review_date} onChange={(e) => setForm((p) => ({ ...p, review_date: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
+            <input type="date" value={form.review_date} onChange={(e) => setForm((p) => ({ ...p, review_date: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-2">Certifications</label>
@@ -109,12 +109,12 @@ function Modal({
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Notes</label>
-            <textarea value={form.notes} onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))} rows={2} placeholder="Risk assessment notes, mitigation controls…" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
+            <textarea value={form.notes} onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))} rows={2} placeholder="Risk assessment notes, mitigation controls…" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
           </div>
         </div>
         <div className="px-5 py-4 border-t border-gray-100 flex justify-end gap-2">
           <button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-xl">Cancel</button>
-          <button onClick={handleSubmit} disabled={saving || !form.name} className="px-4 py-2 text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-xl disabled:opacity-40">
+          <button onClick={handleSubmit} disabled={saving || !form.name} className="px-4 py-2 text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white rounded-xl disabled:opacity-40">
             {saving ? "Saving…" : initial ? "Update" : "Add vendor"}
           </button>
         </div>
@@ -164,8 +164,8 @@ export default function VendorsPage() {
         {/* Row 1: icon + title + action */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
-              <Building2 className="w-5 h-5 text-amber-400" />
+            <div className="w-10 h-10 rounded-xl bg-brand-500/20 flex items-center justify-center shrink-0">
+              <Building2 className="w-5 h-5 text-brand-400" />
             </div>
             <div>
               <h1 className="text-lg font-bold text-white leading-tight">Vendor Due Diligence</h1>
@@ -174,7 +174,7 @@ export default function VendorsPage() {
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors shrink-0"
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors shrink-0"
           >
             <Plus className="w-4 h-4" /> Add vendor
           </button>
@@ -183,19 +183,19 @@ export default function VendorsPage() {
         {/* Row 2: stats grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
-            <p className="text-3xl font-bold text-amber-400">{vendors.length}</p>
+            <p className="text-3xl font-bold text-brand-400">{vendors.length}</p>
             <p className="text-xs text-slate-400 mt-1">Total vendors</p>
           </div>
           <div>
-            <p className={`text-3xl font-bold ${highRisk > 0 ? "text-red-400" : "text-amber-400"}`}>{highRisk}</p>
+            <p className={`text-3xl font-bold ${highRisk > 0 ? "text-red-400" : "text-brand-400"}`}>{highRisk}</p>
             <p className="text-xs text-slate-400 mt-1">High / critical risk</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-amber-400">{certified}</p>
+            <p className="text-3xl font-bold text-brand-400">{certified}</p>
             <p className="text-xs text-slate-400 mt-1">Certified</p>
           </div>
           <div>
-            <p className={`text-3xl font-bold ${needsReview > 0 ? "text-orange-400" : "text-amber-400"}`}>{needsReview}</p>
+            <p className={`text-3xl font-bold ${needsReview > 0 ? "text-orange-400" : "text-brand-400"}`}>{needsReview}</p>
             <p className="text-xs text-slate-400 mt-1">Needs review</p>
           </div>
         </div>
@@ -203,19 +203,19 @@ export default function VendorsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center h-40">
-          <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : vendors.length === 0 ? (
         <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-12 text-center">
           <Building2 className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <p className="text-sm font-medium text-gray-600 mb-1">No vendors tracked yet</p>
           <p className="text-xs text-gray-400 mb-4">Add your key vendors to demonstrate CC9.2 vendor risk management.</p>
-          <button onClick={() => setShowModal(true)} className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-xl text-sm">
+          <button onClick={() => setShowModal(true)} className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2 rounded-xl text-sm">
             <Plus className="w-4 h-4" /> Add first vendor
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-card">
           <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[480px]">
               <thead>
@@ -236,7 +236,7 @@ export default function VendorsPage() {
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-gray-900">{v.name}</span>
                           {v.website && (
-                            <a href={v.website} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-amber-500">
+                            <a href={v.website} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-brand-500">
                               <ExternalLink className="w-3 h-3" />
                             </a>
                           )}
