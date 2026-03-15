@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, Zap, Sparkles } from "lucide-react";
+import { Lock, Zap, Sparkles, Loader2 } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
+import { api } from "@/lib/api";
 
 interface PlanGateProps {
   children: React.ReactNode;
@@ -12,14 +14,29 @@ interface PlanGateProps {
 
 function UpgradePrompt({ feature, compact }: { feature: string; compact?: boolean }) {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const handleUpgrade = async () => {
+    setLoading(true);
+    try {
+      const { checkout_url } = await api.createCheckout();
+      window.location.href = checkout_url;
+    } catch {
+      // Fall back to settings page if checkout fails
+      router.push("/settings#billing");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (compact) {
     return (
       <button
-        onClick={() => router.push("/settings#billing")}
-        className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border border-amber-200/80 bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 hover:from-amber-100 hover:to-orange-100 hover:border-amber-300 transition-all duration-150 shadow-sm"
+        onClick={handleUpgrade}
+        disabled={loading}
+        className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border border-amber-200/80 bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 hover:from-amber-100 hover:to-orange-100 hover:border-amber-300 disabled:opacity-60 transition-all duration-150 shadow-sm"
       >
-        <Lock className="w-3 h-3 text-amber-500" />
+        {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Lock className="w-3 h-3 text-amber-500" />}
         Growth only
         <span className="w-px h-3 bg-amber-200" />
         <span className="text-brand-600 font-bold">Upgrade →</span>
@@ -54,11 +71,12 @@ function UpgradePrompt({ feature, compact }: { feature: string; compact?: boolea
 
       {/* CTA */}
       <button
-        onClick={() => router.push("/settings#billing")}
-        className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-600 to-teal-600 hover:from-brand-500 hover:to-teal-500 text-white font-semibold text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-brand-900/20 hover:shadow-brand-900/30 hover:-translate-y-px active:translate-y-0 transition-all duration-150"
+        onClick={handleUpgrade}
+        disabled={loading}
+        className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-600 to-teal-600 hover:from-brand-500 hover:to-teal-500 disabled:opacity-60 text-white font-semibold text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-brand-900/20 hover:shadow-brand-900/30 hover:-translate-y-px active:translate-y-0 transition-all duration-150"
       >
-        <Zap className="w-3.5 h-3.5" />
-        Upgrade to Growth — $99/mo
+        {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+        {loading ? "Opening checkout…" : "Upgrade to Growth — $99/mo"}
       </button>
     </div>
   );

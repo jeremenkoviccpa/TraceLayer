@@ -3,11 +3,16 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Zap, ArrowRight, Loader2 } from "lucide-react";
+import { invalidatePlanCache } from "@/hooks/usePlan";
 
 export default function BillingSuccessPage() {
   const [countdown, setCountdown] = useState(8);
 
   useEffect(() => {
+    // Bust the cached plan so the app immediately reflects Growth
+    invalidatePlanCache();
+    sessionStorage.removeItem("onboarding_done");
+
     const interval = setInterval(() => {
       setCountdown((c) => {
         if (c <= 1) {

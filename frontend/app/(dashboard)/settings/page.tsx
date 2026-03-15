@@ -759,7 +759,7 @@ export default function SettingsPage() {
 
             {billing.plan === "free" && (
               <div className="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-xl p-4">
-                <p className="text-sm font-semibold text-teal-800 mb-3">Unlock Growth — $49/mo</p>
+                <p className="text-sm font-semibold text-teal-800 mb-3">Unlock Growth — $99/mo</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 text-sm text-teal-700 mb-3">
                   {[
                     "Unlimited integrations (free: 3)",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import type { Report } from "@/lib/types";
@@ -188,9 +188,22 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [upgradingPdf, setUpgradingPdf] = useState(false);
   const [toast, setToast] = useState("");
   const [framework, setFramework] = useState("soc2");
   const [format, setFormat] = useState("json");
+
+  const handlePdfUpgrade = useCallback(async () => {
+    setUpgradingPdf(true);
+    try {
+      const { checkout_url } = await api.createCheckout();
+      window.location.href = checkout_url;
+    } catch {
+      router.push("/settings#billing");
+    } finally {
+      setUpgradingPdf(false);
+    }
+  }, [router]);
 
   const load = () =>
     api
@@ -352,11 +365,15 @@ export default function ReportsPage() {
                   </button>
                 ) : (
                   <button
-                    onClick={() => router.push("/settings#billing")}
+                    onClick={handlePdfUpgrade}
+                    disabled={upgradingPdf}
                     title="PDF reports require the Growth plan"
-                    className="relative flex items-center gap-1.5 px-3 py-2 font-semibold text-slate-500 hover:text-slate-300 transition-colors border-l border-slate-700 group"
+                    className="relative flex items-center gap-1.5 px-3 py-2 font-semibold text-slate-500 hover:text-slate-300 disabled:opacity-50 transition-colors border-l border-slate-700 group"
                   >
-                    <Lock className="w-3 h-3 text-amber-500/80 group-hover:text-amber-400 transition-colors" />
+                    {upgradingPdf
+                      ? <span className="w-3 h-3 border border-amber-400 border-t-transparent rounded-full animate-spin" />
+                      : <Lock className="w-3 h-3 text-amber-500/80 group-hover:text-amber-400 transition-colors" />
+                    }
                     <span className="group-hover:text-slate-300 transition-colors">PDF</span>
                     <span className="absolute -top-2 -right-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[8px] font-black uppercase rounded px-1 py-0.5 leading-none shadow-sm">
                       Pro
