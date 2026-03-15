@@ -176,7 +176,7 @@ export default function TrainingPage() {
       {/* Dark hero card */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 mb-6">
         {/* Row 1: icon + title + action */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0">
               <GraduationCap className="w-5 h-5 text-indigo-400" />
@@ -195,7 +195,7 @@ export default function TrainingPage() {
         </div>
 
         {/* Row 2: stats grid */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
             <p className={`text-3xl font-bold ${pct >= 80 ? "text-indigo-400" : pct >= 50 ? "text-amber-400" : "text-red-400"}`}>{pct}%</p>
             <p className="text-xs text-slate-400 mt-1">Completion rate</p>
@@ -249,63 +249,66 @@ export default function TrainingPage() {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Assignee</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Training</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Due date</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Status</th>
-                <th className="px-5 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {records.map((r) => {
-                const StatusIcon = STATUS_ICONS[r.status] ?? Clock;
-                return (
-                  <tr key={r.id} className="hover:bg-gray-50/50">
-                    <td className="px-5 py-3.5">
-                      <p className="font-medium text-gray-900">{r.assignee_name || r.assignee_email}</p>
-                      {r.assignee_name && <p className="text-xs text-gray-400">{r.assignee_email}</p>}
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-700">{r.title}</span>
-                        {r.annual && <span title="Annual renewal"><RefreshCw className="w-3 h-3 text-gray-400" /></span>}
-                      </div>
-                    </td>
-                    <td className="px-5 py-3.5 text-gray-500">
-                      {r.due_date ? new Date(r.due_date).toLocaleDateString() : "—"}
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_STYLES[r.status]}`}>
-                        <StatusIcon className="w-3 h-3" />
-                        {r.status.charAt(0).toUpperCase() + r.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2 justify-end">
-                        {r.status !== "completed" && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[480px]">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Assignee</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Training</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden md:table-cell">Due date</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Status</th>
+                  <th className="px-5 py-3" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {records.map((r) => {
+                  const StatusIcon = STATUS_ICONS[r.status] ?? Clock;
+                  return (
+                    <tr key={r.id} className="hover:bg-gray-50/50">
+                      <td className="px-5 py-3.5">
+                        <p className="font-medium text-gray-900">{r.assignee_name || r.assignee_email}</p>
+                        {r.assignee_name && <p className="text-xs text-gray-400">{r.assignee_email}</p>}
+                        <p className="text-xs text-gray-500 sm:hidden mt-0.5 truncate max-w-[160px]">{r.title}</p>
+                      </td>
+                      <td className="px-5 py-3.5 hidden sm:table-cell">
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-700">{r.title}</span>
+                          {r.annual && <span title="Annual renewal"><RefreshCw className="w-3 h-3 text-gray-400" /></span>}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 text-gray-500 hidden md:table-cell">
+                        {r.due_date ? new Date(r.due_date).toLocaleDateString() : "—"}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_STYLES[r.status]}`}>
+                          <StatusIcon className="w-3 h-3" />
+                          {r.status.charAt(0).toUpperCase() + r.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-2 justify-end">
+                          {r.status !== "completed" && (
+                            <button
+                              onClick={() => markComplete(r.id)}
+                              className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 border border-emerald-200 hover:border-emerald-300 px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap"
+                            >
+                              Mark complete
+                            </button>
+                          )}
                           <button
-                            onClick={() => markComplete(r.id)}
-                            className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 border border-emerald-200 hover:border-emerald-300 px-2.5 py-1 rounded-lg transition-colors"
+                            onClick={() => handleDelete(r.id)}
+                            className="text-gray-300 hover:text-red-400 transition-colors p-1"
                           >
-                            Mark complete
+                            <Trash2 className="w-4 h-4" />
                           </button>
-                        )}
-                        <button
-                          onClick={() => handleDelete(r.id)}
-                          className="text-gray-300 hover:text-red-400 transition-colors p-1"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

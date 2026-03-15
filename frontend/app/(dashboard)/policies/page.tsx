@@ -99,16 +99,34 @@ export default function PoliciesPage() {
         </div>
       </div>
 
+      {/* ── Mobile: policy select dropdown ── */}
+      {!loading && policies.length > 0 && (
+        <div className="md:hidden">
+          <select
+            value={selected?.slug ?? ""}
+            onChange={(e) => {
+              const p = policies.find((p) => p.slug === e.target.value);
+              if (p) selectPolicy(p);
+            }}
+            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/30"
+          >
+            {policies.map((p) => (
+              <option key={p.slug} value={p.slug}>{p.title}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* ── Main 2-panel layout ── */}
       {loading ? (
         <div className="flex h-40 items-center justify-center">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
         </div>
       ) : (
-        <div className="flex min-h-0 flex-1 gap-5" style={{ height: "calc(100vh - 18rem)" }}>
+        <div className="flex flex-col md:flex-row min-h-0 flex-1 gap-5 md:h-[calc(100vh-22rem)]">
 
-          {/* ── Left sidebar: policy list ── */}
-          <div className="w-64 shrink-0 overflow-y-auto rounded-2xl border border-gray-100 bg-white p-2 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          {/* ── Left sidebar: policy list (desktop only) ── */}
+          <div className="hidden md:flex w-64 shrink-0 flex-col overflow-y-auto rounded-2xl border border-gray-100 bg-white p-2 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <p className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
               Policies
             </p>
@@ -160,17 +178,17 @@ export default function PoliciesPage() {
             </div>
           </div>
 
-          {/* ── Right: editor panel ── */}
+          {/* ── Editor panel ── */}
           {selected ? (
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]" style={{ minHeight: "400px" }}>
 
               {/* Editor header */}
-              <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-5 py-3.5">
-                <div>
-                  <h2 className="font-bold text-gray-900">{selected.title}</h2>
+              <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-5 py-3.5 gap-3">
+                <div className="min-w-0">
+                  <h2 className="font-bold text-gray-900 truncate">{selected.title}</h2>
                   {selected.updated_at && (
                     <p className="mt-0.5 flex items-center gap-1 text-xs text-gray-400">
-                      <Clock className="h-3 w-3" />
+                      <Clock className="h-3 w-3 shrink-0" />
                       Last saved{" "}
                       {new Date(selected.updated_at).toLocaleDateString("en-US", {
                         month: "short",
@@ -183,7 +201,7 @@ export default function PoliciesPage() {
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all disabled:opacity-50 ${
+                  className={`shrink-0 flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all disabled:opacity-50 ${
                     saved
                       ? "bg-emerald-500 shadow-emerald-500/20"
                       : "bg-violet-600 shadow-violet-500/20 hover:bg-violet-500"
@@ -194,7 +212,7 @@ export default function PoliciesPage() {
                   ) : saving ? (
                     "Saving…"
                   ) : (
-                    <><Save className="h-3.5 w-3.5" /> Save policy</>
+                    <><Save className="h-3.5 w-3.5" /> Save</>
                   )}
                 </button>
               </div>
@@ -204,18 +222,18 @@ export default function PoliciesPage() {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 className="flex-1 w-full resize-none px-5 py-4 font-mono text-sm leading-relaxed text-gray-800 focus:outline-none"
+                style={{ minHeight: "300px" }}
                 spellCheck={false}
               />
 
               {/* Footer */}
               <div className="flex shrink-0 items-center justify-between border-t border-gray-100 px-5 py-2.5">
                 <p className="text-xs text-gray-400">{wordCount} words</p>
-                <p className="text-xs text-gray-400">Plain text — copy into your policy doc or wiki</p>
+                <p className="text-xs text-gray-400 hidden sm:block">Plain text — copy into your policy doc or wiki</p>
               </div>
             </div>
           ) : (
-            /* No policy selected (edge case) */
-            <div className="flex flex-1 items-center justify-center rounded-2xl border border-gray-100 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <div className="flex flex-1 items-center justify-center rounded-2xl border border-gray-100 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]" style={{ minHeight: "300px" }}>
               <div className="text-center">
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50">
                   <BookOpen className="h-6 w-6 text-violet-400" />
