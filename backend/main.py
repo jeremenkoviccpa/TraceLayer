@@ -8,11 +8,11 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from sqlalchemy import select, text
 
-from api.v1 import access_reviews, audit, audit_sessions, auth, auth_google, billing, compliance, evidence, integrations, org, pen_tests, policies, questionnaire, reports, risks, training, trust, vendors
+from api.v1 import access_reviews, audit, audit_sessions, auth, auth_google, billing, compliance, documents, evidence, integrations, notifications, org, pen_tests, policies, questionnaire, reports, risks, training, trust, vendors
 from collectors.scheduler import schedule_integration
 from collectors.scheduler import start as start_scheduler
 from collectors.scheduler import stop as stop_scheduler
-from collectors.scheduler import schedule_weekly_reports
+from collectors.scheduler import schedule_weekly_reports, schedule_daily_alerts
 from core.config import settings
 from core.database import AsyncSessionLocal
 from core.limiter import limiter
@@ -104,6 +104,7 @@ async def lifespan(app: FastAPI):
     await _reschedule_active_integrations()
     await start_scheduler()
     schedule_weekly_reports()
+    schedule_daily_alerts()
     yield
     await stop_scheduler()
 
@@ -152,6 +153,8 @@ app.include_router(pen_tests.router, prefix="/v1")
 app.include_router(vendors.router, prefix="/v1")
 app.include_router(access_reviews.router, prefix="/v1")
 app.include_router(trust.router, prefix="/v1")
+app.include_router(documents.router, prefix="/v1")
+app.include_router(notifications.router, prefix="/v1")
 
 
 @app.get("/health")

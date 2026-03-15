@@ -155,6 +155,39 @@ def send_password_changed_email(to: str) -> None:
     _send(to, subject, html)
 
 
+def send_alert_digest(to: str, company_name: str, alerts: list[dict], frontend_url: str) -> None:
+    """Send a compliance alert digest email."""
+    # alerts format: [{"type": str, "label": str, "count": int, "items": list[str]}]
+    subject = f"TraceLayer: Compliance alerts for {company_name}"
+    items_html = ""
+    for alert in alerts:
+        items_list = "".join(
+            f"<li style='margin:2px 0;font-size:13px;color:#475569;'>{item}</li>"
+            for item in alert["items"][:5]
+        )
+        if len(alert["items"]) > 5:
+            items_list += (
+                f"<li style='margin:2px 0;font-size:13px;color:#94a3b8;'>"
+                f"...and {len(alert['items']) - 5} more</li>"
+            )
+        items_html += f"""
+        <div style="margin-bottom:16px;padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;">
+          <p style="margin:0 0 6px;font-weight:700;color:#dc2626;font-size:13px;">{alert['label']} ({alert['count']})</p>
+          <ul style="margin:0;padding-left:16px;">{items_list}</ul>
+        </div>
+        """
+    html = f"""
+    <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px">
+      <h2 style="margin:0 0 4px;color:#1e293b">Compliance Alerts</h2>
+      <p style="color:#64748b;margin:0 0 24px;font-size:14px">{company_name} — {len(alerts)} issue type(s) need attention</p>
+      {items_html}
+      <a href="{frontend_url}/dashboard" style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px">Open dashboard</a>
+      <p style="color:#94a3b8;font-size:11px;margin-top:24px">TraceLayer · Daily compliance alerts</p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
 def send_weekly_compliance_report(
     to: str,
     company_name: str,

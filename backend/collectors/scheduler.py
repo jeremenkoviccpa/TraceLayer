@@ -60,3 +60,19 @@ def schedule_weekly_reports() -> None:
         misfire_grace_time=3600,
     )
     logger.info("Scheduled weekly compliance reports (Mon 09:00 UTC)")
+
+
+def schedule_daily_alerts() -> None:
+    """Schedule daily compliance alerts at 08:00 UTC."""
+    from services.alert_service import run_daily_alerts_job
+
+    scheduler.add_job(
+        run_daily_alerts_job,
+        "cron",
+        hour=8,
+        minute=0,
+        id="daily_alerts",
+        replace_existing=True,
+        misfire_grace_time=3600,
+    )
+    logger.info("Scheduled daily compliance alerts (08:00 UTC)")

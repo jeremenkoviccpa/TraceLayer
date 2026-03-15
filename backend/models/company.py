@@ -3,9 +3,9 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import String, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.types import TIMESTAMP
+from sqlalchemy.types import TIMESTAMP, Text
 
 from models.base import Base
 
@@ -22,6 +22,10 @@ class Company(Base):
     subscription_status: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     ls_subscription_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     ls_customer_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+
+    # Notifications
+    notification_prefs: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default="{}")
+    slack_webhook_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     users: Mapped[list["User"]] = relationship(back_populates="company")
     integrations: Mapped[list["Integration"]] = relationship(back_populates="company")

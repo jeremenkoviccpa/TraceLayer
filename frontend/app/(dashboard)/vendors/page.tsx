@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Vendor } from "@/lib/types";
-import { Building2, Plus, Trash2, X, CheckCircle2, Circle, ExternalLink } from "lucide-react";
+import { Building2, Plus, Trash2, X, CheckCircle2, Circle, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
+import { DocumentUpload } from "@/components/document-upload";
 
 const RISK_STYLES: Record<string, string> = {
   low: "bg-emerald-50 text-emerald-700",
@@ -128,6 +129,7 @@ export default function VendorsPage() {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Vendor | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   useEffect(() => {
     api.getVendors().then(setVendors).catch(() => {}).finally(() => setLoading(false));
@@ -228,52 +230,67 @@ export default function VendorsPage() {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {vendors.map((v) => (
-                  <tr key={v.id} className="hover:bg-gray-50/50">
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-gray-900">{v.name}</span>
-                        {v.website && (
-                          <a href={v.website} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-amber-500">
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        )}
-                      </div>
-                      {v.contact_email && <p className="text-xs text-gray-400 hidden sm:block">{v.contact_email}</p>}
-                      <p className="text-xs text-gray-400 sm:hidden mt-0.5 capitalize">{v.category} · {v.review_date ? new Date(v.review_date).toLocaleDateString() : <span className="text-amber-500">Not reviewed</span>}</p>
-                    </td>
-                    <td className="px-5 py-3.5 text-gray-500 capitalize hidden sm:table-cell">{v.category}</td>
-                    <td className="px-5 py-3.5">
-                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full capitalize ${RISK_STYLES[v.risk_level]}`}>
-                        {v.risk_level}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5 hidden md:table-cell">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {v.soc2_certified
-                          ? <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded"><CheckCircle2 className="w-2.5 h-2.5" />SOC 2</span>
-                          : <span className="flex items-center gap-1 text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded"><Circle className="w-2.5 h-2.5" />SOC 2</span>}
-                        {v.iso27001_certified
-                          ? <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded"><CheckCircle2 className="w-2.5 h-2.5" />ISO</span>
-                          : <span className="flex items-center gap-1 text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded"><Circle className="w-2.5 h-2.5" />ISO</span>}
-                      </div>
-                    </td>
-                    <td className="px-5 py-3.5 text-gray-500 text-xs hidden lg:table-cell">
-                      {v.review_date ? new Date(v.review_date).toLocaleDateString() : <span className="text-amber-500 font-medium">Not reviewed</span>}
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2 justify-end">
-                        <button onClick={() => setEditing(v)} className="text-xs font-semibold text-gray-500 hover:text-gray-700 border border-gray-200 px-2.5 py-1 rounded-lg">Edit</button>
-                        {deletingId === v.id ? (
-                          <>
-                            <button onClick={() => setDeletingId(null)} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg">Cancel</button>
-                            <button onClick={() => { handleDelete(v.id); setDeletingId(null); }} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2 py-1 rounded-lg">Delete</button>
-                          </>
-                        ) : (
-                          <button onClick={() => setDeletingId(v.id)} className="text-gray-300 hover:text-red-400 p-1"><Trash2 className="w-4 h-4" /></button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
+                  <Fragment key={v.id}>
+                    <tr className="hover:bg-gray-50/50">
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-900">{v.name}</span>
+                          {v.website && (
+                            <a href={v.website} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-amber-500">
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
+                        </div>
+                        {v.contact_email && <p className="text-xs text-gray-400 hidden sm:block">{v.contact_email}</p>}
+                        <p className="text-xs text-gray-400 sm:hidden mt-0.5 capitalize">{v.category} · {v.review_date ? new Date(v.review_date).toLocaleDateString() : <span className="text-amber-500">Not reviewed</span>}</p>
+                      </td>
+                      <td className="px-5 py-3.5 text-gray-500 capitalize hidden sm:table-cell">{v.category}</td>
+                      <td className="px-5 py-3.5">
+                        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full capitalize ${RISK_STYLES[v.risk_level]}`}>
+                          {v.risk_level}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 hidden md:table-cell">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {v.soc2_certified
+                            ? <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded"><CheckCircle2 className="w-2.5 h-2.5" />SOC 2</span>
+                            : <span className="flex items-center gap-1 text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded"><Circle className="w-2.5 h-2.5" />SOC 2</span>}
+                          {v.iso27001_certified
+                            ? <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded"><CheckCircle2 className="w-2.5 h-2.5" />ISO</span>
+                            : <span className="flex items-center gap-1 text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded"><Circle className="w-2.5 h-2.5" />ISO</span>}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 text-gray-500 text-xs hidden lg:table-cell">
+                        {v.review_date ? new Date(v.review_date).toLocaleDateString() : <span className="text-amber-500 font-medium">Not reviewed</span>}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-2 justify-end">
+                          <button onClick={() => setEditing(v)} className="text-xs font-semibold text-gray-500 hover:text-gray-700 border border-gray-200 px-2.5 py-1 rounded-lg">Edit</button>
+                          {deletingId === v.id ? (
+                            <>
+                              <button onClick={() => setDeletingId(null)} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg">Cancel</button>
+                              <button onClick={() => { handleDelete(v.id); setDeletingId(null); }} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2 py-1 rounded-lg">Delete</button>
+                            </>
+                          ) : (
+                            <button onClick={() => setDeletingId(v.id)} className="text-gray-300 hover:text-red-400 p-1"><Trash2 className="w-4 h-4" /></button>
+                          )}
+                          <button onClick={() => setExpanded(expanded === v.id ? null : v.id)} className="text-gray-400 hover:text-gray-600 p-1">
+                            {expanded === v.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    {expanded === v.id && (
+                      <tr>
+                        <td colSpan={6} className="px-5 pb-4 bg-gray-50/50">
+                          {v.notes && (
+                            <p className="text-xs text-gray-500 pt-3 pb-1">{v.notes}</p>
+                          )}
+                          <DocumentUpload resourceType="vendor" resourceId={v.id} />
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 ))}
               </tbody>
             </table>

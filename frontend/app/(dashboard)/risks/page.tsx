@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Member, Risk } from "@/lib/types";
 import { AlertTriangle, Plus, Trash2, X, ChevronDown, ChevronUp } from "lucide-react";
+import { DocumentUpload } from "@/components/document-upload";
 
 const CATEGORIES = ["Access Control", "Data Protection", "Availability", "Change Management", "Logging & Monitoring", "Incident Response", "Vendor Management", "Physical Security", "General"];
 const STATUSES: Risk["status"][] = ["open", "mitigated", "accepted"];
@@ -441,6 +442,9 @@ export default function RisksPage() {
                   placeholder="Describe the mitigation plan or acceptance rationale…"
                 />
               </div>
+              {editing && (
+                <DocumentUpload resourceType="risk" resourceId={editing.id} />
+              )}
             </div>
 
             {/* Modal footer */}
