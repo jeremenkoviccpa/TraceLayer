@@ -12,7 +12,6 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import (
     HRFlowable,
-    KeepTogether,
     PageBreak,
     Paragraph,
     SimpleDocTemplate,
@@ -357,7 +356,7 @@ def render_audit_package_pdf(context: dict) -> bytes:
     ]
     n = len(stat_defs)
     story.append(_stats_row(
-        [_stat_cell(v, l, c, W / n) for v, l, c in stat_defs],
+        [_stat_cell(v, lbl, c, W / n) for v, lbl, c in stat_defs],
         W / n, W,
     ))
     story.append(PageBreak())
@@ -565,7 +564,7 @@ def render_audit_package_pdf(context: dict) -> bytes:
                 Paragraph(r["category"], st["small"]),
                 Paragraph(rl.title(), ParagraphStyle(f"rlb_{rl}", fontName="Helvetica-Bold", fontSize=8, textColor=rfg, backColor=rbg, leading=11)),
                 Paragraph(f"{r['likelihood']} × {r['impact']}", st["small"]),
-                Paragraph(r["status"].title(), ParagraphStyle(f"rsb", fontName="Helvetica-Bold", fontSize=8, textColor=sfg, backColor=sbg, leading=11)),
+                Paragraph(r["status"].title(), ParagraphStyle("rsb", fontName="Helvetica-Bold", fontSize=8, textColor=sfg, backColor=sbg, leading=11)),
             ])
         story.append(_data_table(
             ["Risk Title", "Category", "Risk Level", "L × I", "Status"],
