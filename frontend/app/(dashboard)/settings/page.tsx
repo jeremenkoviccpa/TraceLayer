@@ -739,7 +739,7 @@ export default function SettingsPage() {
         {billing ? (
           <div className="space-y-5">
             {/* Current plan status */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 {billing.plan === "growth" ? (
                   <span className="inline-flex items-center gap-1.5 text-xs font-bold bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full">
@@ -911,7 +911,7 @@ export default function SettingsPage() {
           ) : (
             <div className="space-y-2">
               {auditSessions.map((s) => (
-                <div key={s.id} className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl px-3.5 py-3">
+                <div key={s.id} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 bg-gray-50 border border-gray-100 rounded-xl px-3.5 py-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 truncate">{s.label || "Untitled link"}</p>
                     <p className="text-xs text-gray-400 mt-0.5">
@@ -991,8 +991,8 @@ export default function SettingsPage() {
               {/* Public URL */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1.5">Public URL</label>
-                <div className="flex gap-2">
-                  <div className="flex-1 flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white focus-within:ring-2 focus-within:ring-brand-500/30 focus-within:border-brand-400 transition-all">
+                <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white focus-within:ring-2 focus-within:ring-brand-500/30 focus-within:border-brand-400 transition-all flex-1 min-w-[160px]">
                     <span className="px-2.5 py-2 text-xs text-gray-400 bg-gray-50 border-r border-gray-200 whitespace-nowrap shrink-0">
                       /trust/
                     </span>
@@ -1004,23 +1004,25 @@ export default function SettingsPage() {
                       placeholder="your-company"
                     />
                   </div>
-                  <button
-                    onClick={copyTrustLink}
-                    className="shrink-0 flex items-center gap-1.5 text-xs font-medium text-gray-600 border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    {trustCopied
-                      ? <><Check className="w-3.5 h-3.5 text-emerald-500" /> Copied</>
-                      : <><Copy className="w-3.5 h-3.5" /> Copy</>
-                    }
-                  </button>
-                  <a
-                    href={`/trust/${trustSettings.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 flex items-center gap-1.5 text-xs font-medium text-gray-600 border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" /> Preview
-                  </a>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={copyTrustLink}
+                      className="shrink-0 flex items-center gap-1.5 text-xs font-medium text-gray-600 border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      {trustCopied
+                        ? <><Check className="w-3.5 h-3.5 text-emerald-500" /> Copied</>
+                        : <><Copy className="w-3.5 h-3.5" /> Copy</>
+                      }
+                    </button>
+                    <a
+                      href={`/trust/${trustSettings.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 flex items-center gap-1.5 text-xs font-medium text-gray-600 border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" /> Preview
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -1144,15 +1146,15 @@ export default function SettingsPage() {
       <section id="your-data" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
         <SectionHeader icon={ShieldAlert} title="Your Data" color="red" />
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-800">Export all data</p>
               <p className="text-xs text-gray-500 mt-0.5">Download everything we hold about your account in JSON format.</p>
             </div>
             <button
               onClick={handleExport}
               disabled={gdprLoading}
-              className="flex items-center gap-1.5 text-sm font-medium text-gray-700 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60 shrink-0 ml-4"
+              className="flex items-center gap-1.5 text-sm font-medium text-gray-700 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60 shrink-0"
             >
               <Download className="w-4 h-4" /> Export
             </button>
@@ -1160,13 +1162,13 @@ export default function SettingsPage() {
 
           {isAdmin && (
             <div className="border-t border-gray-100 pt-3">
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-red-700">Delete account</p>
                   <p className="text-xs text-gray-500 mt-0.5">Permanently delete your company and all data. Irreversible.</p>
                 </div>
                 {deleteConfirm ? (
-                  <div className="flex gap-2 ml-4 shrink-0">
+                  <div className="flex gap-2 shrink-0">
                     <button
                       onClick={() => setDeleteConfirm(false)}
                       className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1"
@@ -1184,7 +1186,7 @@ export default function SettingsPage() {
                 ) : (
                   <button
                     onClick={() => setDeleteConfirm(true)}
-                    className="text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors shrink-0 ml-4"
+                    className="text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors shrink-0"
                   >
                     Delete account
                   </button>

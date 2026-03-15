@@ -726,7 +726,7 @@ export default function LandingPage() {
             TraceLayer is your complete compliance program — automated evidence collection across 18+ integrations, risk register, policy templates, training tracker, vendor management, access reviews, and a live readiness score. Everything in one platform.
           </p>
 
-          <div className="flex items-center justify-center gap-3 flex-wrap mb-12">
+          <div className="flex items-center justify-center gap-3 flex-wrap mb-5">
             <Link
               href="/register"
               className="relative inline-flex items-center gap-2 bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white font-semibold px-7 py-3.5 rounded-xl transition-colors text-sm overflow-hidden group shadow-[0_0_28px_rgba(15,118,110,0.35)] hover:shadow-[0_0_36px_rgba(15,118,110,0.55)]"
@@ -738,6 +738,22 @@ export default function LandingPage() {
             <Link href="/login" className="inline-flex items-center gap-2 border border-black/12 hover:border-black/20 bg-white/60 hover:bg-white/90 text-[var(--ink)] font-semibold px-7 py-3.5 rounded-xl transition-all text-sm">
               Sign in
             </Link>
+          </div>
+
+          {/* Trust strip */}
+          <div className="flex items-center justify-center flex-wrap gap-x-6 gap-y-1.5 text-xs text-[var(--muted)] mb-12">
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              Free forever — no credit card
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              3 integrations &amp; 3 frameworks included free
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              Setup in under 5 minutes
+            </span>
           </div>
 
           {/* Dashboard preview */}
@@ -1068,67 +1084,195 @@ export default function LandingPage() {
       {/* ── Pricing ───────────────────────────────────────────────────────────── */}
       <section id="pricing" className="scroll-mt-16 bg-white/60 py-14 md:py-22">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-12 md:mb-16">
+          <div className="text-center mb-10 md:mb-14">
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Pricing</p>
-            <h2 className="text-2xl md:text-4xl font-extrabold">Start free. Scale when you&apos;re ready.</h2>
-            <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto leading-relaxed">
-              No credit card required to get started. Upgrade to Growth for AI features, PDF reports, Trust Center, and unlimited integrations.
+            <h2 className="text-2xl md:text-4xl font-extrabold leading-tight">
+              Start free. Upgrade when your<br className="hidden md:block" /> auditor asks for a PDF.
+            </h2>
+            <p className="text-[var(--muted)] mt-3 text-sm max-w-xl mx-auto leading-relaxed">
+              No credit card required. The free plan is a complete compliance program — not a trial.
+              Growth at $99/mo costs less than 20 minutes with a compliance consultant.
             </p>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-            {PRICING.map((plan) => (
-              <div
-                key={plan.name}
-                className={`relative rounded-2xl border p-7 ${
-                  plan.highlighted
-                    ? "bg-slate-900 border-slate-800 shadow-[0_24px_60px_rgba(15,23,42,0.3)]"
-                    : "bg-[var(--card)] border-black/5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]"
-                }`}
-              >
-                {plan.highlighted && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="bg-[var(--accent-warm)] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm">
-                      Most popular
-                    </span>
-                  </div>
-                )}
-                <p className={`text-sm font-bold mb-1 ${plan.highlighted ? "text-white/50" : "text-[var(--muted)]"}`}>{plan.name}</p>
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className={`text-4xl font-black ${plan.highlighted ? "text-white" : "text-[var(--ink)]"}`}>{plan.price}</span>
-                  {plan.period && <span className={`text-sm ${plan.highlighted ? "text-white/40" : "text-[var(--muted)]"}`}>{plan.period}</span>}
-                </div>
-                <p className={`text-xs mb-6 leading-relaxed ${plan.highlighted ? "text-white/45" : "text-[var(--muted)]"}`}>{plan.desc}</p>
-                <div className="space-y-2.5 mb-7">
-                  {plan.features.map((f) => (
-                    <div key={f} className="flex items-start gap-2.5">
-                      <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${plan.highlighted ? "text-emerald-400" : "text-[var(--accent)]"}`} />
-                      <span className={`text-xs leading-snug ${plan.highlighted ? "text-white/65" : "text-[var(--ink)]"}`}>{f}</span>
-                    </div>
-                  ))}
-                </div>
-                {plan.highlighted ? (
-                  <button
-                    onClick={handleGrowthCta}
-                    disabled={checkoutLoading}
-                    className="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2.5 rounded-xl transition-colors bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white disabled:opacity-60"
-                  >
-                    {checkoutLoading ? (
-                      <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <Zap className="w-4 h-4" />
-                    )}
-                    {checkoutLoading ? "Opening checkout…" : plan.cta}
-                  </button>
-                ) : (
-                  <Link
-                    href="/register"
-                    className="block text-center text-sm font-semibold py-2.5 rounded-xl transition-colors bg-[color:var(--ink)]/6 hover:bg-[color:var(--ink)]/10 text-[var(--ink)]"
-                  >
-                    {plan.cta}
-                  </Link>
-                )}
+
+            {/* Starter */}
+            <div className="bg-[var(--card)] border border-black/5 rounded-2xl p-7 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+              <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full mb-3 border border-emerald-100">
+                <CheckCircle2 className="w-3 h-3" /> Free forever
               </div>
-            ))}
+              <p className="text-sm font-bold text-[var(--muted)] mb-1">Starter</p>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-4xl font-black text-[var(--ink)]">Free</span>
+              </div>
+              <p className="text-xs mb-6 leading-relaxed text-[var(--muted)]">No credit card. No time limit. A complete compliance program for early-stage teams.</p>
+              <div className="space-y-2.5 mb-7">
+                {[
+                  "Up to 3 integrations",
+                  "SOC 2, ISO 27001 & HIPAA",
+                  "Automated evidence collection",
+                  "Risk Register & Policy Templates",
+                  "Training tracker",
+                  "Vendor risk & pen test tracking",
+                  "Access review workflows",
+                  "JSON evidence export",
+                  "Up to 3 team members",
+                ].map((f) => (
+                  <div key={f} className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[var(--accent)]" />
+                    <span className="text-xs leading-snug text-[var(--ink)]">{f}</span>
+                  </div>
+                ))}
+              </div>
+              <Link href="/register" className="block text-center text-sm font-semibold py-2.5 rounded-xl transition-colors bg-[color:var(--ink)]/6 hover:bg-[color:var(--ink)]/10 text-[var(--ink)]">
+                Get started free — no card needed
+              </Link>
+            </div>
+
+            {/* Growth */}
+            <div className="relative bg-slate-900 border border-slate-800 rounded-2xl p-7 shadow-[0_24px_60px_rgba(15,23,42,0.3)]">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                <span className="bg-[var(--accent-warm)] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm">
+                  Most popular
+                </span>
+              </div>
+              <p className="text-sm font-bold text-white/50 mb-1">Growth</p>
+              <div className="flex items-baseline gap-1 mb-1.5">
+                <span className="text-4xl font-black text-white">$99</span>
+                <span className="text-sm text-white/40">/mo</span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 bg-teal-500/15 text-teal-300 text-[10px] font-semibold px-2.5 py-1 rounded-full mb-3 border border-teal-500/20">
+                <TrendingUp className="w-3 h-3" /> ≈ 20 min with a $300/hr consultant
+              </div>
+              <p className="text-xs mb-6 leading-relaxed text-white/45">Everything in Starter — plus AI features, PDF reports, all 7 frameworks, Trust Center, and unlimited everything.</p>
+              <div className="space-y-2.5 mb-7">
+                {[
+                  "Unlimited integrations (18+)",
+                  "All 7 frameworks (incl. GDPR, PCI DSS, CCPA, NIST CSF)",
+                  "PDF & CSV audit reports",
+                  "AI Compliance Advisor",
+                  "AI Questionnaire Autofill",
+                  "AI Audit Package",
+                  "Public Trust Center page",
+                  "Unlimited team members",
+                  "Priority support",
+                ].map((f) => (
+                  <div key={f} className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" />
+                    <span className="text-xs leading-snug text-white/65">{f}</span>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={handleGrowthCta}
+                disabled={checkoutLoading}
+                className="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2.5 rounded-xl transition-colors bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white disabled:opacity-60 shadow-[0_4px_14px_rgba(15,118,110,0.4)]"
+              >
+                {checkoutLoading ? (
+                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Zap className="w-4 h-4" />
+                )}
+                {checkoutLoading ? "Opening checkout…" : "Get Growth — $99/mo"}
+              </button>
+              <p className="text-center text-[10px] text-white/25 mt-2">Cancel anytime · No contracts</p>
+            </div>
+
+            {/* Enterprise */}
+            <div className="bg-[var(--card)] border border-black/5 rounded-2xl p-7 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+              <p className="text-sm font-bold text-[var(--muted)] mb-1">Enterprise</p>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-4xl font-black text-[var(--ink)]">Custom</span>
+              </div>
+              <p className="text-xs mb-6 leading-relaxed text-[var(--muted)]">For larger orgs with advanced compliance needs, dedicated security teams, and enterprise requirements.</p>
+              <div className="space-y-2.5 mb-7">
+                {[
+                  "Everything in Growth",
+                  "Custom integrations",
+                  "SSO / SAML",
+                  "Dedicated CSM",
+                  "SLA guarantee",
+                  "Custom audit reports",
+                ].map((f) => (
+                  <div key={f} className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[var(--accent)]" />
+                    <span className="text-xs leading-snug text-[var(--ink)]">{f}</span>
+                  </div>
+                ))}
+              </div>
+              <Link href="/register" className="block text-center text-sm font-semibold py-2.5 rounded-xl transition-colors bg-[color:var(--ink)]/6 hover:bg-[color:var(--ink)]/10 text-[var(--ink)]">
+                Contact sales
+              </Link>
+            </div>
+          </div>
+
+          {/* Value callouts */}
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-white rounded-2xl border border-black/5 p-5 shadow-sm">
+              <div className="w-8 h-8 bg-emerald-50 rounded-xl flex items-center justify-center mb-3">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              </div>
+              <p className="text-sm font-bold text-[var(--ink)] mb-1">Free plan = real compliance</p>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">Evidence collection, risk register, policies, training, vendors, and access reviews — all on the free plan. No gotchas, no locked features, no time limit.</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-black/5 p-5 shadow-sm">
+              <div className="w-8 h-8 bg-orange-50 rounded-xl flex items-center justify-center mb-3">
+                <FileText className="w-4 h-4 text-orange-500" />
+              </div>
+              <p className="text-sm font-bold text-[var(--ink)] mb-1">Upgrade trigger: PDF reports</p>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">Most teams run the free plan for months. They upgrade to Growth the moment their auditor asks for a formatted PDF report — that&apos;s the signal.</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-black/5 p-5 shadow-sm">
+              <div className="w-8 h-8 bg-teal-50 rounded-xl flex items-center justify-center mb-3">
+                <BarChart3 className="w-4 h-4 text-teal-600" />
+              </div>
+              <p className="text-sm font-bold text-[var(--ink)] mb-1">$99/mo vs. $50k+ consultant</p>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">A typical compliance engagement runs $50,000–$100,000. Growth pays for itself before your first audit kickoff call. Cancel anytime.</p>
+            </div>
+          </div>
+
+          {/* Feature comparison table */}
+          <div className="mt-12 overflow-x-auto">
+            <h3 className="text-center text-sm font-bold text-[var(--ink)] mb-6">Full feature comparison</h3>
+            <table className="w-full text-xs border-collapse min-w-[540px]">
+              <thead>
+                <tr className="border-b-2 border-black/8">
+                  <th className="text-left pb-3 pr-6 font-semibold text-[var(--muted)] w-[40%]">Feature</th>
+                  <th className="text-center pb-3 px-3 font-semibold text-[var(--muted)]">Starter (Free)</th>
+                  <th className="text-center pb-3 px-3 font-bold text-[var(--accent)]">Growth ($99/mo)</th>
+                  <th className="text-center pb-3 pl-3 font-semibold text-[var(--muted)]">Enterprise</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { feature: "Integrations",           starter: "Up to 3",                growth: "Unlimited (18+)",       enterprise: "Custom"           },
+                  { feature: "Compliance frameworks",   starter: "SOC 2, ISO 27001, HIPAA",growth: "All 7 frameworks",       enterprise: "All 7 + custom"   },
+                  { feature: "Evidence collection",     starter: "✓",                      growth: "✓",                     enterprise: "✓"                },
+                  { feature: "Risk Register",           starter: "✓",                      growth: "✓",                     enterprise: "✓"                },
+                  { feature: "Policy Templates",        starter: "✓",                      growth: "✓",                     enterprise: "✓"                },
+                  { feature: "Training Tracker",        starter: "✓",                      growth: "✓",                     enterprise: "✓"                },
+                  { feature: "Vendor Due Diligence",    starter: "✓",                      growth: "✓",                     enterprise: "✓"                },
+                  { feature: "Access Reviews",          starter: "✓",                      growth: "✓",                     enterprise: "✓"                },
+                  { feature: "Audit reports",           starter: "JSON",                   growth: "PDF, CSV & JSON",        enterprise: "PDF + custom"     },
+                  { feature: "AI Compliance Advisor",   starter: "—",                      growth: "✓",                     enterprise: "✓"                },
+                  { feature: "AI Questionnaire Fill",   starter: "—",                      growth: "✓",                     enterprise: "✓"                },
+                  { feature: "AI Audit Package",        starter: "—",                      growth: "✓",                     enterprise: "✓"                },
+                  { feature: "Public Trust Center",     starter: "—",                      growth: "✓",                     enterprise: "✓"                },
+                  { feature: "Team members",            starter: "Up to 3",                growth: "Unlimited",             enterprise: "Unlimited"        },
+                  { feature: "Support",                 starter: "Email",                  growth: "Priority",              enterprise: "Dedicated CSM"    },
+                  { feature: "SSO / SAML",              starter: "—",                      growth: "—",                     enterprise: "✓"                },
+                  { feature: "SLA guarantee",           starter: "—",                      growth: "—",                     enterprise: "✓"                },
+                ].map(({ feature, starter, growth, enterprise }, i) => (
+                  <tr key={feature} className={`border-b border-black/5 ${i % 2 === 0 ? "bg-black/[0.018]" : ""}`}>
+                    <td className="py-3 pr-6 font-medium text-[var(--ink)]">{feature}</td>
+                    <td className="py-3 px-3 text-center text-[var(--muted)]">{starter}</td>
+                    <td className={`py-3 px-3 text-center font-semibold ${growth === "—" ? "text-black/20" : "text-[var(--accent)]"}`}>{growth}</td>
+                    <td className="py-3 pl-3 text-center text-[var(--muted)]">{enterprise}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </section>

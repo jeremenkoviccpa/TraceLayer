@@ -345,45 +345,63 @@ export default function DashboardPage() {
         <div className="md:col-span-2 lg:col-span-2 relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 overflow-hidden">
           {/* Radial glow */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-brand-500/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="relative flex items-center gap-6 flex-wrap">
-            <ScoreRing score={scoreLoading ? score : score} />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="text-sm font-semibold text-white/60">Compliance score</span>
-                {trend !== null && (
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${trend >= 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
-                    {trend >= 0 ? "+" : ""}{trend}% vs prev
-                  </span>
-                )}
+          <div className="relative">
+            <div className="flex items-center gap-4 sm:gap-6">
+              <ScoreRing score={scoreLoading ? score : score} />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <span className="text-sm font-semibold text-white/60">Compliance score</span>
+                  {trend !== null && (
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${trend >= 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+                      {trend >= 0 ? "+" : ""}{trend}% vs prev
+                    </span>
+                  )}
+                </div>
+                <p className="text-4xl font-black text-white mb-3">{score}<span className="text-xl text-white/30">%</span></p>
+                {/* Framework tabs */}
+                <div className="flex gap-1 bg-white/10 rounded-xl p-1 w-fit max-w-full overflow-x-auto no-scrollbar">
+                  {FRAMEWORKS.map((fw) => (
+                    <button
+                      key={fw.value}
+                      onClick={() => handleFrameworkChange(fw.value)}
+                      disabled={scoreLoading}
+                      className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 whitespace-nowrap ${
+                        framework === fw.value
+                          ? "bg-white text-slate-900 shadow-sm"
+                          : "text-white/50 hover:text-white/80"
+                      }`}
+                    >
+                      {fw.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <p className="text-4xl font-black text-white mb-3">{score}<span className="text-xl text-white/30">%</span></p>
-              {/* Framework tabs */}
-              <div className="flex gap-1 bg-white/10 rounded-xl p-1 w-fit">
-                {FRAMEWORKS.map((fw) => (
-                  <button
-                    key={fw.value}
-                    onClick={() => handleFrameworkChange(fw.value)}
-                    disabled={scoreLoading}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 ${
-                      framework === fw.value
-                        ? "bg-white text-slate-900 shadow-sm"
-                        : "text-white/50 hover:text-white/80"
-                    }`}
-                  >
-                    {fw.label}
-                  </button>
-                ))}
-              </div>
+              {/* Readiness badge — desktop only */}
+              {readiness && (
+                <Link href="/readiness" className="hidden sm:flex shrink-0 flex-col items-center gap-1 bg-white/10 hover:bg-white/15 transition-colors rounded-2xl px-4 py-3 text-center">
+                  <Target className="w-5 h-5 text-violet-300 mb-0.5" />
+                  <span className="text-2xl font-black text-white">{readiness.readiness_score}%</span>
+                  <span className="text-[10px] text-white/40 font-semibold uppercase tracking-wide">Readiness</span>
+                  {readiness.weeks_estimate > 0 && (
+                    <span className="text-[10px] text-amber-400 font-semibold">~{readiness.weeks_estimate}wk</span>
+                  )}
+                </Link>
+              )}
             </div>
-            {/* Readiness badge */}
+            {/* Readiness row — mobile only */}
             {readiness && (
-              <Link href="/readiness" className="shrink-0 flex flex-col items-center gap-1 bg-white/10 hover:bg-white/15 transition-colors rounded-2xl px-4 py-3 text-center">
-                <Target className="w-5 h-5 text-violet-300 mb-0.5" />
-                <span className="text-2xl font-black text-white">{readiness.readiness_score}%</span>
-                <span className="text-[10px] text-white/40 font-semibold uppercase tracking-wide">Readiness</span>
-                {readiness.weeks_estimate > 0 && (
-                  <span className="text-[10px] text-amber-400 font-semibold">~{readiness.weeks_estimate}wk</span>
-                )}
+              <Link href="/readiness" className="sm:hidden flex items-center justify-between mt-4 pt-3 border-t border-white/10">
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-violet-300" />
+                  <span className="text-xs font-semibold text-white/50 uppercase tracking-wide">Readiness</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-white">{readiness.readiness_score}%</span>
+                  {readiness.weeks_estimate > 0 && (
+                    <span className="text-xs text-amber-400 font-semibold">~{readiness.weeks_estimate}wk to audit</span>
+                  )}
+                  <ArrowRight className="w-3.5 h-3.5 text-white/30" />
+                </div>
               </Link>
             )}
           </div>
