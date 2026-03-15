@@ -21,9 +21,13 @@ import {
 } from "lucide-react";
 
 const FRAMEWORKS = [
-  { value: "soc2",     label: "SOC 2"     },
-  { value: "iso27001", label: "ISO 27001" },
-  { value: "hipaa",    label: "HIPAA"     },
+  { value: "soc2",     label: "SOC 2",     description: "Trust Service Criteria"        },
+  { value: "iso27001", label: "ISO 27001", description: "Information Security Mgmt"     },
+  { value: "hipaa",    label: "HIPAA",     description: "Health Data Privacy"            },
+  { value: "gdpr",     label: "GDPR",      description: "EU Data Protection"             },
+  { value: "pci_dss",  label: "PCI DSS",   description: "Payment Card Security"          },
+  { value: "ccpa",     label: "CCPA",      description: "California Privacy"             },
+  { value: "nist_csf", label: "NIST CSF",  description: "Cybersecurity Framework"        },
 ];
 
 type Status = "pending" | "compliant" | "not_applicable";
