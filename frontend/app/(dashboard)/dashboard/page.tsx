@@ -190,9 +190,13 @@ const QUICK_LINKS = [
 ];
 
 const FRAMEWORKS = [
-  { value: "soc2",    label: "SOC 2"    },
+  { value: "soc2",     label: "SOC 2"     },
   { value: "iso27001", label: "ISO 27001" },
-  { value: "hipaa",   label: "HIPAA"    },
+  { value: "hipaa",    label: "HIPAA"     },
+  { value: "gdpr",     label: "GDPR"      },
+  { value: "pci_dss",  label: "PCI DSS"   },
+  { value: "ccpa",     label: "CCPA"      },
+  { value: "nist_csf", label: "NIST CSF"  },
 ];
 
 function fmtDay(dateStr: string) {
@@ -359,7 +363,7 @@ export default function DashboardPage() {
                 </div>
                 <p className="text-4xl font-black text-white mb-3">{score}<span className="text-xl text-white/30">%</span></p>
                 {/* Framework tabs */}
-                <div className="flex gap-1 bg-white/10 rounded-xl p-1 w-fit max-w-full overflow-x-auto no-scrollbar">
+                <div className="flex gap-1 bg-white/10 rounded-xl p-1 overflow-x-auto no-scrollbar">
                   {FRAMEWORKS.map((fw) => (
                     <button
                       key={fw.value}
@@ -442,7 +446,7 @@ export default function DashboardPage() {
             icon={Activity}
             label="Controls monitored"
             value={compliance?.controls.length ?? 0}
-            sub={`${framework.toUpperCase()} framework`}
+            sub={`${FRAMEWORKS.find(f => f.value === framework)?.label ?? framework} framework`}
             color="brand"
           />
           <MiniStat

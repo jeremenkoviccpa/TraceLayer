@@ -47,8 +47,10 @@ async def get_subscription(
     company = result.scalar_one_or_none()
     if not company:
         raise HTTPException(status_code=404, detail="Company not found")
+    # Admin accounts always get full Growth access for demo/testing purposes
+    effective_plan = "growth" if current_user.role == "admin" else company.plan
     return {
-        "plan": company.plan,
+        "plan": effective_plan,
         "subscription_status": company.subscription_status,
         "ls_subscription_id": company.ls_subscription_id,
     }

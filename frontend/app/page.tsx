@@ -1095,6 +1095,89 @@ export default function LandingPage() {
             </p>
           </div>
 
+          {/* Journey roadmap */}
+          <div className="mb-10 relative">
+            {/* Connecting line — desktop */}
+            <div className="hidden md:block absolute top-[38px] left-[calc(16.67%+24px)] right-[calc(16.67%+24px)] h-px bg-gradient-to-r from-emerald-200 via-[var(--accent)] to-slate-300" />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-6">
+              {/* Stage 1 — Starter */}
+              <div className="flex md:flex-col items-start md:items-center gap-4 md:gap-0 px-4 md:px-0 pb-6 md:pb-0 border-b md:border-b-0 border-black/6 last:border-0">
+                {/* Node */}
+                <div className="relative z-10 flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center shadow-sm">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  {/* Mobile connector */}
+                  <div className="md:hidden absolute left-1/2 top-full w-px h-6 -translate-x-1/2 bg-gradient-to-b from-emerald-200 to-[var(--accent)] opacity-0 pointer-events-none" />
+                </div>
+                <div className="md:mt-4 md:text-center">
+                  <div className="flex items-center gap-1.5 md:justify-center mb-1">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">Starter</span>
+                    <span className="text-[10px] text-emerald-500 font-semibold bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full">Free forever</span>
+                  </div>
+                  <p className="text-sm font-bold text-[var(--ink)] leading-snug mb-1.5">Launch your compliance program</p>
+                  <ul className="space-y-0.5">
+                    {["Automated evidence collection", "Risk register & policies", "3 frameworks · 3 integrations", "Training & vendor tracking"].map(t => (
+                      <li key={t} className="text-[11px] text-[var(--muted)] flex items-center gap-1.5 md:justify-center">
+                        <span className="w-1 h-1 rounded-full bg-emerald-400 shrink-0" />{t}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Stage 2 — Growth */}
+              <div className="flex md:flex-col items-start md:items-center gap-4 md:gap-0 px-4 md:px-0 pb-6 md:pb-0 border-b md:border-b-0 border-black/6 last:border-0">
+                <div className="relative z-10 flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-[var(--accent)] border-2 border-[var(--accent)] flex items-center justify-center shadow-[0_4px_14px_rgba(15,118,110,0.35)]">
+                    <Zap className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+                <div className="md:mt-4 md:text-center">
+                  <div className="flex items-center gap-1.5 md:justify-center mb-1">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--accent)]">Growth</span>
+                    <span className="text-[10px] text-white font-semibold bg-[var(--accent)] px-1.5 py-0.5 rounded-full">$99 / mo</span>
+                  </div>
+                  <p className="text-sm font-bold text-[var(--ink)] leading-snug mb-1.5">Unlock AI + audit-ready reports</p>
+                  <ul className="space-y-0.5">
+                    {["PDF & CSV audit reports", "AI Compliance Advisor", "All 7 frameworks + unlimited integrations", "Public Trust Center page"].map(t => (
+                      <li key={t} className="text-[11px] text-[var(--muted)] flex items-center gap-1.5 md:justify-center">
+                        <span className="w-1 h-1 rounded-full bg-[var(--accent)] shrink-0" />{t}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Stage 3 — Enterprise */}
+              <div className="flex md:flex-col items-start md:items-center gap-4 md:gap-0 px-4 md:px-0">
+                <div className="relative z-10 flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-slate-100 border-2 border-slate-300 flex items-center justify-center shadow-sm">
+                    <BarChart3 className="w-5 h-5 text-slate-500" />
+                  </div>
+                </div>
+                <div className="md:mt-4 md:text-center">
+                  <div className="flex items-center gap-1.5 md:justify-center mb-1">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Enterprise</span>
+                    <span className="text-[10px] text-slate-500 font-semibold bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-full">Custom</span>
+                  </div>
+                  <p className="text-sm font-bold text-[var(--ink)] leading-snug mb-1.5">Scale with dedicated support</p>
+                  <ul className="space-y-0.5">
+                    {["SSO / SAML", "Dedicated CSM & SLA", "Custom integrations", "Custom audit reports"].map(t => (
+                      <li key={t} className="text-[11px] text-[var(--muted)] flex items-center gap-1.5 md:justify-center">
+                        <span className="w-1 h-1 rounded-full bg-slate-400 shrink-0" />{t}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile vertical line overlay — purely decorative */}
+            <div className="md:hidden absolute left-[calc(2rem+6px)] top-12 bottom-12 w-px bg-gradient-to-b from-emerald-200 via-[var(--accent)] to-slate-300 -z-0 pointer-events-none" />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
 
             {/* Starter */}
@@ -1232,48 +1315,6 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Feature comparison table */}
-          <div className="mt-12 overflow-x-auto">
-            <h3 className="text-center text-sm font-bold text-[var(--ink)] mb-6">Full feature comparison</h3>
-            <table className="w-full text-xs border-collapse min-w-[540px]">
-              <thead>
-                <tr className="border-b-2 border-black/8">
-                  <th className="text-left pb-3 pr-6 font-semibold text-[var(--muted)] w-[40%]">Feature</th>
-                  <th className="text-center pb-3 px-3 font-semibold text-[var(--muted)]">Starter (Free)</th>
-                  <th className="text-center pb-3 px-3 font-bold text-[var(--accent)]">Growth ($99/mo)</th>
-                  <th className="text-center pb-3 pl-3 font-semibold text-[var(--muted)]">Enterprise</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { feature: "Integrations",           starter: "Up to 3",                growth: "Unlimited (18+)",       enterprise: "Custom"           },
-                  { feature: "Compliance frameworks",   starter: "SOC 2, ISO 27001, HIPAA",growth: "All 7 frameworks",       enterprise: "All 7 + custom"   },
-                  { feature: "Evidence collection",     starter: "✓",                      growth: "✓",                     enterprise: "✓"                },
-                  { feature: "Risk Register",           starter: "✓",                      growth: "✓",                     enterprise: "✓"                },
-                  { feature: "Policy Templates",        starter: "✓",                      growth: "✓",                     enterprise: "✓"                },
-                  { feature: "Training Tracker",        starter: "✓",                      growth: "✓",                     enterprise: "✓"                },
-                  { feature: "Vendor Due Diligence",    starter: "✓",                      growth: "✓",                     enterprise: "✓"                },
-                  { feature: "Access Reviews",          starter: "✓",                      growth: "✓",                     enterprise: "✓"                },
-                  { feature: "Audit reports",           starter: "JSON",                   growth: "PDF, CSV & JSON",        enterprise: "PDF + custom"     },
-                  { feature: "AI Compliance Advisor",   starter: "—",                      growth: "✓",                     enterprise: "✓"                },
-                  { feature: "AI Questionnaire Fill",   starter: "—",                      growth: "✓",                     enterprise: "✓"                },
-                  { feature: "AI Audit Package",        starter: "—",                      growth: "✓",                     enterprise: "✓"                },
-                  { feature: "Public Trust Center",     starter: "—",                      growth: "✓",                     enterprise: "✓"                },
-                  { feature: "Team members",            starter: "Up to 3",                growth: "Unlimited",             enterprise: "Unlimited"        },
-                  { feature: "Support",                 starter: "Email",                  growth: "Priority",              enterprise: "Dedicated CSM"    },
-                  { feature: "SSO / SAML",              starter: "—",                      growth: "—",                     enterprise: "✓"                },
-                  { feature: "SLA guarantee",           starter: "—",                      growth: "—",                     enterprise: "✓"                },
-                ].map(({ feature, starter, growth, enterprise }, i) => (
-                  <tr key={feature} className={`border-b border-black/5 ${i % 2 === 0 ? "bg-black/[0.018]" : ""}`}>
-                    <td className="py-3 pr-6 font-medium text-[var(--ink)]">{feature}</td>
-                    <td className="py-3 px-3 text-center text-[var(--muted)]">{starter}</td>
-                    <td className={`py-3 px-3 text-center font-semibold ${growth === "—" ? "text-black/20" : "text-[var(--accent)]"}`}>{growth}</td>
-                    <td className="py-3 pl-3 text-center text-[var(--muted)]">{enterprise}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
         </div>
       </section>
 
