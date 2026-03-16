@@ -1059,63 +1059,6 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Journey roadmap */}
-          <div className="mb-10 relative">
-            {/* Connecting line — desktop */}
-            <div className="hidden md:block absolute top-[38px] left-[calc(25%+24px)] right-[calc(25%+24px)] h-px bg-gradient-to-r from-[var(--accent)] to-slate-300" />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-6 max-w-2xl mx-auto">
-              {/* Stage 1 — Growth */}
-              <div className="flex md:flex-col items-start md:items-center gap-4 md:gap-0 px-4 md:px-0 pb-6 md:pb-0 border-b md:border-b-0 border-black/6 last:border-0">
-                <div className="relative z-10 flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-[var(--accent)] border-2 border-[var(--accent)] flex items-center justify-center shadow-[0_4px_14px_rgba(15,118,110,0.35)]">
-                    <Zap className="w-5 h-5 text-white" />
-                  </div>
-                </div>
-                <div className="md:mt-4 md:text-center">
-                  <div className="flex items-center gap-1.5 md:justify-center mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--accent)]">Growth</span>
-                    <span className="text-[10px] text-white font-semibold bg-[var(--accent)] px-1.5 py-0.5 rounded-full">$149 / mo</span>
-                  </div>
-                  <p className="text-sm font-bold text-[var(--ink)] leading-snug mb-1.5">Unlock AI + audit-ready reports</p>
-                  <ul className="space-y-0.5">
-                    {["PDF & CSV audit reports", "AI Compliance Advisor", "All 7 frameworks + unlimited integrations", "Public Trust Center page"].map(t => (
-                      <li key={t} className="text-[11px] text-[var(--muted)] flex items-center gap-1.5 md:justify-center">
-                        <span className="w-1 h-1 rounded-full bg-[var(--accent)] shrink-0" />{t}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Stage 2 — Enterprise */}
-              <div className="flex md:flex-col items-start md:items-center gap-4 md:gap-0 px-4 md:px-0">
-                <div className="relative z-10 flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-slate-100 border-2 border-slate-300 flex items-center justify-center shadow-sm">
-                    <BarChart3 className="w-5 h-5 text-slate-500" />
-                  </div>
-                </div>
-                <div className="md:mt-4 md:text-center">
-                  <div className="flex items-center gap-1.5 md:justify-center mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Enterprise</span>
-                    <span className="text-[10px] text-slate-500 font-semibold bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-full">Custom</span>
-                  </div>
-                  <p className="text-sm font-bold text-[var(--ink)] leading-snug mb-1.5">Scale with dedicated support</p>
-                  <ul className="space-y-0.5">
-                    {["SSO / SAML", "Dedicated CSM & SLA", "Custom integrations", "Custom audit reports"].map(t => (
-                      <li key={t} className="text-[11px] text-[var(--muted)] flex items-center gap-1.5 md:justify-center">
-                        <span className="w-1 h-1 rounded-full bg-slate-400 shrink-0" />{t}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile vertical line overlay — purely decorative */}
-            <div className="md:hidden absolute left-[calc(2rem+6px)] top-12 bottom-12 w-px bg-gradient-to-b from-[var(--accent)] to-slate-300 -z-0 pointer-events-none" />
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-3xl mx-auto">
 
             {/* Growth */}
