@@ -333,7 +333,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       {/* Main area — margin tracks sidebar width */}
-      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-200 ${collapsed ? "md:ml-16" : "md:ml-60"}`}>
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-200 overflow-x-hidden ${collapsed ? "md:ml-16" : "md:ml-60"}`}>
         {/* Mobile top bar */}
         <header className="md:hidden sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-gray-100 px-4 h-14 flex items-center gap-3 shrink-0">
           <button
@@ -351,9 +351,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Email verification banner */}
         {user && !user.email_verified && (
           <div className="bg-amber-50 border-b border-amber-200 px-4 py-2.5 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-            <div className="flex items-center gap-2 text-sm text-amber-800 flex-1">
+            <div className="flex items-center gap-2 text-sm text-amber-800 flex-1 min-w-0">
               <MailWarning className="w-4 h-4 shrink-0 text-amber-600" />
-              <span>Please verify your email to ensure uninterrupted access.</span>
+              <span className="min-w-0 truncate">Please verify your email to ensure uninterrupted access.</span>
             </div>
             {resendSent ? (
               <span className="text-xs text-amber-700 font-semibold shrink-0">✓ Email sent!</span>
