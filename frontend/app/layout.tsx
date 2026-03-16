@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
+import { Sora } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
 import { CookieConsent } from "@/components/cookie-consent";
+
+const sora = Sora({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-sora",
+});
 
 const BASE_URL = "https://www.tracelayer.it.com";
 
@@ -88,8 +96,8 @@ const jsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={sora.variable}>
+      <body style={{ fontFamily: "var(--font-sora), ui-sans-serif, system-ui, sans-serif" }}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

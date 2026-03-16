@@ -550,11 +550,13 @@ export default function LandingPage() {
     setMobileOpen(false);
   };
 
-  if (loading || user) return null;
+  // Don't block render on auth check — redirect happens via useEffect once resolved.
+  // Logged-in users see a brief flash then get pushed to /dashboard, which is fine.
+  if (!loading && user) return null;
 
   return (
     <div
-      className="min-h-screen bg-[var(--bg)] text-[var(--ink)] font-[family:'Sora',_ui-sans-serif,_system-ui]"
+      className="min-h-screen bg-[var(--bg)] text-[var(--ink)]"
       style={THEME}
     >
       {/* Scroll progress bar */}
