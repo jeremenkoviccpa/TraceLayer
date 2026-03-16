@@ -262,12 +262,7 @@ export default function SettingsPage() {
   const handleExport = async () => {
     setGdprLoading(true);
     try {
-      const token = localStorage.getItem("access_token");
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/v1/org/account/export`,
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
-      const data = await res.json();
+      const data = await api.exportAccountData();
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -285,11 +280,7 @@ export default function SettingsPage() {
   const handleDeleteAccount = async () => {
     setGdprLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/v1/org/account`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` },
-      });
-      if (!res.ok) throw new Error(`${res.status}`);
+      await api.deleteAccount();
       localStorage.clear();
       window.location.href = "/";
     } catch {

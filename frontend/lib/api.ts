@@ -232,6 +232,16 @@ class ApiClient {
     this.setTokens(data.access_token, data.refresh_token);
   }
 
+  // ── Account (GDPR) ───────────────────────────────────────────────────────
+
+  async deleteAccount(): Promise<void> {
+    return this.request("DELETE", "/org/account");
+  }
+
+  async exportAccountData(): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>("GET", "/org/account/export");
+  }
+
   // ── Settings ─────────────────────────────────────────────────────────────
 
   async getCompany(): Promise<Company> {
