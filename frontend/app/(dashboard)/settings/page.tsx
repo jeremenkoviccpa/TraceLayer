@@ -419,18 +419,18 @@ export default function SettingsPage() {
       {toast && <Toast msg={toast.msg} type={toast.type} />}
 
       {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+      <div className="flex items-start justify-between gap-3 mb-6">
         <div className="min-w-0">
           <h1 className="text-xl font-bold text-gray-900">Settings</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage your account and workspace.</p>
         </div>
         {billing && (
-          <span className={`self-start sm:self-auto text-xs font-semibold px-3 py-1.5 rounded-full border ${
+          <span className={`shrink-0 mt-0.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${
             billing.plan === "growth"
               ? "bg-emerald-50 text-emerald-700 border-emerald-200"
               : "bg-gray-50 text-gray-500 border-gray-200"
           }`}>
-            {billing.plan === "growth" ? "✦ Growth" : "Free plan"}
+            {billing.plan === "growth" ? "✦ Growth" : "Free"}
           </span>
         )}
       </div>
