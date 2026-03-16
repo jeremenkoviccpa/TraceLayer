@@ -380,7 +380,7 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         <div className="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-xl p-4 mb-5">
-          <p className="text-sm font-semibold text-teal-800 mb-2">Upgrade to Growth — $99/mo</p>
+          <p className="text-sm font-semibold text-teal-800 mb-2">Upgrade to Growth — $149/mo</p>
           <ul className="space-y-1 text-sm text-teal-700">
             {["Unlimited integrations", "AI Compliance Advisor", "SOC 2, ISO 27001, GDPR, PCI DSS", "Priority support"].map((f) => (
               <li key={f} className="flex items-center gap-2"><Zap className="w-3.5 h-3.5 shrink-0"/> {f}</li>

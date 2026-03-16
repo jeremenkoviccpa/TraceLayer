@@ -56,7 +56,7 @@ export default function LoginPage() {
           </p>
           <div className="space-y-3">
             {[
-              "SOC 2, ISO 27001 & HIPAA frameworks",
+              "SOC 2 free · ISO 27001, HIPAA & more on Growth",
               "Automatic evidence collection from AWS, GitHub & more",
               "AI-powered compliance advisor",
             ].map((f) => (

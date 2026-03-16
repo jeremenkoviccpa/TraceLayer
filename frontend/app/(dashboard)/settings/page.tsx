@@ -776,7 +776,7 @@ export default function SettingsPage() {
                     <div>
                       <p className="text-xs font-bold text-teal-400 uppercase tracking-widest mb-1">Growth Plan</p>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-3xl font-black text-white">$99</span>
+                        <span className="text-3xl font-black text-white">$149</span>
                         <span className="text-sm text-white/40">/mo</span>
                       </div>
                     </div>
@@ -817,7 +817,7 @@ export default function SettingsPage() {
                       className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 disabled:opacity-60 text-white text-sm font-bold py-3 rounded-xl transition-all shadow-lg shadow-teal-900/30 hover:-translate-y-px active:translate-y-0"
                     >
                       <Zap className="w-4 h-4" />
-                      {billingLoading ? "Opening checkout…" : "Upgrade to Growth — $99/mo"}
+                      {billingLoading ? "Opening checkout…" : "Upgrade to Growth — $149/mo"}
                     </button>
                   </div>
                 )}

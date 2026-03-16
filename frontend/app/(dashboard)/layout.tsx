@@ -276,7 +276,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
               <p className="text-[10px] text-white/70 leading-snug mb-2.5">Unlock AI features, PDF reports, all 7 frameworks &amp; more.</p>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-white/90">$99 / mo</span>
+                <span className="text-[10px] font-bold text-white/90">$149 / mo</span>
                 <span className="text-[10px] font-semibold text-brand-200 group-hover:text-white transition-colors">Upgrade →</span>
               </div>
             </Link>

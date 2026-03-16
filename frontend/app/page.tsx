@@ -387,7 +387,7 @@ const FAQ = [
   },
   {
     q: "Is there a free plan?",
-    a: "Yes — TraceLayer is free to start with no credit card required. The free plan includes SOC 2, ISO 27001, and HIPAA frameworks, automated evidence collection, Risk Register, Policy Templates, Training Tracker, Vendor hub, Access Reviews, and JSON reports for up to 3 integrations and 3 team members. PDF reports, AI features, Trust Center, and unlimited integrations require the Growth plan at $99/mo.",
+    a: "Yes — TraceLayer is free to start with no credit card required. The free plan includes SOC 2, automated evidence collection, Risk Register, Policy Templates, Training Tracker, Vendor hub, Access Reviews, and JSON reports for up to 3 integrations and 3 team members. ISO 27001, HIPAA, GDPR, and all other frameworks, plus PDF reports, AI features, and Trust Center require the Growth plan at $149/mo.",
   },
   {
     q: "How is the compliance score calculated?",
@@ -712,7 +712,7 @@ export default function LandingPage() {
             </span>
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-              3 integrations &amp; 3 frameworks included free
+              SOC 2 included free — upgrade for all 7 frameworks
             </span>
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -1055,7 +1055,7 @@ export default function LandingPage() {
             </h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-xl mx-auto leading-relaxed">
               Start free — no credit card required. Upgrade to Growth when you need PDF reports and AI features.
-              $99/mo is less than 20 minutes with a compliance consultant.
+              $149/mo is less than 30 minutes with a compliance consultant.
             </p>
           </div>
 
@@ -1075,7 +1075,7 @@ export default function LandingPage() {
                 <div className="md:mt-4 md:text-center">
                   <div className="flex items-center gap-1.5 md:justify-center mb-1">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--accent)]">Growth</span>
-                    <span className="text-[10px] text-white font-semibold bg-[var(--accent)] px-1.5 py-0.5 rounded-full">$99 / mo</span>
+                    <span className="text-[10px] text-white font-semibold bg-[var(--accent)] px-1.5 py-0.5 rounded-full">$149 / mo</span>
                   </div>
                   <p className="text-sm font-bold text-[var(--ink)] leading-snug mb-1.5">Unlock AI + audit-ready reports</p>
                   <ul className="space-y-0.5">
@@ -1131,11 +1131,11 @@ export default function LandingPage() {
               </div>
               <p className="text-sm font-bold text-white/50 mb-1">Growth</p>
               <div className="flex items-baseline gap-1 mb-1.5">
-                <span className="text-4xl font-black text-white">$99</span>
+                <span className="text-4xl font-black text-white">$149</span>
                 <span className="text-sm text-white/40">/mo</span>
               </div>
               <div className="inline-flex items-center gap-1.5 bg-teal-500/15 text-teal-300 text-[10px] font-semibold px-2.5 py-1 rounded-full mb-3 border border-teal-500/20">
-                <TrendingUp className="w-3 h-3" /> ≈ 20 min with a $300/hr consultant
+                <TrendingUp className="w-3 h-3" /> ≈ 30 min with a $300/hr consultant
               </div>
               <p className="text-xs mb-6 leading-relaxed text-white/45">AI features, PDF reports, all 7 frameworks, Trust Center, unlimited integrations and team members.</p>
               <div className="space-y-2.5 mb-7">
@@ -1167,7 +1167,7 @@ export default function LandingPage() {
                 ) : (
                   <Zap className="w-4 h-4" />
                 )}
-                {checkoutLoading ? "Opening checkout…" : "Get Growth — $99/mo"}
+                {checkoutLoading ? "Opening checkout…" : "Get Growth — $149/mo"}
               </button>
               <p className="text-center text-[10px] text-white/25 mt-2">Cancel anytime · No contracts</p>
             </div>
@@ -1207,7 +1207,7 @@ export default function LandingPage() {
               <Link href="/register" className="text-[var(--accent)] font-semibold hover:underline">
                 Sign up free
               </Link>
-              {" "}— no credit card needed. Includes SOC 2, ISO 27001 &amp; HIPAA, automated evidence, risk register, policies, training, and more.
+              {" "}— no credit card needed. Includes SOC 2, automated evidence collection, risk register, policies, training, vendors &amp; more.
             </p>
           </div>
 
