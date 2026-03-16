@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
 import type { Invitation, Member } from "@/lib/types";
-import { Users, Mail, Trash2, Plus, Copy, Check, Shield, UserCheck } from "lucide-react";
+import { Users, Mail, Trash2, Plus, Copy, Check, Shield, UserCheck, Lock, Zap } from "lucide-react";
+import { usePlan } from "@/hooks/usePlan";
+import { useUpgrade } from "@/components/plan-gate";
+
+const FREE_MEMBER_LIMIT = 3;
 
 function getInitials(email: string) {
   return email.slice(0, 2).toUpperCase();
@@ -110,9 +114,12 @@ export default function TeamPage() {
     }
   };
 
+  const { isPro } = usePlan();
+  const { trigger: triggerUpgrade } = useUpgrade();
   const isAdmin = user?.role === "admin";
   const adminCount = members.filter((m) => m.role === "admin").length;
   const memberCount = members.filter((m) => m.role !== "admin").length;
+  const atMemberLimit = !isPro && members.length >= FREE_MEMBER_LIMIT;
 
   return (
     <div className="space-y-6 overflow-x-hidden">
@@ -159,18 +166,49 @@ export default function TeamPage() {
                   <p className="text-xs text-slate-400 mt-0.5">Members</p>
                 </div>
               </div>
+              {/* Free plan seat usage */}
+              {!isPro && !loading && (
+                <div className="mt-4 max-w-xs">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[11px] text-slate-400">
+                      {members.length} / {FREE_MEMBER_LIMIT} seats used
+                    </span>
+                    {atMemberLimit && (
+                      <button onClick={triggerUpgrade} className="flex items-center gap-1 text-[10px] font-semibold text-amber-300 hover:text-amber-200 transition-colors">
+                        <Zap className="w-2.5 h-2.5" /> Upgrade for unlimited
+                      </button>
+                    )}
+                  </div>
+                  <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${atMemberLimit ? "bg-amber-400" : "bg-violet-500"}`}
+                      style={{ width: `${Math.min((members.length / FREE_MEMBER_LIMIT) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           {/* Action Button */}
           {isAdmin && (
-            <button
-              onClick={() => setShowInviteForm(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shrink-0 transition-opacity hover:opacity-90 self-start sm:self-auto"
-              style={{ backgroundColor: "#6366F1" }}
-            >
-              <Plus className="w-4 h-4" />
-              Invite member
-            </button>
+            atMemberLimit ? (
+              <button
+                onClick={triggerUpgrade}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 shadow-sm shrink-0 transition-colors self-start sm:self-auto"
+              >
+                <Lock className="w-4 h-4 text-amber-500" />
+                Upgrade to invite more
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowInviteForm(true)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shrink-0 transition-opacity hover:opacity-90 self-start sm:self-auto"
+                style={{ backgroundColor: "#6366F1" }}
+              >
+                <Plus className="w-4 h-4" />
+                Invite member
+              </button>
+            )
           )}
         </div>
       </div>

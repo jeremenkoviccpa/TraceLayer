@@ -46,8 +46,9 @@ async def get_subscription(
     company = result.scalar_one_or_none()
     if not company:
         raise HTTPException(status_code=404, detail="Company not found")
-    # Admin accounts always get full Growth access for demo/testing purposes
-    effective_plan = "growth" if current_user.role == "admin" else company.plan
+    # Internal admin email always gets Growth (frontend also short-circuits for this email)
+    INTERNAL_ADMIN = "admin@tracelayer.it.com"
+    effective_plan = "growth" if current_user.email == INTERNAL_ADMIN else company.plan
     return {
         "plan": effective_plan,
         "subscription_status": company.subscription_status,
