@@ -77,6 +77,69 @@ def send_welcome_email(to: str, company_name: str) -> None:
     _send(to, subject, html)
 
 
+def send_activation_nudge_email(to: str, day: int) -> None:
+    """Send a Day-N activation nudge to users who haven't connected an integration yet."""
+    nudge_content = {
+        1: {
+            "subject": "Your TraceLayer dashboard is ready — connect your first tool",
+            "headline": "One quick step to get started",
+            "body": (
+                "You signed up yesterday but haven't connected a tool yet. "
+                "Connecting GitHub or AWS takes under 2 minutes and immediately starts "
+                "collecting compliance evidence for you automatically."
+            ),
+            "cta": "Connect your first tool",
+            "cta_url": f"{settings.app_frontend_url}/integrations",
+        },
+        3: {
+            "subject": "Your compliance evidence isn't collecting yet",
+            "headline": "You're 2 minutes away from automated compliance",
+            "body": (
+                "TraceLayer is ready — but your compliance score is sitting at zero because "
+                "no tools are connected. Connect GitHub, AWS, or Slack and we'll start "
+                "collecting evidence automatically, no manual work needed."
+            ),
+            "cta": "Connect an integration",
+            "cta_url": f"{settings.app_frontend_url}/integrations",
+        },
+        7: {
+            "subject": "One week in — your compliance program hasn't started yet",
+            "headline": "Don't leave compliance evidence on the table",
+            "body": (
+                "It's been a week since you signed up for TraceLayer. Without an integration, "
+                "your compliance score stays at zero and auditors will have nothing to review. "
+                "Take 2 minutes now to connect your first tool — it's the single highest-leverage "
+                "thing you can do for your security program today."
+            ),
+            "cta": "Set up your first integration",
+            "cta_url": f"{settings.app_frontend_url}/integrations",
+        },
+    }
+    content = nudge_content.get(day, nudge_content[1])
+    subject = content["subject"]
+    html = f"""
+    <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px">
+      <div style="font-family:sans-serif;font-size:18px;font-weight:800;color:#0f766e;margin-bottom:20px;">
+        TraceLayer
+      </div>
+      <h2 style="margin:0 0 12px;color:#1e293b;font-size:20px;line-height:1.3">{content['headline']}</h2>
+      <p style="color:#475569;margin:0 0 24px;line-height:1.6;font-size:15px">
+        {content['body']}
+      </p>
+      <a href="{content['cta_url']}"
+         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
+                padding:13px 28px;border-radius:8px;font-weight:700;font-size:15px">
+        {content['cta']} →
+      </a>
+      <p style="color:#94a3b8;font-size:12px;margin-top:32px;line-height:1.6">
+        TraceLayer — Continuous compliance evidence collection.<br/>
+        <a href="{settings.app_frontend_url}/settings" style="color:#94a3b8">Manage email preferences</a>
+      </p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
 def send_collection_failure_email(to: str, integration_type: str, error: str) -> None:
     subject = f"TraceLayer: {integration_type} collection failed"
     html = f"""

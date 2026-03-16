@@ -76,3 +76,19 @@ def schedule_daily_alerts() -> None:
         misfire_grace_time=3600,
     )
     logger.info("Scheduled daily compliance alerts (08:00 UTC)")
+
+
+def schedule_activation_nudges() -> None:
+    """Schedule daily activation nudge emails at 10:00 UTC (Day 1, 3, 7)."""
+    from services.activation_nudge_service import send_activation_nudges
+
+    scheduler.add_job(
+        send_activation_nudges,
+        "cron",
+        hour=10,
+        minute=0,
+        id="activation_nudges",
+        replace_existing=True,
+        misfire_grace_time=3600,
+    )
+    logger.info("Scheduled activation nudge emails (10:00 UTC)")

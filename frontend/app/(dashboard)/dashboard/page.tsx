@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   AreaChart, Area, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
 } from "recharts";
 import { api } from "@/lib/api";
 import type {
@@ -11,6 +11,7 @@ import type {
   Integration, ScoreHistoryPoint, ReadinessData,
 } from "@/lib/types";
 import Link from "next/link";
+import { Tooltip } from "@/components/ui/tooltip";
 import {
   ShieldCheck, Plug, AlertCircle, CheckCircle2, Clock,
   TrendingUp, Activity, AlertTriangle, ArrowRight, X,
@@ -47,10 +48,10 @@ function ScoreRing({ score }: { score: number }) {
 
 // ── Tiny stat card ─────────────────────────────────────────────────────────────
 function MiniStat({
-  label, value, sub, icon: Icon, color = "brand",
+  label, value, sub, icon: Icon, color = "brand", tooltip,
 }: {
   label: string; value: string | number; sub?: string;
-  icon: React.ElementType; color?: "brand" | "green" | "amber" | "red";
+  icon: React.ElementType; color?: "brand" | "green" | "amber" | "red"; tooltip?: string;
 }) {
   const colors = {
     brand: "bg-brand-50 text-brand-600",
@@ -64,8 +65,8 @@ function MiniStat({
     amber: "text-amber-600",
     red:   "text-red-500",
   };
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-4 flex items-center gap-3.5">
+  const inner = (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-4 flex items-center gap-3.5 w-full">
       <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${colors[color]}`}>
         <Icon className="w-4.5 h-4.5 w-[18px] h-[18px]" />
       </div>
@@ -76,6 +77,8 @@ function MiniStat({
       </div>
     </div>
   );
+  if (tooltip) return <Tooltip content={tooltip} side="right">{inner}</Tooltip>;
+  return inner;
 }
 
 // ── Status helpers ─────────────────────────────────────────────────────────────
@@ -490,6 +493,7 @@ export default function DashboardPage() {
             value={evidenceTotal.toLocaleString()}
             sub="across all integrations"
             color="brand"
+            tooltip="Total pieces of evidence collected from your connected tools"
           />
           <MiniStat
             icon={Plug}
@@ -497,6 +501,7 @@ export default function DashboardPage() {
             value={activeIntegrations}
             sub={`of ${integrations.length} connected`}
             color={activeIntegrations > 0 ? "green" : "brand"}
+            tooltip="Integrations currently collecting evidence on schedule"
           />
           <MiniStat
             icon={Activity}
@@ -504,6 +509,7 @@ export default function DashboardPage() {
             value={compliance?.controls.length ?? 0}
             sub={`${FRAMEWORKS.find(f => f.value === framework)?.label ?? framework} framework`}
             color="brand"
+            tooltip="Number of compliance controls being tracked for this framework"
           />
           <MiniStat
             icon={AlertTriangle}
@@ -511,6 +517,7 @@ export default function DashboardPage() {
             value={failingControls.length}
             sub={failingControls.length > 0 ? "controls need attention" : "All controls passing"}
             color={failingControls.length > 0 ? "amber" : "green"}
+            tooltip="Controls that are failing or missing evidence and need your attention"
           />
         </div>
       </div>
@@ -543,7 +550,7 @@ export default function DashboardPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                 <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip />} />
+                <RechartsTooltip content={<ChartTooltip />} />
                 <Area type="monotone" dataKey="score" stroke="#0f766e" strokeWidth={2}
                   fill="url(#scoreGrad)" dot={false} activeDot={{ r: 4, fill: "#0f766e" }} />
               </AreaChart>
@@ -571,7 +578,7 @@ export default function DashboardPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                 <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} allowDecimals={false} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip />} />
+                <RechartsTooltip content={<ChartTooltip />} />
                 <Bar dataKey="count" fill="#0f766e" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -654,12 +661,17 @@ export default function DashboardPage() {
             <Link href="/integrations" className="text-xs text-brand-600 font-semibold hover:text-brand-700">Manage</Link>
           </div>
           {integrations.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-6 gap-2 text-center">
+            <div className="flex flex-col items-center justify-center py-5 gap-2.5 text-center">
               <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center">
                 <Plug className="w-5 h-5 text-gray-300" />
               </div>
-              <p className="text-xs text-gray-400">No integrations yet.</p>
-              <Link href="/integrations" className="text-xs text-brand-600 font-semibold hover:underline">Connect one →</Link>
+              <div>
+                <p className="text-xs font-semibold text-gray-600 mb-0.5">No integrations yet</p>
+                <p className="text-[11px] text-gray-400 leading-relaxed">Connect a tool to start collecting compliance evidence automatically.</p>
+              </div>
+              <Link href="/integrations" className="btn-primary text-xs px-4 py-1.5">
+                Connect first tool
+              </Link>
             </div>
           ) : (
             <div className="space-y-3">

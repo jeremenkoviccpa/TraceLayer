@@ -239,6 +239,8 @@ export default function OnboardingPage() {
       setConnectedTypes((p) => [...p, def.type]);
       setConnectingType(null);
       setConnectFields({});
+      // Auto-advance to next step after a short success pause
+      setTimeout(() => setStep(3), 1200);
     } catch (err: unknown) {
       setConnectError(err instanceof Error ? err.message : "Connection failed");
     } finally {
@@ -312,7 +314,7 @@ export default function OnboardingPage() {
                 Hi <span className="font-semibold text-white">{user.email.split("@")[0]}</span> — let&apos;s get your compliance program running.
               </p>
               <p className="text-white/40 text-sm mb-10">
-                This takes about 3 minutes. You can skip any step.
+                Under 2 minutes. You can skip any step.
               </p>
 
               <div className="grid grid-cols-3 gap-3 mb-10">
@@ -450,6 +452,9 @@ export default function OnboardingPage() {
                   >
                     {connectLoading ? "Connecting…" : `Connect ${connectingDef.label}`}
                   </button>
+                  <p className="text-center text-[11px] text-white/30 mt-2">
+                    🔒 Read-only access — we never write to your tools
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-2 mb-4">

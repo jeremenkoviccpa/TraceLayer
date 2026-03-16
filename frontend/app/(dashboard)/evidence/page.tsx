@@ -11,7 +11,9 @@ import {
   ChevronUp,
   Database,
   RefreshCw,
+  Plug,
 } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 
 const CONTROLS = [
   { value: "", label: "All controls" },
@@ -278,15 +280,15 @@ export default function EvidencePage() {
             ))}
           </div>
         ) : !data || data.items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-cyan-50 border border-cyan-100 flex items-center justify-center mb-4">
-              <Database className="w-7 h-7 text-cyan-300" />
-            </div>
-            <p className="text-gray-700 font-medium">No evidence found</p>
-            <p className="text-gray-400 text-sm mt-1 max-w-xs">
-              Connect an integration and trigger a collection to start gathering evidence.
-            </p>
-          </div>
+          <EmptyState
+            icon={Plug}
+            iconColor="text-brand-300"
+            iconBg="bg-brand-50"
+            title="No evidence collected yet"
+            description="Connect an integration to start automatically gathering compliance evidence across your infrastructure."
+            action={{ label: "Connect integration", href: "/integrations" }}
+            className="py-20"
+          />
         ) : (
           <>
             <div className="overflow-x-auto">

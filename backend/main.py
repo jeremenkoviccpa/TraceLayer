@@ -12,7 +12,7 @@ from api.v1 import access_reviews, audit, audit_sessions, auth, auth_google, bil
 from collectors.scheduler import schedule_integration
 from collectors.scheduler import start as start_scheduler
 from collectors.scheduler import stop as stop_scheduler
-from collectors.scheduler import schedule_weekly_reports, schedule_daily_alerts
+from collectors.scheduler import schedule_weekly_reports, schedule_daily_alerts, schedule_activation_nudges
 from core.config import settings
 from core.database import AsyncSessionLocal
 from core.limiter import limiter
@@ -108,6 +108,7 @@ async def lifespan(app: FastAPI):
     await start_scheduler()
     schedule_weekly_reports()
     schedule_daily_alerts()
+    schedule_activation_nudges()
     yield
     await stop_scheduler()
 
