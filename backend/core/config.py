@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     cors_origins: List[str] = ["http://localhost:3000"]
     app_frontend_url: str = "http://localhost:3000"
     resend_api_key: str = ""
-    email_from: str = "TraceLayer <onboarding@resend.dev>"
+    email_from: str = "TraceLayer <hello@tracelayer.it.com>"
     seed_demo: bool = False
     groq_api_key: str = ""
     # LemonSqueezy billing

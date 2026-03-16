@@ -17,13 +17,19 @@ def _send(to: str, subject: str, html: str) -> None:
         return
 
     import resend
+
     resend.api_key = settings.resend_api_key
-    resend.Emails.send({
-        "from": settings.email_from,
-        "to": [to],
-        "subject": subject,
-        "html": html,
-    })
+    try:
+        result = resend.Emails.send({
+            "from": settings.email_from,
+            "to": [to],
+            "subject": subject,
+            "html": html,
+        })
+        logger.info("EMAIL sent: to=%s subject=%s id=%s", to, subject, result)
+    except Exception:
+        logger.exception("EMAIL failed: to=%s subject=%s from=%s", to, subject, settings.email_from)
+        raise
 
 
 def send_invite_email(to: str, invite_url: str, company_name: str, invited_by: str) -> None:
