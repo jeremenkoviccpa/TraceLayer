@@ -351,62 +351,6 @@ const PAIN_POINTS = [
   { before: "Consultants charging $50k+ for the same thing",  after: "Full compliance program self-served at startup cost"   },
 ];
 
-const PRICING = [
-  {
-    name: "Starter",
-    price: "Free",
-    period: "",
-    desc: "Perfect for early-stage teams getting audit-ready.",
-    features: [
-      "Up to 3 integrations",
-      "SOC 2, ISO 27001 & HIPAA frameworks",
-      "Automated evidence collection",
-      "Risk Register & Policy Templates",
-      "Training tracker",
-      "Vendor risk & pen test tracking",
-      "Access review workflows",
-      "JSON reports",
-      "Up to 3 team members",
-    ],
-    cta: "Get started free",
-    highlighted: false,
-  },
-  {
-    name: "Growth",
-    price: "$99",
-    period: "/mo",
-    desc: "For teams actively pursuing certification.",
-    features: [
-      "Unlimited integrations (18+)",
-      "All 7 frameworks (incl. GDPR, PCI DSS, CCPA, NIST CSF)",
-      "PDF & CSV reports",
-      "AI Compliance Advisor",
-      "AI Questionnaire Autofill",
-      "AI Audit Package",
-      "Trust Center (public page)",
-      "Unlimited team members",
-      "Priority support",
-    ],
-    cta: "Get Growth",
-    highlighted: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    desc: "For larger orgs with advanced compliance needs.",
-    features: [
-      "Everything in Growth",
-      "Custom integrations",
-      "SSO / SAML",
-      "Dedicated CSM",
-      "SLA guarantee",
-      "Custom audit reports",
-    ],
-    cta: "Contact sales",
-    highlighted: false,
-  },
-];
 
 const FAQ = [
   {
@@ -584,6 +528,20 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Scroll-triggered fade-up animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add("is-visible");
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+    );
+    document.querySelectorAll("[data-animate]").forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   const smoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (!href.startsWith("#")) return;
     e.preventDefault();
@@ -701,13 +659,19 @@ export default function LandingPage() {
       <section className="relative overflow-hidden">
         {/* Subtle grid pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(#0f766e14_1px,transparent_1px)] [background-size:28px_28px]" />
-        {/* Glow orbs */}
+        {/* Glow orbs — static */}
         <div className="absolute -top-40 right-0 h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,_rgba(15,118,110,0.2),_transparent_65%)] pointer-events-none" />
         <div className="absolute -bottom-40 -left-20 h-[400px] w-[400px] rounded-full bg-[radial-gradient(circle,_rgba(249,115,22,0.12),_transparent_65%)] pointer-events-none" />
+        {/* Floating decorative orbs */}
+        <div className="absolute top-20 left-[8%] w-16 h-16 rounded-full bg-teal-400/20 blur-xl pointer-events-none animate-float" />
+        <div className="absolute top-40 right-[12%] w-10 h-10 rounded-full bg-emerald-400/25 blur-lg pointer-events-none animate-float-delay" />
+        <div className="absolute bottom-32 left-[20%] w-12 h-12 rounded-full bg-teal-300/20 blur-xl pointer-events-none animate-float-slow" />
+        <div className="absolute top-60 right-[5%] w-8 h-8 rounded-full bg-orange-300/20 blur-lg pointer-events-none animate-float-delay" />
+        <div className="absolute bottom-20 right-[22%] w-14 h-14 rounded-full bg-brand-400/15 blur-xl pointer-events-none animate-float" />
 
         <div className="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center relative">
           {/* Announcement badge */}
-          <div className="inline-flex items-center gap-2 bg-white/85 text-[var(--accent)] text-xs font-semibold px-3.5 py-1.5 rounded-full mb-6 border border-black/5 shadow-sm">
+          <div data-animate className="inline-flex items-center gap-2 bg-white/85 text-[var(--accent)] text-xs font-semibold px-3.5 py-1.5 rounded-full mb-6 border border-black/5 shadow-sm">
             <span className="relative flex h-2 w-2 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -715,18 +679,18 @@ export default function LandingPage() {
             SOC 2 · ISO 27001 · HIPAA · GDPR · PCI DSS · CCPA · NIST CSF
           </div>
 
-          <h1 className="text-4xl sm:text-5xl md:text-[64px] font-extrabold leading-[1.1] mb-6 tracking-tight">
+          <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[64px] font-extrabold leading-[1.1] mb-6 tracking-tight">
             Stop chasing compliance.<br />
             <span className="bg-gradient-to-r from-[var(--accent)] via-emerald-500 to-teal-400 bg-clip-text text-transparent">
               Let it run itself.
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 leading-relaxed">
+          <p data-animate data-delay="200" className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 leading-relaxed">
             TraceLayer is your complete compliance program — automated evidence collection across 18+ integrations, risk register, policy templates, training tracker, vendor management, access reviews, and a live readiness score. Everything in one platform.
           </p>
 
-          <div className="flex items-center justify-center gap-3 flex-wrap mb-5">
+          <div data-animate data-delay="300" className="flex items-center justify-center gap-3 flex-wrap mb-5">
             <Link
               href="/register"
               className="relative inline-flex items-center gap-2 bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white font-semibold px-7 py-3.5 rounded-xl transition-colors text-sm overflow-hidden group shadow-[0_0_28px_rgba(15,118,110,0.35)] hover:shadow-[0_0_36px_rgba(15,118,110,0.55)]"
@@ -865,7 +829,7 @@ export default function LandingPage() {
 
       {/* ── How it works ──────────────────────────────────────────────────────── */}
       <section id="how-it-works" className="scroll-mt-16 max-w-6xl mx-auto px-6 py-14 md:py-22">
-        <div className="text-center mb-12 md:mb-16">
+        <div data-animate className="text-center mb-12 md:mb-16">
           <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">How it works</p>
           <h2 className="text-2xl md:text-4xl font-extrabold">Up and running in minutes</h2>
           <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto leading-relaxed">
@@ -875,8 +839,8 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 relative">
           {/* Connector line on desktop */}
           <div className="hidden md:block absolute top-8 left-[16.67%] right-[16.67%] h-px bg-gradient-to-r from-transparent via-[color:var(--accent)]/20 to-transparent" />
-          {HOW_IT_WORKS.map((item) => (
-            <div key={item.step} className="text-center relative">
+          {HOW_IT_WORKS.map((item, i) => (
+            <div key={item.step} data-animate data-delay={String(i * 100 + 100)} className="text-center relative">
               <div className="w-16 h-16 rounded-2xl bg-white border border-black/5 shadow-[0_4px_20px_rgba(15,23,42,0.06)] flex items-center justify-center mx-auto mb-5">
                 <span className="text-2xl font-black text-[var(--accent)]">{item.step}</span>
               </div>
@@ -966,7 +930,7 @@ export default function LandingPage() {
       {/* ── Features ──────────────────────────────────────────────────────────── */}
       <section id="features" className="scroll-mt-16 bg-white/60 py-14 md:py-22">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-10 md:mb-14">
+          <div data-animate className="text-center mb-10 md:mb-14">
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Features</p>
             <h2 className="text-2xl md:text-4xl font-extrabold">A complete compliance program, not just a tool</h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto leading-relaxed">
@@ -974,8 +938,8 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {FEATURES.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="bg-[var(--card)] rounded-2xl border border-black/5 p-6 shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_32px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 transition-all duration-200">
+            {FEATURES.map(({ icon: Icon, title, desc }, i) => (
+              <div key={title} data-animate data-delay={String((i % 3) * 100 + 100)} className="bg-[var(--card)] rounded-2xl border border-black/5 p-6 shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_32px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 transition-all duration-200">
                 <div className="w-10 h-10 bg-[color:var(--accent)]/10 rounded-xl flex items-center justify-center mb-4">
                   <Icon className="w-5 h-5 text-[var(--accent)]" />
                 </div>
@@ -994,7 +958,7 @@ export default function LandingPage() {
 
       {/* ── Frameworks ────────────────────────────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-6 py-14 md:py-22">
-        <div className="text-center mb-10 md:mb-14">
+        <div data-animate className="text-center mb-10 md:mb-14">
           <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Frameworks</p>
           <h2 className="text-2xl md:text-4xl font-extrabold">Seven frameworks, one platform</h2>
           <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto leading-relaxed">
@@ -1026,13 +990,13 @@ export default function LandingPage() {
       {/* ── Testimonials ──────────────────────────────────────────────────────── */}
       <section className="bg-white/60 py-14 md:py-22 border-y border-black/5">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-10 md:mb-14">
+          <div data-animate className="text-center mb-10 md:mb-14">
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">What teams say</p>
             <h2 className="text-2xl md:text-4xl font-extrabold">Trusted by security-conscious teams</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {TESTIMONIALS.map((t) => (
-              <div key={t.author} className="bg-[var(--card)] rounded-2xl border border-black/5 p-6 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+            {TESTIMONIALS.map((t, i) => (
+              <div key={t.author} data-animate data-delay={String(i * 100 + 100)} className="bg-[var(--card)] rounded-2xl border border-black/5 p-6 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
                 <div className="flex gap-0.5 mb-4">
                   {Array.from({ length: t.stars }).map((_, i) => (
                     <Star key={i} className="w-3.5 h-3.5 fill-[var(--accent-warm)] text-[var(--accent-warm)]" />
@@ -1084,50 +1048,24 @@ export default function LandingPage() {
       {/* ── Pricing ───────────────────────────────────────────────────────────── */}
       <section id="pricing" className="scroll-mt-16 bg-white/60 py-14 md:py-22">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-10 md:mb-14">
+          <div data-animate className="text-center mb-10 md:mb-14">
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Pricing</p>
             <h2 className="text-2xl md:text-4xl font-extrabold leading-tight">
-              Start free. Upgrade when your<br className="hidden md:block" /> auditor asks for a PDF.
+              Simple pricing. No surprises.
             </h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-xl mx-auto leading-relaxed">
-              No credit card required. The free plan is a complete compliance program — not a trial.
-              Growth at $99/mo costs less than 20 minutes with a compliance consultant.
+              Start free — no credit card required. Upgrade to Growth when you need PDF reports and AI features.
+              $99/mo is less than 20 minutes with a compliance consultant.
             </p>
           </div>
 
           {/* Journey roadmap */}
           <div className="mb-10 relative">
             {/* Connecting line — desktop */}
-            <div className="hidden md:block absolute top-[38px] left-[calc(16.67%+24px)] right-[calc(16.67%+24px)] h-px bg-gradient-to-r from-emerald-200 via-[var(--accent)] to-slate-300" />
+            <div className="hidden md:block absolute top-[38px] left-[calc(25%+24px)] right-[calc(25%+24px)] h-px bg-gradient-to-r from-[var(--accent)] to-slate-300" />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-6">
-              {/* Stage 1 — Starter */}
-              <div className="flex md:flex-col items-start md:items-center gap-4 md:gap-0 px-4 md:px-0 pb-6 md:pb-0 border-b md:border-b-0 border-black/6 last:border-0">
-                {/* Node */}
-                <div className="relative z-10 flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center shadow-sm">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                  </div>
-                  {/* Mobile connector */}
-                  <div className="md:hidden absolute left-1/2 top-full w-px h-6 -translate-x-1/2 bg-gradient-to-b from-emerald-200 to-[var(--accent)] opacity-0 pointer-events-none" />
-                </div>
-                <div className="md:mt-4 md:text-center">
-                  <div className="flex items-center gap-1.5 md:justify-center mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">Starter</span>
-                    <span className="text-[10px] text-emerald-500 font-semibold bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full">Free forever</span>
-                  </div>
-                  <p className="text-sm font-bold text-[var(--ink)] leading-snug mb-1.5">Launch your compliance program</p>
-                  <ul className="space-y-0.5">
-                    {["Automated evidence collection", "Risk register & policies", "3 frameworks · 3 integrations", "Training & vendor tracking"].map(t => (
-                      <li key={t} className="text-[11px] text-[var(--muted)] flex items-center gap-1.5 md:justify-center">
-                        <span className="w-1 h-1 rounded-full bg-emerald-400 shrink-0" />{t}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Stage 2 — Growth */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-6 max-w-2xl mx-auto">
+              {/* Stage 1 — Growth */}
               <div className="flex md:flex-col items-start md:items-center gap-4 md:gap-0 px-4 md:px-0 pb-6 md:pb-0 border-b md:border-b-0 border-black/6 last:border-0">
                 <div className="relative z-10 flex-shrink-0">
                   <div className="w-12 h-12 rounded-full bg-[var(--accent)] border-2 border-[var(--accent)] flex items-center justify-center shadow-[0_4px_14px_rgba(15,118,110,0.35)]">
@@ -1150,7 +1088,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Stage 3 — Enterprise */}
+              {/* Stage 2 — Enterprise */}
               <div className="flex md:flex-col items-start md:items-center gap-4 md:gap-0 px-4 md:px-0">
                 <div className="relative z-10 flex-shrink-0">
                   <div className="w-12 h-12 rounded-full bg-slate-100 border-2 border-slate-300 flex items-center justify-center shadow-sm">
@@ -1175,46 +1113,17 @@ export default function LandingPage() {
             </div>
 
             {/* Mobile vertical line overlay — purely decorative */}
-            <div className="md:hidden absolute left-[calc(2rem+6px)] top-12 bottom-12 w-px bg-gradient-to-b from-emerald-200 via-[var(--accent)] to-slate-300 -z-0 pointer-events-none" />
+            <div className="md:hidden absolute left-[calc(2rem+6px)] top-12 bottom-12 w-px bg-gradient-to-b from-[var(--accent)] to-slate-300 -z-0 pointer-events-none" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-
-            {/* Starter */}
-            <div className="bg-[var(--card)] border border-black/5 rounded-2xl p-7 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
-              <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full mb-3 border border-emerald-100">
-                <CheckCircle2 className="w-3 h-3" /> Free forever
-              </div>
-              <p className="text-sm font-bold text-[var(--muted)] mb-1">Starter</p>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-4xl font-black text-[var(--ink)]">Free</span>
-              </div>
-              <p className="text-xs mb-6 leading-relaxed text-[var(--muted)]">No credit card. No time limit. A complete compliance program for early-stage teams.</p>
-              <div className="space-y-2.5 mb-7">
-                {[
-                  "Up to 3 integrations",
-                  "SOC 2, ISO 27001 & HIPAA",
-                  "Automated evidence collection",
-                  "Risk Register & Policy Templates",
-                  "Training tracker",
-                  "Vendor risk & pen test tracking",
-                  "Access review workflows",
-                  "JSON evidence export",
-                  "Up to 3 team members",
-                ].map((f) => (
-                  <div key={f} className="flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[var(--accent)]" />
-                    <span className="text-xs leading-snug text-[var(--ink)]">{f}</span>
-                  </div>
-                ))}
-              </div>
-              <Link href="/register" className="block text-center text-sm font-semibold py-2.5 rounded-xl transition-colors bg-[color:var(--ink)]/6 hover:bg-[color:var(--ink)]/10 text-[var(--ink)]">
-                Get started free — no card needed
-              </Link>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-3xl mx-auto">
 
             {/* Growth */}
-            <div className="relative bg-slate-900 border border-slate-800 rounded-2xl p-7 shadow-[0_24px_60px_rgba(15,23,42,0.3)]">
+            <div data-animate data-delay="100" className="relative bg-slate-900 border border-slate-800 rounded-2xl p-7 shadow-[0_24px_60px_rgba(15,23,42,0.3)] overflow-hidden">
+              {/* Shimmer overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/4 to-transparent -translate-x-full animate-shimmer pointer-events-none" />
+              {/* Glow pulse */}
+              <div className="absolute -inset-px rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-teal-500/20 via-transparent to-transparent pointer-events-none" />
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                 <span className="bg-[var(--accent-warm)] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm">
                   Most popular
@@ -1228,7 +1137,7 @@ export default function LandingPage() {
               <div className="inline-flex items-center gap-1.5 bg-teal-500/15 text-teal-300 text-[10px] font-semibold px-2.5 py-1 rounded-full mb-3 border border-teal-500/20">
                 <TrendingUp className="w-3 h-3" /> ≈ 20 min with a $300/hr consultant
               </div>
-              <p className="text-xs mb-6 leading-relaxed text-white/45">Everything in Starter — plus AI features, PDF reports, all 7 frameworks, Trust Center, and unlimited everything.</p>
+              <p className="text-xs mb-6 leading-relaxed text-white/45">AI features, PDF reports, all 7 frameworks, Trust Center, unlimited integrations and team members.</p>
               <div className="space-y-2.5 mb-7">
                 {[
                   "Unlimited integrations (18+)",
@@ -1250,8 +1159,9 @@ export default function LandingPage() {
               <button
                 onClick={handleGrowthCta}
                 disabled={checkoutLoading}
-                className="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2.5 rounded-xl transition-colors bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white disabled:opacity-60 shadow-[0_4px_14px_rgba(15,118,110,0.4)]"
+                className="relative w-full flex items-center justify-center gap-2 text-sm font-semibold py-2.5 rounded-xl transition-all bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white disabled:opacity-60 shadow-[0_4px_14px_rgba(15,118,110,0.4)] hover:shadow-[0_6px_20px_rgba(15,118,110,0.6)] overflow-hidden group"
               >
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 {checkoutLoading ? (
                   <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                 ) : (
@@ -1263,7 +1173,7 @@ export default function LandingPage() {
             </div>
 
             {/* Enterprise */}
-            <div className="bg-[var(--card)] border border-black/5 rounded-2xl p-7 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+            <div data-animate data-delay="200" className="bg-[var(--card)] border border-black/5 rounded-2xl p-7 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
               <p className="text-sm font-bold text-[var(--muted)] mb-1">Enterprise</p>
               <div className="flex items-baseline gap-1 mb-2">
                 <span className="text-4xl font-black text-[var(--ink)]">Custom</span>
@@ -1290,29 +1200,15 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Value callouts */}
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-white rounded-2xl border border-black/5 p-5 shadow-sm">
-              <div className="w-8 h-8 bg-emerald-50 rounded-xl flex items-center justify-center mb-3">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              </div>
-              <p className="text-sm font-bold text-[var(--ink)] mb-1">Free plan = real compliance</p>
-              <p className="text-xs text-[var(--muted)] leading-relaxed">Evidence collection, risk register, policies, training, vendors, and access reviews — all on the free plan. No gotchas, no locked features, no time limit.</p>
-            </div>
-            <div className="bg-white rounded-2xl border border-black/5 p-5 shadow-sm">
-              <div className="w-8 h-8 bg-orange-50 rounded-xl flex items-center justify-center mb-3">
-                <FileText className="w-4 h-4 text-orange-500" />
-              </div>
-              <p className="text-sm font-bold text-[var(--ink)] mb-1">Upgrade trigger: PDF reports</p>
-              <p className="text-xs text-[var(--muted)] leading-relaxed">Most teams run the free plan for months. They upgrade to Growth the moment their auditor asks for a formatted PDF report — that&apos;s the signal.</p>
-            </div>
-            <div className="bg-white rounded-2xl border border-black/5 p-5 shadow-sm">
-              <div className="w-8 h-8 bg-teal-50 rounded-xl flex items-center justify-center mb-3">
-                <BarChart3 className="w-4 h-4 text-teal-600" />
-              </div>
-              <p className="text-sm font-bold text-[var(--ink)] mb-1">$99/mo vs. $50k+ consultant</p>
-              <p className="text-xs text-[var(--muted)] leading-relaxed">A typical compliance engagement runs $50,000–$100,000. Growth pays for itself before your first audit kickoff call. Cancel anytime.</p>
-            </div>
+          {/* Free plan note */}
+          <div data-animate data-delay="300" className="mt-8 text-center">
+            <p className="text-sm text-[var(--muted)]">
+              Looking for a free plan?{" "}
+              <Link href="/register" className="text-[var(--accent)] font-semibold hover:underline">
+                Sign up free
+              </Link>
+              {" "}— no credit card needed. Includes SOC 2, ISO 27001 &amp; HIPAA, automated evidence, risk register, policies, training, and more.
+            </p>
           </div>
 
         </div>
