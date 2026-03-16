@@ -1371,6 +1371,7 @@ export default function LandingPage() {
                   { label: "Terms of Service", href: "/terms"    },
                   { label: "DPA",              href: "/dpa"      },
                   { label: "Security",         href: "/security" },
+                  { label: "Status",           href: "/status"   },
                 ].map((l) => (
                   <li key={l.label}>
                     <Link href={l.href} className="text-xs text-[var(--muted)] hover:text-[var(--ink)] transition-colors">

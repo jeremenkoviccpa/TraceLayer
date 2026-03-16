@@ -31,6 +31,7 @@ import {
   Sparkles,
   Zap,
   ArrowLeftCircle,
+  LifeBuoy,
 } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
 import { api } from "@/lib/api";
@@ -293,6 +294,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </Link>
           </div>
         )}
+
+        {/* Help & Support */}
+        <div className={`border-t border-gray-100 pt-2 pb-1 shrink-0 ${collapsed ? "px-2" : "px-3"}`}>
+          <div className="relative group/help">
+            <a
+              href="mailto:support@tracelayer.it.com"
+              className={`flex items-center rounded-xl text-sm text-gray-400 hover:bg-gray-50 hover:text-gray-700 transition-all duration-150
+                ${collapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 py-2 w-full"}`}
+            >
+              <LifeBuoy className="w-4 h-4 shrink-0" />
+              {!collapsed && <span className="text-xs">Help & Support</span>}
+            </a>
+            {collapsed && (
+              <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-3 z-50
+                opacity-0 group-hover/help:opacity-100 transition-opacity duration-150">
+                <div className="bg-gray-900 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+                  Help & Support
+                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900" />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Collapse toggle — desktop only */}
         <div className={`hidden md:flex border-t border-gray-100 py-2 shrink-0 ${collapsed ? "justify-center px-2" : "px-3"}`}>

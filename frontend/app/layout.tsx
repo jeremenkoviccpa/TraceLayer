@@ -3,6 +3,7 @@ import { Sora } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
 import { CookieConsent } from "@/components/cookie-consent";
+import { CrispChat } from "@/components/crisp-chat";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -104,6 +105,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <AuthProvider>{children}</AuthProvider>
         <CookieConsent />
+        <CrispChat />
       </body>
     </html>
   );
