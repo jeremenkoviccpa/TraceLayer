@@ -242,8 +242,7 @@ def send_weekly_compliance_report(
             + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#94a3b8;margin-bottom:12px;">/ 100</div>'
             # progress bar background
             + '<div style="background:#e2e8f0;border-radius:99px;height:6px;width:100%;overflow:hidden;">'
-            + '<div style="background:{color};border-radius:99px;height:6px;width:{pct}%;'
-            + 'mso-border-radius:99px;"></div>'.format()
+            + '<div style="background:{c};border-radius:99px;height:6px;width:{p}%;mso-border-radius:99px;"></div>'.format(c=color, p=pct)
             + "</div>"
             + "</div>"
             + "</td></tr>"
@@ -294,8 +293,8 @@ def send_weekly_compliance_report(
         controls_rows += (
             '<tr>'
             + '<td style="padding:10px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;width:20px;">'
-            + '<div style="width:10px;height:10px;border-radius:50%;background:{dot};margin-top:3px;'
-            + 'mso-border-radius:50%;display:inline-block;"></div>'.format()
+            + ('<div style="width:10px;height:10px;border-radius:50%;background:{dot};margin-top:3px;'
+            + 'mso-border-radius:50%;display:inline-block;"></div>').format(dot=dot_color)
             + '</td>'
             + '<td style="padding:10px 8px 10px 10px;border-bottom:1px solid #f1f5f9;vertical-align:top;">'
             + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;color:#1e293b;">'
@@ -308,8 +307,8 @@ def send_weekly_compliance_report(
             + '</td>'
             + '<td style="padding:10px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;text-align:right;'
             + 'white-space:nowrap;width:56px;">'
-            + '<span style="font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:{sc};">'
-            + '{s}%'.format(s=score)
+            + ('<span style="font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:{sc};">'
+            + '{s}%').format(sc=score_color, s=score)
             + '</span>'
             + '</td>'
             + '</tr>'
