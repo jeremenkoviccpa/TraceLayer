@@ -604,7 +604,7 @@ export default function LandingPage() {
           </nav>
 
           <div className="hidden md:flex items-center gap-2">
-            <Link href="/partner-login" className="text-sm text-[var(--muted)] hover:text-[var(--ink)] font-medium px-3 py-1.5 rounded-lg hover:bg-black/5 transition-all flex items-center gap-1.5">
+            <Link href="/partner-login" className="text-sm text-[var(--accent)] font-medium px-3 py-1.5 rounded-lg hover:bg-[color:var(--accent)]/8 transition-all flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5" />
               Partner login
             </Link>
@@ -649,7 +649,7 @@ export default function LandingPage() {
               )
             )}
             <div className="pt-3 border-t border-black/5 space-y-2">
-              <Link href="/partner-login" onClick={() => setMobileOpen(false)} className="flex items-center justify-center gap-2 text-sm font-medium text-center text-indigo-600 px-3 py-2.5 rounded-lg border border-indigo-100 bg-indigo-50 hover:bg-indigo-100 transition-colors">
+              <Link href="/partner-login" onClick={() => setMobileOpen(false)} className="flex items-center justify-center gap-2 text-sm font-medium text-center text-[var(--accent)] px-3 py-2.5 rounded-lg border border-[color:var(--accent)]/20 bg-[color:var(--accent)]/6 hover:bg-[color:var(--accent)]/12 transition-colors">
                 <Users className="w-4 h-4" />
                 Partner login
               </Link>
@@ -1192,7 +1192,7 @@ export default function LandingPage() {
       <section id="partner" className="scroll-mt-16 py-14 md:py-22 bg-white border-t border-black/5">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10 md:mb-14" data-animate>
-            <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest mb-2">Partner Program</p>
+            <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Partner Program</p>
             <h2 className="text-2xl md:text-4xl font-extrabold text-[var(--ink)]">Built for compliance agencies</h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-xl mx-auto leading-relaxed">
               Run compliance programs for multiple clients from a single partner account. Each client workspace costs $99 — you manage their data and share a Trust Center link with them.
@@ -1218,8 +1218,8 @@ export default function LandingPage() {
               },
             ].map((item) => (
               <div key={item.title} data-animate className="bg-[var(--bg)] rounded-2xl p-6 border border-black/5">
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-4">
-                  <item.icon className="w-5 h-5 text-indigo-600" />
+                <div className="w-10 h-10 rounded-xl bg-[color:var(--accent)]/10 flex items-center justify-center mb-4">
+                  <item.icon className="w-5 h-5 text-[var(--accent)]" />
                 </div>
                 <h3 className="font-bold text-[var(--ink)] mb-2">{item.title}</h3>
                 <p className="text-sm text-[var(--muted)] leading-relaxed">{item.desc}</p>
@@ -1228,17 +1228,17 @@ export default function LandingPage() {
           </div>
 
           {/* Pricing + CTA */}
-          <div data-animate className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl shadow-indigo-600/20">
+          <div data-animate className="bg-gradient-to-br from-brand-600 to-brand-900 rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl shadow-brand-600/20">
             <div>
-              <p className="text-indigo-200 text-xs font-bold uppercase tracking-widest mb-2">Simple pricing</p>
+              <p className="text-brand-200 text-xs font-bold uppercase tracking-widest mb-2">Simple pricing</p>
               <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-2">$99 per client workspace</h3>
-              <p className="text-indigo-200 text-sm leading-relaxed max-w-md">
+              <p className="text-brand-200 text-sm leading-relaxed max-w-md">
                 One-time payment per client. No monthly fees per client, no seat limits. Your partner account is free — only pay when you onboard a new client.
               </p>
               <div className="flex flex-wrap gap-2 mt-4">
                 {["No monthly fee per client", "Unlimited team members", "All frameworks included", "Trust Center included"].map((f) => (
-                  <span key={f} className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-100 bg-white/10 border border-white/15 px-2.5 py-1 rounded-full">
-                    <CheckCircle2 className="w-3 h-3 text-indigo-300 shrink-0" />
+                  <span key={f} className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-100 bg-white/10 border border-white/15 px-2.5 py-1 rounded-full">
+                    <CheckCircle2 className="w-3 h-3 text-brand-300 shrink-0" />
                     {f}
                   </span>
                 ))}
@@ -1247,7 +1247,7 @@ export default function LandingPage() {
             <div className="flex flex-col gap-3 shrink-0 w-full md:w-auto">
               <Link
                 href="/register"
-                className="inline-flex items-center justify-center gap-2 bg-white hover:bg-indigo-50 text-indigo-700 font-bold px-8 py-3.5 rounded-xl transition-colors text-sm shadow-sm whitespace-nowrap"
+                className="inline-flex items-center justify-center gap-2 bg-white hover:bg-brand-50 text-brand-700 font-bold px-8 py-3.5 rounded-xl transition-colors text-sm shadow-sm whitespace-nowrap"
               >
                 Become a partner
                 <ArrowRight className="w-4 h-4" />

@@ -42,7 +42,7 @@ export default function PartnerLoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left branded panel */}
-      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-indigo-600 via-indigo-700 to-indigo-950 flex-col justify-between p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-brand-500 via-brand-600 to-brand-900 flex-col justify-between p-12 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
@@ -54,7 +54,7 @@ export default function PartnerLoginPage() {
           </div>
           <div>
             <span className="text-xl font-bold text-white tracking-tight block leading-none">TraceLayer</span>
-            <span className="text-xs font-semibold text-indigo-300 leading-none">Partner Portal</span>
+            <span className="text-xs font-semibold text-brand-200 leading-none">Partner Portal</span>
           </div>
         </Link>
 
@@ -81,7 +81,7 @@ export default function PartnerLoginPage() {
             <Image src="/logo-icon.png" alt="TraceLayer" width={36} height={36} className="rounded-xl" />
             <div>
               <span className="text-lg font-bold text-gray-900 block leading-none">TraceLayer</span>
-              <span className="text-xs text-indigo-600 font-semibold leading-none">Partner Portal</span>
+              <span className="text-xs text-brand-600 font-semibold leading-none">Partner Portal</span>
             </div>
           </Link>
 
@@ -155,7 +155,7 @@ export default function PartnerLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 transition-colors mt-2"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 disabled:opacity-60 transition-colors mt-2"
             >
               {loading ? (
                 <>
@@ -170,7 +170,7 @@ export default function PartnerLoginPage() {
 
           <p className="text-center text-sm text-gray-500 mt-6">
             Not a partner yet?{" "}
-            <Link href="/register" className="text-indigo-600 hover:text-indigo-700 font-semibold">
+            <Link href="/register" className="text-brand-600 hover:text-indigo-700 font-semibold">
               Apply here
             </Link>
           </p>
