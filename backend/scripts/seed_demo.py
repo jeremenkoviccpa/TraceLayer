@@ -27,7 +27,7 @@ from sqlalchemy import select
 from core.database import AsyncSessionLocal
 from core.config import settings
 from core.security import hash_password
-from models import Base, Company, Control, Evidence, Integration, User
+from models import Company, Evidence, Integration, User
 
 # ── Demo constants ──────────────────────────────────────────────────────────
 
@@ -180,7 +180,7 @@ async def seed():
             select(Company).where(Company.name == DEMO_COMPANY)
         )
         if existing.scalar_one_or_none():
-            print(f"✓ Demo account already exists — skipping.")
+            print("✓ Demo account already exists — skipping.")
             print(f"  Email:    {DEMO_EMAIL}")
             print(f"  Password: {DEMO_PASSWORD}")
             return
@@ -246,7 +246,7 @@ async def seed():
     print(f"  Company:  {DEMO_COMPANY}")
     print(f"  Email:    {DEMO_EMAIL}")
     print(f"  Password: {DEMO_PASSWORD}")
-    print(f"  Plan:     growth (unlimited)")
+    print("  Plan:     growth (unlimited)")
     print(f"  Evidence: {len(all_records)} records across AWS, GitHub, Slack")
     print()
     print("  Go to your app and log in with the credentials above.")

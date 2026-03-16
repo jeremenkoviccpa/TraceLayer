@@ -9,7 +9,6 @@ from core.deps import get_current_admin, get_current_user
 from models.company import Company
 from models.user import User
 from services.billing_service import (
-    check_integration_limit,
     create_checkout_url,
     get_customer_portal_url,
     handle_webhook,

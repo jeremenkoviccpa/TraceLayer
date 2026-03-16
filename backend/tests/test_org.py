@@ -1,6 +1,4 @@
-import pytest
 from httpx import AsyncClient
-from unittest.mock import patch
 
 from tests.conftest import auth_headers, register
 

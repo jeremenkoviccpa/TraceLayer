@@ -1,6 +1,5 @@
 import asyncio
 from datetime import datetime, timezone
-from functools import partial
 
 import boto3
 from botocore.exceptions import ClientError, NoCredentialsError

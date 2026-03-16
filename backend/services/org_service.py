@@ -2,13 +2,11 @@ import hashlib
 import secrets
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.security import hash_password
-from models.company import Company
 from models.invitation import Invitation
 from models.user import User
 

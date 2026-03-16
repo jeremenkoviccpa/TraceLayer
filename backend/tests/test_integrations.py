@@ -1,9 +1,8 @@
-import pytest
 from unittest.mock import AsyncMock, patch
 from httpx import AsyncClient
 
 from integrations.base import IntegrationAuthError
-from tests.conftest import auth_headers, register
+from tests.conftest import auth_headers
 
 
 async def test_list_integrations_empty(client: AsyncClient):

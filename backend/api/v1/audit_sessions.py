@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
-from core.deps import get_current_admin, get_current_user
+from core.deps import get_current_admin
 from models.audit_session import AuditSession
 from models.company import Company
 from schemas.audit_session import AuditSessionCreate, AuditSessionResponse, PublicAuditView, PublicFrameworkView, PublicControlScore

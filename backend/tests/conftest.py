@@ -32,13 +32,11 @@ os.environ.setdefault("STORAGE_ACCESS_KEY", "")
 os.environ.setdefault("STORAGE_SECRET_KEY", "")
 
 # ── Now import app modules ──────────────────────────────────────────────────
-import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     create_async_engine,
-    async_sessionmaker,
 )
 from sqlalchemy.pool import NullPool
 

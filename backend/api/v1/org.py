@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from core.deps import get_current_admin, get_current_user
 from models.user import User
-from schemas.auth import TokenResponse, UserResponse
+from schemas.auth import TokenResponse
 from schemas.org import AcceptInviteRequest, CompanyResponse, InvitationResponse, InviteRequest, MemberResponse, UpdateCompanyRequest
 from models.company import Company
 from sqlalchemy import select
@@ -193,7 +193,6 @@ async def accept_invite(
         raise HTTPException(status_code=400, detail=str(e))
 
     access_token = create_access_token(str(user.id), str(user.company_id))
-    from core.security import create_refresh_token, hash_token
     raw_refresh, refresh_hash = create_refresh_token()
     refresh_token = RefreshToken(
         user_id=user.id,

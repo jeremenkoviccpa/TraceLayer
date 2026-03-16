@@ -3,7 +3,6 @@
 Revision ID: 025
 Revises: 024
 """
-import sqlalchemy as sa
 from alembic import op
 
 revision = "025"

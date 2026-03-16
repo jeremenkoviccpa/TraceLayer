@@ -2,15 +2,12 @@ import uuid
 from datetime import datetime, timezone
 from unittest.mock import patch
 
-import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert as pg_insert
-from sqlalchemy import select
 
 from models.evidence import Evidence
-from models.report import Report
-from services.report_service import create_report, generate_report_bundle, get_report
+from services.report_service import create_report, generate_report_bundle
 from tests.conftest import auth_headers, register
 
 
