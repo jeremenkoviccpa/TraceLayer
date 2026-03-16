@@ -34,7 +34,13 @@ async def register(request: Request, body: RegisterRequest, db: AsyncSession = D
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    company = Company(name=body.company_name, onboarding_completed=False)
+    is_partner = body.account_type == "partner"
+    company = Company(
+        name=body.company_name,
+        onboarding_completed=is_partner,  # partners skip onboarding flow
+        is_partner_account=is_partner,
+        plan="partner" if is_partner else "free",
+    )
     db.add(company)
     await db.flush()
 

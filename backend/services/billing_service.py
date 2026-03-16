@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import logging
 import uuid
+from urllib.parse import urlencode
 
 import httpx
 from sqlalchemy import select
@@ -127,6 +128,77 @@ async def handle_webhook(event_name: str, data: dict, meta: dict, db: AsyncSessi
             action = "plan.upgraded" if company.plan == "growth" else "plan.downgraded"
             await log_action(db, company_id, action, metadata={"status": status})
 
+    elif event_name == "order_created":
+        # One-time payment for partner client slot
+        if custom.get("event_type") != "partner_client":
+            return  # not our event
+
+        payment_id_str = custom.get("payment_id")
+        partner_company_id_str = custom.get("partner_company_id")
+        client_name = custom.get("client_name", "New Client")
+        ls_order_id = str(data.get("id", ""))
+
+        if not payment_id_str or not partner_company_id_str:
+            logger.warning("order_created webhook missing payment_id or partner_company_id")
+            return
+
+        # Idempotency — skip if already processed
+        from models.partner_client_payment import PartnerClientPayment
+        dup = await db.execute(
+            select(PartnerClientPayment).where(PartnerClientPayment.ls_order_id == ls_order_id)
+        )
+        if dup.scalar_one_or_none():
+            return
+
+        # Find the pending payment record
+        payment_result = await db.execute(
+            select(PartnerClientPayment).where(PartnerClientPayment.id == payment_id_str)
+        )
+        payment_row = payment_result.scalar_one_or_none()
+        if not payment_row:
+            logger.warning("order_created: payment record %s not found", payment_id_str)
+            return
+
+        # Provision client company
+        import secrets
+        from datetime import datetime, timezone
+        from models.trust_page import TrustPage, slugify
+
+        partner_company_id = uuid.UUID(partner_company_id_str)
+        client_company = Company(
+            name=client_name,
+            plan="growth",
+            is_partner_account=False,
+            partner_id=partner_company_id,
+            onboarding_completed=True,
+        )
+        db.add(client_company)
+        await db.flush()
+
+        # Auto-create Trust Page for the client
+        base_slug = slugify(client_name)
+        slug = base_slug
+        for _ in range(10):
+            existing_slug = await db.execute(select(TrustPage).where(TrustPage.slug == slug))
+            if not existing_slug.scalar_one_or_none():
+                break
+            slug = f"{base_slug}-{secrets.token_hex(3)}"
+
+        trust_page = TrustPage(company_id=client_company.id, slug=slug)
+        db.add(trust_page)
+
+        # Update payment record
+        payment_row.status = "paid"
+        payment_row.client_company_id = client_company.id
+        payment_row.ls_order_id = ls_order_id
+        payment_row.paid_at = datetime.now(timezone.utc)
+
+        await db.commit()
+        logger.info(
+            "Partner client provisioned: partner=%s client=%s slug=%s",
+            partner_company_id, client_company.id, slug,
+        )
+
     elif event_name in ("subscription_cancelled", "subscription_expired"):
         # Find company by subscription ID
         result = await db.execute(
@@ -140,6 +212,54 @@ async def handle_webhook(event_name: str, data: dict, meta: dict, db: AsyncSessi
             logger.info("Billing: company=%s downgraded to free (event=%s)", company.id, event_name)
             from services.audit_service import log_action
             await log_action(db, company.id, "plan.downgraded", metadata={"event": event_name})
+
+
+async def create_partner_client_checkout_url(
+    partner_company_id: uuid.UUID,
+    client_name: str,
+    payment_id: uuid.UUID,
+    user_email: str,
+) -> str:
+    """Create a LemonSqueezy $99 one-time checkout URL for a partner client slot."""
+    if not settings.ls_api_key or not settings.app_ls_store_id or not settings.ls_partner_client_variant_id:
+        raise ValueError("Partner billing is not configured on this server (LS_PARTNER_CLIENT_VARIANT_ID missing).")
+
+    payload = {
+        "data": {
+            "type": "checkouts",
+            "attributes": {
+                "checkout_data": {
+                    "email": user_email,
+                    "custom": {
+                        "partner_company_id": str(partner_company_id),
+                        "payment_id": str(payment_id),
+                        "client_name": client_name,
+                        "event_type": "partner_client",
+                    },
+                },
+                "product_options": {
+                    "redirect_url": (
+                        f"{settings.app_frontend_url}/partner/clients/success?"
+                        + urlencode({"payment_id": str(payment_id), "client_name": client_name})
+                    ),
+                },
+            },
+            "relationships": {
+                "store": {"data": {"type": "stores", "id": settings.app_ls_store_id}},
+                "variant": {"data": {"type": "variants", "id": settings.ls_partner_client_variant_id}},
+            },
+        }
+    }
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        resp = await client.post(f"{LS_API}/checkouts", json=payload, headers=_headers())
+        resp.raise_for_status()
+        data = resp.json()
+
+    url = data["data"]["attributes"].get("url")
+    if not url:
+        raise RuntimeError(f"No checkout URL in LemonSqueezy response: {data}")
+    return url
 
 
 async def check_integration_limit(company_id: uuid.UUID, db: AsyncSession) -> None:

@@ -8,6 +8,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
     company_name: str
+    account_type: str = "company"  # "company" | "partner"
 
 
 class LoginRequest(BaseModel):

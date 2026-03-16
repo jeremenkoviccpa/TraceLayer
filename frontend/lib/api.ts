@@ -1,4 +1,4 @@
-import type { AccessReview, AutofillResult, AuditLog, AuditSession, BillingInfo, Company, ComplianceScore, Document, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, NotificationSettings, Page, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, ScoreHistoryPoint, TrainingRecord, TrustPageSettings, User, Vendor } from "./types";
+import type { AccessReview, AutofillResult, AuditLog, AuditSession, BillingInfo, Company, ComplianceScore, Document, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, NotificationSettings, Page, PartnerClient, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, ScoreHistoryPoint, TrainingRecord, TrustPageSettings, User, Vendor } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -73,10 +73,10 @@ class ApiClient {
 
   // ── Auth ────────────────────────────────────────────────────────────────
 
-  async register(email: string, password: string, companyName: string): Promise<void> {
+  async register(email: string, password: string, companyName: string, accountType: "company" | "partner" = "company"): Promise<void> {
     const data = await this.request<{ access_token: string; refresh_token: string }>(
       "POST", "/auth/register",
-      { email, password, company_name: companyName },
+      { email, password, company_name: companyName, account_type: accountType },
       false,
     );
     this.setTokens(data.access_token, data.refresh_token);
@@ -542,6 +542,54 @@ class ApiClient {
     const json = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(json.detail ?? "Upload failed");
     return json as Evidence;
+  }
+
+  // ── Partner ────────────────────────────────────────────────────────────────
+
+  async getPartnerClients(): Promise<PartnerClient[]> {
+    return this.request<PartnerClient[]>("GET", "/partner/clients");
+  }
+
+  async createPartnerClientCheckout(clientName: string): Promise<{ checkout_url: string; payment_id: string }> {
+    return this.request("POST", "/partner/clients/checkout", { client_name: clientName });
+  }
+
+  async switchToClient(clientCompanyId: string): Promise<PartnerSwitchResponse> {
+    return this.request<PartnerSwitchResponse>("GET", `/partner/clients/${clientCompanyId}/switch`);
+  }
+
+  async getClientTrustCenter(clientCompanyId: string): Promise<PartnerTrustCenterInfo> {
+    return this.request<PartnerTrustCenterInfo>("GET", `/partner/clients/${clientCompanyId}/trust-center`);
+  }
+
+  /** Restore the partner's own token after exiting client context. */
+  restorePartnerToken(): boolean {
+    if (typeof window === "undefined") return false;
+    const partnerToken = localStorage.getItem("partner_access_token");
+    if (!partnerToken) return false;
+    localStorage.setItem("access_token", partnerToken);
+    localStorage.removeItem("partner_access_token");
+    localStorage.removeItem("active_client_name");
+    return true;
+  }
+
+  /** Store partner token and activate client context. */
+  activateClientContext(switchResponse: PartnerSwitchResponse): void {
+    if (typeof window === "undefined") return;
+    const partnerToken = localStorage.getItem("access_token") ?? "";
+    localStorage.setItem("partner_access_token", partnerToken);
+    localStorage.setItem("active_client_name", switchResponse.client_name);
+    localStorage.setItem("access_token", switchResponse.access_token);
+  }
+
+  isInClientContext(): boolean {
+    if (typeof window === "undefined") return false;
+    return !!localStorage.getItem("partner_access_token");
+  }
+
+  getActiveClientName(): string | null {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("active_client_name");
   }
 }
 

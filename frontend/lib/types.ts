@@ -13,6 +13,28 @@ export interface Company {
   plan: string;
   created_at: string;
   onboarding_completed: boolean;
+  is_partner_account: boolean;
+}
+
+export interface PartnerClient {
+  id: string;
+  name: string;
+  plan: string;
+  created_at: string;
+  trust_page_slug: string | null;
+  trust_page_enabled: boolean | null;
+}
+
+export interface PartnerSwitchResponse {
+  access_token: string;
+  client_company_id: string;
+  client_name: string;
+}
+
+export interface PartnerTrustCenterInfo {
+  slug: string;
+  public_url: string;
+  is_enabled: boolean;
 }
 
 export interface BillingInfo {

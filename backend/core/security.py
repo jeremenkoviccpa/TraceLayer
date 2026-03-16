@@ -18,16 +18,23 @@ def verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain, hashed)
 
 
-def create_access_token(user_id: str, company_id: str) -> str:
+def create_access_token(
+    user_id: str,
+    company_id: str,
+    extra_claims: dict | None = None,
+    expire_minutes: int | None = None,
+) -> str:
     expire = datetime.now(timezone.utc) + timedelta(
-        minutes=settings.jwt_access_token_expire_minutes
+        minutes=expire_minutes if expire_minutes is not None else settings.jwt_access_token_expire_minutes
     )
-    payload = {
+    payload: dict = {
         "sub": user_id,
         "company_id": company_id,
         "exp": expire,
         "type": "access",
     }
+    if extra_claims:
+        payload.update(extra_claims)
     return jwt.encode(payload, settings.secret_key, algorithm="HS256")
 
 

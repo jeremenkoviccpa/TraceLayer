@@ -30,8 +30,10 @@ import {
   ChevronRight,
   Sparkles,
   Zap,
+  ArrowLeftCircle,
 } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
+import { api } from "@/lib/api";
 
 type NavItem = { href: string; label: string; icon: React.ElementType };
 type NavGroup = { title?: string; items: NavItem[] };
@@ -85,7 +87,7 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, exitClientContext } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -93,7 +95,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [resendSent, setResendSent] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const [clientName, setClientName] = useState<string | null>(null);
   const { isPro } = usePlan();
+
+  useEffect(() => {
+    setClientName(api.isInClientContext() ? api.getActiveClientName() : null);
+  }, []);
 
   // Persist collapse state
   useEffect(() => {
@@ -347,6 +354,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <span className="font-bold text-gray-900 text-sm">TraceLayer</span>
           </div>
         </header>
+
+        {/* Partner client context banner */}
+        {clientName && (
+          <div className="bg-amber-50 border-b border-amber-200 px-4 py-2.5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-sm text-amber-800 flex-1 min-w-0">
+              <Building2 className="w-4 h-4 shrink-0 text-amber-600" />
+              <span className="truncate">
+                Viewing client: <span className="font-semibold">{clientName}</span>
+              </span>
+            </div>
+            <button
+              onClick={async () => {
+                await exitClientContext();
+                setClientName(null);
+              }}
+              className="flex items-center gap-1.5 text-xs font-semibold text-amber-800 hover:text-amber-900 shrink-0 underline underline-offset-2"
+            >
+              <ArrowLeftCircle className="w-3.5 h-3.5" />
+              Exit client view
+            </button>
+          </div>
+        )}
 
         {/* Email verification banner */}
         {user && !user.email_verified && (

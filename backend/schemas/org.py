@@ -46,5 +46,6 @@ class CompanyResponse(BaseModel):
     plan: str
     created_at: datetime
     onboarding_completed: bool
+    is_partner_account: bool = False
 
     model_config = {"from_attributes": True}

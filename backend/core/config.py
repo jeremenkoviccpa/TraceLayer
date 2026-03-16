@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     app_ls_store_id: str = ""
     ls_growth_variant_id: str = ""
     ls_webhook_secret: str = ""
+    ls_partner_client_variant_id: str = ""
     # Google OAuth
     google_client_id: str = ""
     google_client_secret: str = ""

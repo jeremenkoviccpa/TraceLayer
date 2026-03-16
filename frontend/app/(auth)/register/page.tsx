@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/components/auth-provider";
-import { Eye, EyeOff, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, CheckCircle2, Building2, Users } from "lucide-react";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -14,6 +14,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [companyName, setCompanyName] = useState("");
+  const [accountType, setAccountType] = useState<"company" | "partner">("company");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -22,8 +23,8 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
-      await register(email, password, companyName);
-      router.push("/onboarding");
+      await register(email, password, companyName, accountType);
+      router.push(accountType === "partner" ? "/partner/clients" : "/onboarding");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
@@ -82,10 +83,43 @@ export default function RegisterPage() {
             <span className="text-lg font-bold text-gray-900">TraceLayer</span>
           </Link>
 
-          <div className="mb-8">
+          <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Create your account</h1>
             <p className="text-gray-500 text-sm">Get started — it&apos;s free</p>
           </div>
+
+          {/* Account type toggle */}
+          <div className="mb-5 grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-xl">
+            <button
+              type="button"
+              onClick={() => setAccountType("company")}
+              className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                accountType === "company"
+                  ? "bg-white shadow-sm text-gray-900"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <Building2 className="w-4 h-4" />
+              My company
+            </button>
+            <button
+              type="button"
+              onClick={() => setAccountType("partner")}
+              className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                accountType === "partner"
+                  ? "bg-white shadow-sm text-gray-900"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              Partner / Agency
+            </button>
+          </div>
+          {accountType === "partner" && (
+            <div className="mb-5 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 text-xs text-indigo-700 leading-relaxed">
+              As a partner you manage compliance for multiple clients. Each client workspace costs $99 — you share a Trust Center link with each client.
+            </div>
+          )}
 
           {/* Google OAuth */}
           <a
@@ -115,7 +149,9 @@ export default function RegisterPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Company name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {accountType === "partner" ? "Agency / firm name" : "Company name"}
+              </label>
               <input
                 type="text"
                 value={companyName}
@@ -172,7 +208,7 @@ export default function RegisterPage() {
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Creating account…
                 </>
-              ) : "Create account"}
+              ) : accountType === "partner" ? "Create Partner Account" : "Create account"}
             </button>
           </form>
 
