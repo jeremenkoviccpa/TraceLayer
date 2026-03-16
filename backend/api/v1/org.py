@@ -279,6 +279,7 @@ async def delete_account(
     Admin only. This action is irreversible.
     """
     from models.evidence import Evidence
+    from models.associations import evidence_controls
     from models.integration import Integration
     from models.audit_log import AuditLog
     from models.refresh_token import RefreshToken
@@ -288,7 +289,7 @@ async def delete_account(
     from models.risk import Risk
     from models.vendor import Vendor
     from models.policy import Policy
-    from models.training import Training
+    from models.training import TrainingRecord
     from models.pen_test import PenTest
     from models.access_review import AccessReview
     from models.manual_control import ManualControl
@@ -308,13 +309,21 @@ async def delete_account(
     # Delete all company-scoped data (order respects FK constraints)
     await db.execute(delete(AuditLog).where(AuditLog.company_id == company_id))
     await db.execute(delete(ScoreSnapshot).where(ScoreSnapshot.company_id == company_id))
+    # Clear evidence_controls join table before deleting evidence rows (FK constraint)
+    evidence_ids = (
+        await db.execute(select(Evidence.id).where(Evidence.company_id == company_id))
+    ).scalars().all()
+    if evidence_ids:
+        await db.execute(
+            evidence_controls.delete().where(evidence_controls.c.evidence_id.in_(evidence_ids))
+        )
     await db.execute(delete(Evidence).where(Evidence.company_id == company_id))
     await db.execute(delete(ManualControl).where(ManualControl.company_id == company_id))
     await db.execute(delete(Integration).where(Integration.company_id == company_id))
     await db.execute(delete(Risk).where(Risk.company_id == company_id))
     await db.execute(delete(Vendor).where(Vendor.company_id == company_id))
     await db.execute(delete(Policy).where(Policy.company_id == company_id))
-    await db.execute(delete(Training).where(Training.company_id == company_id))
+    await db.execute(delete(TrainingRecord).where(TrainingRecord.company_id == company_id))
     await db.execute(delete(PenTest).where(PenTest.company_id == company_id))
     await db.execute(delete(AccessReview).where(AccessReview.company_id == company_id))
     await db.execute(delete(Document).where(Document.company_id == company_id))
