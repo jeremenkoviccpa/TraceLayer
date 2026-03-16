@@ -76,7 +76,7 @@ function UpgradePrompt({ feature, compact }: { feature: string; compact?: boolea
         className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-600 to-teal-600 hover:from-brand-500 hover:to-teal-500 disabled:opacity-60 text-white font-semibold text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-brand-900/20 hover:shadow-brand-900/30 hover:-translate-y-px active:translate-y-0 transition-all duration-150"
       >
         {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
-        {loading ? "Opening checkout…" : "Upgrade to Growth — $99/mo"}
+        {loading ? "Opening checkout…" : "Upgrade to Growth — $149/mo"}
       </button>
     </div>
   );
@@ -131,4 +131,22 @@ export function UpgradeBadge({ feature }: { feature: string }) {
   const { plan, loading } = usePlan();
   if (loading || plan === "growth") return null;
   return <UpgradePrompt feature={feature} compact />;
+}
+
+/** Returns a function that opens Stripe checkout (falls back to settings#billing). */
+export function useUpgrade() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const trigger = async () => {
+    setLoading(true);
+    try {
+      const { checkout_url } = await api.createCheckout();
+      window.location.href = checkout_url;
+    } catch {
+      router.push("/settings#billing");
+    } finally {
+      setLoading(false);
+    }
+  };
+  return { trigger, loading };
 }

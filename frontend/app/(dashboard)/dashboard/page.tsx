@@ -16,8 +16,10 @@ import {
   TrendingUp, Activity, AlertTriangle, ArrowRight, X,
   PartyPopper, Database, Target, GraduationCap, Building2,
   UserCheck, ShieldAlert, BookOpen, ClipboardList, Zap,
-  FileText, Globe, ChevronRight,
+  FileText, Globe, ChevronRight, Lock,
 } from "lucide-react";
+import { usePlan } from "@/hooks/usePlan";
+import { useUpgrade } from "@/components/plan-gate";
 import type { Report } from "@/lib/types";
 
 // ── Score Ring ────────────────────────────────────────────────────────────────
@@ -217,6 +219,8 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
+  const { isPro } = usePlan();
+  const { trigger: triggerUpgrade } = useUpgrade();
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [evidenceTotal, setEvidenceTotal] = useState(0);
   const [compliance, setCompliance] = useState<ComplianceScore | null>(null);
@@ -385,20 +389,26 @@ export default function DashboardPage() {
                 {/* Framework tabs — desktop: scrollable pill row; mobile: active chip + swipe dots */}
                 <div className="hidden sm:block overflow-x-auto no-scrollbar">
                   <div className="flex gap-1 bg-white/10 rounded-xl p-1 w-max">
-                    {FRAMEWORKS.map((fw) => (
-                      <button
-                        key={fw.value}
-                        onClick={() => handleFrameworkChange(fw.value)}
-                        disabled={scoreLoading}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 whitespace-nowrap ${
-                          framework === fw.value
-                            ? "bg-white text-slate-900 shadow-sm"
-                            : "text-white/50 hover:text-white/80"
-                        }`}
-                      >
-                        {fw.label}
-                      </button>
-                    ))}
+                    {FRAMEWORKS.map((fw) => {
+                      const locked = !isPro && fw.value !== "soc2";
+                      return (
+                        <button
+                          key={fw.value}
+                          onClick={() => locked ? triggerUpgrade() : handleFrameworkChange(fw.value)}
+                          disabled={scoreLoading}
+                          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 whitespace-nowrap ${
+                            framework === fw.value
+                              ? "bg-white text-slate-900 shadow-sm"
+                              : locked
+                              ? "text-white/30 hover:text-white/50"
+                              : "text-white/50 hover:text-white/80"
+                          }`}
+                        >
+                          {locked && <Lock className="w-2.5 h-2.5 text-amber-400 shrink-0" />}
+                          {fw.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
                 {/* Mobile: active framework chip + position dots */}
@@ -410,16 +420,19 @@ export default function DashboardPage() {
                     <span className="text-[10px] text-white/30 shrink-0">← swipe →</span>
                   </div>
                   <div className="flex gap-1">
-                    {FRAMEWORKS.map((fw) => (
-                      <button
-                        key={fw.value}
-                        onClick={() => handleFrameworkChange(fw.value)}
-                        disabled={scoreLoading}
-                        className={`h-1 rounded-full transition-all duration-300 disabled:opacity-50 ${
-                          framework === fw.value ? "bg-white w-4" : "bg-white/25 w-1.5"
-                        }`}
-                      />
-                    ))}
+                    {FRAMEWORKS.map((fw) => {
+                      const locked = !isPro && fw.value !== "soc2";
+                      return (
+                        <button
+                          key={fw.value}
+                          onClick={() => locked ? triggerUpgrade() : handleFrameworkChange(fw.value)}
+                          disabled={scoreLoading}
+                          className={`h-1 rounded-full transition-all duration-300 disabled:opacity-50 ${
+                            framework === fw.value ? "bg-white w-4" : locked ? "bg-amber-400/40 w-1.5" : "bg-white/25 w-1.5"
+                          }`}
+                        />
+                      );
+                    })}
                   </div>
                 </div>
               </div>

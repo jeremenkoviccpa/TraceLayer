@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { ReadinessData } from "@/lib/types";
-import { Target, CheckCircle2, AlertTriangle, Clock, ArrowRight, TrendingUp, Zap } from "lucide-react";
+import { Target, CheckCircle2, AlertTriangle, Clock, ArrowRight, TrendingUp, Zap, Lock } from "lucide-react";
 import Link from "next/link";
+import { usePlan } from "@/hooks/usePlan";
+import { useUpgrade } from "@/components/plan-gate";
 
 const STAGE_META: Record<string, { label: string; color: string; bar: string; desc: string }> = {
   ready:       { label: "Audit Ready",  color: "text-emerald-400", bar: "bg-emerald-500", desc: "You're ready to start your audit!" },
@@ -73,6 +75,8 @@ function ScoreRing({ score, size = 120 }: { score: number; size?: number }) {
 }
 
 export default function ReadinessPage() {
+  const { isPro } = usePlan();
+  const { trigger: triggerUpgrade } = useUpgrade();
   const [framework, setFramework] = useState("soc2");
   const [data, setData] = useState<ReadinessData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -111,16 +115,22 @@ export default function ReadinessPage() {
             </div>
             {/* Framework selector */}
             <div className="flex flex-wrap gap-1.5 justify-start sm:justify-end">
-              {FRAMEWORKS.map((fw) => (
-                <button key={fw.id} onClick={() => setFramework(fw.id)}
-                  className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-                    framework === fw.id
-                      ? "bg-teal-500 text-white shadow-sm"
-                      : "bg-white/10 text-slate-300 hover:bg-white/20"
-                  }`}>
-                  {fw.label}
-                </button>
-              ))}
+              {FRAMEWORKS.map((fw) => {
+                const locked = !isPro && fw.id !== "soc2";
+                return (
+                  <button key={fw.id} onClick={() => locked ? triggerUpgrade() : setFramework(fw.id)}
+                    className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                      framework === fw.id
+                        ? "bg-teal-500 text-white shadow-sm"
+                        : locked
+                        ? "bg-amber-500/15 text-amber-300 hover:bg-amber-500/25"
+                        : "bg-white/10 text-slate-300 hover:bg-white/20"
+                    }`}>
+                    {locked && <Lock className="w-2.5 h-2.5 shrink-0" />}
+                    {fw.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

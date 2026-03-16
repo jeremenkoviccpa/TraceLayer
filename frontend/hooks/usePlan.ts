@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/components/auth-provider";
 
 type Plan = "free" | "growth";
 
@@ -7,11 +8,18 @@ const CACHE_KEY = "billing_plan";
 const CACHE_AT_KEY = "billing_plan_at";
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
+// Internal admin account always has full Growth access
+const INTERNAL_ADMIN = "admin@tracelayer.it.com";
+
 export function usePlan(): { plan: Plan; loading: boolean; isPro: boolean } {
+  const { user } = useAuth();
   const [plan, setPlan] = useState<Plan>("free");
   const [loading, setLoading] = useState(true);
 
+  const isInternalAdmin = user?.email === INTERNAL_ADMIN;
+
   useEffect(() => {
+    if (isInternalAdmin) { setLoading(false); return; }
     if (typeof window === "undefined") return;
 
     const cached = sessionStorage.getItem(CACHE_KEY);
@@ -31,12 +39,11 @@ export function usePlan(): { plan: Plan; loading: boolean; isPro: boolean } {
         sessionStorage.setItem(CACHE_KEY, p);
         sessionStorage.setItem(CACHE_AT_KEY, String(Date.now()));
       })
-      .catch(() => {
-        // default to free on error — safe, avoids showing locked content to paying users temporarily
-      })
+      .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [isInternalAdmin]);
 
+  if (isInternalAdmin) return { plan: "growth", loading: false, isPro: true };
   return { plan, loading, isPro: plan === "growth" };
 }
 

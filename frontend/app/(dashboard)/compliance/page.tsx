@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { ComplianceScore, ManualControl, Member } from "@/lib/types";
-import { PlanGate } from "@/components/plan-gate";
+import { PlanGate, useUpgrade } from "@/components/plan-gate";
+import { usePlan } from "@/hooks/usePlan";
 import { getRemediationForMissingType, getRemediationForCategory } from "@/lib/remediation";
 import {
   ShieldCheck,
@@ -19,6 +20,7 @@ import {
   AlertCircle,
   Wrench,
   User as UserIcon,
+  Lock,
 } from "lucide-react";
 
 const FRAMEWORKS = [
@@ -482,6 +484,8 @@ function AIAdvisor({
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function CompliancePage() {
+  const { isPro } = usePlan();
+  const { trigger: triggerUpgrade } = useUpgrade();
   const [framework, setFramework] = useState("soc2");
   const [score, setScore]         = useState<ComplianceScore | null>(null);
   const [manualControls, setManualControls] = useState<ManualControl[]>([]);
@@ -540,19 +544,25 @@ export default function CompliancePage() {
           style={{ maskImage: "linear-gradient(to right, black 85%, transparent 100%)" }}
         >
           <div className="flex gap-2 px-1 pb-0.5 w-max pr-6">
-            {FRAMEWORKS.map((f) => (
-              <button
-                key={f.value}
-                onClick={() => setFramework(f.value)}
-                className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-150 ${
-                  framework === f.value
-                    ? "bg-brand-600 text-white shadow-sm shadow-brand-600/25"
-                    : "bg-white border border-gray-200 text-gray-500 hover:border-brand-300 hover:text-brand-600"
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
+            {FRAMEWORKS.map((f) => {
+              const locked = !isPro && f.value !== "soc2";
+              return (
+                <button
+                  key={f.value}
+                  onClick={() => locked ? triggerUpgrade() : setFramework(f.value)}
+                  className={`shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-150 ${
+                    framework === f.value
+                      ? "bg-brand-600 text-white shadow-sm shadow-brand-600/25"
+                      : locked
+                      ? "bg-white border border-amber-200 text-amber-500 hover:border-amber-300 hover:bg-amber-50"
+                      : "bg-white border border-gray-200 text-gray-500 hover:border-brand-300 hover:text-brand-600"
+                  }`}
+                >
+                  {locked && <Lock className="w-3 h-3 shrink-0" />}
+                  {f.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
