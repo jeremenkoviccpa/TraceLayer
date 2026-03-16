@@ -116,14 +116,14 @@ export default function RegisterPage() {
             </button>
           </div>
           {accountType === "partner" && (
-            <div className="mb-5 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 text-xs text-indigo-700 leading-relaxed">
+            <div className="mb-5 bg-brand-50 border border-brand-100 rounded-xl px-4 py-3 text-xs text-brand-700 leading-relaxed">
               As a partner you manage compliance for multiple clients. Each client workspace costs $99 — you share a Trust Center link with each client.
             </div>
           )}
 
           {/* Google OAuth */}
           <a
-            href={`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/v1/auth/google`}
+            href={`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/v1/auth/google?account_type=${accountType}`}
             className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-xl py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">

@@ -22,7 +22,9 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      router.push("/dashboard");
+      const { api } = await import("@/lib/api");
+      const company = await api.getCompany();
+      router.push(company.is_partner_account ? "/partner/clients" : "/dashboard");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {

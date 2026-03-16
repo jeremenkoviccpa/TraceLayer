@@ -19,8 +19,13 @@ function CallbackHandler() {
 
     api.setTokens(access, refresh);
     const isNewUser = params.get("new_user") === "1";
+    const isPartner = params.get("is_partner") === "1";
     // Full page reload so AuthProvider re-initialises with the new tokens
-    window.location.href = isNewUser ? "/onboarding" : "/dashboard";
+    if (isPartner) {
+      window.location.href = "/partner/clients";
+    } else {
+      window.location.href = isNewUser ? "/onboarding" : "/dashboard";
+    }
   }, []); // eslint-disable-line
 
   return null;

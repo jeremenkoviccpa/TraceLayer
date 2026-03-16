@@ -142,6 +142,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       try {
         const { api: apiClient } = await import("@/lib/api");
         const company = await apiClient.getCompany();
+        if (company.is_partner_account) {
+          router.replace("/partner/clients");
+          return;
+        }
         if (!company.onboarding_completed) {
           router.replace("/onboarding");
           return;
