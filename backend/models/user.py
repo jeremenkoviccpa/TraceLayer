@@ -24,6 +24,9 @@ class User(Base):
     nudge_day1_sent: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     nudge_day3_sent: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     nudge_day7_sent: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    partner_nudge_day1_sent: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    partner_nudge_day3_sent: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    partner_nudge_day7_sent: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
 
     company: Mapped["Company"] = relationship(back_populates="users")
     refresh_tokens: Mapped[list["RefreshToken"]] = relationship(back_populates="user", cascade="all, delete-orphan")

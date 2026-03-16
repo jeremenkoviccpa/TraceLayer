@@ -1,20 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/components/auth-provider";
 import { Eye, EyeOff, AlertCircle, CheckCircle2, Building2, Users } from "lucide-react";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const { register } = useAuth();
   const router = useRouter();
+  const params = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [companyName, setCompanyName] = useState("");
-  const [accountType, setAccountType] = useState<"company" | "partner">("company");
+  const [accountType, setAccountType] = useState<"company" | "partner">(
+    params.get("type") === "partner" ? "partner" : "company"
+  );
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -230,5 +233,13 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense>
+      <RegisterForm />
+    </Suspense>
   );
 }

@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.config import settings
 from core.database import get_db
 from core.security import create_access_token, create_refresh_token, hash_password
+from services.email_service import send_partner_welcome_email, send_welcome_email
 from models.company import Company
 from models.refresh_token import RefreshToken
 from models.user import User
@@ -126,6 +127,15 @@ async def google_callback(code: str, state: str = "company", db: AsyncSession = 
     company_result = await db.execute(sa_select(CompanyModel).where(CompanyModel.id == user.company_id))
     company_row = company_result.scalar_one_or_none()
     is_partner = company_row.is_partner_account if company_row else False
+
+    if is_new_user and company_row:
+        try:
+            if is_partner:
+                send_partner_welcome_email(user.email, company_row.name)
+            else:
+                send_welcome_email(user.email, company_row.name)
+        except Exception:
+            logger.exception("Failed to send welcome email to %s", user.email)
 
     params = {"access_token": access_token, "refresh_token": raw_refresh}
     if is_new_user:

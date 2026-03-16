@@ -1340,8 +1340,9 @@ export default function LandingPage() {
                 {[
                   { label: "Sign in",       href: "/login"         },
                   { label: "Get started",   href: "/register"      },
-                  { label: "Partner login", href: "/partner-login" },
-                  { label: "Partner program", href: "#partner"     },
+                  { label: "Partner login",      href: "/partner-login" },
+                  { label: "Partner program",    href: "#partner"       },
+                  { label: "Partner directory",  href: "/partners"      },
                 ].map((l) => (
                   <li key={l.label}>
                     {l.href.startsWith("#") ? (

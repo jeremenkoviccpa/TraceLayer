@@ -78,6 +78,22 @@ def schedule_daily_alerts() -> None:
     logger.info("Scheduled daily compliance alerts (08:00 UTC)")
 
 
+def schedule_partner_nudges() -> None:
+    """Schedule daily partner onboarding nudge emails at 10:30 UTC (Day 1, 3, 7)."""
+    from services.partner_nudge_service import send_partner_nudges
+
+    scheduler.add_job(
+        send_partner_nudges,
+        "cron",
+        hour=10,
+        minute=30,
+        id="partner_nudges",
+        replace_existing=True,
+        misfire_grace_time=3600,
+    )
+    logger.info("Scheduled partner onboarding nudge emails (10:30 UTC)")
+
+
 def schedule_activation_nudges() -> None:
     """Schedule daily activation nudge emails at 10:00 UTC (Day 1, 3, 7)."""
     from services.activation_nudge_service import send_activation_nudges

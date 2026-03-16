@@ -22,7 +22,7 @@ from models.refresh_token import RefreshToken
 from models.user import User
 from schemas.auth import ChangePasswordRequest, ForgotPasswordRequest, LoginRequest, RefreshRequest, RegisterRequest, ResetPasswordRequest, TokenResponse, UpdateProfileRequest, UserResponse
 from services.audit_service import log_action
-from services.email_service import send_password_changed_email, send_password_reset_email, send_verification_email, send_welcome_email
+from services.email_service import send_password_changed_email, send_password_reset_email, send_verification_email, send_welcome_email, send_partner_welcome_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -77,7 +77,10 @@ async def register(request: Request, body: RegisterRequest, db: AsyncSession = D
     verify_url = f"{settings.app_frontend_url}/verify-email?token={raw_verify}"
     try:
         send_verification_email(user.email, verify_url)
-        send_welcome_email(user.email, company.name)
+        if is_partner:
+            send_partner_welcome_email(user.email, company.name)
+        else:
+            send_welcome_email(user.email, company.name)
     except Exception:
         pass
 

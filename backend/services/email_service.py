@@ -77,6 +77,141 @@ def send_welcome_email(to: str, company_name: str) -> None:
     _send(to, subject, html)
 
 
+def send_partner_welcome_email(to: str, company_name: str) -> None:
+    """Welcome email for new partner / agency accounts."""
+    subject = "Welcome to the TraceLayer Partner Program"
+    html = f"""
+    <div style="font-family:sans-serif;max-width:540px;margin:0 auto;padding:32px 24px">
+      <div style="font-family:sans-serif;font-size:18px;font-weight:800;color:#0f766e;margin-bottom:24px;">
+        TraceLayer
+      </div>
+
+      <h2 style="margin:0 0 8px;color:#1e293b;font-size:22px;">Welcome to the Partner Program, {company_name}!</h2>
+      <p style="color:#475569;margin:0 0 24px;font-size:15px;line-height:1.6">
+        You're now set up as a TraceLayer Partner. Here's everything you can do from your partner dashboard.
+      </p>
+
+      <div style="background:#f0fdf4;border:1.5px solid #d1fae5;border-radius:12px;padding:20px 24px;margin-bottom:24px;">
+        <p style="margin:0 0 12px;font-weight:700;color:#065f46;font-size:14px;">Your partner dashboard lets you:</p>
+        <table cellpadding="0" cellspacing="0" border="0" width="100%">
+          <tr><td style="padding:5px 0;font-size:14px;color:#047857;">✓ &nbsp;Add client workspaces ($99 each)</td></tr>
+          <tr><td style="padding:5px 0;font-size:14px;color:#047857;">✓ &nbsp;Switch into any client's dashboard instantly</td></tr>
+          <tr><td style="padding:5px 0;font-size:14px;color:#047857;">✓ &nbsp;Share a branded Trust Center link with each client</td></tr>
+          <tr><td style="padding:5px 0;font-size:14px;color:#047857;">✓ &nbsp;Manage SOC 2, ISO 27001, GDPR compliance for all clients</td></tr>
+        </table>
+      </div>
+
+      <p style="color:#475569;font-size:14px;margin:0 0 8px;font-weight:600;">Your next step:</p>
+      <p style="color:#64748b;font-size:14px;margin:0 0 24px;line-height:1.6">
+        Head to your partner dashboard and add your first client. Each workspace is provisioned instantly.
+      </p>
+
+      <a href="{settings.app_frontend_url}/partner/clients"
+         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
+                padding:13px 28px;border-radius:8px;font-weight:700;font-size:15px">
+        Open partner dashboard →
+      </a>
+
+      <p style="color:#94a3b8;font-size:12px;margin-top:32px;line-height:1.6">
+        Questions? Reply to this email or contact us at
+        <a href="mailto:support@tracelayer.it.com" style="color:#0f766e;">support@tracelayer.it.com</a><br/>
+        TraceLayer — Compliance automation for agencies &amp; consultancies.
+      </p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
+def send_partner_nudge_email(to: str, day: int, client_count: int = 0) -> None:
+    """Day 1 / 3 / 7 activation nudge for partners who haven't added their first client."""
+    nudge_content = {
+        1: {
+            "subject": "Ready to add your first client to TraceLayer?",
+            "headline": "Your partner dashboard is waiting",
+            "body": (
+                "You signed up for the TraceLayer Partner Program yesterday — great first step. "
+                "The next one is adding your first client workspace. It takes about 60 seconds: "
+                "click 'Add client', enter their company name, and you're in."
+            ),
+            "tip": "💡 Tip: Once you add a client, you get a Trust Center link you can share with them immediately — no setup required on their end.",
+            "cta": "Add your first client",
+        },
+        3: {
+            "subject": "Your clients are waiting on their compliance program",
+            "headline": "You haven't added a client yet",
+            "body": (
+                "It's been a few days since you joined the TraceLayer Partner Program. "
+                "If you have a client who needs SOC 2 or ISO 27001, now is the time. "
+                "Add their workspace, switch into their dashboard, and start collecting evidence today — "
+                "all within minutes."
+            ),
+            "tip": "💡 Tip: Each client gets their own isolated workspace. You manage everything from your partner view — they don't need to do anything technical.",
+            "cta": "Add a client workspace",
+        },
+        7: {
+            "subject": "Partner tips: getting the most out of TraceLayer",
+            "headline": "Make your compliance practice more efficient",
+            "body": (
+                "Here are the most useful TraceLayer partner features our top partners rely on every week:"
+            ),
+            "tip": None,
+            "cta": "Open partner dashboard",
+        },
+    }
+    content = nudge_content.get(day, nudge_content[1])
+
+    tips_html = ""
+    if day == 7:
+        tips_html = """
+        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 24px">
+          <tr><td style="padding:8px 0;border-bottom:1px solid #f1f5f9">
+            <span style="font-weight:700;color:#1e293b;font-size:14px;">1. One-click context switch</span><br/>
+            <span style="color:#64748b;font-size:13px;">Jump into any client dashboard instantly. Your partner token is preserved — just click Exit to return.</span>
+          </td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #f1f5f9">
+            <span style="font-weight:700;color:#1e293b;font-size:14px;">2. Trust Center links</span><br/>
+            <span style="color:#64748b;font-size:13px;">Each client has a public Trust Center URL. Share it with their auditors or prospects — it updates in real-time.</span>
+          </td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #f1f5f9">
+            <span style="font-weight:700;color:#1e293b;font-size:14px;">3. AI Audit Package</span><br/>
+            <span style="color:#64748b;font-size:13px;">Generate a polished 11-section PDF audit report for any client in seconds. Great for executive presentations.</span>
+          </td></tr>
+          <tr><td style="padding:8px 0">
+            <span style="font-weight:700;color:#1e293b;font-size:14px;">4. Weekly compliance emails</span><br/>
+            <span style="color:#64748b;font-size:13px;">Each client's admin automatically receives a weekly compliance briefing — one less report for you to write.</span>
+          </td></tr>
+        </table>
+        """
+    elif content["tip"]:
+        tips_html = f"""
+        <div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin:0 0 24px;font-size:13px;color:#854d0e;line-height:1.6">
+          {content['tip']}
+        </div>
+        """
+
+    html = f"""
+    <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px">
+      <div style="font-family:sans-serif;font-size:18px;font-weight:800;color:#0f766e;margin-bottom:20px;">
+        TraceLayer Partners
+      </div>
+      <h2 style="margin:0 0 12px;color:#1e293b;font-size:20px;line-height:1.3">{content['headline']}</h2>
+      <p style="color:#475569;margin:0 0 20px;line-height:1.6;font-size:15px">
+        {content['body']}
+      </p>
+      {tips_html}
+      <a href="{settings.app_frontend_url}/partner/clients"
+         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
+                padding:13px 28px;border-radius:8px;font-weight:700;font-size:15px">
+        {content['cta']} →
+      </a>
+      <p style="color:#94a3b8;font-size:12px;margin-top:32px;line-height:1.6">
+        TraceLayer Partner Program · <a href="mailto:support@tracelayer.it.com" style="color:#94a3b8;">support@tracelayer.it.com</a>
+      </p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
 def send_activation_nudge_email(to: str, day: int) -> None:
     """Send a Day-N activation nudge to users who haven't connected an integration yet."""
     nudge_content = {
