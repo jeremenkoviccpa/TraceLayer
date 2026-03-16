@@ -285,28 +285,51 @@ async def delete_account(
     from models.password_reset_token import PasswordResetToken
     from models.email_verification_token import EmailVerificationToken
     from models.report import Report
+    from models.risk import Risk
+    from models.vendor import Vendor
+    from models.policy import Policy
+    from models.training import Training
+    from models.pen_test import PenTest
+    from models.access_review import AccessReview
+    from models.manual_control import ManualControl
+    from models.score_snapshot import ScoreSnapshot
+    from models.document import Document
+    from models.invitation import Invitation
+    from models.audit_session import AuditSession
+    from models.trust_page import TrustPage
     from sqlalchemy import delete
 
     company_id = current_user.company_id
 
-    # Delete in dependency order
-    await db.execute(delete(AuditLog).where(AuditLog.company_id == company_id))
-    await db.execute(delete(Evidence).where(Evidence.company_id == company_id))
-    await db.execute(delete(Integration).where(Integration.company_id == company_id))
-
-    # Delete per-user tokens for all company members
+    # Collect member IDs before deleting users
     members_result = await db.execute(select(User).where(User.company_id == company_id))
-    members = members_result.scalars().all()
-    member_ids = [m.id for m in members]
+    member_ids = [m.id for m in members_result.scalars().all()]
+
+    # Delete all company-scoped data (order respects FK constraints)
+    await db.execute(delete(AuditLog).where(AuditLog.company_id == company_id))
+    await db.execute(delete(ScoreSnapshot).where(ScoreSnapshot.company_id == company_id))
+    await db.execute(delete(Evidence).where(Evidence.company_id == company_id))
+    await db.execute(delete(ManualControl).where(ManualControl.company_id == company_id))
+    await db.execute(delete(Integration).where(Integration.company_id == company_id))
+    await db.execute(delete(Risk).where(Risk.company_id == company_id))
+    await db.execute(delete(Vendor).where(Vendor.company_id == company_id))
+    await db.execute(delete(Policy).where(Policy.company_id == company_id))
+    await db.execute(delete(Training).where(Training.company_id == company_id))
+    await db.execute(delete(PenTest).where(PenTest.company_id == company_id))
+    await db.execute(delete(AccessReview).where(AccessReview.company_id == company_id))
+    await db.execute(delete(Document).where(Document.company_id == company_id))
+    await db.execute(delete(Report).where(Report.company_id == company_id))
+    await db.execute(delete(AuditSession).where(AuditSession.company_id == company_id))
+    await db.execute(delete(TrustPage).where(TrustPage.company_id == company_id))
+    await db.execute(delete(Invitation).where(Invitation.company_id == company_id))
+
+    # Delete per-user tokens
     for uid in member_ids:
         await db.execute(delete(RefreshToken).where(RefreshToken.user_id == uid))
         await db.execute(delete(PasswordResetToken).where(PasswordResetToken.user_id == uid))
         await db.execute(delete(EmailVerificationToken).where(EmailVerificationToken.user_id == uid))
 
-    # Reports — delete records (files in storage are orphaned but not a security risk)
-    await db.execute(delete(Report).where(Report.company_id == company_id))
-
-    # Delete all users then company
+    # Delete users then company last
     await db.execute(delete(User).where(User.company_id == company_id))
     await db.execute(delete(Company).where(Company.id == company_id))
 

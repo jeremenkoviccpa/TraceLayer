@@ -285,10 +285,11 @@ export default function SettingsPage() {
   const handleDeleteAccount = async () => {
     setGdprLoading(true);
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/v1/org/account`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/v1/org/account`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` },
       });
+      if (!res.ok) throw new Error(`${res.status}`);
       localStorage.clear();
       window.location.href = "/";
     } catch {
