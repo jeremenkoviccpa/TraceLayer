@@ -362,7 +362,7 @@ export default function DashboardPage() {
 
         {/* Score hero card */}
         <div
-          className="md:col-span-2 lg:col-span-2 relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-4 sm:p-6 overflow-hidden"
+          className="md:col-span-2 lg:col-span-2 relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-4 sm:p-6 overflow-hidden min-h-[220px] sm:min-h-[200px]"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
