@@ -1367,8 +1367,10 @@ export default function LandingPage() {
               <p className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider mb-4">Legal</p>
               <ul className="space-y-2.5">
                 {[
-                  { label: "Privacy Policy",   href: "/privacy" },
-                  { label: "Terms of Service", href: "/terms"   },
+                  { label: "Privacy Policy",   href: "/privacy"  },
+                  { label: "Terms of Service", href: "/terms"    },
+                  { label: "DPA",              href: "/dpa"      },
+                  { label: "Security",         href: "/security" },
                 ].map((l) => (
                   <li key={l.label}>
                     <Link href={l.href} className="text-xs text-[var(--muted)] hover:text-[var(--ink)] transition-colors">

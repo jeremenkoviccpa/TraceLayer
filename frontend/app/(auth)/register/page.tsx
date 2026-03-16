@@ -216,7 +216,9 @@ export default function RegisterPage() {
             By creating an account you agree to our{" "}
             <Link href="/terms" className="underline hover:text-gray-600">Terms</Link>
             {" "}and{" "}
-            <Link href="/privacy" className="underline hover:text-gray-600">Privacy Policy</Link>.
+            <Link href="/privacy" className="underline hover:text-gray-600">Privacy Policy</Link>.{" "}
+            <Link href="/security" className="underline hover:text-gray-600">Security</Link>{" "}·{" "}
+            <Link href="/dpa" className="underline hover:text-gray-600">DPA</Link>
           </p>
 
           <p className="text-center text-sm text-gray-500 mt-6">
