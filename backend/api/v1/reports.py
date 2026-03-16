@@ -250,7 +250,10 @@ async def weekly_report_preview(
         except Exception as exc:
             logger.warning("Could not compute %s score for preview: %s", fw["value"], exc)
 
-    company_name = current_user.company.name if current_user.company else "Your Company"
+    from models.company import Company
+    company_result = await db.execute(select(Company).where(Company.id == current_user.company_id))
+    _company = company_result.scalar_one_or_none()
+    company_name = _company.name if _company else "Your Company"
 
     try:
         send_weekly_compliance_report(
