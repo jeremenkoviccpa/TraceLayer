@@ -30,7 +30,7 @@ import React from "react";
 function Toast({ msg, type = "success" }: { msg: string; type?: "success" | "error" }) {
   return (
     <div
-      className={`fixed top-5 right-5 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border animate-slide-up text-sm font-medium
+      className={`fixed top-4 left-4 right-4 sm:top-5 sm:right-5 sm:left-auto sm:w-auto z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border animate-slide-up text-sm font-medium
       ${type === "error" ? "bg-white border-red-200 text-red-700" : "bg-white border-emerald-200 text-emerald-700"}`}
     >
       {type === "error" ? (
@@ -484,7 +484,7 @@ export default function SettingsPage() {
         <div ref={contentRef} className="flex-1 min-w-0 max-w-2xl space-y-5">
 
       {/* ── A. Profile ──────────────────────────────────────────────────────── */}
-      <section id="profile" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
+      <section id="profile" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-20 lg:scroll-mt-8">
         <SectionHeader icon={UserIcon} title="Profile" color="brand" />
         <form onSubmit={handleUpdateProfile} className="space-y-4">
           <div>
@@ -534,7 +534,7 @@ export default function SettingsPage() {
       </section>
 
       {/* ── B. Security ─────────────────────────────────────────────────────── */}
-      <section id="security" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
+      <section id="security" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-20 lg:scroll-mt-8">
         <SectionHeader icon={Shield} title="Security" color="amber" />
 
         {/* Change password */}
@@ -603,7 +603,7 @@ export default function SettingsPage() {
       </section>
 
       {/* ── C. Notifications ─────────────────────────────────────────────────── */}
-      <section id="notifications" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
+      <section id="notifications" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-20 lg:scroll-mt-8">
         <SectionHeader
           icon={Bell}
           title="Notifications"
@@ -708,7 +708,7 @@ export default function SettingsPage() {
 
       {/* ── D. Weekly Compliance Report ──────────────────────────────────────── */}
       {isAdmin && (
-        <section id="weekly-report" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
+        <section id="weekly-report" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-20 lg:scroll-mt-8">
           <SectionHeader
             icon={Mail}
             title="Weekly Compliance Report"
@@ -733,7 +733,7 @@ export default function SettingsPage() {
       )}
 
       {/* ── E. Billing & Plan ────────────────────────────────────────────────── */}
-      <section id="billing" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
+      <section id="billing" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-20 lg:scroll-mt-8">
         <SectionHeader icon={CreditCard} title="Billing &amp; Plan" color="emerald" />
 
         {billing ? (
@@ -843,7 +843,7 @@ export default function SettingsPage() {
 
       {/* ── F. Company (admin only) ───────────────────────────────────────────── */}
       {isAdmin && (
-        <section id="company" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
+        <section id="company" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-20 lg:scroll-mt-8">
           <SectionHeader icon={Building2} title="Company" color="brand" />
           {company ? (
             <form onSubmit={handleUpdateCompany} className="space-y-4">
@@ -877,7 +877,7 @@ export default function SettingsPage() {
 
       {/* ── G. Auditor Access (admin only) ───────────────────────────────────── */}
       {isAdmin && (
-        <section id="auditor-access" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
+        <section id="auditor-access" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-20 lg:scroll-mt-8">
           <SectionHeader
             icon={Eye}
             title="Auditor Access"
@@ -886,7 +886,7 @@ export default function SettingsPage() {
           />
 
           {/* Create form */}
-          <div className="flex gap-2 mb-5">
+          <div className="flex flex-col sm:flex-row gap-2 mb-5">
             <input
               type="text"
               value={auditLabel}
@@ -898,7 +898,7 @@ export default function SettingsPage() {
             <button
               onClick={handleCreateAuditLink}
               disabled={auditCreating}
-              className="shrink-0 flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-3.5 py-2 rounded-lg transition-colors"
+              className="w-full sm:w-auto flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium px-3.5 py-2 rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4" />
               {auditCreating ? "Creating…" : "Create link"}
@@ -921,7 +921,7 @@ export default function SettingsPage() {
                       )}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="flex flex-wrap items-center gap-1.5">
                     <button
                       onClick={() => copyAuditLink(s.token)}
                       className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-800 bg-white border border-gray-200 px-2.5 py-1.5 rounded-lg transition-colors"
@@ -955,7 +955,7 @@ export default function SettingsPage() {
 
       {/* ── Trust Center (admin only) ────────────────────────────────────────── */}
       {isAdmin && (
-        <section id="trust-center" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
+        <section id="trust-center" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-20 lg:scroll-mt-8">
           <SectionHeader
             icon={Globe}
             title="Trust Center"
@@ -1143,7 +1143,7 @@ export default function SettingsPage() {
       )}
 
       {/* ── H. Your Data (GDPR) ───────────────────────────────────────────────── */}
-      <section id="your-data" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-8">
+      <section id="your-data" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-20 lg:scroll-mt-8">
         <SectionHeader icon={ShieldAlert} title="Your Data" color="red" />
         <div className="space-y-3">
           <div className="flex flex-wrap items-start justify-between gap-3">
