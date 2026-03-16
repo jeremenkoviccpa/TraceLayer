@@ -8,6 +8,13 @@ export const metadata: Metadata = {
   description: "Join the TraceLayer Partner Program. Manage SOC 2 and ISO 27001 compliance for your clients as an agency, consultancy, or MSP.",
 };
 
+const PRIMARY_BUTTON =
+  "inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 text-white font-semibold px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base shadow-lg shadow-brand-950/40 hover:bg-brand-400 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400 whitespace-nowrap";
+const SECONDARY_BUTTON =
+  "inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white text-gray-700 font-semibold px-4 sm:px-5 py-2.5 text-sm hover:border-gray-300 hover:text-gray-900 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-300 whitespace-nowrap";
+const GHOST_BUTTON =
+  "inline-flex items-center justify-center gap-2 rounded-xl text-white/70 font-semibold px-3 py-2 text-sm hover:text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 whitespace-nowrap";
+
 const BENEFITS = [
   {
     icon: Building2,
@@ -43,14 +50,16 @@ export default function PartnersPage() {
     <div className="min-h-screen bg-white">
       {/* Nav */}
       <header className="border-b border-gray-100 px-6 py-4 sticky top-0 z-10 bg-white/80 backdrop-blur">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
+        <div className="max-w-5xl mx-auto flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <Image src="/logo-icon.png" alt="TraceLayer" width={28} height={28} className="rounded-lg" />
             <span className="font-bold text-gray-900">TraceLayer</span>
           </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/partner-login" className="text-sm text-gray-500 hover:text-gray-700">Partner sign in</Link>
-            <Link href="/register?type=partner" className="text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 px-4 py-2 rounded-lg transition-colors">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
+            <Link href="/partner-login" className={`${SECONDARY_BUTTON} w-full sm:w-auto`}>
+              Partner sign in
+            </Link>
+            <Link href="/register?type=partner" className={`${PRIMARY_BUTTON} w-full sm:w-auto`}>
               Become a partner
             </Link>
           </div>
@@ -74,13 +83,13 @@ export default function PartnersPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/register?type=partner"
-              className="flex items-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-semibold px-7 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-brand-950/50"
+              className={PRIMARY_BUTTON}
             >
               Join the partner program <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/partner-login"
-              className="text-sm text-white/60 hover:text-white/80 transition-colors"
+              className={GHOST_BUTTON}
             >
               Already a partner? Sign in →
             </Link>
@@ -181,7 +190,7 @@ export default function PartnersPage() {
           </div>
           <Link
             href="/register?type=partner"
-            className="w-full flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold py-3.5 rounded-xl transition-colors text-base"
+            className={`${PRIMARY_BUTTON} w-full font-bold`}
           >
             Get started free <ArrowRight className="w-4 h-4" />
           </Link>
@@ -200,7 +209,7 @@ export default function PartnersPage() {
           </p>
           <a
             href="mailto:partners@tracelayer.it.com"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-brand-600 hover:text-brand-700"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-brand-200 bg-white text-brand-700 font-semibold px-4 py-2 text-sm hover:border-brand-300 hover:text-brand-800 transition-colors"
           >
             Email us to reserve your spot <ArrowRight className="w-3.5 h-3.5" />
           </a>
