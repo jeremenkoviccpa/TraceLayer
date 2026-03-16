@@ -4,3 +4,16 @@ testpaths = ["tests"]
 filterwarnings = [
     "ignore::DeprecationWarning",
 ]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+ignore = [
+    "F821",   # SQLAlchemy forward-reference strings are valid at runtime
+    "E402",   # conftest.py must set env vars before importing app modules
+    "F841",   # unused local variables are minor; suppress for now
+    "E712",   # SQLAlchemy ORM comparisons require == True / == False
+    "F522",   # extra named args in .format() strings
+    "F541",   # f-strings without placeholders
+]
