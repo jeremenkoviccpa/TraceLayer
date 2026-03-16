@@ -419,13 +419,13 @@ export default function SettingsPage() {
       {toast && <Toast msg={toast.msg} type={toast.type} />}
 
       {/* Page header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div className="min-w-0">
           <h1 className="text-xl font-bold text-gray-900">Settings</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage your account and workspace.</p>
         </div>
         {billing && (
-          <span className={`text-xs font-semibold px-3 py-1.5 rounded-full border ${
+          <span className={`self-start sm:self-auto text-xs font-semibold px-3 py-1.5 rounded-full border ${
             billing.plan === "growth"
               ? "bg-emerald-50 text-emerald-700 border-emerald-200"
               : "bg-gray-50 text-gray-500 border-gray-200"
@@ -591,8 +591,8 @@ export default function SettingsPage() {
         <div className="my-5 border-t border-gray-100" />
 
         {/* 2FA row */}
-        <div className="flex items-center justify-between gap-4">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+          <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-800">Two-factor authentication</p>
             <p className="text-xs text-gray-500 mt-0.5">Add an extra layer of security to your account</p>
           </div>
@@ -613,7 +613,7 @@ export default function SettingsPage() {
 
         <div className="space-y-4">
           {/* Weekly digest */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-800">Weekly compliance digest</p>
               <p className="text-xs text-gray-500 mt-0.5">A compliance score briefing every Monday morning.</p>
@@ -627,7 +627,7 @@ export default function SettingsPage() {
           <div className="border-t border-gray-100" />
 
           {/* Training overdue */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-800">Training overdue</p>
               <p className="text-xs text-gray-500 mt-0.5">Alert when a training assignment is past its due date.</p>
@@ -641,7 +641,7 @@ export default function SettingsPage() {
           <div className="border-t border-gray-100" />
 
           {/* Access review overdue */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-800">Access review overdue</p>
               <p className="text-xs text-gray-500 mt-0.5">Alert when an access review passes its due date.</p>
@@ -655,7 +655,7 @@ export default function SettingsPage() {
           <div className="border-t border-gray-100" />
 
           {/* Vendor needs review */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-800">Vendor needs review</p>
               <p className="text-xs text-gray-500 mt-0.5">Alert when a vendor&apos;s review date has passed.</p>
@@ -669,7 +669,7 @@ export default function SettingsPage() {
           <div className="border-t border-gray-100" />
 
           {/* Evidence stale */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-800">Stale evidence</p>
               <p className="text-xs text-gray-500 mt-0.5">Alert when evidence hasn&apos;t been collected in over 7 days.</p>
@@ -966,8 +966,8 @@ export default function SettingsPage() {
           {trustSettings ? (
             <div className="space-y-5">
               {/* Enable toggle */}
-              <div className="flex items-center justify-between gap-4">
-                <div>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-800">Enable Trust Center</p>
                   <p className="text-xs text-gray-500 mt-0.5">Make your compliance page publicly accessible.</p>
                 </div>
@@ -1078,8 +1078,8 @@ export default function SettingsPage() {
                     { key: "show_integrations", label: "Connected integrations", desc: "Show which tools you use for evidence collection" },
                   ] as { key: keyof TrustPageSettings; label: string; desc: string }[]
                 ).map(({ key, label, desc }) => (
-                  <div key={key} className="flex items-center justify-between gap-4">
-                    <div>
+                  <div key={key} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                    <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-800">{label}</p>
                       <p className="text-xs text-gray-500">{desc}</p>
                     </div>
