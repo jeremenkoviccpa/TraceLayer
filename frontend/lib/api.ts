@@ -554,6 +554,10 @@ class ApiClient {
     return this.request("POST", "/partner/clients/checkout", { client_name: clientName });
   }
 
+  async provisionPartnerClientDirect(clientName: string): Promise<PartnerClient> {
+    return this.request<PartnerClient>("POST", "/partner/clients/provision", { client_name: clientName });
+  }
+
   async switchToClient(clientCompanyId: string): Promise<PartnerSwitchResponse> {
     return this.request<PartnerSwitchResponse>("GET", `/partner/clients/${clientCompanyId}/switch`);
   }

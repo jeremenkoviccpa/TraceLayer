@@ -90,6 +90,66 @@ async def create_client_checkout(
     return {"checkout_url": url, "payment_id": str(payment.id)}
 
 
+@router.post("/clients/provision", response_model=PartnerClientResponse)
+async def provision_client_direct(
+    body: PartnerCheckoutRequest,
+    current_user: User = Depends(get_current_partner),
+    db: AsyncSession = Depends(get_db),
+):
+    """Directly provision a client workspace without a payment step.
+    Used when LemonSqueezy is not configured or as an admin override.
+    """
+    import secrets
+    from models.trust_page import TrustPage, slugify
+
+    client_company = Company(
+        name=body.client_name,
+        plan="growth",
+        is_partner_account=False,
+        partner_id=current_user.company_id,
+        onboarding_completed=True,
+    )
+    db.add(client_company)
+    await db.flush()
+
+    base_slug = slugify(body.client_name)
+    slug = base_slug
+    for _ in range(10):
+        existing = await db.execute(select(TrustPage).where(TrustPage.slug == slug))
+        if not existing.scalar_one_or_none():
+            break
+        slug = f"{base_slug}-{secrets.token_hex(3)}"
+
+    trust_page = TrustPage(company_id=client_company.id, slug=slug)
+    db.add(trust_page)
+
+    payment = PartnerClientPayment(
+        id=uuid.uuid4(),
+        partner_company_id=current_user.company_id,
+        client_company_id=client_company.id,
+        client_name=body.client_name,
+        status="manual",
+    )
+    db.add(payment)
+
+    await db.commit()
+    await db.refresh(client_company)
+
+    logger.info(
+        "Partner client provisioned directly: partner=%s client=%s",
+        current_user.company_id, client_company.id,
+    )
+
+    return PartnerClientResponse(
+        id=client_company.id,
+        name=client_company.name,
+        plan=client_company.plan,
+        created_at=client_company.created_at,
+        trust_page_slug=slug,
+        trust_page_enabled=False,
+    )
+
+
 @router.get("/clients/{client_company_id}/switch", response_model=PartnerSwitchResponse)
 async def switch_to_client(
     client_company_id: uuid.UUID,

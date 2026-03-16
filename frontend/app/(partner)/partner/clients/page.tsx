@@ -18,7 +18,7 @@ import {
   Calendar,
 } from "lucide-react";
 
-function AddClientModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+function AddClientModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (client: PartnerClient) => void }) {
   const [clientName, setClientName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -29,12 +29,18 @@ function AddClientModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
     setError("");
     setLoading(true);
     try {
+      // Try LemonSqueezy checkout first
       const { checkout_url } = await api.createPartnerClientCheckout(clientName.trim());
-      // Open LemonSqueezy checkout in current tab
       window.location.href = checkout_url;
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to create checkout");
-      setLoading(false);
+    } catch {
+      // LemonSqueezy not configured or failed — provision directly
+      try {
+        const client = await api.provisionPartnerClientDirect(clientName.trim());
+        onSuccess(client);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Failed to create workspace");
+        setLoading(false);
+      }
     }
   };
 
@@ -204,9 +210,9 @@ export default function PartnerClientsPage() {
       {showAdd && (
         <AddClientModal
           onClose={() => setShowAdd(false)}
-          onSuccess={() => {
+          onSuccess={(newClient) => {
+            setClients((prev) => [...prev, newClient]);
             setShowAdd(false);
-            loadClients();
           }}
         />
       )}
