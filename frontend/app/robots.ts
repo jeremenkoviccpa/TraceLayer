@@ -1,13 +1,25 @@
 import type { MetadataRoute } from "next";
 
-const BASE_URL = "https://www.tracelayer.it.com";
+const BASE_URL = "https://tracelayer.it.com";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/tools", "/login", "/signup", "/trust/"],
+        allow: [
+          "/",
+          "/tools",
+          "/partners",
+          "/login",
+          "/signup",
+          "/security",
+          "/dpa",
+          "/status",
+          "/privacy",
+          "/terms",
+          "/trust/",
+        ],
         disallow: [
           "/dashboard",
           "/compliance",

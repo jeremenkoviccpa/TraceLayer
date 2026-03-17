@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE_URL = "https://www.tracelayer.it.com";
+const BASE_URL = "https://tracelayer.it.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -17,6 +17,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: `${BASE_URL}/partners`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
       url: `${BASE_URL}/signup`,
       lastModified: new Date(),
       changeFrequency: "yearly",
@@ -27,6 +33,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.3,
+    },
+    {
+      url: `${BASE_URL}/security`,
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
+    {
+      url: `${BASE_URL}/dpa`,
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.2,
+    },
+    {
+      url: `${BASE_URL}/status`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.2,
     },
     {
       url: `${BASE_URL}/privacy`,
