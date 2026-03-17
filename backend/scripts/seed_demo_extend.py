@@ -25,7 +25,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from core.config import settings
 from core.database import AsyncSessionLocal
-from models import Company, Integration, User
+from models import Integration, User
 from models.evidence import Evidence
 
 DEMO_EMAIL = "admin@tracelayer.it.com"
