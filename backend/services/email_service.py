@@ -610,38 +610,39 @@ def send_weekly_compliance_report(
         }.get(status, status.replace("_", " ").title())
 
     # ------------------------------------------------------------------ framework scorecard columns
+    def _card_colors(score: int):
+        if score >= 80:
+            return "#f0fdf4", "#d1fae5"
+        if score >= 50:
+            return "#fffbeb", "#fde68a"
+        return "#fef2f2", "#fecaca"
+
     num_fw = len(framework_scores)
-    # Build one <td> per framework scorecard
     scorecard_cells = ""
     for fw in framework_scores:
         score = fw["score"]
         color = _score_color(score)
+        bg, border = _card_colors(score)
         pct = min(score, 100)
         scorecard_cells += (
-            '<td width="{w}%" style="width:{w}%;padding:6px 8px;vertical-align:top;">'.format(w=round(100 / max(num_fw, 1)))
-            + '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">'
-            + "<tr><td>"
-            + '<div style="background:#f0fdf4;border:1.5px solid #d1fae5;border-radius:12px;padding:18px 14px 14px 14px;text-align:center;">'
+            '<td class="scorecard-cell" style="width:{w}%;padding:6px 5px;vertical-align:top;">'.format(w=round(100 / max(num_fw, 1)))
+            + '<div style="background:{bg};border:1.5px solid {bd};border-radius:12px;padding:18px 12px 14px;text-align:center;">'.format(bg=bg, bd=border)
             + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;'
             + 'letter-spacing:0.08em;text-transform:uppercase;color:#64748b;margin-bottom:10px;">'
             + fw["label"]
             + "</div>"
-            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:42px;font-weight:800;'
+            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:40px;font-weight:800;'
             + 'line-height:1;color:{color};margin-bottom:4px;">{score}</div>'.format(color=color, score=score)
             + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#94a3b8;margin-bottom:12px;">/ 100</div>'
-            # progress bar background
             + '<div style="background:#e2e8f0;border-radius:99px;height:6px;width:100%;overflow:hidden;">'
-            + '<div style="background:{c};border-radius:99px;height:6px;width:{p}%;mso-border-radius:99px;"></div>'.format(c=color, p=pct)
-            + "</div>"
-            + "</div>"
-            + "</td></tr>"
-            + "</table>"
+            + '<div style="background:{c};border-radius:99px;height:6px;width:{p}%;"></div>'.format(c=color, p=pct)
+            + "</div></div>"
             + "</td>"
         )
 
     # Pad to 3 columns if fewer frameworks passed
     while num_fw < 3:
-        scorecard_cells += '<td width="33%" style="width:33%;padding:6px 8px;"></td>'
+        scorecard_cells += '<td class="scorecard-cell" style="width:33%;padding:6px 5px;"></td>'
         num_fw += 1
 
     # ------------------------------------------------------------------ deduplicated controls across frameworks
@@ -760,18 +761,31 @@ def send_weekly_compliance_report(
   <meta name="x-apple-disable-message-reformatting">
   <!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
   <title>Weekly Compliance Briefing</title>
+  <style type="text/css">
+    @media screen and (max-width:600px) {{
+      .email-wrapper {{ padding:16px 8px 0 8px !important; }}
+      .email-container {{ width:100%% !important; max-width:100%% !important; }}
+      .header-cell {{ padding:24px 20px 20px 20px !important; }}
+      .body-cell {{ padding:20px 16px !important; }}
+      .scorecard-cell {{ display:block !important; width:100%% !important; padding:5px 0 !important; box-sizing:border-box !important; }}
+      .cta-table {{ width:100%% !important; }}
+      .cta-td {{ width:100%% !important; display:block !important; }}
+      .cta-link {{ display:block !important; text-align:center !important; padding:16px 20px !important; width:100%% !important; box-sizing:border-box !important; }}
+      .footer-cell {{ padding:20px 12px 24px 12px !important; }}
+    }}
+  </style>
 </head>
 <body style="margin:0;padding:0;background-color:#f7f1e8;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-         style="background-color:#f7f1e8;min-width:100%;">
+  <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
+         style="background-color:#f7f1e8;min-width:100%%;">
     <tr>
-      <td align="center" style="padding:32px 16px 0 16px;">
+      <td class="email-wrapper" align="center" style="padding:32px 16px 0 16px;">
 
-        <!-- TOP BAR: wordmark -->
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
-               style="max-width:600px;width:100%;">
+        <!-- WORDMARK -->
+        <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0"
+               style="max-width:600px;width:100%%;">
           <tr>
-            <td align="center" style="padding-bottom:24px;">
+            <td align="center" style="padding-bottom:20px;">
               <div style="font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:800;
                           letter-spacing:-0.5px;color:#0f766e;">TraceLayer</div>
               <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#94a3b8;
@@ -780,98 +794,89 @@ def send_weekly_compliance_report(
           </tr>
         </table>
 
-        <!-- MAIN WHITE CARD -->
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
-               style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;
-                      mso-border-radius:16px;
-                      box-shadow:0 4px 24px rgba(0,0,0,0.08);
+        <!-- MAIN CARD -->
+        <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0"
+               style="max-width:600px;width:100%%;background:#ffffff;border-radius:16px;
+                      mso-border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);
                       border-collapse:separate;">
           <tr>
             <td style="border-radius:16px;mso-border-radius:16px;overflow:hidden;">
 
               <!-- GRADIENT HEADER -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="background:#0d9488;
+                  <td class="header-cell" style="background:#0d9488;
                              background:linear-gradient(135deg,#0d9488 0%%,#134e4a 100%%);
-                             padding:36px 40px 32px 40px;border-radius:16px 16px 0 0;
+                             padding:32px 36px 28px 36px;border-radius:16px 16px 0 0;
                              mso-border-radius:16px 16px 0 0;">
                     <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;
                                 letter-spacing:0.12em;text-transform:uppercase;color:#99f6e4;
-                                margin-bottom:10px;">Weekly Compliance Briefing</div>
-                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:800;
-                                color:#ffffff;line-height:1.2;margin-bottom:8px;">{company_name}</div>
-                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#99f6e4;">
+                                margin-bottom:8px;">Weekly Compliance Briefing</div>
+                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:26px;font-weight:800;
+                                color:#ffffff;line-height:1.2;margin-bottom:6px;">{company_name}</div>
+                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#99f6e4;">
                       {week_label}
                     </div>
                   </td>
                 </tr>
               </table>
 
-              <!-- BODY PADDING WRAPPER -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <!-- BODY -->
+              <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="padding:32px 40px;">
+                  <td class="body-cell" style="padding:28px 32px;">
 
-                    <!-- FRAMEWORK SCORECARDS HEADING -->
-                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;
+                    <!-- FRAMEWORK SCORES LABEL -->
+                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;
                                 letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;
-                                margin-bottom:16px;">Framework Scores</div>
+                                margin-bottom:14px;">Framework Scores</div>
 
-                    <!-- SCORECARD 3-COLUMN TABLE -->
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-                           style="border-collapse:collapse;margin-bottom:32px;">
+                    <!-- SCORECARDS — stacks to 1-col on mobile -->
+                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
+                           style="border-collapse:collapse;margin-bottom:28px;">
                       <tr>
                         {scorecard_cells}
                       </tr>
                     </table>
 
                     <!-- DIVIDER -->
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-                           style="margin-bottom:24px;">
-                      <tr>
-                        <td style="border-top:1px solid #e2e8f0;font-size:0;line-height:0;">&nbsp;</td>
-                      </tr>
+                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
+                           style="margin-bottom:20px;">
+                      <tr><td style="border-top:1px solid #e2e8f0;font-size:0;line-height:0;">&nbsp;</td></tr>
                     </table>
 
-                    <!-- CONTROL STATUS HEADING -->
-                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;
+                    <!-- CONTROL STATUS -->
+                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;
                                 letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;
                                 margin-bottom:4px;">Control Status</div>
-
-                    <!-- CONTROLS TABLE -->
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-                           style="margin-bottom:32px;">
+                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
+                           style="margin-bottom:28px;">
                       {controls_rows}
                     </table>
 
                     <!-- DIVIDER -->
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-                           style="margin-bottom:24px;">
-                      <tr>
-                        <td style="border-top:1px solid #e2e8f0;font-size:0;line-height:0;">&nbsp;</td>
-                      </tr>
+                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
+                           style="margin-bottom:20px;">
+                      <tr><td style="border-top:1px solid #e2e8f0;font-size:0;line-height:0;">&nbsp;</td></tr>
                     </table>
 
-                    <!-- ACTION ITEMS HEADING -->
-                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;
+                    <!-- ACTION ITEMS -->
+                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;
                                 letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;
                                 margin-bottom:4px;">Priority Action Items</div>
                     <div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#64748b;
-                                margin-bottom:16px;">Top controls requiring attention this week.</div>
-
-                    <!-- ACTION ITEMS TABLE -->
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-                           style="margin-bottom:32px;">
+                                margin-bottom:14px;">Top controls requiring attention this week.</div>
+                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
+                           style="margin-bottom:28px;">
                       {action_items_html}
                     </table>
 
                     <!-- CTA BUTTON -->
-                    <table role="presentation" cellpadding="0" cellspacing="0" border="0"
-                           style="margin:0 auto 8px auto;">
+                    <table class="cta-table" role="presentation" cellpadding="0" cellspacing="0" border="0"
+                           style="margin:0 auto 4px auto;">
                       <tr>
-                        <td align="center" style="border-radius:8px;mso-border-radius:8px;
-                                                  background:#0f766e;">
+                        <td class="cta-td" align="center"
+                            style="border-radius:10px;mso-border-radius:10px;background:#0f766e;">
                           <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml"
                             href="{frontend_url}/compliance"
                             style="height:50px;v-text-anchor:middle;width:240px;"
@@ -883,11 +888,11 @@ def send_weekly_compliance_report(
                             </center>
                           </v:roundrect><![endif]-->
                           <!--[if !mso]><!-->
-                          <a href="{frontend_url}/compliance"
+                          <a class="cta-link" href="{frontend_url}/compliance"
                              style="display:inline-block;background:#0f766e;color:#ffffff;
                                     text-decoration:none;font-family:Arial,Helvetica,sans-serif;
-                                    font-size:15px;font-weight:700;padding:14px 32px;
-                                    border-radius:8px;mso-border-radius:8px;
+                                    font-size:15px;font-weight:700;padding:14px 36px;
+                                    border-radius:10px;mso-border-radius:10px;
                                     letter-spacing:0.01em;">
                             View full dashboard &rarr;
                           </a>
@@ -905,15 +910,15 @@ def send_weekly_compliance_report(
         </table>
 
         <!-- FOOTER -->
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
-               style="max-width:600px;width:100%;">
+        <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0"
+               style="max-width:600px;width:100%%;">
           <tr>
-            <td align="center" style="padding:24px 16px 32px 16px;">
+            <td class="footer-cell" align="center" style="padding:20px 16px 28px 16px;">
               <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#94a3b8;
                           line-height:1.6;">
                 You&rsquo;re receiving this because you&rsquo;re an admin at
                 <strong style="color:#64748b;">{company_name}</strong> on TraceLayer.
-                &middot;
+                &nbsp;&middot;&nbsp;
                 <a href="#" style="color:#94a3b8;text-decoration:underline;">Unsubscribe</a>
               </div>
             </td>
