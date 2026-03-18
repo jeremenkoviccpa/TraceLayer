@@ -507,6 +507,32 @@ export default function DashboardPage() {
               <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide whitespace-nowrap">Controls</p>
             </div>
           </div>
+
+          {/* Control status pills */}
+          <div className="relative mt-3 flex flex-wrap gap-1.5">
+            {failingControls.length === 0 ? (
+              <div className="flex items-center gap-1.5 bg-emerald-500/15 rounded-lg px-2.5 py-1.5">
+                <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                <span className="text-[11px] font-semibold text-emerald-300">All controls passing</span>
+              </div>
+            ) : (
+              failingControls.map((c) => (
+                <Link key={c.category} href="/compliance"
+                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-colors hover:brightness-110 ${
+                    c.status === "failing" ? "bg-red-500/20" : "bg-amber-500/20"
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${c.status === "failing" ? "bg-red-400" : "bg-amber-400"}`} />
+                  <span className={`text-[11px] font-semibold truncate max-w-[120px] ${c.status === "failing" ? "text-red-300" : "text-amber-300"}`}>
+                    {c.name}
+                  </span>
+                  <span className={`text-[10px] font-bold shrink-0 ${c.status === "failing" ? "text-red-400" : "text-amber-400"}`}>
+                    {c.score}%
+                  </span>
+                </Link>
+              ))
+            )}
+          </div>
         </div>
 
         {/* Mini stat cards */}
