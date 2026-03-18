@@ -48,6 +48,8 @@ async def create_checkout_url(company_id: uuid.UUID, user_email: str) -> str:
             json=payload,
             headers=_headers(),
         )
+        if not resp.is_success:
+            logger.error("Paddle /transactions error %s: %s", resp.status_code, resp.text)
         resp.raise_for_status()
         data = resp.json()
 
