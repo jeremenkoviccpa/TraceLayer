@@ -171,6 +171,25 @@ const LOGO_CONFIG: Record<string, LogoCfg> = {
     bg: "#191919", label: "N",
     svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="Georgia,serif" fontWeight="700" fontSize={s*0.44}>N</text>,
   },
+  "1password": { bg: "#1A6CE6", label: "1P" },
+  cloudflare:  { bg: "#F48120", label: "CF" },
+  crowdstrike: { bg: "#E01A22", label: "CR" },
+  jamf:        { bg: "#007DC3", label: "JA" },
+  vercel: {
+    bg: "#000000", label: "VC",
+    svg: (s) => <path d={`M${s*0.5} ${s*0.25} L${s*0.82} ${s*0.75} L${s*0.18} ${s*0.75} Z`} fill="white"/>,
+  },
+  terraform_cloud: { bg: "#7B42BC", label: "TF" },
+  snyk:        { bg: "#4C4A73", label: "SY" },
+  wiz:         { bg: "#00B3E3", label: "WZ" },
+  sentinelone: { bg: "#7F2BDB", label: "S1" },
+  kandji:      { bg: "#0066CC", label: "KN" },
+  duo:         { bg: "#6DBE4E", label: "DU" },
+  splunk:      { bg: "#1A1A1A", label: "SP" },
+  servicenow:  { bg: "#62D84E", label: "NOW" },
+  kolide:      { bg: "#5C7CFF", label: "KL" },
+  hackerone:   { bg: "#494649", label: "H1" },
+  confluence:  { bg: "#1868DB", label: "CO" },
 };
 
 function LogoBadge({ type, size = 42 }: { type: string; size?: number }) {
@@ -234,11 +253,20 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
       {
         type: "1password", label: "1Password",
         description: "Collect vault access policies, team members, and MFA enforcement status for CC6.1 evidence",
-        comingSoon: true,
+        fields: [
+          { key: "service_account_token", label: "Service Account Token", placeholder: "ops_••••••••", type: "password" },
+        ],
       },
       {
         type: "rippling", label: "Rippling",
         description: "Sync employee lifecycle events and offboarding for access reviews",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password" },
+        ],
+      },
+      {
+        type: "duo", label: "Duo Security",
+        description: "Collect MFA enrollment rates, authentication policies, and device trust settings for CC6.1 evidence",
         comingSoon: true,
       },
     ],
@@ -258,16 +286,30 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
       {
         type: "google_cloud", label: "Google Cloud Platform",
         description: "Collect IAM policies, audit logs, and resource configurations",
-        comingSoon: true,
+        fields: [
+          { key: "service_account_json", label: "Service Account JSON", placeholder: '{"type":"service_account",...}', type: "textarea" },
+          { key: "project_id", label: "Project ID", placeholder: "my-gcp-project-123" },
+        ],
       },
       {
         type: "vercel", label: "Vercel",
         description: "Collect deployment records, environment variable access, and team member permissions",
-        comingSoon: true,
+        fields: [
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password" },
+          { key: "team_id", label: "Team ID (optional)", placeholder: "team_••••••••" },
+        ],
       },
       {
         type: "terraform_cloud", label: "Terraform Cloud",
         description: "Collect workspace runs, state changes, and team access for change management evidence",
+        fields: [
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password" },
+          { key: "org_name", label: "Organization Name", placeholder: "my-org" },
+        ],
+      },
+      {
+        type: "wiz", label: "Wiz",
+        description: "Pull cloud security posture findings, misconfigurations, and risk inventory for continuous evidence",
         comingSoon: true,
       },
     ],
@@ -286,7 +328,10 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
       {
         type: "gitlab", label: "GitLab",
         description: "Collect projects, members, and merge request approval settings",
-        comingSoon: true,
+        fields: [
+          { key: "token", label: "Personal Access Token", placeholder: "glpat-••••••••", type: "password" },
+          { key: "domain", label: "GitLab Domain", placeholder: "gitlab.com" },
+        ],
       },
     ],
   },
@@ -305,11 +350,25 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
       {
         type: "linear", label: "Linear",
         description: "Collect issues, cycles, and team members for change tracking evidence",
-        comingSoon: true,
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "lin_api_••••••••", type: "password" },
+        ],
       },
       {
         type: "notion", label: "Notion",
         description: "Sync policy documents and runbooks as compliance evidence",
+        fields: [
+          { key: "api_key", label: "Integration Token", placeholder: "secret_••••••••", type: "password" },
+        ],
+      },
+      {
+        type: "confluence", label: "Confluence",
+        description: "Collect policy pages, runbooks, and space permissions as documentation evidence",
+        comingSoon: true,
+      },
+      {
+        type: "servicenow", label: "ServiceNow",
+        description: "Collect ITSM tickets, change requests, and incident records for ITIL-aligned evidence",
         comingSoon: true,
       },
     ],
@@ -327,7 +386,11 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
       {
         type: "microsoft_teams", label: "Microsoft Teams",
         description: "Collect team members, admin roles, and messaging policies",
-        comingSoon: true,
+        fields: [
+          { key: "tenant_id", label: "Tenant ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+          { key: "client_id", label: "Client ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••", type: "password" },
+        ],
       },
     ],
   },
@@ -337,36 +400,83 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
       {
         type: "cloudflare", label: "Cloudflare",
         description: "Collect WAF rules, access policies, DDoS protection settings, and audit logs for network security evidence",
-        comingSoon: true,
+        fields: [
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password" },
+          { key: "account_id", label: "Account ID", placeholder: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" },
+        ],
       },
       {
         type: "crowdstrike", label: "CrowdStrike Falcon",
         description: "Collect endpoint detection coverage, policy status, and agent deployment for CC6.7 / CC6.8 evidence",
-        comingSoon: true,
+        fields: [
+          { key: "client_id", label: "Client ID", placeholder: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••", type: "password" },
+          { key: "base_url", label: "Base URL", placeholder: "https://api.crowdstrike.com" },
+        ],
       },
       {
         type: "jamf", label: "Jamf Pro",
         description: "Collect device enrollment, MDM profiles, disk encryption status, and patch compliance for Mac fleets",
-        comingSoon: true,
+        fields: [
+          { key: "domain", label: "Jamf Domain", placeholder: "mycompany.jamfcloud.com" },
+          { key: "username", label: "API Username", placeholder: "api-user" },
+          { key: "password", label: "API Password", placeholder: "••••••••••••", type: "password" },
+        ],
       },
       {
         type: "datadog", label: "Datadog",
         description: "Pull audit logs, alert rules, and monitoring coverage as evidence",
-        comingSoon: true,
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password" },
+          { key: "app_key", label: "Application Key", placeholder: "••••••••••••", type: "password" },
+          { key: "site", label: "Datadog Site", placeholder: "datadoghq.com" },
+        ],
       },
       {
         type: "pagerduty", label: "PagerDuty",
         description: "Collect on-call schedules and incident response records",
-        comingSoon: true,
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password" },
+        ],
       },
       {
         type: "sentry", label: "Sentry",
         description: "Collect error monitoring configuration and team access records",
-        comingSoon: true,
+        fields: [
+          { key: "auth_token", label: "Auth Token", placeholder: "••••••••••••", type: "password" },
+          { key: "org_slug", label: "Organization Slug", placeholder: "my-organization" },
+        ],
       },
       {
         type: "stripe", label: "Stripe",
-        description: "Collect payment security settings for PCI DSS evidence",
+        description: "Collect payment security settings and access controls for PCI DSS evidence",
+        fields: [
+          { key: "api_key", label: "Restricted API Key", placeholder: "rk_live_••••••••", type: "password" },
+        ],
+      },
+      {
+        type: "snyk", label: "Snyk",
+        description: "Pull dependency vulnerability findings and fix rates as continuous security evidence",
+        comingSoon: true,
+      },
+      {
+        type: "sentinelone", label: "SentinelOne",
+        description: "Collect endpoint protection coverage, threat detection, and agent deployment status",
+        comingSoon: true,
+      },
+      {
+        type: "splunk", label: "Splunk",
+        description: "Collect SIEM alerts, log retention policies, and security monitoring coverage",
+        comingSoon: true,
+      },
+      {
+        type: "kolide", label: "Kolide",
+        description: "Collect device health checks, compliance posture, and failed policy counts for CC6.8",
+        comingSoon: true,
+      },
+      {
+        type: "hackerone", label: "HackerOne",
+        description: "Sync bug bounty program reports and remediation timelines as penetration testing evidence",
         comingSoon: true,
       },
     ],
@@ -376,7 +486,15 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
     integrations: [
       {
         type: "bamboohr", label: "BambooHR",
-        description: "Sync employee records and offboarding workflows",
+        description: "Sync employee records, offboarding workflows, and org chart data",
+        fields: [
+          { key: "subdomain", label: "Subdomain", placeholder: "mycompany" },
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password" },
+        ],
+      },
+      {
+        type: "kandji", label: "Kandji",
+        description: "Collect Apple device enrollment, MDM compliance blueprints, and patch status for CC6.8",
         comingSoon: true,
       },
     ],
