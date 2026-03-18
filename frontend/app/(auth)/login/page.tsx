@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/components/auth-provider";
-import { Eye, EyeOff, AlertCircle, CheckCircle2 } from "lucide-react";
+import { api } from "@/lib/api";
+import { Eye, EyeOff, AlertCircle, CheckCircle2, ShieldCheck } from "lucide-react";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -15,18 +16,42 @@ export default function LoginPage() {
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // 2FA state
+  const [totpStep, setTotpStep] = useState(false);
+  const [totpToken, setTotpToken] = useState("");
+  const [totpCode, setTotpCode] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      await login(email, password);
-      const { api } = await import("@/lib/api");
+      const result = await login(email, password);
+      if (result?.requires_2fa && result.totp_token) {
+        setTotpToken(result.totp_token);
+        setTotpStep(true);
+        setLoading(false);
+        return;
+      }
       const company = await api.getCompany();
       router.push(company.is_partner_account ? "/partner/clients" : "/dashboard");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTotpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      await api.verify2FA(totpToken, totpCode);
+      const company = await api.getCompany();
+      router.push(company.is_partner_account ? "/partner/clients" : "/dashboard");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Invalid code");
     } finally {
       setLoading(false);
     }
@@ -108,66 +133,123 @@ export default function LoginPage() {
             <div className="relative flex justify-center"><span className="bg-white px-3 text-xs text-gray-400">or</span></div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm flex items-center gap-2 animate-slide-up">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                {error}
+          {totpStep ? (
+            <form onSubmit={handleTotpSubmit} className="space-y-4">
+              <div className="flex items-center gap-3 bg-brand-50 border border-brand-100 rounded-xl px-4 py-3 mb-2">
+                <ShieldCheck className="w-5 h-5 text-brand-600 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-brand-900">Two-factor authentication</p>
+                  <p className="text-xs text-brand-600">Enter the 6-digit code from your authenticator app</p>
+                </div>
               </div>
-            )}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoFocus
-                className="input"
-                placeholder="you@company.com"
-              />
-            </div>
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm flex items-center gap-2 animate-slide-up">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  {error}
+                </div>
+              )}
 
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-sm font-medium text-gray-700">Password</label>
-                <Link href="/forgot-password" className="text-xs text-brand-600 hover:text-brand-700 font-medium">
-                  Forgot password?
-                </Link>
-              </div>
-              <div className="relative">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Authentication code</label>
                 <input
-                  type={showPw ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9A-Fa-f]*"
+                  value={totpCode}
+                  onChange={(e) => setTotpCode(e.target.value.replace(/\s/g, ""))}
                   required
-                  className="input pr-10"
+                  autoFocus
+                  maxLength={8}
+                  className="input text-center tracking-[0.3em] text-lg font-mono"
+                  placeholder="000000"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                  tabIndex={-1}
-                >
-                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+                <p className="text-xs text-gray-400 mt-1.5">You can also enter a backup code</p>
               </div>
-            </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full mt-2 py-2.5 justify-center"
-            >
-              {loading ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Signing in…
-                </>
-              ) : "Sign in"}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={loading || totpCode.length < 6}
+                className="btn-primary w-full mt-2 py-2.5 justify-center"
+              >
+                {loading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Verifying…
+                  </>
+                ) : "Verify"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setTotpStep(false); setError(""); setTotpCode(""); }}
+                className="w-full text-center text-sm text-gray-500 hover:text-gray-700"
+              >
+                ← Back to login
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm flex items-center gap-2 animate-slide-up">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  {error}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoFocus
+                  className="input"
+                  placeholder="you@company.com"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-medium text-gray-700">Password</label>
+                  <Link href="/forgot-password" className="text-xs text-brand-600 hover:text-brand-700 font-medium">
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPw ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="input pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary w-full mt-2 py-2.5 justify-center"
+              >
+                {loading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Signing in…
+                  </>
+                ) : "Sign in"}
+              </button>
+            </form>
+          )}
 
           <p className="text-center text-sm text-gray-500 mt-8">
             Don&apos;t have an account?{" "}

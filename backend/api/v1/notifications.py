@@ -1,14 +1,17 @@
 import logging
+import uuid
+from datetime import datetime
 from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
 from core.deps import get_current_admin, get_current_user
 from models.company import Company
+from models.notification import Notification
 from models.user import User
 from services import audit_service
 
@@ -78,3 +81,75 @@ async def update_notification_prefs(
         prefs=company.notification_prefs or {},
         slack_webhook_url=company.slack_webhook_url,
     )
+
+
+# ── In-App Notification Inbox ──────────────────────────────────────────────────
+
+class NotificationResponse(BaseModel):
+    id: str
+    type: str
+    title: str
+    message: str
+    read: bool
+    resource_type: Optional[str]
+    resource_id: Optional[str]
+    created_at: datetime
+
+
+@router.get("/inbox", response_model=list[NotificationResponse])
+async def get_inbox(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Notification)
+        .where(Notification.user_id == current_user.id)
+        .order_by(Notification.created_at.desc())
+        .limit(50)
+    )
+    notifications = result.scalars().all()
+    return [
+        NotificationResponse(
+            id=str(n.id),
+            type=n.type,
+            title=n.title,
+            message=n.message,
+            read=n.read,
+            resource_type=n.resource_type,
+            resource_id=n.resource_id,
+            created_at=n.created_at,
+        )
+        for n in notifications
+    ]
+
+
+@router.post("/inbox/{notification_id}/read", status_code=204)
+async def mark_notification_read(
+    notification_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Notification).where(
+            Notification.id == notification_id,
+            Notification.user_id == current_user.id,
+        )
+    )
+    notification = result.scalar_one_or_none()
+    if not notification:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    notification.read = True
+    await db.commit()
+
+
+@router.post("/inbox/read-all", status_code=204)
+async def mark_all_notifications_read(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await db.execute(
+        update(Notification)
+        .where(Notification.user_id == current_user.id, Notification.read == False)  # noqa: E712
+        .values(read=True)
+    )
+    await db.commit()

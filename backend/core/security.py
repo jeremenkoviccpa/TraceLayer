@@ -51,3 +51,21 @@ def create_refresh_token() -> tuple[str, str]:
 
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
+
+
+def encrypt_value(value: str) -> str:
+    from cryptography.fernet import Fernet
+    key = settings.fernet_key
+    if isinstance(key, str):
+        key = key.encode()
+    f = Fernet(key)
+    return f.encrypt(value.encode()).decode()
+
+
+def decrypt_value(encrypted: str) -> str:
+    from cryptography.fernet import Fernet
+    key = settings.fernet_key
+    if isinstance(key, str):
+        key = key.encode()
+    f = Fernet(key)
+    return f.decrypt(encrypted.encode()).decode()

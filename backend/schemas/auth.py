@@ -24,6 +24,8 @@ class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
+    requires_2fa: Optional[bool] = None
+    totp_token: Optional[str] = None
 
 
 class UserResponse(BaseModel):
@@ -55,3 +57,26 @@ class ForgotPasswordRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
+
+
+class TwoFASetupResponse(BaseModel):
+    secret: str
+    qr_uri: str
+    backup_codes: list[str]
+
+
+class TwoFAEnableRequest(BaseModel):
+    code: str
+
+
+class TwoFADisableRequest(BaseModel):
+    password: str
+
+
+class TwoFAVerifyRequest(BaseModel):
+    totp_token: str
+    code: str
+
+
+class TwoFABackupCodesRequest(BaseModel):
+    password: str

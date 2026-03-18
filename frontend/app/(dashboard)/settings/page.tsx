@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
 import type { AuditSession, BillingInfo, Company, NotificationSettings, TrustPageSettings } from "@/lib/types";
@@ -22,6 +22,9 @@ import {
   Copy,
   Check,
   Globe,
+  Smartphone,
+  KeyRound,
+  AlertCircle,
 } from "lucide-react";
 import React from "react";
 
@@ -151,6 +154,91 @@ export default function SettingsPage() {
       showToast(err instanceof Error ? err.message : "Failed to update password", "error");
     } finally {
       setPwSaving(false);
+    }
+  };
+
+  // ── 2FA ───────────────────────────────────────────────────────────────────
+  const [twoFAEnabled, setTwoFAEnabled] = useState(user?.totp_enabled ?? false);
+  const [twoFAStep, setTwoFAStep] = useState<"idle" | "setup" | "enable-confirm" | "disable-confirm" | "backup-regen">("idle");
+  const [twoFASetupData, setTwoFASetupData] = useState<{ secret: string; qr_uri: string; backup_codes: string[] } | null>(null);
+  const [twoFACode, setTwoFACode] = useState("");
+  const [twoFAPassword, setTwoFAPassword] = useState("");
+  const [twoFALoading, setTwoFALoading] = useState(false);
+  const [twoFABackupCodes, setTwoFABackupCodes] = useState<string[] | null>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [twoFACodeCopied, setTwoFACodeCopied] = useState(false);
+
+  useEffect(() => {
+    setTwoFAEnabled(user?.totp_enabled ?? false);
+  }, [user?.totp_enabled]);
+
+  useEffect(() => {
+    if (!twoFASetupData?.qr_uri) { setQrDataUrl(null); return; }
+    import("qrcode").then((QRCode) => {
+      QRCode.toDataURL(twoFASetupData.qr_uri, { width: 200, margin: 1 }).then(setQrDataUrl);
+    }).catch(() => setQrDataUrl(null));
+  }, [twoFASetupData?.qr_uri]);
+
+  const handleSetup2FA = useCallback(async () => {
+    setTwoFALoading(true);
+    try {
+      const data = await api.setup2FA();
+      setTwoFASetupData(data);
+      setTwoFAStep("setup");
+      setTwoFACode("");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Failed to set up 2FA", "error");
+    } finally {
+      setTwoFALoading(false);
+    }
+  }, []);
+
+  const handleEnable2FA = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTwoFALoading(true);
+    try {
+      await api.enable2FA(twoFACode);
+      setTwoFAEnabled(true);
+      setTwoFAStep("idle");
+      setTwoFASetupData(null);
+      setTwoFACode("");
+      showToast("Two-factor authentication enabled");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Invalid code — try again", "error");
+    } finally {
+      setTwoFALoading(false);
+    }
+  };
+
+  const handleDisable2FA = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTwoFALoading(true);
+    try {
+      await api.disable2FA(twoFAPassword);
+      setTwoFAEnabled(false);
+      setTwoFAStep("idle");
+      setTwoFAPassword("");
+      showToast("Two-factor authentication disabled");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Incorrect password", "error");
+    } finally {
+      setTwoFALoading(false);
+    }
+  };
+
+  const handleRegenBackupCodes = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTwoFALoading(true);
+    try {
+      const data = await api.regenerateBackupCodes(twoFAPassword);
+      setTwoFABackupCodes(data.backup_codes);
+      setTwoFAStep("idle");
+      setTwoFAPassword("");
+      showToast("New backup codes generated — save them now");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Incorrect password", "error");
+    } finally {
+      setTwoFALoading(false);
     }
   };
 
@@ -582,15 +670,165 @@ export default function SettingsPage() {
 
         <div className="my-5 border-t border-gray-100" />
 
-        {/* 2FA row */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-800">Two-factor authentication</p>
-            <p className="text-xs text-gray-500 mt-0.5">Add an extra layer of security to your account</p>
+        {/* 2FA section */}
+        <div className="space-y-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className={`w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 ${twoFAEnabled ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-gray-50 border-gray-100 text-gray-400"}`}>
+                <Smartphone className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-800">Two-factor authentication</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {twoFAEnabled
+                    ? <span className="inline-flex items-center gap-1 text-emerald-600 font-medium"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> Enabled</span>
+                    : "Add an extra layer of security to your account"}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {twoFAEnabled ? (
+                <>
+                  <button
+                    onClick={() => { setTwoFAStep("backup-regen"); setTwoFAPassword(""); setTwoFABackupCodes(null); }}
+                    className="text-xs text-gray-500 hover:text-gray-900 px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                  >
+                    Backup codes
+                  </button>
+                  <button
+                    onClick={() => { setTwoFAStep("disable-confirm"); setTwoFAPassword(""); }}
+                    className="text-xs text-red-500 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-100 hover:bg-red-50 transition-colors"
+                  >
+                    Disable
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleSetup2FA}
+                  disabled={twoFALoading}
+                  className="text-xs bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white px-3 py-1.5 rounded-lg transition-colors font-medium"
+                >
+                  {twoFALoading ? "Loading…" : "Set up 2FA"}
+                </button>
+              )}
+            </div>
           </div>
-          <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full shrink-0">
-            Coming soon
-          </span>
+
+          {/* Setup step — show QR code */}
+          {twoFAStep === "setup" && twoFASetupData && (
+            <div className="rounded-xl border border-brand-100 bg-brand-50/40 p-4 space-y-4">
+              <p className="text-sm font-medium text-gray-800">Scan with your authenticator app</p>
+              <div className="flex flex-col sm:flex-row items-start gap-5">
+                <div className="shrink-0">
+                  {qrDataUrl ? (
+                    <img src={qrDataUrl} alt="TOTP QR code" className="w-44 h-44 rounded-lg border border-gray-100 bg-white p-1" />
+                  ) : (
+                    <div className="w-44 h-44 rounded-lg border border-gray-100 bg-white flex items-center justify-center">
+                      <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 space-y-3 min-w-0">
+                  <div>
+                    <p className="text-xs font-medium text-gray-600 mb-1">Or enter this key manually</p>
+                    <div className="flex items-center gap-2">
+                      <code className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs font-mono text-gray-800 break-all">{twoFASetupData.secret}</code>
+                      <button
+                        type="button"
+                        onClick={() => { navigator.clipboard.writeText(twoFASetupData.secret); setTwoFACodeCopied(true); setTimeout(() => setTwoFACodeCopied(false), 2000); }}
+                        className="shrink-0 p-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-400 hover:text-gray-700 transition-colors"
+                      >
+                        {twoFACodeCopied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-600 mb-1.5">Save these backup codes — shown only once</p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {twoFASetupData.backup_codes.map((code, i) => (
+                        <code key={i} className="text-xs font-mono bg-white border border-gray-200 rounded px-2 py-1 text-gray-700">{code}</code>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <form onSubmit={handleEnable2FA} className="flex items-end gap-3 pt-2 border-t border-brand-100">
+                <div className="flex-1">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Enter the 6-digit code from your app</label>
+                  <input
+                    className={inputCls}
+                    value={twoFACode}
+                    onChange={(e) => setTwoFACode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    placeholder="000000"
+                    maxLength={6}
+                    inputMode="numeric"
+                    required
+                  />
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <button type="button" onClick={() => setTwoFAStep("idle")} className="text-xs text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50">Cancel</button>
+                  <button type="submit" disabled={twoFALoading || twoFACode.length !== 6} className="text-xs bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    {twoFALoading ? "Verifying…" : "Activate 2FA"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Disable confirm */}
+          {twoFAStep === "disable-confirm" && (
+            <div className="rounded-xl border border-red-100 bg-red-50/40 p-4">
+              <div className="flex items-start gap-2 mb-3">
+                <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                <p className="text-sm text-red-700">Disabling 2FA will make your account less secure. Enter your password to confirm.</p>
+              </div>
+              <form onSubmit={handleDisable2FA} className="flex items-end gap-3">
+                <div className="flex-1">
+                  <input type="password" className={inputCls} value={twoFAPassword} onChange={(e) => setTwoFAPassword(e.target.value)} placeholder="Current password" required />
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <button type="button" onClick={() => setTwoFAStep("idle")} className="text-xs text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50">Cancel</button>
+                  <button type="submit" disabled={twoFALoading || !twoFAPassword} className="text-xs bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    {twoFALoading ? "Disabling…" : "Disable 2FA"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Backup code regen */}
+          {twoFAStep === "backup-regen" && (
+            <div className="rounded-xl border border-amber-100 bg-amber-50/40 p-4">
+              <div className="flex items-start gap-2 mb-3">
+                <KeyRound className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-800">Regenerating backup codes will invalidate your existing ones. Enter your password to continue.</p>
+              </div>
+              <form onSubmit={handleRegenBackupCodes} className="flex items-end gap-3">
+                <div className="flex-1">
+                  <input type="password" className={inputCls} value={twoFAPassword} onChange={(e) => setTwoFAPassword(e.target.value)} placeholder="Current password" required />
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <button type="button" onClick={() => setTwoFAStep("idle")} className="text-xs text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50">Cancel</button>
+                  <button type="submit" disabled={twoFALoading || !twoFAPassword} className="text-xs bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    {twoFALoading ? "Regenerating…" : "Regenerate"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* New backup codes display */}
+          {twoFABackupCodes && (
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50/40 p-4">
+              <p className="text-sm font-medium text-emerald-800 mb-2">New backup codes — save these now, they won&apos;t be shown again</p>
+              <div className="grid grid-cols-2 gap-1.5">
+                {twoFABackupCodes.map((code, i) => (
+                  <code key={i} className="text-xs font-mono bg-white border border-emerald-200 rounded px-2 py-1 text-gray-700">{code}</code>
+                ))}
+              </div>
+              <button onClick={() => setTwoFABackupCodes(null)} className="mt-3 text-xs text-emerald-700 hover:text-emerald-900 font-medium">Dismiss</button>
+            </div>
+          )}
         </div>
       </section>
 

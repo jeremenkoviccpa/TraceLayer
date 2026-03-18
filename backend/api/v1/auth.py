@@ -11,6 +11,8 @@ from core.limiter import rate_limit
 from core.security import (
     create_access_token,
     create_refresh_token,
+    decode_access_token,
+    encrypt_value,
     hash_password,
     hash_token,
     verify_password,
@@ -20,9 +22,9 @@ from models.email_verification_token import EmailVerificationToken
 from models.password_reset_token import PasswordResetToken
 from models.refresh_token import RefreshToken
 from models.user import User
-from schemas.auth import ChangePasswordRequest, ForgotPasswordRequest, LoginRequest, RefreshRequest, RegisterRequest, ResetPasswordRequest, TokenResponse, UpdateProfileRequest, UserResponse
+from schemas.auth import ChangePasswordRequest, ForgotPasswordRequest, LoginRequest, RefreshRequest, RegisterRequest, ResetPasswordRequest, TokenResponse, TwoFABackupCodesRequest, TwoFADisableRequest, TwoFAEnableRequest, TwoFASetupResponse, TwoFAVerifyRequest, UpdateProfileRequest, UserResponse
 from services.audit_service import log_action
-from services.email_service import send_password_changed_email, send_password_reset_email, send_verification_email, send_welcome_email, send_partner_welcome_email
+from services.email_service import send_2fa_disabled_email, send_2fa_enabled_email, send_password_changed_email, send_password_reset_email, send_verification_email, send_welcome_email, send_partner_welcome_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -95,6 +97,16 @@ async def login(request: Request, body: LoginRequest, db: AsyncSession = Depends
     user = result.scalar_one_or_none()
     if not user or not verify_password(body.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    # If 2FA is enabled, return a short-lived totp_token instead of full tokens
+    if user.totp_enabled:
+        totp_token = create_access_token(str(user.id), str(user.company_id), expire_minutes=5)
+        return TokenResponse(
+            access_token="",
+            refresh_token="",
+            requires_2fa=True,
+            totp_token=totp_token,
+        )
 
     access_token = create_access_token(str(user.id), str(user.company_id))
     raw_refresh, refresh_hash = create_refresh_token()
@@ -298,3 +310,156 @@ async def update_profile(
     await db.commit()
     await db.refresh(current_user)
     return current_user
+
+
+# ── 2FA / TOTP ────────────────────────────────────────────────────────────────
+
+@router.post("/2fa/setup", response_model=TwoFASetupResponse)
+async def setup_2fa(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    import json
+    import secrets as _secrets
+    import pyotp
+    from core.security import encrypt_value
+
+    # Generate a new TOTP secret
+    secret = pyotp.random_base32()
+    totp = pyotp.TOTP(secret)
+    qr_uri = totp.provisioning_uri(name=current_user.email, issuer_name="TraceLayer")
+
+    # Generate 8 backup codes
+    backup_codes = [_secrets.token_hex(4).upper() for _ in range(8)]
+
+    # Encrypt and store (not yet enabled)
+    current_user.totp_secret_enc = encrypt_value(secret)
+    current_user.totp_backup_codes_enc = encrypt_value(json.dumps(backup_codes))
+    await db.commit()
+
+    return TwoFASetupResponse(secret=secret, qr_uri=qr_uri, backup_codes=backup_codes)
+
+
+@router.post("/2fa/enable", status_code=204)
+async def enable_2fa(
+    body: TwoFAEnableRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    import pyotp
+    from core.security import decrypt_value
+
+    if not current_user.totp_secret_enc:
+        raise HTTPException(status_code=400, detail="Run /2fa/setup first")
+
+    secret = decrypt_value(current_user.totp_secret_enc)
+    totp = pyotp.TOTP(secret)
+    if not totp.verify(body.code, valid_window=1):
+        raise HTTPException(status_code=400, detail="Invalid TOTP code")
+
+    current_user.totp_enabled = True
+    await db.commit()
+    await log_action(db, current_user.company_id, "user.2fa_enabled", user_id=current_user.id, user_email=current_user.email)
+    try:
+        send_2fa_enabled_email(current_user.email)
+    except Exception:
+        pass
+
+
+@router.post("/2fa/disable", status_code=204)
+async def disable_2fa(
+    body: TwoFADisableRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if not verify_password(body.password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+
+    current_user.totp_enabled = False
+    current_user.totp_secret_enc = None
+    current_user.totp_backup_codes_enc = None
+    await db.commit()
+    await log_action(db, current_user.company_id, "user.2fa_disabled", user_id=current_user.id, user_email=current_user.email)
+    try:
+        send_2fa_disabled_email(current_user.email)
+    except Exception:
+        pass
+
+
+@router.post("/2fa/verify", response_model=TokenResponse)
+@rate_limit("10/minute")
+async def verify_2fa(request: Request, body: TwoFAVerifyRequest, db: AsyncSession = Depends(get_db)):
+    import json
+    import pyotp
+    from core.security import decrypt_value
+
+    try:
+        payload = decode_access_token(body.totp_token)
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid or expired 2FA token")
+
+    user_id = payload.get("sub")
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user or not user.totp_enabled or not user.totp_secret_enc:
+        raise HTTPException(status_code=401, detail="Invalid 2FA state")
+
+    secret = decrypt_value(user.totp_secret_enc)
+    totp = pyotp.TOTP(secret)
+    code = body.code.strip().upper()
+
+    # Check TOTP code
+    if totp.verify(code, valid_window=1):
+        pass  # valid
+    else:
+        # Check backup codes
+        if user.totp_backup_codes_enc:
+            backup_codes: list[str] = json.loads(decrypt_value(user.totp_backup_codes_enc))
+            if code in backup_codes:
+                # Consume the backup code
+                backup_codes.remove(code)
+                user.totp_backup_codes_enc = encrypt_value(json.dumps(backup_codes))
+            else:
+                raise HTTPException(status_code=401, detail="Invalid authentication code")
+        else:
+            raise HTTPException(status_code=401, detail="Invalid authentication code")
+
+    access_token = create_access_token(str(user.id), str(user.company_id))
+    raw_refresh, refresh_hash = create_refresh_token()
+    refresh_token = RefreshToken(
+        user_id=user.id,
+        token_hash=refresh_hash,
+        expires_at=datetime.now(timezone.utc) + timedelta(days=settings.jwt_refresh_token_expire_days),
+    )
+    db.add(refresh_token)
+    await db.commit()
+
+    await log_action(db, user.company_id, "user.login", user_id=user.id, user_email=user.email)
+    return TokenResponse(access_token=access_token, refresh_token=raw_refresh)
+
+
+@router.post("/2fa/backup-codes", response_model=TwoFASetupResponse)
+async def regenerate_backup_codes(
+    body: TwoFABackupCodesRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    import json
+    import secrets as _secrets
+    import pyotp
+    from core.security import decrypt_value, encrypt_value
+
+    if not verify_password(body.password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+    if not current_user.totp_enabled or not current_user.totp_secret_enc:
+        raise HTTPException(status_code=400, detail="2FA is not enabled")
+
+    secret = decrypt_value(current_user.totp_secret_enc)
+    totp = pyotp.TOTP(secret)
+    qr_uri = totp.provisioning_uri(name=current_user.email, issuer_name="TraceLayer")
+
+    backup_codes = [_secrets.token_hex(4).upper() for _ in range(8)]
+    current_user.totp_backup_codes_enc = encrypt_value(json.dumps(backup_codes))
+    await db.commit()
+
+    return TwoFASetupResponse(secret=secret, qr_uri=qr_uri, backup_codes=backup_codes)

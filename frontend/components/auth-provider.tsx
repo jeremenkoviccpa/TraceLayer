@@ -8,7 +8,7 @@ import type { PartnerSwitchResponse, User } from "@/lib/types";
 interface AuthCtx {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ requires_2fa?: boolean; totp_token?: string }>;
   register: (email: string, password: string, companyName: string, accountType?: "company" | "partner") => Promise<void>;
   logout: () => Promise<void>;
   switchToClient: (switchResponse: PartnerSwitchResponse) => Promise<void>;
@@ -30,8 +30,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    await api.login(email, password);
+    const result = await api.login(email, password);
+    if (result.requires_2fa) return result;
     setUser(await api.me());
+    return result;
   };
 
   const register = async (email: string, password: string, companyName: string, accountType: "company" | "partner" = "company") => {

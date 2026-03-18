@@ -32,7 +32,14 @@ import {
   Zap,
   ArrowLeftCircle,
   LifeBuoy,
+  Siren,
+  Bug,
+  Server,
+  RefreshCw,
+  UserMinus,
+  Bell,
 } from "lucide-react";
+import type { AppNotification } from "@/lib/types";
 import { usePlan } from "@/hooks/usePlan";
 import { api } from "@/lib/api";
 
@@ -57,17 +64,23 @@ const NAV_GROUPS: NavGroup[] = [
   {
     title: "Security",
     items: [
-      { href: "/risks",          label: "Risk Register",  icon: AlertTriangle },
-      { href: "/pen-tests",      label: "Pen Tests",      icon: ShieldAlert },
-      { href: "/vendors",        label: "Vendor Risk",    icon: Building2 },
-      { href: "/access-reviews", label: "Access Reviews", icon: UserCheck },
+      { href: "/risks",               label: "Risk Register",       icon: AlertTriangle },
+      { href: "/incidents",           label: "Incidents",           icon: Siren         },
+      { href: "/vulnerabilities",     label: "Vulnerabilities",     icon: Bug           },
+      { href: "/assets",              label: "Asset Inventory",     icon: Server        },
+      { href: "/pen-tests",           label: "Pen Tests",           icon: ShieldAlert   },
+      { href: "/business-continuity", label: "Business Continuity", icon: RefreshCw     },
+      { href: "/vendors",             label: "Vendor Risk",         icon: Building2     },
+      { href: "/access-reviews",      label: "Access Reviews",      icon: UserCheck     },
     ],
   },
   {
     title: "People",
     items: [
-      { href: "/training", label: "Training", icon: GraduationCap },
-      { href: "/policies", label: "Policies",  icon: BookOpen },
+      { href: "/training",          label: "Training",          icon: GraduationCap },
+      { href: "/policies",          label: "Policies",          icon: BookOpen      },
+      { href: "/background-checks", label: "Background Checks", icon: UserCheck     },
+      { href: "/offboarding",       label: "Offboarding",       icon: UserMinus     },
     ],
   },
   {
@@ -97,11 +110,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [resendLoading, setResendLoading] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const [clientName, setClientName] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const unreadCount = notifications.filter((n) => !n.read).length;
   const { isPro } = usePlan();
 
   useEffect(() => {
     setClientName(api.isInClientContext() ? api.getActiveClientName() : null);
   }, []);
+
+  // Notification polling
+  useEffect(() => {
+    if (!user) return;
+    const load = () => api.getNotifications().then(setNotifications).catch(() => {});
+    load();
+    const id = setInterval(load, 60_000);
+    return () => clearInterval(id);
+  }, [user]);
+
+  const markNotifRead = (id: string) => {
+    api.markNotificationRead(id).catch(() => {});
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+  };
+
+  const markAllNotifRead = () => {
+    api.markAllNotificationsRead().catch(() => {});
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
 
   // Persist collapse state
   useEffect(() => {
@@ -381,6 +416,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Image src="/logo-icon.png" alt="TraceLayer" width={24} height={24} className="rounded-md" />
             <span className="font-bold text-gray-900 text-sm">TraceLayer</span>
           </div>
+          <button
+            onClick={() => setNotifOpen((o) => !o)}
+            className="relative ml-auto text-gray-500 hover:text-gray-900 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <Bell className="w-5 h-5" />
+            {unreadCount > 0 && (
+              <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </button>
         </header>
 
         {/* Partner client context banner */}
@@ -428,6 +474,54 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <main className="flex-1 p-5 md:p-8 max-w-7xl mx-auto w-full">{children}</main>
       </div>
+
+      {/* Desktop notification bell — fixed top-right */}
+      <div className="hidden md:block fixed top-4 right-4 z-50">
+        <button
+          onClick={() => setNotifOpen((o) => !o)}
+          className="relative bg-white border border-gray-100 text-gray-500 hover:text-gray-900 p-2 rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
+        >
+          <Bell className="w-5 h-5" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 min-w-[1.1rem] h-[1.1rem] bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Notification panel */}
+      {notifOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
+          <div className="fixed top-14 right-4 md:top-14 z-50 w-80 bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+              <h3 className="font-semibold text-sm text-gray-900">Notifications</h3>
+              {unreadCount > 0 && (
+                <button onClick={markAllNotifRead} className="text-xs text-brand-600 hover:text-brand-700 font-medium">
+                  Mark all read
+                </button>
+              )}
+            </div>
+            <div className="max-h-96 overflow-y-auto divide-y divide-gray-50">
+              {notifications.length === 0 ? (
+                <p className="text-center py-10 text-sm text-gray-400">No notifications</p>
+              ) : (
+                notifications.slice(0, 20).map((n) => (
+                  <button
+                    key={n.id}
+                    onClick={() => markNotifRead(n.id)}
+                    className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${!n.read ? "bg-brand-50/40" : ""}`}
+                  >
+                    <p className={`text-sm ${!n.read ? "font-semibold text-gray-900" : "text-gray-700"}`}>{n.title}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{n.message}</p>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
