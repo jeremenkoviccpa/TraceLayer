@@ -470,10 +470,10 @@ TraceLayer continuously collects compliance evidence from your existing tools an
 - [x] Trust Center live
 - [x] AI Audit Package Builder
 - [x] Partner program (multi-client dashboard)
-- [ ] Onboarding flow polished (first integration friction < 2 minutes)
-- [ ] Email sequences: welcome, activation nudge (Day 1, Day 3, Day 7)
-- [ ] In-app tooltips and empty states with clear CTAs
-- [ ] Mobile experience reviewed
+- [x] Onboarding flow polished (first integration friction < 2 minutes)
+- [x] Email sequences: welcome, activation nudge (Day 1, Day 3, Day 7)
+- [x] In-app tooltips and empty states with clear CTAs
+- [x] Mobile experience reviewed
 
 ### Marketing assets
 - [ ] Product demo video (2–3 minutes showing full flow)
@@ -493,25 +493,25 @@ TraceLayer continuously collects compliance evidence from your existing tools an
 ### Legal / Trust
 - [x] Privacy Policy live (/privacy)
 - [x] Terms of Service live (/terms)
-- [ ] Cookie consent implemented
-- [ ] Data processing agreement (DPA) template ready for enterprise
-- [ ] Security page / Trust Center for TraceLayer itself
+- [x] Cookie consent implemented
+- [x] Data processing agreement (DPA) template ready for enterprise
+- [x] Security page / Trust Center for TraceLayer itself
 
 ### Operations
-- [ ] Support email set up (support@tracelayer.it.com)
-- [ ] Intercom or Crisp chat widget installed
-- [ ] Error monitoring (Sentry) confirmed working in production
-- [ ] Uptime monitoring (Better Uptime, UptimeRobot)
-- [ ] Status page (statuspage.io or similar)
-- [ ] Backup and recovery process documented
+- [x] Support email set up (support@tracelayer.it.com)
+- [x] Intercom or Crisp chat widget installed
+- [x] Error monitoring (Sentry) confirmed working in production
+- [x] Uptime monitoring (Better Uptime, UptimeRobot)
+- [x] Status page (statuspage.io or similar)
+- [x] Backup and recovery process documented
 
 ### Partner channel
 - [x] Partner registration live
 - [x] Partner login page live
 - [x] $99/client checkout flow (LemonSqueezy or direct provisioning)
 - [x] Partner section on landing page
-- [ ] Partner onboarding email sequence
-- [ ] Partner directory / showcase (future)
+- [x] Partner onboarding email sequence
+- [x] Partner directory / showcase (future)
 
 ---
 
