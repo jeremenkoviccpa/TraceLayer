@@ -7,7 +7,7 @@ import {
 } from "recharts";
 import { api } from "@/lib/api";
 import type {
-  ComplianceScore, EvidenceActivityPoint,
+  AuditLog, ComplianceScore, EvidenceActivityPoint,
   Integration, ScoreHistoryPoint, ReadinessData,
 } from "@/lib/types";
 import Link from "next/link";
@@ -204,6 +204,27 @@ const FRAMEWORKS = [
   { value: "nist_csf", label: "NIST CSF"  },
 ];
 
+function timeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
+function ActivityIcon({ action }: { action: string }) {
+  if (action.startsWith("evidence")) return <Database className="w-3.5 h-3.5 text-brand-500" />;
+  if (action.startsWith("integration")) return <Plug className="w-3.5 h-3.5 text-teal-500" />;
+  if (action.startsWith("user") || action.startsWith("login")) return <UserCheck className="w-3.5 h-3.5 text-violet-500" />;
+  if (action.startsWith("plan")) return <Zap className="w-3.5 h-3.5 text-amber-500" />;
+  if (action.startsWith("report")) return <FileText className="w-3.5 h-3.5 text-sky-500" />;
+  if (action.startsWith("risk")) return <AlertTriangle className="w-3.5 h-3.5 text-red-400" />;
+  if (action.startsWith("vendor")) return <Building2 className="w-3.5 h-3.5 text-teal-500" />;
+  return <Activity className="w-3.5 h-3.5 text-gray-400" />;
+}
+
 function fmtDay(dateStr: string) {
   const d = new Date(dateStr);
   return `${d.getMonth() + 1}/${d.getDate()}`;
@@ -232,6 +253,7 @@ export default function DashboardPage() {
   const [evidenceActivity, setEvidenceActivity] = useState<EvidenceActivityPoint[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
+  const [recentActivity, setRecentActivity] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [scoreLoading, setScoreLoading] = useState(false);
 
@@ -244,8 +266,9 @@ export default function DashboardPage() {
       api.getEvidenceActivity(14),
       api.getReports(1),
       api.getReadiness(framework),
+      api.getAuditLog({ page_size: 6 }),
     ])
-      .then(([ints, ev, score, history, activity, rpts, readinessData]) => {
+      .then(([ints, ev, score, history, activity, rpts, readinessData, auditLog]) => {
         setIntegrations(ints);
         setEvidenceTotal(ev.total);
         setCompliance(score);
@@ -253,6 +276,7 @@ export default function DashboardPage() {
         setEvidenceActivity(activity);
         setReports(rpts.items);
         setReadiness(readinessData);
+        setRecentActivity(auditLog.items);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -628,6 +652,141 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* ── Framework overview ── */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Globe className="w-4 h-4 text-brand-500" />
+            <span className="text-sm font-semibold text-gray-800">Frameworks</span>
+          </div>
+          <Link href="/compliance" className="text-xs text-brand-600 font-semibold hover:text-brand-700 transition-colors">View all →</Link>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+          {FRAMEWORKS.map((fw) => {
+            const locked = !isPro && fw.value !== "soc2";
+            const isActive = fw.value === framework;
+            return (
+              <button
+                key={fw.value}
+                onClick={() => locked ? triggerUpgrade() : handleFrameworkChange(fw.value)}
+                disabled={scoreLoading}
+                className={`relative flex flex-col items-start gap-1.5 p-3 rounded-xl border text-left transition-all disabled:opacity-60 ${
+                  isActive
+                    ? "border-brand-200 bg-brand-50"
+                    : locked
+                    ? "border-gray-100 bg-gray-50"
+                    : "border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50"
+                }`}
+              >
+                {locked && <Lock className="absolute top-2 right-2 w-3 h-3 text-gray-300" />}
+                <span className={`text-[10px] font-bold uppercase tracking-wide truncate w-full ${isActive ? "text-brand-600" : "text-gray-400"}`}>
+                  {fw.label}
+                </span>
+                {isActive ? (
+                  <>
+                    <span className={`text-lg font-black leading-none ${score >= 80 ? "text-emerald-600" : score >= 50 ? "text-amber-600" : "text-gray-900"}`}>
+                      {score}%
+                    </span>
+                    <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${scoreBarColor(score)}`} style={{ width: `${score}%` }} />
+                    </div>
+                  </>
+                ) : locked ? (
+                  <span className="text-[10px] text-amber-500 font-semibold">Upgrade →</span>
+                ) : (
+                  <span className="text-xs font-bold text-gray-300 leading-none">—</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Recent activity + Recent reports ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        {/* Recent activity */}
+        <div className="md:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-brand-500" />
+              <span className="text-sm font-semibold text-gray-800">Recent activity</span>
+            </div>
+            <Link href="/audit" className="text-xs text-brand-600 font-semibold hover:text-brand-700 transition-colors">View all →</Link>
+          </div>
+          {recentActivity.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-6 gap-2 text-center">
+              <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center">
+                <Clock className="w-5 h-5 text-gray-300" />
+              </div>
+              <p className="text-xs text-gray-400">No activity logged yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentActivity.map((entry) => (
+                <div key={entry.id} className="flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
+                    <ActivityIcon action={entry.action} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-gray-700 truncate">{entry.action_label}</p>
+                    <p className="text-[10px] text-gray-400 truncate">{entry.user_email ?? "System"}</p>
+                  </div>
+                  <span className="text-[10px] text-gray-400 shrink-0 whitespace-nowrap">{timeAgo(entry.created_at)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Recent reports */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-brand-500" />
+              <span className="text-sm font-semibold text-gray-800">Recent reports</span>
+            </div>
+            <Link href="/reports" className="text-xs text-brand-600 font-semibold hover:text-brand-700 transition-colors">All →</Link>
+          </div>
+          {reports.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-6 gap-2.5 text-center">
+              <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-gray-300" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-600 mb-0.5">No reports yet</p>
+                <p className="text-[11px] text-gray-400 leading-relaxed">Generate your first compliance report.</p>
+              </div>
+              <Link href="/reports" className="btn-primary text-xs px-4 py-1.5">Generate report</Link>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {reports.slice(0, 4).map((r) => (
+                <div key={r.id} className="flex items-start gap-2.5">
+                  <div className="w-7 h-7 rounded-xl bg-brand-50 flex items-center justify-center shrink-0 mt-0.5">
+                    <FileText className="w-3.5 h-3.5 text-brand-500" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-gray-700 truncate capitalize">
+                      {r.report_type.replace(/_/g, " ")} — {r.framework.toUpperCase()}
+                    </p>
+                    <p className="text-[10px] text-gray-400">
+                      {r.generated_at ? new Date(r.generated_at).toLocaleDateString() : "Processing…"}
+                    </p>
+                  </div>
+                  {r.file_url && (
+                    <a href={r.file_url} target="_blank" rel="noopener noreferrer"
+                      className="text-[10px] font-semibold text-brand-600 hover:text-brand-700 shrink-0 mt-1">
+                      ↓
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* ── Bottom row: Quick links + Integrations + Action items ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
