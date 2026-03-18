@@ -23,6 +23,37 @@ import { usePlan } from "@/hooks/usePlan";
 import { useUpgrade } from "@/components/plan-gate";
 import type { Report } from "@/lib/types";
 
+// ── Mini donut ring ────────────────────────────────────────────────────────────
+function MiniRing({
+  value, max, color, label, sub,
+}: { value: number; max: number; color: string; label: string; sub?: string }) {
+  const size = 72;
+  const r = 28;
+  const circ = 2 * Math.PI * r;
+  const pct = max > 0 ? Math.min(value / max, 1) : 0;
+  const offset = circ - pct * circ;
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg className="-rotate-90" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="6" />
+          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth="6"
+            strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+            style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)" }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-xl font-black leading-none" style={{ color }}>{value}</span>
+        </div>
+      </div>
+      <div className="text-center">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-white/40">{label}</p>
+        {sub && <p className="text-[9px] text-white/20 mt-0.5">{sub}</p>}
+      </div>
+    </div>
+  );
+}
+
 // ── Score Ring ────────────────────────────────────────────────────────────────
 function ScoreRing({ score }: { score: number }) {
   const r = 48;
@@ -492,36 +523,30 @@ export default function DashboardPage() {
               </Link>
             )}
           </div>
-          {/* Bottom stat strip */}
-          <div className="relative mt-5 pt-4 border-t border-white/10 grid grid-cols-3 gap-2 text-center">
-            <div>
-              <p className="text-3xl font-black text-emerald-400">{passingControls}</p>
-              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide mt-0.5">Passing</p>
-            </div>
-            <div>
-              <p className={`text-3xl font-black ${failingControls.length > 0 ? "text-red-400" : "text-white/20"}`}>{failingControls.length}</p>
-              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide mt-0.5">Failing</p>
-            </div>
-            <div>
-              <p className="text-3xl font-black text-white">{compliance?.controls.length ?? 0}</p>
-              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide mt-0.5">Controls</p>
-            </div>
+          {/* Mini donut rings */}
+          <div className="relative mt-5 pt-4 border-t border-white/10 grid grid-cols-3 gap-2">
+            <MiniRing
+              value={passingControls}
+              max={compliance?.controls.length ?? 1}
+              color="#10b981"
+              label="Passing"
+              sub={`of ${compliance?.controls.length ?? 0}`}
+            />
+            <MiniRing
+              value={failingControls.length}
+              max={compliance?.controls.length ?? 1}
+              color={failingControls.length > 0 ? "#f87171" : "rgba(255,255,255,0.15)"}
+              label="Failing"
+              sub={failingControls.length === 0 ? "none" : "need attention"}
+            />
+            <MiniRing
+              value={score}
+              max={100}
+              color="#818cf8"
+              label="Score"
+              sub="out of 100"
+            />
           </div>
-
-          {/* Per-control status bar */}
-          {compliance && compliance.controls.length > 0 && (
-            <div className="relative mt-4 flex gap-1">
-              {compliance.controls.map((c) => (
-                <div key={c.category} className="flex-1 flex flex-col gap-1">
-                  <div className={`h-1.5 rounded-full ${
-                    c.status === "passing" ? "bg-emerald-500" :
-                    c.status === "warning"  ? "bg-amber-400"  :
-                    c.status === "failing"  ? "bg-red-500"    : "bg-white/10"
-                  }`} />
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Mini stat cards */}
