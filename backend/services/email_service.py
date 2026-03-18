@@ -11,6 +11,74 @@ from core.config import settings
 logger = logging.getLogger(__name__)
 
 
+# ── Brand constants ───────────────────────────────────────────────────────────
+_BRAND       = "#0f766e"   # brand-600 teal — primary CTA
+_BRAND_LIGHT = "#f0fdfa"   # brand-50
+_BRAND_BORDER= "#ccfbf1"   # brand-100
+_TEXT_HEAD   = "#1e293b"   # slate-800
+_TEXT_BODY   = "#475569"   # slate-600
+_TEXT_MUTED  = "#94a3b8"   # slate-400
+_RED         = "#dc2626"   # danger / security alerts
+_RED_BG      = "#fef2f2"
+_RED_BORDER  = "#fecaca"
+
+
+def _layout(body_html: str, footer_note: str = "") -> str:
+    """Wrap content in the standard TraceLayer branded email shell."""
+    footer = footer_note or (
+        f'TraceLayer &nbsp;&middot;&nbsp; '
+        f'<a href="mailto:support@tracelayer.it.com" '
+        f'style="color:{_TEXT_MUTED};text-decoration:none;">support@tracelayer.it.com</a>'
+    )
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f1f5f9;">
+    <tr><td align="center" style="padding:40px 16px 32px;">
+      <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;">
+
+        <!-- Wordmark -->
+        <tr>
+          <td style="padding:0 0 20px 4px;">
+            <span style="font-size:21px;font-weight:800;color:{_BRAND};letter-spacing:-0.5px;">TraceLayer</span>
+          </td>
+        </tr>
+
+        <!-- Card -->
+        <tr>
+          <td style="background:#ffffff;border-radius:16px;padding:36px 40px;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+            {body_html}
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td align="center" style="padding:24px 0 0;font-size:12px;color:{_TEXT_MUTED};line-height:1.7;">
+            {footer}
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
+
+
+def _btn(url: str, label: str, color: str = _BRAND) -> str:
+    """Render a full-width-safe CTA button."""
+    return (
+        f'<a href="{url}" style="display:inline-block;background:{color};color:#ffffff;'
+        f'text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:700;'
+        f'font-size:15px;letter-spacing:-0.1px;">{label}</a>'
+    )
+
+
 def _send(to: str, subject: str, html: str) -> None:
     if not settings.resend_api_key:
         logger.info("EMAIL (no RESEND_API_KEY) to=%s subject=%s", to, subject)
@@ -34,92 +102,64 @@ def _send(to: str, subject: str, html: str) -> None:
 
 def send_invite_email(to: str, invite_url: str, company_name: str, invited_by: str) -> None:
     subject = f"You've been invited to join {company_name} on TraceLayer"
-    html = f"""
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-      <h2 style="margin:0 0 8px">You're invited to TraceLayer</h2>
-      <p style="color:#555;margin:0 0 24px">
-        <strong>{invited_by}</strong> has invited you to join
-        <strong>{company_name}</strong> on TraceLayer — a continuous compliance
-        evidence platform.
+    body = f"""
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:22px;">You've been invited</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 24px;font-size:15px;line-height:1.6;">
+        <strong>{invited_by}</strong> has invited you to join <strong>{company_name}</strong>
+        on TraceLayer — automated compliance evidence collection for SOC 2, ISO 27001, GDPR and more.
       </p>
-      <a href="{invite_url}"
-         style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;
-                padding:12px 24px;border-radius:8px;font-weight:600;font-size:15px">
-        Accept invitation
-      </a>
-      <p style="color:#999;font-size:12px;margin-top:24px">
-        This link expires in 7 days. If you weren't expecting this, you can ignore it.
+      {_btn(invite_url, "Accept invitation")}
+      <p style="color:{_TEXT_MUTED};font-size:12px;margin:24px 0 0;">
+        This link expires in 7 days. If you weren't expecting this, you can safely ignore it.
       </p>
-    </div>
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body))
 
 
 def send_welcome_email(to: str, company_name: str) -> None:
     subject = "Welcome to TraceLayer"
-    html = f"""
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-      <h2 style="margin:0 0 8px">Welcome to TraceLayer</h2>
-      <p style="color:#555;margin:0 0 16px">
-        Your account for <strong>{company_name}</strong> is ready.
-        Connect your first integration to start collecting compliance evidence automatically.
+    body = f"""
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:22px;">Welcome to TraceLayer</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 20px;font-size:15px;line-height:1.6;">
+        Your account for <strong>{company_name}</strong> is ready. Connect your first integration
+        and TraceLayer will start collecting compliance evidence automatically — no manual work needed.
       </p>
-      <a href="{settings.app_frontend_url}/onboarding"
-         style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;
-                padding:12px 24px;border-radius:8px;font-weight:600;font-size:15px">
-        Get started
-      </a>
-      <p style="color:#999;font-size:12px;margin-top:24px">
-        TraceLayer — Continuous compliance evidence collection.
-      </p>
-    </div>
+      <div style="background:{_BRAND_LIGHT};border:1.5px solid {_BRAND_BORDER};border-radius:12px;padding:18px 22px;margin:0 0 28px;">
+        <p style="margin:0 0 10px;font-weight:700;color:{_BRAND};font-size:13px;text-transform:uppercase;letter-spacing:0.06em;">What you can do right now</p>
+        <table cellpadding="0" cellspacing="0" border="0" width="100%">
+          <tr><td style="padding:4px 0;font-size:14px;color:#065f46;">✓ &nbsp;Connect GitHub, AWS, Slack and 20+ other tools</td></tr>
+          <tr><td style="padding:4px 0;font-size:14px;color:#065f46;">✓ &nbsp;Watch your compliance score update automatically</td></tr>
+          <tr><td style="padding:4px 0;font-size:14px;color:#065f46;">✓ &nbsp;Get audit-ready for SOC 2, ISO 27001, HIPAA, GDPR</td></tr>
+        </table>
+      </div>
+      {_btn(f"{settings.app_frontend_url}/onboarding", "Get started →")}
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body, f"TraceLayer &nbsp;&middot;&nbsp; Continuous compliance evidence collection."))
 
 
 def send_partner_welcome_email(to: str, company_name: str) -> None:
     """Welcome email for new partner / agency accounts."""
     subject = "Welcome to the TraceLayer Partner Program"
-    html = f"""
-    <div style="font-family:sans-serif;max-width:540px;margin:0 auto;padding:32px 24px">
-      <div style="font-family:sans-serif;font-size:18px;font-weight:800;color:#0f766e;margin-bottom:24px;">
-        TraceLayer
-      </div>
-
-      <h2 style="margin:0 0 8px;color:#1e293b;font-size:22px;">Welcome to the Partner Program, {company_name}!</h2>
-      <p style="color:#475569;margin:0 0 24px;font-size:15px;line-height:1.6">
+    body = f"""
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:22px;">Welcome, {company_name}!</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 24px;font-size:15px;line-height:1.6;">
         You're now set up as a TraceLayer Partner. Here's everything you can do from your partner dashboard.
       </p>
-
-      <div style="background:#f0fdf4;border:1.5px solid #d1fae5;border-radius:12px;padding:20px 24px;margin-bottom:24px;">
-        <p style="margin:0 0 12px;font-weight:700;color:#065f46;font-size:14px;">Your partner dashboard lets you:</p>
+      <div style="background:{_BRAND_LIGHT};border:1.5px solid {_BRAND_BORDER};border-radius:12px;padding:20px 24px;margin:0 0 24px;">
+        <p style="margin:0 0 12px;font-weight:700;color:{_BRAND};font-size:13px;text-transform:uppercase;letter-spacing:0.06em;">Your partner dashboard</p>
         <table cellpadding="0" cellspacing="0" border="0" width="100%">
-          <tr><td style="padding:5px 0;font-size:14px;color:#047857;">✓ &nbsp;Add client workspaces ($99 each)</td></tr>
-          <tr><td style="padding:5px 0;font-size:14px;color:#047857;">✓ &nbsp;Switch into any client's dashboard instantly</td></tr>
-          <tr><td style="padding:5px 0;font-size:14px;color:#047857;">✓ &nbsp;Share a branded Trust Center link with each client</td></tr>
-          <tr><td style="padding:5px 0;font-size:14px;color:#047857;">✓ &nbsp;Manage SOC 2, ISO 27001, GDPR compliance for all clients</td></tr>
+          <tr><td style="padding:5px 0;font-size:14px;color:#065f46;">✓ &nbsp;Add client workspaces ($99 each)</td></tr>
+          <tr><td style="padding:5px 0;font-size:14px;color:#065f46;">✓ &nbsp;Switch into any client's dashboard instantly</td></tr>
+          <tr><td style="padding:5px 0;font-size:14px;color:#065f46;">✓ &nbsp;Share a branded Trust Center link with each client</td></tr>
+          <tr><td style="padding:5px 0;font-size:14px;color:#065f46;">✓ &nbsp;Manage SOC 2, ISO 27001, GDPR compliance for all clients</td></tr>
         </table>
       </div>
-
-      <p style="color:#475569;font-size:14px;margin:0 0 8px;font-weight:600;">Your next step:</p>
-      <p style="color:#64748b;font-size:14px;margin:0 0 24px;line-height:1.6">
+      <p style="color:{_TEXT_BODY};font-size:14px;margin:0 0 24px;line-height:1.6;">
         Head to your partner dashboard and add your first client. Each workspace is provisioned instantly.
       </p>
-
-      <a href="{settings.app_frontend_url}/partner/clients"
-         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
-                padding:13px 28px;border-radius:8px;font-weight:700;font-size:15px">
-        Open partner dashboard →
-      </a>
-
-      <p style="color:#94a3b8;font-size:12px;margin-top:32px;line-height:1.6">
-        Questions? Reply to this email or contact us at
-        <a href="mailto:support@tracelayer.it.com" style="color:#0f766e;">support@tracelayer.it.com</a><br/>
-        TraceLayer — Compliance automation for agencies &amp; consultancies.
-      </p>
-    </div>
+      {_btn(f"{settings.app_frontend_url}/partner/clients", "Open partner dashboard →")}
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body, f"TraceLayer Partner Program &nbsp;&middot;&nbsp; <a href='mailto:support@tracelayer.it.com' style='color:{_TEXT_MUTED};text-decoration:none;'>support@tracelayer.it.com</a>"))
 
 
 def send_partner_nudge_email(to: str, day: int, client_count: int = 0) -> None:
@@ -189,27 +229,15 @@ def send_partner_nudge_email(to: str, day: int, client_count: int = 0) -> None:
         </div>
         """
 
-    html = f"""
-    <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px">
-      <div style="font-family:sans-serif;font-size:18px;font-weight:800;color:#0f766e;margin-bottom:20px;">
-        TraceLayer Partners
-      </div>
-      <h2 style="margin:0 0 12px;color:#1e293b;font-size:20px;line-height:1.3">{content['headline']}</h2>
-      <p style="color:#475569;margin:0 0 20px;line-height:1.6;font-size:15px">
+    body = f"""
+      <h2 style="margin:0 0 12px;color:{_TEXT_HEAD};font-size:20px;line-height:1.3;">{content['headline']}</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 20px;line-height:1.6;font-size:15px;">
         {content['body']}
       </p>
       {tips_html}
-      <a href="{settings.app_frontend_url}/partner/clients"
-         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
-                padding:13px 28px;border-radius:8px;font-weight:700;font-size:15px">
-        {content['cta']} →
-      </a>
-      <p style="color:#94a3b8;font-size:12px;margin-top:32px;line-height:1.6">
-        TraceLayer Partner Program · <a href="mailto:support@tracelayer.it.com" style="color:#94a3b8;">support@tracelayer.it.com</a>
-      </p>
-    </div>
+      {_btn(f"{settings.app_frontend_url}/partner/clients", f"{content['cta']} →")}
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body, f"TraceLayer Partner Program &nbsp;&middot;&nbsp; <a href='mailto:support@tracelayer.it.com' style='color:{_TEXT_MUTED};text-decoration:none;'>support@tracelayer.it.com</a>"))
 
 
 def send_activation_nudge_email(to: str, day: int) -> None:
@@ -252,329 +280,244 @@ def send_activation_nudge_email(to: str, day: int) -> None:
     }
     content = nudge_content.get(day, nudge_content[1])
     subject = content["subject"]
-    html = f"""
-    <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px">
-      <div style="font-family:sans-serif;font-size:18px;font-weight:800;color:#0f766e;margin-bottom:20px;">
-        TraceLayer
-      </div>
-      <h2 style="margin:0 0 12px;color:#1e293b;font-size:20px;line-height:1.3">{content['headline']}</h2>
-      <p style="color:#475569;margin:0 0 24px;line-height:1.6;font-size:15px">
+    body = f"""
+      <h2 style="margin:0 0 12px;color:{_TEXT_HEAD};font-size:20px;line-height:1.3;">{content['headline']}</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 24px;line-height:1.6;font-size:15px;">
         {content['body']}
       </p>
-      <a href="{content['cta_url']}"
-         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
-                padding:13px 28px;border-radius:8px;font-weight:700;font-size:15px">
-        {content['cta']} →
-      </a>
-      <p style="color:#94a3b8;font-size:12px;margin-top:32px;line-height:1.6">
-        TraceLayer — Continuous compliance evidence collection.<br/>
-        <a href="{settings.app_frontend_url}/settings" style="color:#94a3b8">Manage email preferences</a>
-      </p>
-    </div>
+      {_btn(content['cta_url'], f"{content['cta']} →")}
     """
-    _send(to, subject, html)
+    footer = (
+        f'TraceLayer &nbsp;&middot;&nbsp; '
+        f'<a href="{settings.app_frontend_url}/settings" style="color:{_TEXT_MUTED};text-decoration:none;">Manage email preferences</a>'
+    )
+    _send(to, subject, _layout(body, footer))
 
 
 def send_collection_failure_email(to: str, integration_type: str, error: str) -> None:
-    subject = f"TraceLayer: {integration_type} collection failed"
-    html = f"""
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-      <h2 style="margin:0 0 8px;color:#dc2626">Collection failed</h2>
-      <p style="color:#555;margin:0 0 16px">
+    subject = f"TraceLayer: {integration_type} evidence collection failed"
+    body = f"""
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:20px;">Evidence collection failed</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 16px;font-size:15px;line-height:1.6;">
         The scheduled evidence collection for <strong>{integration_type}</strong> failed.
         Your compliance score may be out of date until this is resolved.
       </p>
-      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:24px">
-        <code style="font-size:12px;color:#991b1b">{error[:300]}</code>
+      <div style="background:{_RED_BG};border:1px solid {_RED_BORDER};border-radius:10px;padding:14px 18px;margin:0 0 24px;">
+        <p style="margin:0 0 6px;font-weight:700;font-size:12px;color:#991b1b;text-transform:uppercase;letter-spacing:0.05em;">Error details</p>
+        <code style="font-size:12px;color:#991b1b;line-height:1.5;">{error[:300]}</code>
       </div>
-      <a href="{settings.app_frontend_url}/integrations"
-         style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;
-                padding:12px 24px;border-radius:8px;font-weight:600;font-size:15px">
-        Check integrations
-      </a>
-      <p style="color:#999;font-size:12px;margin-top:24px">
-        You can reconnect the integration or trigger a manual collection from the Integrations page.
+      {_btn(f"{settings.app_frontend_url}/integrations", "Go to Integrations")}
+      <p style="color:{_TEXT_MUTED};font-size:12px;margin:20px 0 0;line-height:1.6;">
+        You can reconnect the integration or trigger a manual sync from the Integrations page.
       </p>
-    </div>
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body))
 
 
 def send_verification_email(to: str, verify_url: str) -> None:
     subject = "Verify your TraceLayer email address"
-    html = f"""
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-      <h2 style="margin:0 0 8px">Verify your email</h2>
-      <p style="color:#555;margin:0 0 24px">
+    body = f"""
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:22px;">Verify your email</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 28px;font-size:15px;line-height:1.6;">
         Click the button below to verify your email address and activate your TraceLayer account.
         This link expires in 24 hours.
       </p>
-      <a href="{verify_url}"
-         style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;
-                padding:12px 24px;border-radius:8px;font-weight:600;font-size:15px">
-        Verify email address
-      </a>
-      <p style="color:#999;font-size:12px;margin-top:24px">
+      {_btn(verify_url, "Verify email address")}
+      <p style="color:{_TEXT_MUTED};font-size:12px;margin:24px 0 0;">
         If you didn't create a TraceLayer account, you can safely ignore this email.
       </p>
-    </div>
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body))
 
 
 def send_password_reset_email(to: str, reset_url: str) -> None:
     subject = "Reset your TraceLayer password"
-    html = f"""
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-      <h2 style="margin:0 0 8px">Reset your password</h2>
-      <p style="color:#555;margin:0 0 24px">
+    body = f"""
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:22px;">Reset your password</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 28px;font-size:15px;line-height:1.6;">
         We received a request to reset the password for your TraceLayer account.
         Click the button below — this link expires in 1 hour.
       </p>
-      <a href="{reset_url}"
-         style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;
-                padding:12px 24px;border-radius:8px;font-weight:600;font-size:15px">
-        Reset password
-      </a>
-      <p style="color:#999;font-size:12px;margin-top:24px">
-        If you didn't request this, you can safely ignore this email.
-        Your password will not change.
+      {_btn(reset_url, "Reset password")}
+      <p style="color:{_TEXT_MUTED};font-size:12px;margin:24px 0 0;">
+        If you didn't request this, you can safely ignore this email. Your password will not change.
       </p>
-    </div>
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body))
 
 
 def send_password_changed_email(to: str) -> None:
     subject = "Your TraceLayer password was changed"
-    html = """
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-      <h2 style="margin:0 0 8px">Password changed</h2>
-      <p style="color:#555">
-        Your TraceLayer account password was just changed. If you did this, no action
-        is needed. If you didn't, please contact your admin immediately.
+    body = f"""
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:22px;">Password changed</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 16px;font-size:15px;line-height:1.6;">
+        Your TraceLayer account password was just updated. If you made this change, no action is needed.
       </p>
-    </div>
+      <p style="color:{_TEXT_BODY};font-size:15px;line-height:1.6;">
+        If you didn't do this, please contact us immediately at
+        <a href="mailto:support@tracelayer.it.com" style="color:{_BRAND};">support@tracelayer.it.com</a>.
+      </p>
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body))
 
 
 def send_account_deleted_email(to: str, company_name: str) -> None:
     subject = "Your TraceLayer account has been deleted"
-    html = f"""
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-      <h2 style="margin:0 0 8px;color:#1e293b">Account deleted</h2>
-      <p style="color:#475569;margin:0 0 16px">
+    body = f"""
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:22px;">Account deleted</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 16px;font-size:15px;line-height:1.6;">
         Your TraceLayer account for <strong>{company_name}</strong> has been permanently deleted.
         All associated data has been removed from our systems.
       </p>
-      <p style="color:#475569;margin:0 0 24px">
+      <p style="color:{_TEXT_BODY};font-size:15px;line-height:1.6;">
         If you did not request this, please contact us immediately at
-        <a href="mailto:support@tracelayer.it.com" style="color:#0f766e;">support@tracelayer.it.com</a>.
+        <a href="mailto:support@tracelayer.it.com" style="color:{_BRAND};">support@tracelayer.it.com</a>.
       </p>
-      <p style="color:#94a3b8;font-size:12px;margin-top:24px">
-        TraceLayer — Continuous compliance evidence collection.
-      </p>
-    </div>
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body))
 
 
 def send_subscription_cancelled_email(to: str, company_name: str) -> None:
     subject = "Your TraceLayer subscription has been cancelled"
-    html = f"""
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-      <h2 style="margin:0 0 8px;color:#1e293b">Subscription cancelled</h2>
-      <p style="color:#475569;margin:0 0 16px">
+    body = f"""
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:22px;">Subscription cancelled</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 16px;font-size:15px;line-height:1.6;">
         Your Growth plan subscription for <strong>{company_name}</strong> has been cancelled.
         Your account will revert to the Free plan at the end of your current billing period.
       </p>
-      <p style="color:#475569;margin:0 0 16px">
-        Your data and evidence will be retained. You can reactivate your subscription at any time.
+      <p style="color:{_TEXT_BODY};margin:0 0 28px;font-size:15px;line-height:1.6;">
+        Your data and evidence will be retained. You can reactivate at any time.
       </p>
-      <a href="{settings.app_frontend_url}/settings#billing"
-         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
-                padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px">
-        Reactivate subscription
-      </a>
-      <p style="color:#94a3b8;font-size:12px;margin-top:24px">
-        Questions? Contact us at
-        <a href="mailto:support@tracelayer.it.com" style="color:#94a3b8;">support@tracelayer.it.com</a>
-      </p>
-    </div>
+      {_btn(f"{settings.app_frontend_url}/settings#billing", "Reactivate subscription")}
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body))
 
 
 def send_new_team_member_email(to: str, inviter_name: str, company_name: str, member_email: str) -> None:
     subject = f"{member_email} has joined {company_name} on TraceLayer"
-    html = f"""
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-      <h2 style="margin:0 0 8px;color:#1e293b">New team member joined</h2>
-      <p style="color:#475569;margin:0 0 16px">
+    body = f"""
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:22px;">New team member joined</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 28px;font-size:15px;line-height:1.6;">
         <strong>{member_email}</strong> has accepted their invitation and joined
         <strong>{company_name}</strong> on TraceLayer.
       </p>
-      <a href="{settings.app_frontend_url}/team"
-         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
-                padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px">
-        View team
-      </a>
-      <p style="color:#94a3b8;font-size:12px;margin-top:24px">
-        TraceLayer — Continuous compliance evidence collection.
-      </p>
-    </div>
+      {_btn(f"{settings.app_frontend_url}/team", "View team")}
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body))
 
 
 def send_trial_ending_email(to: str, company_name: str, days_left: int) -> None:
     subject = f"Your TraceLayer trial ends in {days_left} day{'s' if days_left != 1 else ''}"
-    html = f"""
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:24px">
-        <p style="margin:0;font-weight:700;color:#92400e;font-size:14px">
+    body = f"""
+      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:12px 18px;margin:0 0 24px;">
+        <p style="margin:0;font-weight:700;color:#92400e;font-size:14px;">
           ⏰ Your trial ends in {days_left} day{'s' if days_left != 1 else ''}
         </p>
       </div>
-      <h2 style="margin:0 0 8px;color:#1e293b">Upgrade to keep your compliance program running</h2>
-      <p style="color:#475569;margin:0 0 16px">
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:22px;">Keep your compliance program running</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 28px;font-size:15px;line-height:1.6;">
         Your free trial for <strong>{company_name}</strong> is ending soon.
-        Upgrade to the Growth plan to keep your automated evidence collection, AI reports,
+        Upgrade to the Growth plan to keep automated evidence collection, AI reports,
         and all 7 compliance frameworks active.
       </p>
-      <a href="{settings.app_frontend_url}/settings#billing"
-         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
-                padding:13px 28px;border-radius:8px;font-weight:700;font-size:15px">
-        Upgrade to Growth →
-      </a>
-      <p style="color:#94a3b8;font-size:12px;margin-top:24px">
-        Questions? Reply to this email or contact us at
-        <a href="mailto:support@tracelayer.it.com" style="color:#94a3b8;">support@tracelayer.it.com</a>
-      </p>
-    </div>
+      {_btn(f"{settings.app_frontend_url}/settings#billing", "Upgrade to Growth →")}
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body))
 
 
 def send_audit_session_created_email(to: str, company_name: str, label: str, expires_at_str: str) -> None:
     subject = f"Auditor access link created for {company_name}"
-    html = f"""
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-      <h2 style="margin:0 0 8px;color:#1e293b">Auditor access link created</h2>
-      <p style="color:#475569;margin:0 0 16px">
+    body = f"""
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:22px;">Auditor access link created</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 16px;font-size:15px;line-height:1.6;">
         An auditor access session has been created for <strong>{company_name}</strong>.
       </p>
-      <div style="background:#f0fdf4;border:1px solid #d1fae5;border-radius:8px;padding:12px 16px;margin-bottom:24px">
-        <p style="margin:0 0 4px;font-size:13px;color:#065f46;font-weight:700">Session details</p>
-        <p style="margin:0;font-size:14px;color:#047857"><strong>Label:</strong> {label or "Untitled session"}</p>
-        <p style="margin:4px 0 0;font-size:14px;color:#047857"><strong>Expires:</strong> {expires_at_str}</p>
+      <div style="background:{_BRAND_LIGHT};border:1.5px solid {_BRAND_BORDER};border-radius:10px;padding:16px 20px;margin:0 0 24px;">
+        <p style="margin:0 0 8px;font-size:12px;font-weight:700;color:{_BRAND};text-transform:uppercase;letter-spacing:0.06em;">Session details</p>
+        <p style="margin:0 0 4px;font-size:14px;color:{_TEXT_BODY};"><strong>Label:</strong> {label or "Untitled session"}</p>
+        <p style="margin:0;font-size:14px;color:{_TEXT_BODY};"><strong>Expires:</strong> {expires_at_str}</p>
       </div>
-      <p style="color:#64748b;font-size:13px;margin:0 0 24px">
-        If you did not create this session, please revoke it immediately from your settings.
+      <p style="color:{_TEXT_BODY};font-size:14px;margin:0 0 24px;line-height:1.6;">
+        If you did not create this session, please revoke it immediately.
       </p>
-      <a href="{settings.app_frontend_url}/settings#audit-sessions"
-         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
-                padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px">
-        Manage audit sessions
-      </a>
-      <p style="color:#94a3b8;font-size:12px;margin-top:24px">
-        TraceLayer — Continuous compliance evidence collection.
-      </p>
-    </div>
+      {_btn(f"{settings.app_frontend_url}/settings#audit-sessions", "Manage audit sessions")}
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body))
 
 
 def send_2fa_enabled_email(to: str) -> None:
     subject = "Two-factor authentication enabled on your TraceLayer account"
-    html = f"""
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-      <div style="background:#f0fdf4;border:1px solid #d1fae5;border-radius:8px;padding:12px 16px;margin-bottom:24px">
-        <p style="margin:0;font-weight:700;color:#065f46;font-size:14px">✓ Two-factor authentication enabled</p>
+    body = f"""
+      <div style="background:#f0fdf4;border:1.5px solid #d1fae5;border-radius:10px;padding:12px 18px;margin:0 0 24px;">
+        <p style="margin:0;font-weight:700;color:#065f46;font-size:14px;">&#10003; Two-factor authentication enabled</p>
       </div>
-      <p style="color:#475569;margin:0 0 16px">
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:22px;">Your account is now more secure</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 16px;font-size:15px;line-height:1.6;">
         Two-factor authentication (2FA) has been successfully enabled on your TraceLayer account.
-        Your account is now more secure.
       </p>
-      <p style="color:#475569;margin:0 0 24px">
+      <p style="color:{_TEXT_BODY};margin:0 0 28px;font-size:15px;line-height:1.6;">
         You will need your authenticator app each time you sign in.
-        Make sure you've saved your backup codes in a safe place.
+        Make sure you&rsquo;ve saved your backup codes in a safe place.
       </p>
-      <a href="{settings.app_frontend_url}/settings#security"
-         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
-                padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px">
-        View security settings
-      </a>
-      <p style="color:#94a3b8;font-size:12px;margin-top:24px">
+      {_btn(f"{settings.app_frontend_url}/settings#security", "View security settings")}
+      <p style="color:{_TEXT_MUTED};font-size:13px;margin-top:24px;line-height:1.5;">
         If you did not enable 2FA, contact support immediately at
-        <a href="mailto:support@tracelayer.it.com" style="color:#94a3b8;">support@tracelayer.it.com</a>
+        <a href="mailto:support@tracelayer.it.com" style="color:{_TEXT_MUTED};">support@tracelayer.it.com</a>
       </p>
-    </div>
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body))
 
 
 def send_2fa_disabled_email(to: str) -> None:
-    subject = "⚠️ Two-factor authentication disabled on your TraceLayer account"
-    html = f"""
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:24px">
-        <p style="margin:0;font-weight:700;color:#991b1b;font-size:14px">⚠️ Security alert: 2FA disabled</p>
+    subject = "Two-factor authentication disabled on your TraceLayer account"
+    body = f"""
+      <div style="background:{_RED_BG};border:1.5px solid {_RED_BORDER};border-radius:10px;padding:12px 18px;margin:0 0 24px;">
+        <p style="margin:0;font-weight:700;color:#991b1b;font-size:14px;">&#9888; Security alert: 2FA disabled</p>
       </div>
-      <p style="color:#475569;margin:0 0 16px">
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:22px;">Two-factor authentication disabled</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 16px;font-size:15px;line-height:1.6;">
         Two-factor authentication has been disabled on your TraceLayer account.
         Your account is now protected only by your password.
       </p>
-      <p style="color:#475569;margin:0 0 24px">
+      <p style="color:{_TEXT_BODY};margin:0 0 28px;font-size:15px;line-height:1.6;">
         If you did not do this, your account may be compromised. Please change your password
         and re-enable 2FA immediately.
       </p>
-      <a href="{settings.app_frontend_url}/settings#security"
-         style="display:inline-block;background:#dc2626;color:#fff;text-decoration:none;
-                padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px">
-        Secure your account
-      </a>
-      <p style="color:#94a3b8;font-size:12px;margin-top:24px">
-        Questions? Contact us at
-        <a href="mailto:support@tracelayer.it.com" style="color:#94a3b8;">support@tracelayer.it.com</a>
-      </p>
-    </div>
+      {_btn(f"{settings.app_frontend_url}/settings#security", "Secure your account", color=_RED)}
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body))
 
 
 def send_alert_digest(to: str, company_name: str, alerts: list[dict], frontend_url: str) -> None:
     """Send a compliance alert digest email."""
     # alerts format: [{"type": str, "label": str, "count": int, "items": list[str]}]
-    subject = f"TraceLayer: Compliance alerts for {company_name}"
+    subject = f"Compliance alerts for {company_name}"
     items_html = ""
     for alert in alerts:
         items_list = "".join(
-            f"<li style='margin:2px 0;font-size:13px;color:#475569;'>{item}</li>"
+            f"<li style='margin:2px 0;font-size:13px;color:{_TEXT_BODY};'>{item}</li>"
             for item in alert["items"][:5]
         )
         if len(alert["items"]) > 5:
             items_list += (
-                f"<li style='margin:2px 0;font-size:13px;color:#94a3b8;'>"
+                f"<li style='margin:2px 0;font-size:13px;color:{_TEXT_MUTED};'>"
                 f"...and {len(alert['items']) - 5} more</li>"
             )
         items_html += f"""
-        <div style="margin-bottom:16px;padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;">
-          <p style="margin:0 0 6px;font-weight:700;color:#dc2626;font-size:13px;">{alert['label']} ({alert['count']})</p>
+        <div style="margin-bottom:16px;padding:12px 16px;background:{_RED_BG};border:1.5px solid {_RED_BORDER};border-radius:10px;">
+          <p style="margin:0 0 6px;font-weight:700;color:{_RED};font-size:13px;">{alert['label']} ({alert['count']})</p>
           <ul style="margin:0;padding-left:16px;">{items_list}</ul>
         </div>
         """
-    html = f"""
-    <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px">
-      <h2 style="margin:0 0 4px;color:#1e293b">Compliance Alerts</h2>
-      <p style="color:#64748b;margin:0 0 24px;font-size:14px">{company_name} — {len(alerts)} issue type(s) need attention</p>
+    body = f"""
+      <h2 style="margin:0 0 6px;color:{_TEXT_HEAD};font-size:22px;">Compliance Alerts</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 24px;font-size:14px;line-height:1.6;">
+        {company_name} &mdash; {len(alerts)} issue type{'s' if len(alerts) != 1 else ''} need{'s' if len(alerts) == 1 else ''} attention
+      </p>
       {items_html}
-      <a href="{frontend_url}/dashboard" style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px">Open dashboard</a>
-      <p style="color:#94a3b8;font-size:11px;margin-top:24px">TraceLayer · Daily compliance alerts</p>
-    </div>
+      {_btn(frontend_url + "/dashboard", "Open dashboard")}
     """
-    _send(to, subject, html)
+    _send(to, subject, _layout(body, footer_note=f"TraceLayer &nbsp;&middot;&nbsp; Daily compliance alerts"))
 
 
 def send_weekly_compliance_report(
