@@ -376,6 +376,11 @@ const FEATURES = [
     title: "Public Trust Center",
     desc: "Share a live compliance posture page with customers and investors — verified by TraceLayer, updated continuously, no manual upkeep.",
   },
+  {
+    icon: null,
+    title: "and more",
+    desc: "Audit sessions, management reviews, subject access requests, background checks, offboarding checklists — everything to pass your audit.",
+  },
 ];
 
 const HOW_IT_WORKS = [
@@ -1029,15 +1034,34 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {FEATURES.map(({ icon: Icon, title, desc }, i) => (
-              <div key={title} data-animate data-delay={String((i % 3) * 100 + 100)} className="bg-[var(--card)] rounded-2xl border border-black/5 p-6 shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_32px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 transition-all duration-200">
-                <div className="w-10 h-10 bg-[color:var(--accent)]/10 rounded-xl flex items-center justify-center mb-4">
-                  <Icon className="w-5 h-5 text-[var(--accent)]" />
+            {FEATURES.map(({ icon: Icon, title, desc }, i) => {
+              const isMore = Icon === null;
+              return (
+                <div key={title} data-animate data-delay={String((i % 3) * 100 + 100)}
+                  className={`rounded-2xl border p-6 transition-all duration-200 ${
+                    isMore
+                      ? "border-dashed border-black/10 bg-transparent flex flex-col items-center justify-center text-center gap-3"
+                      : "bg-[var(--card)] border-black/5 shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_32px_rgba(15,23,42,0.08)] hover:-translate-y-0.5"
+                  }`}
+                >
+                  {isMore ? (
+                    <>
+                      <span className="text-3xl font-black text-[var(--accent)] leading-none">···</span>
+                      <h3 className="font-bold text-sm text-[var(--ink)]">{title}</h3>
+                      <p className="text-sm text-[var(--muted)] leading-relaxed">{desc}</p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-10 h-10 bg-[color:var(--accent)]/10 rounded-xl flex items-center justify-center mb-4">
+                        <Icon className="w-5 h-5 text-[var(--accent)]" />
+                      </div>
+                      <h3 className="font-bold mb-2 text-sm">{title}</h3>
+                      <p className="text-sm text-[var(--muted)] leading-relaxed">{desc}</p>
+                    </>
+                  )}
                 </div>
-                <h3 className="font-bold mb-2 text-sm">{title}</h3>
-                <p className="text-sm text-[var(--muted)] leading-relaxed">{desc}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -1150,10 +1174,10 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch max-w-3xl mx-auto">
 
             {/* Growth */}
-            <div data-animate data-delay="100" className="relative bg-slate-900 border border-slate-800 rounded-2xl p-7 shadow-[0_24px_60px_rgba(15,23,42,0.3)]">
+            <div data-animate data-delay="100" className="relative bg-slate-900 border border-slate-800 rounded-2xl p-7 shadow-[0_24px_60px_rgba(15,23,42,0.3)] flex flex-col">
               {/* Shimmer overlay */}
               <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/4 to-transparent -translate-x-full animate-shimmer" />
@@ -1174,7 +1198,7 @@ export default function LandingPage() {
                 <TrendingUp className="w-3 h-3" /> ≈ 30 min with a $300/hr consultant
               </div>
               <p className="text-xs mb-6 leading-relaxed text-white/45">AI features, PDF reports, all 7 frameworks, Trust Center, unlimited integrations and team members.</p>
-              <div className="space-y-2.5 mb-7">
+              <div className="space-y-2.5 mb-7 flex-1">
                 {[
                   "Unlimited integrations (24+)",
                   "All 7 frameworks (incl. GDPR, PCI DSS, CCPA, NIST CSF)",
@@ -1187,10 +1211,13 @@ export default function LandingPage() {
                   "Public Trust Center page",
                   "Unlimited team members",
                   "Priority support",
+                  "and more →",
                 ].map((f) => (
                   <div key={f} className="flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" />
-                    <span className="text-xs leading-snug text-white/65">{f}</span>
+                    {f === "and more →"
+                      ? <span className="text-xs leading-snug text-white/30 italic pl-6">{f}</span>
+                      : <><CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span className="text-xs leading-snug text-white/65">{f}</span></>
+                    }
                   </div>
                 ))}
               </div>
@@ -1211,13 +1238,13 @@ export default function LandingPage() {
             </div>
 
             {/* Enterprise */}
-            <div data-animate data-delay="200" className="bg-[var(--card)] border border-black/5 rounded-2xl p-7 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+            <div data-animate data-delay="200" className="bg-[var(--card)] border border-black/5 rounded-2xl p-7 shadow-[0_4px_20px_rgba(15,23,42,0.05)] flex flex-col">
               <p className="text-sm font-bold text-[var(--muted)] mb-1">Enterprise</p>
               <div className="flex items-baseline gap-1 mb-2">
                 <span className="text-4xl font-black text-[var(--ink)]">Custom</span>
               </div>
               <p className="text-xs mb-6 leading-relaxed text-[var(--muted)]">For larger orgs with advanced compliance needs, dedicated security teams, and enterprise requirements.</p>
-              <div className="space-y-2.5 mb-7">
+              <div className="space-y-2.5 mb-7 flex-1">
                 {[
                   "Everything in Growth",
                   "Custom integrations",
