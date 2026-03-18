@@ -26,6 +26,7 @@ import {
   Building2,
   UserCheck,
   Target,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Sparkles,
@@ -127,6 +128,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
   const [resendSent, setResendSent] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
@@ -164,6 +166,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const stored = localStorage.getItem("sidebar-collapsed");
     if (stored === "true") setCollapsed(true);
   }, []);
+
+  // Load open groups from localStorage + auto-expand current active group on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("sidebar-open-groups");
+    const initial: Set<string> = stored ? new Set(JSON.parse(stored)) : new Set();
+    const activeGroup = NAV_GROUPS.find(
+      (g) => g.title && g.items.some((i) => i.href === pathname)
+    );
+    if (activeGroup?.title) initial.add(activeGroup.title);
+    setOpenGroups(initial);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-expand group when navigating to a page inside a collapsed group
+  useEffect(() => {
+    const activeGroup = NAV_GROUPS.find(
+      (g) => g.title && g.items.some((i) => i.href === pathname)
+    );
+    if (!activeGroup?.title) return;
+    setOpenGroups((prev) => {
+      if (prev.has(activeGroup.title!)) return prev;
+      const next = new Set(prev);
+      next.add(activeGroup.title!);
+      localStorage.setItem("sidebar-open-groups", JSON.stringify([...next]));
+      return next;
+    });
+  }, [pathname]);
+
+  const toggleGroup = (title: string) => {
+    setOpenGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(title)) next.delete(title);
+      else next.add(title);
+      localStorage.setItem("sidebar-open-groups", JSON.stringify([...next]));
+      return next;
+    });
+  };
 
   const toggleCollapsed = () => {
     setCollapsed((c) => {
@@ -281,51 +320,63 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Nav */}
         <nav className="flex-1 py-4 overflow-y-auto overflow-x-hidden">
           <div className={`space-y-5 ${collapsed ? "px-2" : "px-3"}`}>
-            {NAV_GROUPS.map((group, gi) => (
-              <div key={gi}>
-                {/* Section label — hidden when collapsed */}
-                {group.title && !collapsed && (
-                  <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-                    {group.title}
-                  </p>
-                )}
-                {/* Thin divider for collapsed groups that have a title */}
-                {group.title && collapsed && gi > 0 && (
-                  <div className="border-t border-gray-100 mb-1" />
-                )}
-                <div className="space-y-0.5">
-                  {group.items.map(({ href, label, icon: Icon }) => {
-                    const active = pathname === href;
-                    return (
-                      <div key={href} className="relative group/item">
-                        <Link
-                          href={href}
-                          className={`flex items-center rounded-xl text-sm font-medium transition-all duration-150
-                            ${collapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 py-2"}
-                            ${active
-                              ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20"
-                              : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-                            }`}
-                        >
-                          <Icon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-gray-400"}`} />
-                          {!collapsed && label}
-                        </Link>
-                        {/* Tooltip for collapsed mode */}
-                        {collapsed && (
-                          <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-3 z-50
-                            opacity-0 group-hover/item:opacity-100 transition-opacity duration-150">
-                            <div className="bg-gray-900 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
-                              {label}
-                              <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900" />
-                            </div>
+            {NAV_GROUPS.map((group, gi) => {
+              const isOpen = !group.title || collapsed || openGroups.has(group.title);
+              return (
+                <div key={gi}>
+                  {/* Section label — clickable toggle when expanded, divider when collapsed */}
+                  {group.title && !collapsed && (
+                    <button
+                      onClick={() => toggleGroup(group.title!)}
+                      className="w-full flex items-center justify-between px-3 mb-1 rounded-lg py-0.5 group/section hover:bg-gray-50 transition-colors"
+                    >
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 group-hover/section:text-gray-600 transition-colors">
+                        {group.title}
+                      </p>
+                      <ChevronDown
+                        className={`w-3 h-3 text-gray-300 group-hover/section:text-gray-500 transition-all duration-200 ${isOpen ? "" : "-rotate-90"}`}
+                      />
+                    </button>
+                  )}
+                  {group.title && collapsed && gi > 0 && (
+                    <div className="border-t border-gray-100 mb-1" />
+                  )}
+                  {isOpen && (
+                    <div className="space-y-0.5">
+                      {group.items.map(({ href, label, icon: Icon }) => {
+                        const active = pathname === href;
+                        return (
+                          <div key={href} className="relative group/item">
+                            <Link
+                              href={href}
+                              className={`flex items-center rounded-xl text-sm font-medium transition-all duration-150
+                                ${collapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 py-2"}
+                                ${active
+                                  ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20"
+                                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                                }`}
+                            >
+                              <Icon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-gray-400"}`} />
+                              {!collapsed && label}
+                            </Link>
+                            {/* Tooltip for collapsed mode */}
+                            {collapsed && (
+                              <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-3 z-50
+                                opacity-0 group-hover/item:opacity-100 transition-opacity duration-150">
+                                <div className="bg-gray-900 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+                                  {label}
+                                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900" />
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </nav>
 
