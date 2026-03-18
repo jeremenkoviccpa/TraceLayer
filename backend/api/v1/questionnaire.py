@@ -236,8 +236,8 @@ class AutofillRequest(BaseModel):
         v = [q.strip() for q in v if q.strip()]
         if not v:
             raise ValueError("At least one question is required")
-        if len(v) > 50:
-            raise ValueError("Maximum 50 questions per request")
+        if len(v) > 100:
+            raise ValueError("Maximum 100 questions per request")
         return v
 
 
@@ -246,9 +246,30 @@ class AutofillAnswerItem(BaseModel):
     answer: str
 
 
+class AutofillContextSummary(BaseModel):
+    integrations_count: int
+    policies_count: int
+    vendors_count: int
+    assets_count: int
+    incidents_count: int
+    vulnerabilities_count: int
+    pen_test: bool
+    training_count: int
+    risks_count: int
+    soa_count: int
+    ropa_count: int
+    breaches_count: int
+    subject_requests_count: int
+    bcp_count: int
+    management_review: bool
+    detected_type: str
+
+
 class AutofillResponse(BaseModel):
     company_name: str
     generated_at: str
+    detected_type: str
+    context: AutofillContextSummary
     answers: list[AutofillAnswerItem]
 
 
@@ -326,7 +347,7 @@ async def ai_autofill_questionnaire(
     company_name = company.name if company else "Your Company"
 
     try:
-        answers = await autofill_questionnaire(current_user.company_id, body.questions, db)
+        answers, detected_type, ctx_summary = await autofill_questionnaire(current_user.company_id, body.questions, db)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -336,5 +357,7 @@ async def ai_autofill_questionnaire(
     return AutofillResponse(
         company_name=company_name,
         generated_at=datetime.now(timezone.utc).isoformat(),
+        detected_type=detected_type,
+        context=AutofillContextSummary(**ctx_summary),
         answers=[AutofillAnswerItem(question=a["question"], answer=a["answer"]) for a in answers],
     )
