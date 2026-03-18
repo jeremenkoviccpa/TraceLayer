@@ -42,6 +42,8 @@ import {
   ShieldX,
   UserSearch,
   ClipboardCheck,
+  BadgeCheck,
+  Archive,
 } from "lucide-react";
 import type { AppNotification } from "@/lib/types";
 import { usePlan } from "@/hooks/usePlan";
@@ -53,39 +55,34 @@ type NavGroup = { title?: string; items: NavItem[] };
 const NAV_GROUPS: NavGroup[] = [
   {
     items: [
-      { href: "/dashboard",  label: "Dashboard",  icon: LayoutDashboard },
-      { href: "/readiness",  label: "Readiness",  icon: Target },
+      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/readiness", label: "Readiness", icon: Target },
     ],
   },
   {
-    title: "Evidence",
+    title: "Compliance",
     items: [
-      { href: "/compliance",   label: "Controls",      icon: ShieldCheck },
-      { href: "/evidence",     label: "Evidence",      icon: Database },
-      { href: "/integrations", label: "Integrations",  icon: Plug },
+      { href: "/compliance",   label: "Controls",     icon: ShieldCheck },
+      { href: "/evidence",     label: "Evidence",     icon: Database    },
+      { href: "/integrations", label: "Integrations", icon: Plug        },
     ],
   },
   {
-    title: "Security",
+    title: "Risk & Security",
     items: [
-      { href: "/risks",               label: "Risk Register",       icon: AlertTriangle },
-      { href: "/incidents",           label: "Incidents",           icon: Siren         },
-      { href: "/vulnerabilities",     label: "Vulnerabilities",     icon: Bug           },
-      { href: "/assets",              label: "Asset Inventory",     icon: Server        },
-      { href: "/pen-tests",           label: "Pen Tests",           icon: ShieldAlert   },
-      { href: "/business-continuity", label: "Business Continuity", icon: RefreshCw     },
-      { href: "/vendors",             label: "Vendor Risk",         icon: Building2     },
-      { href: "/access-reviews",      label: "Access Reviews",      icon: UserCheck     },
+      { href: "/risks",           label: "Risk Register",  icon: AlertTriangle },
+      { href: "/incidents",       label: "Incidents",      icon: Siren         },
+      { href: "/vulnerabilities", label: "Vulnerabilities", icon: Bug          },
+      { href: "/pen-tests",       label: "Pen Tests",      icon: ShieldAlert   },
     ],
   },
   {
-    title: "Privacy & Compliance",
+    title: "Operations",
     items: [
-      { href: "/soa",                label: "Statement of Applicability", icon: BookCheck      },
-      { href: "/ropa",               label: "Data Processing (RoPA)",     icon: Database       },
-      { href: "/data-breaches",      label: "Breach Register",            icon: ShieldX        },
-      { href: "/subject-requests",   label: "Subject Requests",           icon: UserSearch     },
-      { href: "/management-reviews", label: "Management Reviews",         icon: ClipboardCheck },
+      { href: "/assets",              label: "Asset Inventory",     icon: Server    },
+      { href: "/business-continuity", label: "Business Continuity", icon: RefreshCw },
+      { href: "/vendors",             label: "Vendor Risk",         icon: Building2 },
+      { href: "/access-reviews",      label: "Access Reviews",      icon: UserCheck },
     ],
   },
   {
@@ -93,23 +90,33 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/training",          label: "Training",          icon: GraduationCap },
       { href: "/policies",          label: "Policies",          icon: BookOpen      },
-      { href: "/background-checks", label: "Background Checks", icon: UserCheck     },
+      { href: "/background-checks", label: "Background Checks", icon: BadgeCheck    },
       { href: "/offboarding",       label: "Offboarding",       icon: UserMinus     },
+    ],
+  },
+  {
+    title: "Privacy",
+    items: [
+      { href: "/soa",              label: "Statement of Applicability", icon: BookCheck  },
+      { href: "/ropa",             label: "Data Processing (RoPA)",     icon: Archive    },
+      { href: "/data-breaches",    label: "Breach Register",            icon: ShieldX    },
+      { href: "/subject-requests", label: "Subject Requests",           icon: UserSearch },
     ],
   },
   {
     title: "Reporting",
     items: [
-      { href: "/reports",        label: "Reports",        icon: FileText },
-      { href: "/questionnaire",  label: "Questionnaire",  icon: ClipboardList },
-      { href: "/audit-package",  label: "Audit Package",  icon: Sparkles },
+      { href: "/reports",            label: "Reports",           icon: FileText       },
+      { href: "/questionnaire",      label: "Questionnaire",     icon: ClipboardList  },
+      { href: "/audit-package",      label: "Audit Package",     icon: Sparkles       },
+      { href: "/management-reviews", label: "Management Reviews", icon: ClipboardCheck },
     ],
   },
   {
     items: [
-      { href: "/team",      label: "Team",      icon: Users },
+      { href: "/team",      label: "Team",      icon: Users     },
       { href: "/audit-log", label: "Audit Log", icon: ScrollText },
-      { href: "/settings",  label: "Settings",  icon: Settings },
+      { href: "/settings",  label: "Settings",  icon: Settings  },
     ],
   },
 ];
