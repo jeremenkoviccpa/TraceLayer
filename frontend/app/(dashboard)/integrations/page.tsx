@@ -322,7 +322,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         description: "Collect repositories, members, admin users, and branch protection rules",
         fields: [
           { key: "token", label: "Personal Access Token", placeholder: "ghp_••••••••", type: "password", hint: "Starts with ghp_ or github_pat_" },
-          { key: "org", label: "Organization", placeholder: "my-org" },
+          { key: "org", label: "Organization or Username", placeholder: "my-org or your-github-username", hint: "Works with both GitHub orgs and personal accounts" },
         ],
       },
       {
@@ -528,8 +528,9 @@ const SETUP_GUIDES: Record<string, SetupGuide> = {
     steps: [
       "GitHub → Settings → Developer Settings → Personal access tokens",
       "Tokens (classic) → Generate new token",
-      "Select scopes: repo, read:org",
+      "Select scopes: repo, read:org (org scope needed for organization accounts)",
       "Copy the generated token (starts with ghp_)",
+      "In the field below, enter your GitHub org name OR your personal username — both work",
     ],
   },
   slack: {
