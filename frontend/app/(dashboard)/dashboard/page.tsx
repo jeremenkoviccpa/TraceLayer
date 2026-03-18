@@ -285,6 +285,7 @@ export default function DashboardPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
   const [recentActivity, setRecentActivity] = useState<AuditLog[]>([]);
+  const [integrationsExpanded, setIntegrationsExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [scoreLoading, setScoreLoading] = useState(false);
 
@@ -872,28 +873,41 @@ export default function DashboardPage() {
                 Connect first tool
               </Link>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {integrations.map((i) => {
-                const staleHours = i.last_collected_at
-                  ? (Date.now() - new Date(i.last_collected_at).getTime()) / 36e5
-                  : Infinity;
-                return (
-                  <div key={i.id} className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className={`w-2 h-2 rounded-full shrink-0 ${i.status === "active" ? "bg-emerald-500" : i.status === "error" ? "bg-red-500" : "bg-gray-300"}`} />
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-gray-700 capitalize truncate">{i.integration_type.replace("_", " ")}</p>
-                        <p className={`text-[10px] ${i.status === "active" ? "text-emerald-600" : i.status === "error" ? "text-red-500" : "text-gray-400"}`}>{i.status}</p>
+          ) : (() => {
+            const LIMIT = 5;
+            const visible = integrationsExpanded ? integrations : integrations.slice(0, LIMIT);
+            const hidden = integrations.length - LIMIT;
+            return (
+              <div className="space-y-3">
+                {visible.map((i) => {
+                  const staleHours = i.last_collected_at
+                    ? (Date.now() - new Date(i.last_collected_at).getTime()) / 36e5
+                    : Infinity;
+                  return (
+                    <div key={i.id} className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${i.status === "active" ? "bg-emerald-500" : i.status === "error" ? "bg-red-500" : "bg-gray-300"}`} />
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-gray-700 capitalize truncate">{i.integration_type.replace(/_/g, " ")}</p>
+                          <p className={`text-[10px] ${i.status === "active" ? "text-emerald-600" : i.status === "error" ? "text-red-500" : "text-gray-400"}`}>{i.status}</p>
+                        </div>
+                        {staleHours > 48 && <AlertTriangle className="w-3 h-3 text-amber-400 shrink-0" />}
                       </div>
-                      {staleHours > 48 && <AlertTriangle className="w-3 h-3 text-amber-400 shrink-0" />}
+                      {staleBadge(i.last_collected_at)}
                     </div>
-                    {staleBadge(i.last_collected_at)}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+                {hidden > 0 && (
+                  <button
+                    onClick={() => setIntegrationsExpanded((v) => !v)}
+                    className="w-full text-xs font-semibold text-brand-600 hover:text-brand-700 transition-colors pt-1 text-left"
+                  >
+                    {integrationsExpanded ? "Show less ↑" : `+${hidden} more ↓`}
+                  </button>
+                )}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Action items */}
