@@ -257,16 +257,24 @@ def _detect_questionnaire_type(questions: list[str]) -> str:
     hipaa_kw = ["hipaa", "phi", "protected health", "covered entity", "business associate", "baa", "safeguards"]
     pci_kw = ["pci", "cardholder", "payment card", "pci dss", "card data", "merchant"]
 
-    for kw in soc2_kw: scores["soc2"] += text.count(kw) * 2
-    for kw in iso_kw: scores["iso27001"] += text.count(kw) * 2
-    for kw in gdpr_kw: scores["gdpr"] += text.count(kw) * 2
-    for kw in hipaa_kw: scores["hipaa"] += text.count(kw) * 2
-    for kw in pci_kw: scores["pci"] += text.count(kw) * 2
+    for kw in soc2_kw:
+        scores["soc2"] += text.count(kw) * 2
+    for kw in iso_kw:
+        scores["iso27001"] += text.count(kw) * 2
+    for kw in gdpr_kw:
+        scores["gdpr"] += text.count(kw) * 2
+    for kw in hipaa_kw:
+        scores["hipaa"] += text.count(kw) * 2
+    for kw in pci_kw:
+        scores["pci"] += text.count(kw) * 2
 
     # Generic security terms
-    if "mfa" in text or "multi-factor" in text: scores["soc2"] += 1
-    if "encryption" in text or "encrypt" in text: scores["soc2"] += 1
-    if "personal data" in text or "personal information" in text: scores["gdpr"] += 1
+    if "mfa" in text or "multi-factor" in text:
+        scores["soc2"] += 1
+    if "encryption" in text or "encrypt" in text:
+        scores["soc2"] += 1
+    if "personal data" in text or "personal information" in text:
+        scores["gdpr"] += 1
 
     detected = max(scores, key=lambda k: scores[k])
     return detected if scores[detected] > 0 else "general"
