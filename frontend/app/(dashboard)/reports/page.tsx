@@ -247,11 +247,25 @@ export default function ReportsPage() {
     setDownloading(report.id);
     try {
       const { url, file_name } = await api.downloadReport(report.id, report.fmt);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = file_name ?? `tracelayer-report-${report.id.slice(0, 8)}.${report.fmt}`;
-      a.target = "_blank";
-      a.click();
+      const fileName = file_name ?? `tracelayer-report-${report.id.slice(0, 8)}.${report.fmt}`;
+
+      // Fetch as blob so the download attribute works on mobile (cross-origin URLs
+      // are ignored by mobile browsers — a local object URL always triggers save).
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = objectUrl;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(objectUrl);
+      } catch {
+        // Fallback: open in new tab (iOS Safari PDF viewer lets user save from there)
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : "Download failed");
     } finally {
