@@ -232,6 +232,11 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
+        type: "1password", label: "1Password",
+        description: "Collect vault access policies, team members, and MFA enforcement status for CC6.1 evidence",
+        comingSoon: true,
+      },
+      {
         type: "rippling", label: "Rippling",
         description: "Sync employee lifecycle events and offboarding for access reviews",
         comingSoon: true,
@@ -253,6 +258,16 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
       {
         type: "google_cloud", label: "Google Cloud Platform",
         description: "Collect IAM policies, audit logs, and resource configurations",
+        comingSoon: true,
+      },
+      {
+        type: "vercel", label: "Vercel",
+        description: "Collect deployment records, environment variable access, and team member permissions",
+        comingSoon: true,
+      },
+      {
+        type: "terraform_cloud", label: "Terraform Cloud",
+        description: "Collect workspace runs, state changes, and team access for change management evidence",
         comingSoon: true,
       },
     ],
@@ -319,6 +334,21 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
   {
     title: "Monitoring & Security",
     integrations: [
+      {
+        type: "cloudflare", label: "Cloudflare",
+        description: "Collect WAF rules, access policies, DDoS protection settings, and audit logs for network security evidence",
+        comingSoon: true,
+      },
+      {
+        type: "crowdstrike", label: "CrowdStrike Falcon",
+        description: "Collect endpoint detection coverage, policy status, and agent deployment for CC6.7 / CC6.8 evidence",
+        comingSoon: true,
+      },
+      {
+        type: "jamf", label: "Jamf Pro",
+        description: "Collect device enrollment, MDM profiles, disk encryption status, and patch compliance for Mac fleets",
+        comingSoon: true,
+      },
       {
         type: "datadog", label: "Datadog",
         description: "Pull audit logs, alert rules, and monitoring coverage as evidence",

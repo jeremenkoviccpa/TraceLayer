@@ -12,6 +12,7 @@ import {
   BarChart3, Lock, Star, Clock, TrendingUp, Users, ChevronDown,
   Menu, X, AlertTriangle, BookOpen, GraduationCap, Target,
   Globe, ClipboardList, Building2, UserCheck, Shield,
+  Siren, Server, Bug, RefreshCw, Database,
 } from "lucide-react";
 
 // ── Integration logos ────────────────────────────────────────────────────────
@@ -215,6 +216,64 @@ function NotionLogo() {
   );
 }
 
+function CloudflareLogo() {
+  return (
+    <svg width="34" height="26" viewBox="0 0 54 24" fill="none">
+      <path d="M33.5 15.5c.2-.6.1-1.3-.2-1.8-.3-.5-.9-.8-1.5-.9l-16.3-.2c-.1 0-.2-.1-.3-.1-.1-.1-.1-.2 0-.3l.3-.8c.2-.6.1-1.3-.2-1.8-.3-.5-.9-.8-1.5-.9L8 9.5c-2.1 0-3.9 1.3-4.6 3.2l-.9 2.5c-.1.3.1.6.4.6l29.2.2c.3 0 .6-.2.7-.5l.7-2z" fill="#F6821F"/>
+      <path d="M37.8 10.3c-.1 0-.3 0-.4.1l-.4 1.1c-.2.6-.1 1.3.2 1.8.3.5.9.8 1.5.9l2.1.1c.1 0 .2.1.3.1.1.1.1.2 0 .3l-.3.8c-.2.6-.1 1.3.2 1.8.3.5.9.8 1.5.9h1.8c2.1 0 3.9-1.3 4.6-3.2l.3-.9c.1-.3-.1-.6-.4-.6l-11-.2z" fill="#FBAD41"/>
+      <path d="M20 8.5c-.2 0-.4.1-.5.3l-.5 1.4c-.3.8-.1 1.7.4 2.4.5.6 1.2 1 2 1l21.8.2c.2 0 .3-.1.4-.3.1-.1 0-.3-.1-.4-.8-1.5-2.4-2.5-4.1-2.5l-1.5-.1c-.2 0-.4-.1-.5-.3-.1-.2-.1-.4 0-.5.5-1.5-.5-3.2-2.1-3.5-.2 0-.3 0-.5.1-.6-2.8-3.1-4.8-6-4.8-3.2 0-5.9 2.4-6.3 5.6-.3-.1-.5-.1-.8-.1z" fill="#F6821F"/>
+    </svg>
+  );
+}
+
+function JamfLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#0079C8"/>
+      <text x="3" y="17" fontSize="11" fontWeight="900" fill="white" fontFamily="Arial,sans-serif">jamf</text>
+    </svg>
+  );
+}
+
+function OnePasswordLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#0C5C99"/>
+      <circle cx="12" cy="12" r="6" fill="none" stroke="white" strokeWidth="1.5"/>
+      <circle cx="12" cy="12" r="2.5" fill="white"/>
+      <path d="M12 6V4M12 20v-2M6 12H4M20 12h-2" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function CrowdStrikeLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#E31837"/>
+      <path d="M6 12l4-4 4 4-4 4-4-4zM14 12l4-4" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function VercelLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2L22 20H2L12 2z" fill="#000000"/>
+    </svg>
+  );
+}
+
+function TerraformLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <path d="M9 4.5v6l5.5 3.2V7.7L9 4.5z" fill="#7B42BC"/>
+      <path d="M15.5 7.7v6l5.5-3.2V4.5l-5.5 3.2z" fill="#5C35A3"/>
+      <path d="M3 7.7v6l5.5 3.2v-6L3 7.7z" fill="#9C6ADE"/>
+      <path d="M9 16.3v-2.1l-5.5-3.2v2.1L9 16.3z" fill="#7B42BC" opacity=".5"/>
+    </svg>
+  );
+}
+
 const INTEGRATION_LOGOS = [
   { name: "AWS",              logo: <AwsLogo />       },
   { name: "GitHub",           logo: <GithubLogo />    },
@@ -230,18 +289,24 @@ const INTEGRATION_LOGOS = [
   { name: "PagerDuty",        logo: <PagerDutyLogo /> },
   { name: "Sentry",           logo: <SentryLogo />    },
   { name: "Teams",            logo: <TeamsLogo />     },
-  { name: "Stripe",           logo: <StripeLogo />    },
-  { name: "Rippling",         logo: <RipplingLogo />  },
-  { name: "BambooHR",         logo: <BambooLogo />    },
-  { name: "Notion",           logo: <NotionLogo />    },
+  { name: "Stripe",           logo: <StripeLogo />        },
+  { name: "Rippling",         logo: <RipplingLogo />      },
+  { name: "BambooHR",         logo: <BambooLogo />        },
+  { name: "Notion",           logo: <NotionLogo />        },
+  { name: "Cloudflare",       logo: <CloudflareLogo />    },
+  { name: "Jamf",             logo: <JamfLogo />          },
+  { name: "1Password",        logo: <OnePasswordLogo />   },
+  { name: "CrowdStrike",      logo: <CrowdStrikeLogo />   },
+  { name: "Vercel",           logo: <VercelLogo />        },
+  { name: "Terraform",        logo: <TerraformLogo />     },
 ];
 
 // ── Static data ───────────────────────────────────────────────────────────────
 
 const STATS = [
-  { value: "18+",  label: "Native integrations"    },
+  { value: "24+",  label: "Native integrations"    },
   { value: "7",    label: "Compliance frameworks"   },
-  { value: "15+",  label: "Compliance modules"      },
+  { value: "25+",  label: "Compliance modules"      },
   { value: "100%", label: "Automated evidence"      },
 ];
 
@@ -258,8 +323,8 @@ const FRAMEWORKS = [
 const FEATURES = [
   {
     icon: Plug,
-    title: "18+ native integrations",
-    desc: "Connect AWS, GitHub, Okta, Slack, Google Workspace, Azure AD, GitLab, GCP, Datadog, PagerDuty, Stripe, and more in minutes. No agents. No code.",
+    title: "24+ native integrations",
+    desc: "Connect AWS, GitHub, Okta, Cloudflare, 1Password, CrowdStrike, Jamf, Slack, Jira, and more in minutes. No agents. No code.",
   },
   {
     icon: Zap,
@@ -273,8 +338,13 @@ const FEATURES = [
   },
   {
     icon: AlertTriangle,
-    title: "Risk Register",
-    desc: "Log risks with likelihood × impact scoring. Assign owners, track treatment status, and satisfy risk assessment requirements across every framework.",
+    title: "Risk & Incident Management",
+    desc: "Risk register with likelihood × impact scoring, incident tracker, vulnerability management, and pen test records — all linked to compliance controls.",
+  },
+  {
+    icon: Shield,
+    title: "GDPR Privacy Suite",
+    desc: "Full GDPR toolkit: Records of Processing Activities (RoPA), Statement of Applicability, breach register, subject access request tracker, and management review records.",
   },
   {
     icon: BookOpen,
@@ -283,22 +353,27 @@ const FEATURES = [
   },
   {
     icon: GraduationCap,
-    title: "Training Tracker",
-    desc: "Assign security awareness training to employees by email. Track completion, flag overdue, and generate CC1.4 evidence automatically.",
+    title: "People Security Lifecycle",
+    desc: "Training tracker, background check records, formal offboarding checklists — full HR security coverage from hire to departure for CC1.4 and beyond.",
   },
   {
     icon: Building2,
-    title: "Vendor Due Diligence",
-    desc: "Track all vendors with risk levels, SOC 2 / ISO / HIPAA certifications, review dates, and contact info. Satisfies CC9.2 out of the box.",
+    title: "Vendor & Asset Management",
+    desc: "Track vendors with risk tiers and SOC 2/ISO/HIPAA cert status. Maintain a live asset inventory with classification, environment, and ownership.",
+  },
+  {
+    icon: ClipboardList,
+    title: "AI Questionnaire Autofill",
+    desc: "Paste any vendor security questionnaire — AI drafts answers grounded in 17 live data sources: your real integrations, policies, risks, vendors, incidents, RoPA, and more.",
   },
   {
     icon: UserCheck,
-    title: "Access Review Workflows",
-    desc: "Run formal quarterly access reviews with reviewer sign-off, users reviewed count, and documented findings. Audit-ready CC6.3 evidence.",
+    title: "Access Reviews & BCP",
+    desc: "Formal quarterly access reviews with sign-off and findings. BCP/DR plans with RTO/RPO targets and test history — audit-ready on demand.",
   },
   {
     icon: Globe,
-    title: "Public Trust Page",
+    title: "Public Trust Center",
     desc: "Share a live compliance posture page with customers and investors — verified by TraceLayer, updated continuously, no manual upkeep.",
   },
 ];
@@ -307,7 +382,7 @@ const HOW_IT_WORKS = [
   {
     step: "01",
     title: "Connect your tools",
-    desc: "Link your cloud infrastructure and SaaS apps in under 5 minutes using API keys or service accounts. 18+ integrations, no OAuth dance.",
+    desc: "Link your cloud infrastructure and SaaS apps in under 5 minutes using API keys or service accounts. 24+ integrations, no OAuth dance.",
   },
   {
     step: "02",
@@ -343,11 +418,11 @@ const TESTIMONIALS = [
 ];
 
 const PAIN_POINTS = [
-  { before: "Spreadsheets tracking evidence manually",         after: "Automated collection every 24 hours across 18+ tools" },
+  { before: "Spreadsheets tracking evidence manually",         after: "Automated collection every 24 hours across 24+ tools" },
   { before: "No idea how close you are to audit-ready",        after: "Live readiness score with week-by-week estimate"       },
-  { before: "Training completion tracked in email threads",    after: "Training tracker with automatic CC1.4 evidence"       },
-  { before: "Vendor compliance buried in shared folders",      after: "Vendor hub with certs, risk levels, and review dates" },
-  { before: "Quarterly access reviews done ad hoc",            after: "Formal review cycles with documented auditor sign-off" },
+  { before: "Vendor security questionnaires take days",        after: "AI autofill drafts all answers in seconds from your real data" },
+  { before: "GDPR compliance managed in spreadsheets",         after: "RoPA, breach register, SARs, and SoA in one place"    },
+  { before: "Incident and vulnerability tracking in Slack",    after: "Dedicated register linked to controls and evidence"    },
   { before: "Consultants charging $50k+ for the same thing",  after: "Full compliance program self-served at startup cost"   },
 ];
 
@@ -367,7 +442,7 @@ const FAQ = [
   },
   {
     q: "What integrations are supported?",
-    a: "AWS (IAM, CloudTrail), GitHub, Slack, Google Workspace, Okta, Azure AD, Jira, GitLab, GCP, Linear, Datadog, PagerDuty, Sentry, Microsoft Teams, Stripe, Rippling, BambooHR, and Notion — 18 integrations, each collecting multiple evidence types.",
+    a: "AWS, GitHub, Slack, Google Workspace, Okta, Azure AD, Jira — with active collectors — plus Cloudflare, 1Password, CrowdStrike, Jamf, Vercel, Terraform Cloud, GitLab, GCP, Linear, Datadog, PagerDuty, Sentry, Microsoft Teams, Stripe, Rippling, BambooHR, and Notion — 24 integrations, each collecting multiple evidence types.",
   },
   {
     q: "Does TraceLayer cover training and vendor management?",
@@ -698,7 +773,7 @@ export default function LandingPage() {
           </h1>
 
           <p data-animate data-delay="200" className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 leading-relaxed">
-            TraceLayer is your complete compliance program — automated evidence collection across 18+ integrations, risk register, policy templates, training tracker, vendor management, access reviews, and a live readiness score. Everything in one platform.
+            TraceLayer is your complete compliance program — automated evidence collection across 24+ integrations, risk register, incident and vulnerability management, GDPR privacy suite, policy templates, training tracker, vendor management, and a live readiness score. Everything in one platform.
           </p>
 
           <div data-animate data-delay="300" className="flex items-center justify-center gap-3 flex-wrap mb-5">
@@ -874,21 +949,26 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {[
-              { icon: Zap,          label: "Evidence Collection",  desc: "Automated, 24h"      },
-              { icon: BarChart3,    label: "Compliance Score",     desc: "Real-time"            },
-              { icon: Target,       label: "Readiness Timeline",   desc: "Weeks to audit"       },
-              { icon: AlertTriangle,label: "Risk Register",        desc: "CC3 & CC9"            },
-              { icon: BookOpen,     label: "Policy Templates",     desc: "Pre-written"          },
-              { icon: GraduationCap,label: "Training Tracker",     desc: "CC1.4 evidence"       },
-              { icon: Shield,       label: "Pen Test Tracker",     desc: "Annual requirement"   },
-              { icon: Building2,    label: "Vendor Diligence",     desc: "CC9.2"                },
-              { icon: UserCheck,    label: "Access Reviews",       desc: "CC6.3 sign-off"       },
-              { icon: ClipboardList,label: "Questionnaire Fill",   desc: "AI-assisted"          },
-              { icon: Globe,        label: "Trust Page",           desc: "Live public page"     },
-              { icon: FileText,     label: "Audit Reports",        desc: "PDF & JSON"           },
-              { icon: Lock,         label: "Auditor Portal",       desc: "Read-only access"     },
-              { icon: Users,        label: "Team RBAC",            desc: "Admin & member"       },
-              { icon: Plug,         label: "18+ Integrations",     desc: "AWS, GitHub, Okta…"   },
+              { icon: Zap,          label: "Evidence Collection",  desc: "Automated, 24h"        },
+              { icon: BarChart3,    label: "Compliance Score",     desc: "Real-time"              },
+              { icon: Target,       label: "Readiness Timeline",   desc: "Weeks to audit"         },
+              { icon: AlertTriangle,label: "Risk Register",        desc: "CC3 & CC9"              },
+              { icon: Siren,        label: "Incident Management",  desc: "Track & resolve"        },
+              { icon: BookOpen,     label: "Policy Templates",     desc: "Pre-written"            },
+              { icon: GraduationCap,label: "Training Tracker",     desc: "CC1.4 evidence"         },
+              { icon: Shield,       label: "Pen Test Tracker",     desc: "Annual requirement"     },
+              { icon: Building2,    label: "Vendor Diligence",     desc: "CC9.2"                  },
+              { icon: UserCheck,    label: "Access Reviews",       desc: "CC6.3 sign-off"         },
+              { icon: Server,       label: "Asset Inventory",      desc: "CC6.1 / CC6.7"          },
+              { icon: Bug,          label: "Vulnerability Mgmt",   desc: "Severity tracking"      },
+              { icon: RefreshCw,    label: "Business Continuity",  desc: "BCP/DR + RTO/RPO"       },
+              { icon: Database,     label: "GDPR Privacy Suite",   desc: "RoPA, SoA, Breaches"    },
+              { icon: ClipboardList,label: "AI Questionnaire",     desc: "17 data sources"        },
+              { icon: Globe,        label: "Trust Page",           desc: "Live public page"       },
+              { icon: FileText,     label: "Audit Reports",        desc: "PDF & JSON"             },
+              { icon: Lock,         label: "Auditor Portal",       desc: "Read-only access"       },
+              { icon: Users,        label: "Team RBAC",            desc: "Admin & member"         },
+              { icon: Plug,         label: "24+ Integrations",     desc: "AWS, Cloudflare, Okta…" },
             ].map(({ icon: Icon, label, desc }) => (
               <div key={label} className="bg-[var(--card)] rounded-2xl border border-black/5 p-4 hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 transition-all duration-200 group">
                 <div className="w-8 h-8 bg-[color:var(--accent)]/10 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[color:var(--accent)]/18 transition-colors">
@@ -1073,13 +1153,15 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-3xl mx-auto">
 
             {/* Growth */}
-            <div data-animate data-delay="100" className="relative bg-slate-900 border border-slate-800 rounded-2xl p-7 shadow-[0_24px_60px_rgba(15,23,42,0.3)] overflow-hidden">
+            <div data-animate data-delay="100" className="relative bg-slate-900 border border-slate-800 rounded-2xl p-7 shadow-[0_24px_60px_rgba(15,23,42,0.3)]">
               {/* Shimmer overlay */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/4 to-transparent -translate-x-full animate-shimmer pointer-events-none" />
+              <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/4 to-transparent -translate-x-full animate-shimmer" />
+              </div>
               {/* Glow pulse */}
               <div className="absolute -inset-px rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-teal-500/20 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <span className="bg-[var(--accent-warm)] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
+                <span className="bg-[var(--accent-warm)] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm whitespace-nowrap">
                   Most popular
                 </span>
               </div>
@@ -1094,12 +1176,14 @@ export default function LandingPage() {
               <p className="text-xs mb-6 leading-relaxed text-white/45">AI features, PDF reports, all 7 frameworks, Trust Center, unlimited integrations and team members.</p>
               <div className="space-y-2.5 mb-7">
                 {[
-                  "Unlimited integrations (18+)",
+                  "Unlimited integrations (24+)",
                   "All 7 frameworks (incl. GDPR, PCI DSS, CCPA, NIST CSF)",
                   "PDF & CSV audit reports",
                   "AI Compliance Advisor",
-                  "AI Questionnaire Autofill",
+                  "AI Questionnaire Autofill (17 data sources)",
                   "AI Audit Package",
+                  "GDPR Privacy Suite (RoPA, SoA, Breach Register, SARs)",
+                  "Incident, Vulnerability & Asset Management",
                   "Public Trust Center page",
                   "Unlimited team members",
                   "Priority support",
