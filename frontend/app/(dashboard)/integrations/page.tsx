@@ -503,6 +503,13 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
 
 const ALL_DEFS: IntegrationDef[] = INTEGRATION_GROUPS.flatMap((g) => g.integrations);
 
+// Integrations that validate credentials but don't yet collect evidence
+const STUB_TYPES = new Set([
+  "vercel", "gitlab", "linear", "notion", "cloudflare", "datadog",
+  "pagerduty", "sentry", "stripe", "terraform_cloud", "1password",
+  "rippling", "bamboohr", "google_cloud", "microsoft_teams", "crowdstrike", "jamf",
+]);
+
 // ── Setup guides ──────────────────────────────────────────────────────────────
 type SetupGuide = { steps: string[]; url?: string };
 
@@ -863,7 +870,12 @@ function ConnectModal({ def, onClose, onConnected, onUpgradeNeeded }: {
 }
 
 // ── Status badge ──────────────────────────────────────────────────────────────
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, isStub }: { status: string; isStub?: boolean }) {
+  if (status === "active" && isStub) return (
+    <span className="flex items-center gap-1 text-[11px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">
+      <CheckCircle2 className="w-3 h-3"/> Connected
+    </span>
+  );
   if (status === "active") return (
     <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
       <CheckCircle2 className="w-3 h-3"/> Active
@@ -886,6 +898,7 @@ function IntegrationCard({ def, connected, canConnect, collecting, onConnect, on
   def: IntegrationDef; connected?: Integration; canConnect: boolean; collecting: boolean;
   onConnect: () => void; onCollect: () => void; onDisconnect: () => void; onUpgrade: () => void;
 }) {
+  const isStub = STUB_TYPES.has(def.type);
   return (
     <div className={`bg-white rounded-2xl border p-4 flex items-center gap-4 transition-shadow ${
       connected ? "border-gray-100 shadow-card" : def.comingSoon ? "border-gray-100 opacity-60" : "border-gray-100 hover:shadow-sm"
@@ -894,14 +907,17 @@ function IntegrationCard({ def, connected, canConnect, collecting, onConnect, on
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap mb-0.5">
           <span className="font-semibold text-sm text-gray-900">{def.label}</span>
-          {connected && <StatusBadge status={connected.status}/>}
+          {connected && <StatusBadge status={connected.status} isStub={isStub}/>}
           {def.comingSoon && (
             <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md">Soon</span>
           )}
         </div>
         <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">{def.description}</p>
+        {connected && isStub && connected.status !== "error" && (
+          <p className="text-[11px] text-blue-500 mt-0.5">Credentials verified · Evidence collection coming soon</p>
+        )}
         {connected?.last_error && <p className="text-xs text-red-500 mt-1 truncate">{connected.last_error}</p>}
-        {connected?.last_collected_at && (
+        {connected?.last_collected_at && !isStub && (
           <p className="text-[11px] text-gray-400 mt-0.5">Synced {new Date(connected.last_collected_at).toLocaleString()}</p>
         )}
       </div>

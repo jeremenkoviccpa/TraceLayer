@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 import httpx
 
 logger = logging.getLogger(__name__)
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from fastapi.responses import RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,6 +21,16 @@ from models.user import User
 from services.audit_service import log_action
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+def _send_welcome_bg(email_fn, to: str, company_name: str) -> None:
+    """Background task wrapper — logs failures but never raises."""
+    try:
+        email_fn(to, company_name)
+        logger.info("Welcome email sent to %s", to)
+    except Exception:
+        logger.exception("Welcome email failed for %s — check RESEND_API_KEY and domain verification in Resend dashboard", to)
+
 
 GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
@@ -44,7 +54,7 @@ async def google_login(account_type: str = "company"):
 
 
 @router.get("/google/callback")
-async def google_callback(code: str, state: str = "company", db: AsyncSession = Depends(get_db)):
+async def google_callback(code: str, background_tasks: BackgroundTasks, state: str = "company", db: AsyncSession = Depends(get_db)):
     async with httpx.AsyncClient() as client:
         token_res = await client.post(GOOGLE_TOKEN_URL, data={
             "code": code,
@@ -129,13 +139,8 @@ async def google_callback(code: str, state: str = "company", db: AsyncSession = 
     is_partner = company_row.is_partner_account if company_row else False
 
     if is_new_user and company_row:
-        try:
-            if is_partner:
-                send_partner_welcome_email(user.email, company_row.name)
-            else:
-                send_welcome_email(user.email, company_row.name)
-        except Exception:
-            logger.exception("Failed to send welcome email to %s", user.email)
+        email_fn = send_partner_welcome_email if is_partner else send_welcome_email
+        background_tasks.add_task(_send_welcome_bg, email_fn, user.email, company_row.name)
 
     params = {"access_token": access_token, "refresh_token": raw_refresh}
     if is_new_user:
