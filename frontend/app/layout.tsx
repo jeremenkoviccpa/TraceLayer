@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Sora } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
 import { AuthProvider } from "@/components/auth-provider";
 import { CookieConsent } from "@/components/cookie-consent";
 import { CrispChat } from "@/components/crisp-chat";
+import { PostHogProvider } from "@/components/posthog-provider";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -103,9 +105,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <AuthProvider>{children}</AuthProvider>
+        <PostHogProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </PostHogProvider>
         <CookieConsent />
         <CrispChat />
+        <Analytics />
       </body>
     </html>
   );
