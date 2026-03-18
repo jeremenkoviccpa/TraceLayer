@@ -2,7 +2,7 @@
 background_checks, offboardings, notifications, and user 2FA fields.
 
 Revision ID: 029_launch_gap_features
-Revises: a1b2c3d4e5f6
+Revises: 029a_merge_heads
 Create Date: 2026-03-18 00:00:00.000000
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 revision = '029_launch_gap_features'
-down_revision = 'a1b2c3d4e5f6'
+down_revision = '029a_merge_heads'
 branch_labels = None
 depends_on = None
 
