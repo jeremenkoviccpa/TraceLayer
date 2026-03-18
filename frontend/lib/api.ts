@@ -1,4 +1,4 @@
-import type { AccessReview, AppNotification, Asset, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, Document, DownloadResponse, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, ScoreHistoryPoint, TrainingRecord, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
+import type { AccessReview, AppNotification, Asset, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Document, DownloadResponse, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SoaItem, SubjectRequest, TrainingRecord, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -744,6 +744,35 @@ class ApiClient {
     if (typeof window === "undefined") return null;
     return localStorage.getItem("active_client_name");
   }
+
+  // ── SoA ───────────────────────────────────────────────────────────────────
+  async getSoa(): Promise<SoaItem[]> { return this.request("GET", "/soa"); }
+  async initializeSoa(): Promise<SoaItem[]> { return this.request("POST", "/soa/initialize"); }
+  async updateSoaItem(id: string, data: Partial<SoaItem>): Promise<SoaItem> { return this.request("PATCH", `/soa/${id}`, data); }
+
+  // ── RoPA ──────────────────────────────────────────────────────────────────
+  async getRopaRecords(): Promise<RopaRecord[]> { return this.request("GET", "/ropa"); }
+  async createRopaRecord(data: Partial<RopaRecord>): Promise<RopaRecord> { return this.request("POST", "/ropa", data); }
+  async updateRopaRecord(id: string, data: Partial<RopaRecord>): Promise<RopaRecord> { return this.request("PATCH", `/ropa/${id}`, data); }
+  async deleteRopaRecord(id: string): Promise<void> { return this.request("DELETE", `/ropa/${id}`); }
+
+  // ── Data Breaches ─────────────────────────────────────────────────────────
+  async getDataBreaches(): Promise<DataBreach[]> { return this.request("GET", "/data-breaches"); }
+  async createDataBreach(data: Partial<DataBreach>): Promise<DataBreach> { return this.request("POST", "/data-breaches", data); }
+  async updateDataBreach(id: string, data: Partial<DataBreach>): Promise<DataBreach> { return this.request("PATCH", `/data-breaches/${id}`, data); }
+  async deleteDataBreach(id: string): Promise<void> { return this.request("DELETE", `/data-breaches/${id}`); }
+
+  // ── Subject Requests ──────────────────────────────────────────────────────
+  async getSubjectRequests(): Promise<SubjectRequest[]> { return this.request("GET", "/subject-requests"); }
+  async createSubjectRequest(data: Partial<SubjectRequest>): Promise<SubjectRequest> { return this.request("POST", "/subject-requests", data); }
+  async updateSubjectRequest(id: string, data: Partial<SubjectRequest>): Promise<SubjectRequest> { return this.request("PATCH", `/subject-requests/${id}`, data); }
+  async deleteSubjectRequest(id: string): Promise<void> { return this.request("DELETE", `/subject-requests/${id}`); }
+
+  // ── Management Reviews ────────────────────────────────────────────────────
+  async getManagementReviews(): Promise<ManagementReview[]> { return this.request("GET", "/management-reviews"); }
+  async createManagementReview(data: Partial<ManagementReview>): Promise<ManagementReview> { return this.request("POST", "/management-reviews", data); }
+  async updateManagementReview(id: string, data: Partial<ManagementReview>): Promise<ManagementReview> { return this.request("PATCH", `/management-reviews/${id}`, data); }
+  async deleteManagementReview(id: string): Promise<void> { return this.request("DELETE", `/management-reviews/${id}`); }
 }
 
 export const api = new ApiClient();

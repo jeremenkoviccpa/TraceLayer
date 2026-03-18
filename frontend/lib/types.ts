@@ -523,3 +523,74 @@ export interface PublicTrustPageView {
   integrations: string[] | null;
   generated_at: string;
 }
+
+export interface SoaItem {
+  id: string;
+  annex_ref: string;
+  annex_theme: string;
+  title: string;
+  included: boolean;
+  justification?: string | null;
+  implementation_status: string;
+  implementation_notes?: string | null;
+}
+
+export interface RopaRecord {
+  id: string;
+  name: string;
+  role: string;
+  purpose?: string | null;
+  legal_basis?: string | null;
+  data_categories?: string | null;
+  data_subjects?: string | null;
+  recipients?: string | null;
+  third_country_transfers?: string | null;
+  retention_period?: string | null;
+  security_measures?: string | null;
+  dpa_url?: string | null;
+  notes?: string | null;
+}
+
+export interface DataBreach {
+  id: string;
+  title: string;
+  occurred_at?: string | null;
+  discovered_at?: string | null;
+  breach_type: string;
+  severity: string;
+  status: string;
+  affected_records?: number | null;
+  affected_systems?: string | null;
+  description?: string | null;
+  notification_required: boolean;
+  dpa_notified_at?: string | null;
+  individuals_notified_at?: string | null;
+  root_cause?: string | null;
+  remediation?: string | null;
+  reporter_name?: string | null;
+}
+
+export interface SubjectRequest {
+  id: string;
+  requester_name: string;
+  requester_email?: string | null;
+  request_type: string;
+  received_at: string;
+  due_at?: string | null;
+  status: string;
+  response_notes?: string | null;
+  completed_at?: string | null;
+  regulation: string;
+}
+
+export interface ManagementReview {
+  id: string;
+  review_date: string;
+  attendees?: string | null;
+  inputs_summary?: string | null;
+  decisions?: string | null;
+  action_items: Array<{ item: string; owner: string; due_date: string | null; done: boolean }>;
+  next_review_date?: string | null;
+  outcome: string;
+  notes?: string | null;
+}

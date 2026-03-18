@@ -38,6 +38,10 @@ import {
   RefreshCw,
   UserMinus,
   Bell,
+  BookCheck,
+  ShieldX,
+  UserSearch,
+  ClipboardCheck,
 } from "lucide-react";
 import type { AppNotification } from "@/lib/types";
 import { usePlan } from "@/hooks/usePlan";
@@ -72,6 +76,16 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/business-continuity", label: "Business Continuity", icon: RefreshCw     },
       { href: "/vendors",             label: "Vendor Risk",         icon: Building2     },
       { href: "/access-reviews",      label: "Access Reviews",      icon: UserCheck     },
+    ],
+  },
+  {
+    title: "Privacy & Compliance",
+    items: [
+      { href: "/soa",                label: "Statement of Applicability", icon: BookCheck      },
+      { href: "/ropa",               label: "Data Processing (RoPA)",     icon: Database       },
+      { href: "/data-breaches",      label: "Breach Register",            icon: ShieldX        },
+      { href: "/subject-requests",   label: "Subject Requests",           icon: UserSearch     },
+      { href: "/management-reviews", label: "Management Reviews",         icon: ClipboardCheck },
     ],
   },
   {
