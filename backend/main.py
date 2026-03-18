@@ -90,7 +90,7 @@ async def _seed_demo_data() -> None:
     if not settings.seed_demo:
         return
     try:
-        from scripts.seed_demo import seed
+        from scripts.seed_demo_full import seed
         await seed()
         logger.info("Demo seed complete")
     except Exception as exc:
