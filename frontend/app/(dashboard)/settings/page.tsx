@@ -671,18 +671,20 @@ export default function SettingsPage() {
         <div className="my-5 border-t border-gray-100" />
 
         {/* 2FA section */}
-        <div className="space-y-4">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 ${twoFAEnabled ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-gray-50 border-gray-100 text-gray-400"}`}>
+        <div className="rounded-xl border border-gray-100 bg-gray-50/50 overflow-hidden">
+
+          {/* Header row */}
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${twoFAEnabled ? "bg-emerald-100 text-emerald-600" : "bg-gray-100 text-gray-400"}`}>
                 <Smartphone className="w-4 h-4" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-gray-800">Two-factor authentication</p>
-                <p className="text-xs text-gray-500 mt-0.5">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-900">Two-factor authentication</p>
+                <p className="text-xs text-gray-500 mt-0.5 leading-snug">
                   {twoFAEnabled
-                    ? <span className="inline-flex items-center gap-1 text-emerald-600 font-medium"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> Enabled</span>
-                    : "Add an extra layer of security to your account"}
+                    ? <span className="inline-flex items-center gap-1.5 text-emerald-600 font-medium"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />Authenticator app enabled</span>
+                    : "Protect your account with an authenticator app"}
                 </p>
               </div>
             </div>
@@ -691,13 +693,13 @@ export default function SettingsPage() {
                 <>
                   <button
                     onClick={() => { setTwoFAStep("backup-regen"); setTwoFAPassword(""); setTwoFABackupCodes(null); }}
-                    className="text-xs text-gray-500 hover:text-gray-900 px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                    className="text-xs text-gray-500 hover:text-gray-800 px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors font-medium"
                   >
                     Backup codes
                   </button>
                   <button
                     onClick={() => { setTwoFAStep("disable-confirm"); setTwoFAPassword(""); }}
-                    className="text-xs text-red-500 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-100 hover:bg-red-50 transition-colors"
+                    className="text-xs text-red-500 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-100 bg-white hover:bg-red-50 transition-colors font-medium"
                   >
                     Disable
                   </button>
@@ -706,7 +708,7 @@ export default function SettingsPage() {
                 <button
                   onClick={handleSetup2FA}
                   disabled={twoFALoading}
-                  className="text-xs bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white px-3 py-1.5 rounded-lg transition-colors font-medium"
+                  className="text-xs bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white px-4 py-1.5 rounded-lg transition-colors font-semibold shadow-sm"
                 >
                   {twoFALoading ? "Loading…" : "Set up 2FA"}
                 </button>
@@ -714,81 +716,113 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Setup step — show QR code */}
+          {/* Setup panel */}
           {twoFAStep === "setup" && twoFASetupData && (
-            <div className="rounded-xl border border-brand-100 bg-brand-50/40 p-4 space-y-4">
-              <p className="text-sm font-medium text-gray-800">Scan with your authenticator app</p>
-              <div className="flex flex-col sm:flex-row items-start gap-5">
-                <div className="shrink-0">
-                  {qrDataUrl ? (
-                    <img src={qrDataUrl} alt="TOTP QR code" className="w-44 h-44 rounded-lg border border-gray-100 bg-white p-1" />
-                  ) : (
-                    <div className="w-44 h-44 rounded-lg border border-gray-100 bg-white flex items-center justify-center">
-                      <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 space-y-3 min-w-0">
-                  <div>
-                    <p className="text-xs font-medium text-gray-600 mb-1">Or enter this key manually</p>
+            <div className="border-t border-gray-100 bg-white">
+              {/* Step indicators */}
+              <div className="flex items-center gap-0 px-5 pt-5 pb-4">
+                {["Scan QR code", "Save backup codes", "Verify"].map((s, i) => (
+                  <React.Fragment key={s}>
                     <div className="flex items-center gap-2">
-                      <code className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs font-mono text-gray-800 break-all">{twoFASetupData.secret}</code>
-                      <button
-                        type="button"
-                        onClick={() => { navigator.clipboard.writeText(twoFASetupData.secret); setTwoFACodeCopied(true); setTimeout(() => setTwoFACodeCopied(false), 2000); }}
-                        className="shrink-0 p-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-400 hover:text-gray-700 transition-colors"
-                      >
-                        {twoFACodeCopied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${i === 0 ? "bg-brand-600 text-white" : i === 1 ? (twoFACode.length > 0 ? "bg-brand-600 text-white" : "bg-gray-200 text-gray-500") : "bg-gray-200 text-gray-500"}`}>{i + 1}</div>
+                      <span className="text-xs text-gray-500 hidden sm:block whitespace-nowrap">{s}</span>
+                    </div>
+                    {i < 2 && <div className="flex-1 h-px bg-gray-200 mx-2 min-w-[16px]" />}
+                  </React.Fragment>
+                ))}
+              </div>
+
+              <div className="px-5 pb-5 space-y-5">
+                {/* QR + key */}
+                <div className="flex flex-col sm:flex-row gap-5">
+                  {/* QR code */}
+                  <div className="shrink-0 flex flex-col items-center gap-2">
+                    {qrDataUrl ? (
+                      <div className="p-2 bg-white rounded-xl border border-gray-200 shadow-sm">
+                        <img src={qrDataUrl} alt="TOTP QR code" className="w-40 h-40 block" />
+                      </div>
+                    ) : (
+                      <div className="w-44 h-44 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center">
+                        <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+                      </div>
+                    )}
+                    <p className="text-[10px] text-gray-400 text-center">Scan with Google Authenticator,<br />Authy, or 1Password</p>
+                  </div>
+
+                  {/* Manual key + backup codes */}
+                  <div className="flex-1 space-y-4 min-w-0">
+                    <div>
+                      <p className="text-xs font-semibold text-gray-700 mb-1.5">Can&apos;t scan? Enter this key manually</p>
+                      <div className="flex items-center gap-2">
+                        <code className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono text-gray-800 break-all leading-relaxed">{twoFASetupData.secret}</code>
+                        <button
+                          type="button"
+                          onClick={() => { navigator.clipboard.writeText(twoFASetupData.secret); setTwoFACodeCopied(true); setTimeout(() => setTwoFACodeCopied(false), 2000); }}
+                          className="shrink-0 w-8 h-8 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-400 hover:text-gray-700 transition-colors flex items-center justify-center"
+                          title="Copy secret"
+                        >
+                          {twoFACodeCopied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <p className="text-xs font-semibold text-gray-700">Backup codes</p>
+                        <span className="text-[10px] bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded font-medium">Save these — shown once</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1.5 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                        {twoFASetupData.backup_codes.map((code, i) => (
+                          <code key={i} className="text-xs font-mono bg-white border border-gray-200 rounded-md px-2.5 py-1.5 text-gray-700 tracking-wider text-center">{code}</code>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Verify form */}
+                <div className="border-t border-gray-100 pt-4">
+                  <form onSubmit={handleEnable2FA} className="flex flex-col sm:flex-row items-end gap-3">
+                    <div className="flex-1 w-full">
+                      <label className="block text-xs font-semibold text-gray-700 mb-1.5">Enter the 6-digit code from your authenticator app</label>
+                      <input
+                        className={`${inputCls} text-center text-lg tracking-[0.4em] font-mono`}
+                        value={twoFACode}
+                        onChange={(e) => setTwoFACode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        placeholder="000 000"
+                        maxLength={6}
+                        inputMode="numeric"
+                        autoFocus
+                        required
+                      />
+                    </div>
+                    <div className="flex gap-2 shrink-0 w-full sm:w-auto">
+                      <button type="button" onClick={() => setTwoFAStep("idle")} className="flex-1 sm:flex-none text-xs text-gray-500 hover:text-gray-900 px-4 py-2.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 font-medium transition-colors">Cancel</button>
+                      <button type="submit" disabled={twoFALoading || twoFACode.length !== 6} className="flex-1 sm:flex-none text-sm bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white px-5 py-2.5 rounded-lg font-semibold transition-colors shadow-sm">
+                        {twoFALoading ? "Verifying…" : "Activate 2FA"}
                       </button>
                     </div>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-gray-600 mb-1.5">Save these backup codes — shown only once</p>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {twoFASetupData.backup_codes.map((code, i) => (
-                        <code key={i} className="text-xs font-mono bg-white border border-gray-200 rounded px-2 py-1 text-gray-700">{code}</code>
-                      ))}
-                    </div>
-                  </div>
+                  </form>
                 </div>
               </div>
-              <form onSubmit={handleEnable2FA} className="flex items-end gap-3 pt-2 border-t border-brand-100">
-                <div className="flex-1">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Enter the 6-digit code from your app</label>
-                  <input
-                    className={inputCls}
-                    value={twoFACode}
-                    onChange={(e) => setTwoFACode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                    placeholder="000000"
-                    maxLength={6}
-                    inputMode="numeric"
-                    required
-                  />
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  <button type="button" onClick={() => setTwoFAStep("idle")} className="text-xs text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50">Cancel</button>
-                  <button type="submit" disabled={twoFALoading || twoFACode.length !== 6} className="text-xs bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                    {twoFALoading ? "Verifying…" : "Activate 2FA"}
-                  </button>
-                </div>
-              </form>
             </div>
           )}
 
           {/* Disable confirm */}
           {twoFAStep === "disable-confirm" && (
-            <div className="rounded-xl border border-red-100 bg-red-50/40 p-4">
-              <div className="flex items-start gap-2 mb-3">
+            <div className="border-t border-gray-100 bg-white px-5 py-4">
+              <div className="flex items-start gap-3 mb-4 p-3 bg-red-50 rounded-xl border border-red-100">
                 <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">Disabling 2FA will make your account less secure. Enter your password to confirm.</p>
+                <p className="text-sm text-red-700 leading-snug">Disabling 2FA reduces your account security. Confirm your password to proceed.</p>
               </div>
-              <form onSubmit={handleDisable2FA} className="flex items-end gap-3">
-                <div className="flex-1">
-                  <input type="password" className={inputCls} value={twoFAPassword} onChange={(e) => setTwoFAPassword(e.target.value)} placeholder="Current password" required />
+              <form onSubmit={handleDisable2FA} className="flex flex-col sm:flex-row items-end gap-3">
+                <div className="flex-1 w-full">
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Current password</label>
+                  <input type="password" className={inputCls} value={twoFAPassword} onChange={(e) => setTwoFAPassword(e.target.value)} placeholder="••••••••" required />
                 </div>
-                <div className="flex gap-2 shrink-0">
-                  <button type="button" onClick={() => setTwoFAStep("idle")} className="text-xs text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50">Cancel</button>
-                  <button type="submit" disabled={twoFALoading || !twoFAPassword} className="text-xs bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                <div className="flex gap-2 shrink-0 w-full sm:w-auto">
+                  <button type="button" onClick={() => setTwoFAStep("idle")} className="flex-1 sm:flex-none text-xs text-gray-500 hover:text-gray-900 px-4 py-2.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 font-medium">Cancel</button>
+                  <button type="submit" disabled={twoFALoading || !twoFAPassword} className="flex-1 sm:flex-none text-sm bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white px-5 py-2.5 rounded-lg font-semibold transition-colors">
                     {twoFALoading ? "Disabling…" : "Disable 2FA"}
                   </button>
                 </div>
@@ -798,18 +832,19 @@ export default function SettingsPage() {
 
           {/* Backup code regen */}
           {twoFAStep === "backup-regen" && (
-            <div className="rounded-xl border border-amber-100 bg-amber-50/40 p-4">
-              <div className="flex items-start gap-2 mb-3">
+            <div className="border-t border-gray-100 bg-white px-5 py-4">
+              <div className="flex items-start gap-3 mb-4 p-3 bg-amber-50 rounded-xl border border-amber-100">
                 <KeyRound className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <p className="text-sm text-amber-800">Regenerating backup codes will invalidate your existing ones. Enter your password to continue.</p>
+                <p className="text-sm text-amber-800 leading-snug">Your existing backup codes will be invalidated. Make sure to save the new ones.</p>
               </div>
-              <form onSubmit={handleRegenBackupCodes} className="flex items-end gap-3">
-                <div className="flex-1">
-                  <input type="password" className={inputCls} value={twoFAPassword} onChange={(e) => setTwoFAPassword(e.target.value)} placeholder="Current password" required />
+              <form onSubmit={handleRegenBackupCodes} className="flex flex-col sm:flex-row items-end gap-3">
+                <div className="flex-1 w-full">
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Current password</label>
+                  <input type="password" className={inputCls} value={twoFAPassword} onChange={(e) => setTwoFAPassword(e.target.value)} placeholder="••••••••" required />
                 </div>
-                <div className="flex gap-2 shrink-0">
-                  <button type="button" onClick={() => setTwoFAStep("idle")} className="text-xs text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50">Cancel</button>
-                  <button type="submit" disabled={twoFALoading || !twoFAPassword} className="text-xs bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                <div className="flex gap-2 shrink-0 w-full sm:w-auto">
+                  <button type="button" onClick={() => setTwoFAStep("idle")} className="flex-1 sm:flex-none text-xs text-gray-500 hover:text-gray-900 px-4 py-2.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 font-medium">Cancel</button>
+                  <button type="submit" disabled={twoFALoading || !twoFAPassword} className="flex-1 sm:flex-none text-sm bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white px-5 py-2.5 rounded-lg font-semibold transition-colors">
                     {twoFALoading ? "Regenerating…" : "Regenerate"}
                   </button>
                 </div>
@@ -819,14 +854,20 @@ export default function SettingsPage() {
 
           {/* New backup codes display */}
           {twoFABackupCodes && (
-            <div className="rounded-xl border border-emerald-100 bg-emerald-50/40 p-4">
-              <p className="text-sm font-medium text-emerald-800 mb-2">New backup codes — save these now, they won&apos;t be shown again</p>
-              <div className="grid grid-cols-2 gap-1.5">
+            <div className="border-t border-gray-100 bg-white px-5 py-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center"><Check className="w-3 h-3 text-emerald-600" /></div>
+                  <p className="text-sm font-semibold text-gray-900">New backup codes generated</p>
+                </div>
+                <span className="text-[10px] bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded font-medium">Save these now</span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 p-3 bg-gray-50 rounded-xl border border-gray-200 mb-3">
                 {twoFABackupCodes.map((code, i) => (
-                  <code key={i} className="text-xs font-mono bg-white border border-emerald-200 rounded px-2 py-1 text-gray-700">{code}</code>
+                  <code key={i} className="text-xs font-mono bg-white border border-gray-200 rounded-md px-2.5 py-1.5 text-gray-700 tracking-wider text-center">{code}</code>
                 ))}
               </div>
-              <button onClick={() => setTwoFABackupCodes(null)} className="mt-3 text-xs text-emerald-700 hover:text-emerald-900 font-medium">Dismiss</button>
+              <button onClick={() => setTwoFABackupCodes(null)} className="text-xs text-gray-500 hover:text-gray-800 font-medium transition-colors">Dismiss</button>
             </div>
           )}
         </div>
