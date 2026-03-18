@@ -1,6 +1,9 @@
 import Link from "next/link";
 
-export const metadata = { title: "Terms of Service – TraceLayer" };
+export const metadata = {
+  title: "Terms of Service – TraceLayer",
+  description: "TraceLayer Terms of Service. Read our terms governing use of the TraceLayer compliance automation platform.",
+};
 
 export default function TermsPage() {
   return (

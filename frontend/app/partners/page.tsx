@@ -4,8 +4,17 @@ import type { Metadata } from "next";
 import { Users, CheckCircle2, ArrowRight, Building2, Globe, Shield } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Partner Program – TraceLayer",
-  description: "Join the TraceLayer Partner Program. Manage SOC 2 and ISO 27001 compliance for your clients as an agency, consultancy, or MSP.",
+  title: "SOC 2 Compliance Partner Program for Agencies & Consultants",
+  description:
+    "Help your clients get SOC 2 and ISO 27001 certified faster. Join the TraceLayer partner program as an agency, consultancy, or MSP — white-label dashboard, revenue share, dedicated support.",
+  openGraph: {
+    title: "SOC 2 Compliance Partner Program | TraceLayer",
+    description:
+      "Help your clients get SOC 2 and ISO 27001 certified faster. Join the TraceLayer partner program — white-label dashboard, revenue share, dedicated support.",
+  },
+  alternates: {
+    canonical: "https://www.tracelayer.it.com/partners",
+  },
 };
 
 const PRIMARY_BUTTON =
