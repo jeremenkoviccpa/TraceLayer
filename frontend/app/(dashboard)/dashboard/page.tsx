@@ -495,44 +495,33 @@ export default function DashboardPage() {
           {/* Bottom stat strip */}
           <div className="relative mt-5 pt-4 border-t border-white/10 grid grid-cols-3 gap-2 text-center">
             <div>
-              <p className="text-lg font-bold text-white">{passingControls}</p>
-              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide whitespace-nowrap">Passing</p>
+              <p className="text-3xl font-black text-emerald-400">{passingControls}</p>
+              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide mt-0.5">Passing</p>
             </div>
             <div>
-              <p className="text-lg font-bold text-white">{failingControls.length}</p>
-              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide whitespace-nowrap">Failing</p>
+              <p className={`text-3xl font-black ${failingControls.length > 0 ? "text-red-400" : "text-white/20"}`}>{failingControls.length}</p>
+              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide mt-0.5">Failing</p>
             </div>
             <div>
-              <p className="text-lg font-bold text-white">{compliance?.controls.length ?? 0}</p>
-              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide whitespace-nowrap">Controls</p>
+              <p className="text-3xl font-black text-white">{compliance?.controls.length ?? 0}</p>
+              <p className="text-[10px] text-white/40 font-semibold uppercase tracking-wide mt-0.5">Controls</p>
             </div>
           </div>
 
-          {/* Control status pills */}
-          <div className="relative mt-3 flex flex-wrap gap-1.5">
-            {failingControls.length === 0 ? (
-              <div className="flex items-center gap-1.5 bg-emerald-500/15 rounded-lg px-2.5 py-1.5">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
-                <span className="text-[11px] font-semibold text-emerald-300">All controls passing</span>
-              </div>
-            ) : (
-              failingControls.map((c) => (
-                <Link key={c.category} href="/compliance"
-                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-colors hover:brightness-110 ${
-                    c.status === "failing" ? "bg-red-500/20" : "bg-amber-500/20"
-                  }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${c.status === "failing" ? "bg-red-400" : "bg-amber-400"}`} />
-                  <span className={`text-[11px] font-semibold truncate max-w-[120px] ${c.status === "failing" ? "text-red-300" : "text-amber-300"}`}>
-                    {c.name}
-                  </span>
-                  <span className={`text-[10px] font-bold shrink-0 ${c.status === "failing" ? "text-red-400" : "text-amber-400"}`}>
-                    {c.score}%
-                  </span>
-                </Link>
-              ))
-            )}
-          </div>
+          {/* Per-control status bar */}
+          {compliance && compliance.controls.length > 0 && (
+            <div className="relative mt-4 flex gap-1">
+              {compliance.controls.map((c) => (
+                <div key={c.category} className="flex-1 flex flex-col gap-1">
+                  <div className={`h-1.5 rounded-full ${
+                    c.status === "passing" ? "bg-emerald-500" :
+                    c.status === "warning"  ? "bg-amber-400"  :
+                    c.status === "failing"  ? "bg-red-500"    : "bg-white/10"
+                  }`} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Mini stat cards */}
