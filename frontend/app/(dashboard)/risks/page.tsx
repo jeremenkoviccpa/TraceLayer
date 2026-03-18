@@ -218,7 +218,8 @@ export default function RisksPage() {
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-card">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[640px]">
             <thead className="border-b border-gray-100 bg-gray-50/80">
               <tr>
                 <th className="py-3 pl-5 pr-4 text-left text-xs font-semibold text-gray-500">Risk</th>
@@ -305,6 +306,7 @@ export default function RisksPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
