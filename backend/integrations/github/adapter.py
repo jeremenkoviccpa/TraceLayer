@@ -13,18 +13,37 @@ class GithubIntegration(IntegrationAdapter):
     def __init__(self):
         self._token: str | None = None
         self._org: str | None = None
+        self._account_type: str = "org"  # "org" or "user"
 
     async def connect(self, credentials: dict) -> bool:
-        token = credentials.get("token")
-        org = credentials.get("org")
+        token = credentials.get("token", "").strip()
+        org = (credentials.get("org") or credentials.get("username") or "").strip()
+        if not token:
+            raise IntegrationAuthError("Personal Access Token is required.")
+        if not org:
+            raise IntegrationAuthError("Organization name or GitHub username is required.")
+
         headers = {"Authorization": f"Bearer {token}", "Accept": ACCEPT}
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=10) as client:
+            # Try as org first
             r = await client.get(f"{GITHUB_API}/orgs/{org}", headers=headers)
             if r.status_code == 401:
-                raise IntegrationAuthError("Invalid GitHub token")
-            if r.status_code == 404:
-                raise IntegrationAuthError(f"Organization '{org}' not found or token lacks org access")
-            r.raise_for_status()
+                raise IntegrationAuthError("Invalid GitHub token.")
+            if r.status_code == 200:
+                self._account_type = "org"
+            else:
+                # Fall back to personal user account
+                r2 = await client.get(f"{GITHUB_API}/users/{org}", headers=headers)
+                if r2.status_code == 401:
+                    raise IntegrationAuthError("Invalid GitHub token.")
+                if r2.status_code == 404:
+                    raise IntegrationAuthError(
+                        f"Organization or user '{org}' not found. "
+                        "Check the name and ensure your token has the correct scopes."
+                    )
+                r2.raise_for_status()
+                self._account_type = "user"
+
         self._token = token
         self._org = org
         return True
@@ -32,10 +51,17 @@ class GithubIntegration(IntegrationAdapter):
     async def collect_evidence(self) -> list[dict]:
         headers = {"Authorization": f"Bearer {self._token}", "Accept": ACCEPT}
         async with httpx.AsyncClient(timeout=30) as client:
-            repos = await self._collect_repos(client, headers)
-            members = await self._collect_members(client, headers)
-            admins = await self._collect_admins(client, headers)
+            if self._account_type == "org":
+                repos = await self._collect_repos(client, headers)
+                members = await self._collect_members(client, headers)
+                admins = await self._collect_admins(client, headers)
+            else:
+                repos = await self._collect_user_repos(client, headers)
+                members = await self._collect_user_as_member(client, headers)
+                admins = []
         return repos + members + admins
+
+    # ── Org collection ────────────────────────────────────────────────────────
 
     async def _collect_repos(self, client: httpx.AsyncClient, headers: dict) -> list[dict]:
         repos = []
@@ -79,6 +105,34 @@ class GithubIntegration(IntegrationAdapter):
         )
         r.raise_for_status()
         return [{"_type": "admin_member", **m} for m in r.json()]
+
+    # ── Personal account collection ───────────────────────────────────────────
+
+    async def _collect_user_repos(self, client: httpx.AsyncClient, headers: dict) -> list[dict]:
+        repos = []
+        page = 1
+        while True:
+            r = await client.get(
+                f"{GITHUB_API}/user/repos",
+                headers=headers,
+                params={"per_page": 100, "page": page, "affiliation": "owner"},
+            )
+            r.raise_for_status()
+            data = r.json()
+            if not data:
+                break
+            repos.extend([{"_type": "repo", **repo} for repo in data])
+            page += 1
+        return repos
+
+    async def _collect_user_as_member(self, client: httpx.AsyncClient, headers: dict) -> list[dict]:
+        r = await client.get(f"{GITHUB_API}/users/{self._org}", headers=headers)
+        r.raise_for_status()
+        u = r.json()
+        return [{"_type": "member", "login": u["login"], "id": u["id"],
+                 "type": "User", "site_admin": u.get("site_admin", False)}]
+
+    # ── Normalize ─────────────────────────────────────────────────────────────
 
     def normalize(self, raw_data: list[dict]) -> list[dict]:
         result = []
