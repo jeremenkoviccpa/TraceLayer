@@ -25,7 +25,7 @@ async def create_checkout(
     current_user: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
-    """Return a hosted LemonSqueezy checkout URL for upgrading to Growth."""
+    """Return a hosted Paddle checkout URL for upgrading to Growth."""
     try:
         url = await create_checkout_url(current_user.company_id, current_user.email)
     except ValueError as exc:
@@ -61,7 +61,7 @@ async def customer_portal(
     current_user: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
-    """Return the LemonSqueezy customer portal URL to manage or cancel a subscription."""
+    """Return the Paddle customer portal URL to manage or cancel a subscription."""
     result = await db.execute(select(Company).where(Company.id == current_user.company_id))
     company = result.scalar_one_or_none()
     if not company or not company.ls_subscription_id:
@@ -75,25 +75,24 @@ async def customer_portal(
 
 
 @router.post("/webhook", include_in_schema=False)
-async def lemonsqueezy_webhook(request: Request, db: AsyncSession = Depends(get_db)):
-    """Receive and process LemonSqueezy subscription webhooks."""
+async def paddle_webhook(request: Request, db: AsyncSession = Depends(get_db)):
+    """Receive and process Paddle subscription webhooks."""
     payload = await request.body()
-    signature = request.headers.get("X-Signature", "")
+    signature = request.headers.get("Paddle-Signature", "")
 
     if not verify_webhook_signature(payload, signature):
-        logger.warning("LemonSqueezy webhook: invalid signature")
+        logger.warning("Paddle webhook: invalid signature")
         raise HTTPException(status_code=401, detail="Invalid webhook signature")
 
-    body = await request.json() if not payload else __import__("json").loads(payload)
-    event_name = body.get("meta", {}).get("event_name", "")
+    body = __import__("json").loads(payload)
+    event_type = body.get("event_type", "")
     data = body.get("data", {})
-    meta = body.get("meta", {})
 
-    logger.info("LemonSqueezy webhook: event=%s", event_name)
+    logger.info("Paddle webhook: event=%s", event_type)
 
     try:
-        await handle_webhook(event_name, data, meta, db)
+        await handle_webhook(event_type, data, db)
     except Exception:
-        logger.exception("Error handling webhook event=%s", event_name)
-        # Return 200 anyway so LemonSqueezy doesn't retry indefinitely
+        logger.exception("Error handling Paddle webhook event=%s", event_type)
+        # Return 200 anyway so Paddle doesn't retry indefinitely
     return {"received": True}

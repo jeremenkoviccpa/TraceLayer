@@ -22,12 +22,12 @@ class Settings(BaseSettings):
     email_from: str = "TraceLayer <hello@tracelayer.it.com>"
     seed_demo: bool = False
     groq_api_key: str = ""
-    # LemonSqueezy billing
-    ls_api_key: str = ""
-    app_ls_store_id: str = ""
-    ls_growth_variant_id: str = ""
-    ls_webhook_secret: str = ""
-    ls_partner_client_variant_id: str = ""
+    # Paddle billing
+    paddle_api_key: str = ""
+    paddle_growth_price_id: str = ""        # pri_xxxx  (Growth monthly subscription)
+    paddle_webhook_secret: str = ""         # pdl_ntfset_xxxx
+    paddle_partner_client_price_id: str = ""  # pri_xxxx  ($99 one-time partner client slot)
+    paddle_sandbox: bool = False            # set True during testing
     # Google OAuth
     google_client_id: str = ""
     google_client_secret: str = ""

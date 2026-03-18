@@ -121,7 +121,7 @@ async def create_client_checkout(
     """Provision or checkout a new client workspace.
 
     The first FREE_CLIENT_LIMIT (3) clients are provisioned instantly for free.
-    After that, a LemonSqueezy $99 checkout is created.
+    After that, a Paddle $99 checkout is created.
 
     Returns:
       {"free": true, "client": {...}}            — for free slots
@@ -152,7 +152,7 @@ async def create_client_checkout(
             },
         }
 
-    # Paid — create LemonSqueezy checkout
+    # Paid — create Paddle checkout
     payment = PartnerClientPayment(
         id=uuid.uuid4(),
         partner_company_id=current_user.company_id,
