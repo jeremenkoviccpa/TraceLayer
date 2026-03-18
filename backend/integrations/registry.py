@@ -9,6 +9,24 @@ _REGISTRY: dict[str, str] = {
     "jira": "integrations.jira.adapter.JiraIntegration",
     "okta": "integrations.okta.adapter.OktaIntegration",
     "azure_ad": "integrations.azure_ad.adapter.AzureADIntegration",
+    # Stub adapters — credential validation only, no evidence collection yet
+    "vercel": "integrations.stubs.VercelIntegration",
+    "gitlab": "integrations.stubs.GitLabIntegration",
+    "linear": "integrations.stubs.LinearIntegration",
+    "notion": "integrations.stubs.NotionIntegration",
+    "cloudflare": "integrations.stubs.CloudflareIntegration",
+    "datadog": "integrations.stubs.DatadogIntegration",
+    "pagerduty": "integrations.stubs.PagerDutyIntegration",
+    "sentry": "integrations.stubs.SentryIntegration",
+    "stripe": "integrations.stubs.StripeIntegration",
+    "terraform_cloud": "integrations.stubs.TerraformCloudIntegration",
+    "1password": "integrations.stubs.OnePasswordIntegration",
+    "rippling": "integrations.stubs.RipplingIntegration",
+    "bamboohr": "integrations.stubs.BambooHRIntegration",
+    "google_cloud": "integrations.stubs.GoogleCloudIntegration",
+    "microsoft_teams": "integrations.stubs.MicrosoftTeamsIntegration",
+    "crowdstrike": "integrations.stubs.CrowdStrikeIntegration",
+    "jamf": "integrations.stubs.JamfIntegration",
 }
 
 
