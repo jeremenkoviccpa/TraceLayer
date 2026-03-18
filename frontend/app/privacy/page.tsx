@@ -1,6 +1,9 @@
 import Link from "next/link";
 
-export const metadata = { title: "Privacy Policy – TraceLayer" };
+export const metadata = {
+  title: "Privacy Policy – TraceLayer",
+  description: "TraceLayer Privacy Policy. Learn how we collect, use, and protect your data on the TraceLayer compliance platform.",
+};
 
 export default function PrivacyPage() {
   return (

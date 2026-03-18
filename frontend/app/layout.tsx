@@ -19,11 +19,11 @@ const BASE_URL = "https://www.tracelayer.it.com";
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "TraceLayer — Automated SOC 2 & Compliance for Startups",
+    default: "TraceLayer — SOC 2 Compliance Automation for Startups",
     template: "%s | TraceLayer",
   },
   description:
-    "TraceLayer continuously collects compliance evidence and monitors your SOC 2, ISO 27001, HIPAA, GDPR, and PCI DSS posture across 18+ integrations. Get audit-ready without the manual work.",
+    "Stop losing enterprise deals over SOC 2. TraceLayer automates compliance evidence collection across GitHub, AWS, Slack & 20+ integrations. Get audit-ready in weeks, not months.",
   keywords: [
     "SOC 2 compliance software",
     "compliance automation",
@@ -43,16 +43,16 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: BASE_URL,
     siteName: "TraceLayer",
-    title: "TraceLayer — Automated SOC 2 & Compliance for Startups",
+    title: "TraceLayer — SOC 2 Compliance Automation for Startups",
     description:
-      "Continuously collect SOC 2, ISO 27001, HIPAA & GDPR evidence across 18+ integrations. Get audit-ready without the manual work.",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "TraceLayer — Automated Compliance for Startups" }],
+      "Stop losing enterprise deals over SOC 2. Automate evidence collection across GitHub, AWS, Slack & 20+ integrations. Get audit-ready in weeks.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "TraceLayer — SOC 2 Compliance Automation for Startups" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "TraceLayer — Automated SOC 2 & Compliance for Startups",
+    title: "TraceLayer — SOC 2 Compliance Automation for Startups",
     description:
-      "Continuously collect SOC 2, ISO 27001, HIPAA & GDPR evidence across 18+ integrations. Get audit-ready without the manual work.",
+      "Stop losing enterprise deals over SOC 2. Automate evidence collection across GitHub, AWS, Slack & 20+ integrations. Get audit-ready in weeks.",
     images: ["/opengraph-image"],
   },
   robots: {
