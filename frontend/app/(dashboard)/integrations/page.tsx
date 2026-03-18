@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import type { BillingInfo, Integration } from "@/lib/types";
-import { CheckCircle2, AlertCircle, Clock, RefreshCw, Trash2, Plus, X, Zap, Lock, Search } from "lucide-react";
+import { CheckCircle2, AlertCircle, Clock, RefreshCw, Trash2, Plus, X, Zap, Lock, Search, BookOpen, ExternalLink } from "lucide-react";
 
 const FREE_LIMIT = 3;
 
@@ -216,7 +216,7 @@ type IntegrationDef = {
   label: string;
   description: string;
   comingSoon?: boolean;
-  fields?: { key: string; label: string; placeholder: string; type?: string }[];
+  fields?: { key: string; label: string; placeholder: string; type?: string; hint?: string }[];
 };
 
 type IntegrationGroup = { title: string; integrations: IntegrationDef[] };
@@ -254,7 +254,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         type: "1password", label: "1Password",
         description: "Collect vault access policies, team members, and MFA enforcement status for CC6.1 evidence",
         fields: [
-          { key: "service_account_token", label: "Service Account Token", placeholder: "ops_••••••••", type: "password" },
+          { key: "service_account_token", label: "Service Account Token", placeholder: "ops_••••••••", type: "password", hint: "Starts with ops_" },
         ],
       },
       {
@@ -321,7 +321,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         type: "github", label: "GitHub",
         description: "Collect repositories, members, admin users, and branch protection rules",
         fields: [
-          { key: "token", label: "Personal Access Token", placeholder: "ghp_••••••••", type: "password" },
+          { key: "token", label: "Personal Access Token", placeholder: "ghp_••••••••", type: "password", hint: "Starts with ghp_ or github_pat_" },
           { key: "org", label: "Organization", placeholder: "my-org" },
         ],
       },
@@ -329,7 +329,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         type: "gitlab", label: "GitLab",
         description: "Collect projects, members, and merge request approval settings",
         fields: [
-          { key: "token", label: "Personal Access Token", placeholder: "glpat-••••••••", type: "password" },
+          { key: "token", label: "Personal Access Token", placeholder: "glpat-••••••••", type: "password", hint: "Starts with glpat-" },
           { key: "domain", label: "GitLab Domain", placeholder: "gitlab.com" },
         ],
       },
@@ -351,14 +351,14 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         type: "linear", label: "Linear",
         description: "Collect issues, cycles, and team members for change tracking evidence",
         fields: [
-          { key: "api_key", label: "API Key", placeholder: "lin_api_••••••••", type: "password" },
+          { key: "api_key", label: "API Key", placeholder: "lin_api_••••••••", type: "password", hint: "Starts with lin_api_" },
         ],
       },
       {
         type: "notion", label: "Notion",
         description: "Sync policy documents and runbooks as compliance evidence",
         fields: [
-          { key: "api_key", label: "Integration Token", placeholder: "secret_••••••••", type: "password" },
+          { key: "api_key", label: "Integration Token", placeholder: "secret_••••••••", type: "password", hint: "Starts with secret_" },
         ],
       },
       {
@@ -380,7 +380,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         type: "slack", label: "Slack",
         description: "Collect workspace users, admin users, and channel retention policies",
         fields: [
-          { key: "bot_token", label: "Bot Token", placeholder: "xoxb-••••••••", type: "password" },
+          { key: "bot_token", label: "Bot Token", placeholder: "xoxb-••••••••", type: "password", hint: "Starts with xoxb-" },
         ],
       },
       {
@@ -451,7 +451,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         type: "stripe", label: "Stripe",
         description: "Collect payment security settings and access controls for PCI DSS evidence",
         fields: [
-          { key: "api_key", label: "Restricted API Key", placeholder: "rk_live_••••••••", type: "password" },
+          { key: "api_key", label: "Restricted API Key", placeholder: "rk_live_••••••••", type: "password", hint: "Starts with rk_live_ (live) or rk_test_ (test)" },
         ],
       },
       {
@@ -503,6 +503,216 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
 
 const ALL_DEFS: IntegrationDef[] = INTEGRATION_GROUPS.flatMap((g) => g.integrations);
 
+// ── Setup guides ──────────────────────────────────────────────────────────────
+type SetupGuide = { steps: string[]; url?: string };
+
+const SETUP_GUIDES: Record<string, SetupGuide> = {
+  aws: {
+    url: "https://console.aws.amazon.com/iam/home#/users/create",
+    steps: [
+      "Go to IAM Console → Users → Create user",
+      "Attach policy: ReadOnlyAccess (or a custom read-only policy)",
+      "Security credentials tab → Create access key → Application outside AWS",
+      "Copy the Access Key ID and Secret Access Key",
+    ],
+  },
+  github: {
+    url: "https://github.com/settings/tokens/new",
+    steps: [
+      "GitHub → Settings → Developer Settings → Personal access tokens",
+      "Tokens (classic) → Generate new token",
+      "Select scopes: repo, read:org",
+      "Copy the generated token (starts with ghp_)",
+    ],
+  },
+  slack: {
+    url: "https://api.slack.com/apps",
+    steps: [
+      "Go to api.slack.com/apps → Create New App → From scratch",
+      "OAuth & Permissions → Add Bot Token Scopes: channels:read, users:read, team:read",
+      "Install to Workspace → copy the Bot User OAuth Token",
+    ],
+  },
+  google_workspace: {
+    url: "https://console.cloud.google.com/iam-admin/serviceaccounts",
+    steps: [
+      "Google Cloud Console → Enable the Admin SDK API",
+      "IAM & Admin → Service Accounts → Create service account",
+      "Create a JSON key and download it",
+      "In Google Workspace Admin → Security → API controls → Domain-wide delegation → add the service account's client ID",
+    ],
+  },
+  okta: {
+    steps: [
+      "Log in to your Okta Admin Console",
+      "Security → API → Tokens → Create Token",
+      "Copy the token value — it is shown only once",
+      "Your domain is the subdomain in your Okta URL (e.g. mycompany.okta.com)",
+    ],
+  },
+  azure_ad: {
+    url: "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade",
+    steps: [
+      "Azure Portal → Azure Active Directory → App registrations → New registration",
+      "Certificates & secrets → New client secret → copy the value",
+      "API permissions → Add: User.Read.All, Group.Read.All (Microsoft Graph) → Grant admin consent",
+      "Copy Tenant ID and Client ID from the app overview page",
+    ],
+  },
+  jira: {
+    url: "https://id.atlassian.com/manage-profile/security/api-tokens",
+    steps: [
+      "Go to id.atlassian.com → Account Settings → Security",
+      "Create and manage API tokens → Create API token",
+      "Use your Atlassian account email as the admin email",
+      "Your domain is yourcompany.atlassian.net",
+    ],
+  },
+  gitlab: {
+    url: "https://gitlab.com/-/user_settings/personal_access_tokens",
+    steps: [
+      "GitLab → User Settings (top right) → Access Tokens",
+      "Add new token → select scopes: api, read_user",
+      "Copy the token (starts with glpat-)",
+    ],
+  },
+  linear: {
+    url: "https://linear.app/settings/api",
+    steps: [
+      "Linear → Settings → API",
+      "Create new API key",
+      "Copy the key (starts with lin_api_)",
+    ],
+  },
+  notion: {
+    url: "https://www.notion.so/my-integrations",
+    steps: [
+      "notion.so/my-integrations → New integration",
+      "Set capabilities: Read content, Read user information",
+      "Copy the Internal Integration Token (starts with secret_)",
+    ],
+  },
+  cloudflare: {
+    url: "https://dash.cloudflare.com/profile/api-tokens",
+    steps: [
+      "Cloudflare dashboard → My Profile → API Tokens",
+      "Create Token → Custom token",
+      "Add permissions: Zone Settings:Read, Zone:Read, Audit Logs:Read",
+      "Copy the token and find your Account ID on the main dashboard sidebar",
+    ],
+  },
+  datadog: {
+    url: "https://app.datadoghq.com/organization-settings/api-keys",
+    steps: [
+      "Datadog → Organization Settings → API Keys → New Key",
+      "Organization Settings → Application Keys → New Key",
+      "Copy both the API Key and Application Key",
+      "Your site is datadoghq.com (EU: datadoghq.eu)",
+    ],
+  },
+  pagerduty: {
+    url: "https://app.pagerduty.com/api_keys",
+    steps: [
+      "PagerDuty → Integrations → Developer Tools → API Access Keys",
+      "Create New API Key",
+      "Copy the key (shown once)",
+    ],
+  },
+  sentry: {
+    url: "https://sentry.io/settings/account/api/auth-tokens/new-token/",
+    steps: [
+      "Sentry → Settings → Account → API → Auth Tokens",
+      "Create New Token",
+      "Select scopes: org:read, project:read, team:read",
+      "Copy the token and find your org slug in Settings → Organization",
+    ],
+  },
+  stripe: {
+    url: "https://dashboard.stripe.com/apikeys",
+    steps: [
+      "Stripe Dashboard → Developers → API keys",
+      "Create restricted key",
+      "Enable read permissions for: Accounts, Balance, Customers",
+      "Copy the key (starts with rk_live_ or rk_test_)",
+    ],
+  },
+  terraform_cloud: {
+    url: "https://app.terraform.io/app/settings/tokens",
+    steps: [
+      "Terraform Cloud → User Settings (top right) → Tokens",
+      "Create an API token",
+      "Copy the token and note your organization name",
+    ],
+  },
+  "1password": {
+    url: "https://my.1password.com/integrations/infrastructure/",
+    steps: [
+      "1Password.com → Developer → Service Accounts",
+      "Create a new service account and grant access to relevant vaults",
+      "Copy the service account token (starts with ops_)",
+    ],
+  },
+  rippling: {
+    steps: [
+      "Log in to Rippling as an admin",
+      "Go to IT → API → API Keys",
+      "Create a new API key and copy it",
+    ],
+  },
+  bamboohr: {
+    steps: [
+      "Log in to BambooHR",
+      "Click your profile picture (top right) → API Keys",
+      "Add New Key → copy the key",
+      "Your subdomain is the part before .bamboohr.com in your URL",
+    ],
+  },
+  google_cloud: {
+    url: "https://console.cloud.google.com/iam-admin/serviceaccounts",
+    steps: [
+      "Google Cloud Console → IAM & Admin → Service Accounts → Create service account",
+      "Grant roles: Viewer, Security Reviewer",
+      "Create JSON key → download it",
+      "Paste the full JSON content and enter your project ID",
+    ],
+  },
+  microsoft_teams: {
+    url: "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade",
+    steps: [
+      "Azure Portal → Azure Active Directory → App registrations → New registration",
+      "Certificates & secrets → New client secret → copy the value",
+      "API permissions → Add: Team.ReadBasic.All, TeamMember.Read.All (Microsoft Graph)",
+      "Copy Tenant ID, Client ID, and the client secret",
+    ],
+  },
+  crowdstrike: {
+    url: "https://falcon.crowdstrike.com/support/api-clients-and-keys",
+    steps: [
+      "CrowdStrike Falcon → Support → API Clients and Keys",
+      "Add new API client",
+      "Enable Read scopes: Hosts, Detections, Prevention Policy",
+      "Copy Client ID and Client Secret (shown once on creation)",
+    ],
+  },
+  jamf: {
+    steps: [
+      "Log in to Jamf Pro as admin",
+      "Settings → System → User Accounts & Groups → New",
+      "Create a user with Read-Only Standard account privileges",
+      "Enter your Jamf Pro server URL (e.g. https://mycompany.jamfcloud.com)",
+    ],
+  },
+  vercel: {
+    url: "https://vercel.com/account/tokens",
+    steps: [
+      "Vercel → Settings (top right) → Tokens",
+      "Create Token → choose a name and expiry",
+      "Copy the token",
+      "Team ID is optional — find it in your team Settings → General",
+    ],
+  },
+};
+
 // ── Upgrade Modal ─────────────────────────────────────────────────────────────
 function UpgradeModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
@@ -553,6 +763,9 @@ function ConnectModal({ def, onClose, onConnected, onUpgradeNeeded }: {
   const [fields, setFields] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [guideOpen, setGuideOpen] = useState(true);
+
+  const guide = SETUP_GUIDES[def.type];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setError(""); setLoading(true);
@@ -570,13 +783,56 @@ function ConnectModal({ def, onClose, onConnected, onUpgradeNeeded }: {
     <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
       <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-md p-5 sm:p-6 relative max-h-[90vh] overflow-y-auto">
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><X className="w-5 h-5"/></button>
-        <div className="flex items-center gap-3 mb-5">
+        <div className="flex items-center gap-3 mb-4">
           <LogoBadge type={def.type} size={44}/>
           <div>
             <h2 className="text-base font-semibold text-gray-900">Connect {def.label}</h2>
             <p className="text-sm text-gray-500">{def.description}</p>
           </div>
         </div>
+
+        {/* Setup guide */}
+        {guide && (
+          <div className="mb-4 border border-blue-100 rounded-xl overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setGuideOpen((v) => !v)}
+              className="w-full flex items-center justify-between px-3.5 py-2.5 bg-blue-50 hover:bg-blue-100 transition-colors text-left"
+            >
+              <span className="flex items-center gap-2 text-xs font-semibold text-blue-700">
+                <BookOpen className="w-3.5 h-3.5 shrink-0"/>
+                How to find your credentials
+              </span>
+              <span className="text-blue-400 text-[10px] font-medium">{guideOpen ? "Hide ▲" : "Show ▼"}</span>
+            </button>
+            {guideOpen && (
+              <div className="px-3.5 py-3 bg-blue-50/50 space-y-2.5">
+                <ol className="space-y-1.5">
+                  {guide.steps.map((step, i) => (
+                    <li key={i} className="flex gap-2.5 text-xs text-gray-700 leading-relaxed">
+                      <span className="shrink-0 w-4 h-4 rounded-full bg-blue-200 text-blue-700 flex items-center justify-center text-[9px] font-bold mt-0.5">
+                        {i + 1}
+                      </span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+                {guide.url && (
+                  <a
+                    href={guide.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 mt-1"
+                  >
+                    Open {def.label} settings
+                    <ExternalLink className="w-3 h-3"/>
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{error}</div>}
           {(def.fields ?? []).map((f) => (
@@ -591,6 +847,7 @@ function ConnectModal({ def, onClose, onConnected, onUpgradeNeeded }: {
                   onChange={(e) => setFields((p) => ({ ...p, [f.key]: e.target.value }))}
                   className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30"/>
               )}
+              {f.hint && <p className="mt-1 text-[11px] text-gray-400">{f.hint}</p>}
             </div>
           ))}
           <div className="flex gap-3 pt-1">
