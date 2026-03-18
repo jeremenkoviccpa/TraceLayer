@@ -240,9 +240,30 @@ export interface AutofillAnswerItem {
   answer: string;
 }
 
+export interface AutofillContextSummary {
+  integrations_count: number;
+  policies_count: number;
+  vendors_count: number;
+  assets_count: number;
+  incidents_count: number;
+  vulnerabilities_count: number;
+  pen_test: boolean;
+  training_count: number;
+  risks_count: number;
+  soa_count: number;
+  ropa_count: number;
+  breaches_count: number;
+  subject_requests_count: number;
+  bcp_count: number;
+  management_review: boolean;
+  detected_type: string;
+}
+
 export interface AutofillResult {
   company_name: string;
   generated_at: string;
+  detected_type: string;
+  context: AutofillContextSummary;
   answers: AutofillAnswerItem[];
 }
 
