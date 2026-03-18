@@ -1,4 +1,4 @@
-import type { AccessReview, AutofillResult, AuditLog, AuditSession, BillingInfo, Company, ComplianceScore, Document, DownloadResponse, Evidence, EvidenceActivityPoint, Integration, Invitation, ManualControl, Member, NotificationSettings, Page, PartnerClient, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, ScoreHistoryPoint, TrainingRecord, TrustPageSettings, User, Vendor } from "./types";
+import type { AccessReview, AppNotification, Asset, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, Document, DownloadResponse, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, ScoreHistoryPoint, TrainingRecord, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -82,13 +82,42 @@ class ApiClient {
     this.setTokens(data.access_token, data.refresh_token);
   }
 
-  async login(email: string, password: string): Promise<void> {
-    const data = await this.request<{ access_token: string; refresh_token: string }>(
+  async login(email: string, password: string): Promise<{ requires_2fa?: boolean; totp_token?: string }> {
+    const data = await this.request<{ access_token: string; refresh_token: string; requires_2fa?: boolean; totp_token?: string }>(
       "POST", "/auth/login",
       { email, password },
       false,
     );
+    if (data.requires_2fa) {
+      return { requires_2fa: true, totp_token: data.totp_token };
+    }
     this.setTokens(data.access_token, data.refresh_token);
+    return {};
+  }
+
+  async verify2FA(totpToken: string, code: string): Promise<void> {
+    const data = await this.request<{ access_token: string; refresh_token: string }>(
+      "POST", "/auth/2fa/verify",
+      { totp_token: totpToken, code },
+      false,
+    );
+    this.setTokens(data.access_token, data.refresh_token);
+  }
+
+  async setup2FA(): Promise<{ secret: string; qr_uri: string; backup_codes: string[] }> {
+    return this.request("POST", "/auth/2fa/setup");
+  }
+
+  async enable2FA(code: string): Promise<void> {
+    return this.request("POST", "/auth/2fa/enable", { code });
+  }
+
+  async disable2FA(password: string): Promise<void> {
+    return this.request("POST", "/auth/2fa/disable", { password });
+  }
+
+  async regenerateBackupCodes(password: string): Promise<{ secret: string; qr_uri: string; backup_codes: string[] }> {
+    return this.request("POST", "/auth/2fa/backup-codes", { password });
   }
 
   async logout(): Promise<void> {
@@ -523,6 +552,126 @@ class ApiClient {
 
   async updateNotificationSettings(body: NotificationSettings): Promise<NotificationSettings> {
     return this.request<NotificationSettings>("PUT", "/notifications/prefs", body);
+  }
+
+  async getNotifications(): Promise<AppNotification[]> {
+    return this.request<AppNotification[]>("GET", "/notifications/inbox");
+  }
+
+  async markNotificationRead(id: string): Promise<void> {
+    return this.request("POST", `/notifications/inbox/${id}/read`);
+  }
+
+  async markAllNotificationsRead(): Promise<void> {
+    return this.request("POST", "/notifications/inbox/read-all");
+  }
+
+  // ── Incidents ─────────────────────────────────────────────────────────────
+
+  async getIncidents(): Promise<Incident[]> {
+    return this.request<Incident[]>("GET", "/incidents");
+  }
+
+  async createIncident(body: Partial<Incident>): Promise<Incident> {
+    return this.request<Incident>("POST", "/incidents", body);
+  }
+
+  async updateIncident(id: string, body: Partial<Incident>): Promise<Incident> {
+    return this.request<Incident>("PATCH", `/incidents/${id}`, body);
+  }
+
+  async deleteIncident(id: string): Promise<void> {
+    return this.request("DELETE", `/incidents/${id}`);
+  }
+
+  // ── Assets ────────────────────────────────────────────────────────────────
+
+  async getAssets(): Promise<Asset[]> {
+    return this.request<Asset[]>("GET", "/assets");
+  }
+
+  async createAsset(body: Partial<Asset>): Promise<Asset> {
+    return this.request<Asset>("POST", "/assets", body);
+  }
+
+  async updateAsset(id: string, body: Partial<Asset>): Promise<Asset> {
+    return this.request<Asset>("PATCH", `/assets/${id}`, body);
+  }
+
+  async deleteAsset(id: string): Promise<void> {
+    return this.request("DELETE", `/assets/${id}`);
+  }
+
+  // ── Vulnerabilities ───────────────────────────────────────────────────────
+
+  async getVulnerabilities(): Promise<Vulnerability[]> {
+    return this.request<Vulnerability[]>("GET", "/vulnerabilities");
+  }
+
+  async createVulnerability(body: Partial<Vulnerability>): Promise<Vulnerability> {
+    return this.request<Vulnerability>("POST", "/vulnerabilities", body);
+  }
+
+  async updateVulnerability(id: string, body: Partial<Vulnerability>): Promise<Vulnerability> {
+    return this.request<Vulnerability>("PATCH", `/vulnerabilities/${id}`, body);
+  }
+
+  async deleteVulnerability(id: string): Promise<void> {
+    return this.request("DELETE", `/vulnerabilities/${id}`);
+  }
+
+  // ── Business Continuity ───────────────────────────────────────────────────
+
+  async getBcpRecords(): Promise<BcpRecord[]> {
+    return this.request<BcpRecord[]>("GET", "/business-continuity");
+  }
+
+  async createBcpRecord(body: Partial<BcpRecord>): Promise<BcpRecord> {
+    return this.request<BcpRecord>("POST", "/business-continuity", body);
+  }
+
+  async updateBcpRecord(id: string, body: Partial<BcpRecord>): Promise<BcpRecord> {
+    return this.request<BcpRecord>("PATCH", `/business-continuity/${id}`, body);
+  }
+
+  async deleteBcpRecord(id: string): Promise<void> {
+    return this.request("DELETE", `/business-continuity/${id}`);
+  }
+
+  // ── Background Checks ─────────────────────────────────────────────────────
+
+  async getBackgroundChecks(): Promise<BackgroundCheck[]> {
+    return this.request<BackgroundCheck[]>("GET", "/background-checks");
+  }
+
+  async createBackgroundCheck(body: Partial<BackgroundCheck>): Promise<BackgroundCheck> {
+    return this.request<BackgroundCheck>("POST", "/background-checks", body);
+  }
+
+  async updateBackgroundCheck(id: string, body: Partial<BackgroundCheck>): Promise<BackgroundCheck> {
+    return this.request<BackgroundCheck>("PATCH", `/background-checks/${id}`, body);
+  }
+
+  async deleteBackgroundCheck(id: string): Promise<void> {
+    return this.request("DELETE", `/background-checks/${id}`);
+  }
+
+  // ── Offboarding ───────────────────────────────────────────────────────────
+
+  async getOffboardings(): Promise<Offboarding[]> {
+    return this.request<Offboarding[]>("GET", "/offboarding");
+  }
+
+  async createOffboarding(body: Partial<Offboarding>): Promise<Offboarding> {
+    return this.request<Offboarding>("POST", "/offboarding", body);
+  }
+
+  async updateOffboarding(id: string, body: Partial<Offboarding>): Promise<Offboarding> {
+    return this.request<Offboarding>("PATCH", `/offboarding/${id}`, body);
+  }
+
+  async deleteOffboarding(id: string): Promise<void> {
+    return this.request("DELETE", `/offboarding/${id}`);
   }
 
   // ── Evidence Upload ───────────────────────────────────────────────────────

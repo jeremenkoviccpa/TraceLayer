@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import Boolean, ForeignKey, String, func
+from sqlalchemy import Boolean, ForeignKey, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import TIMESTAMP
@@ -27,6 +27,9 @@ class User(Base):
     partner_nudge_day1_sent: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     partner_nudge_day3_sent: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     partner_nudge_day7_sent: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    totp_secret_enc: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    totp_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    totp_backup_codes_enc: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     company: Mapped["Company"] = relationship(back_populates="users")
     refresh_tokens: Mapped[list["RefreshToken"]] = relationship(back_populates="user", cascade="all, delete-orphan")

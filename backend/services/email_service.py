@@ -359,6 +359,191 @@ def send_password_changed_email(to: str) -> None:
     _send(to, subject, html)
 
 
+def send_account_deleted_email(to: str, company_name: str) -> None:
+    subject = "Your TraceLayer account has been deleted"
+    html = f"""
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
+      <h2 style="margin:0 0 8px;color:#1e293b">Account deleted</h2>
+      <p style="color:#475569;margin:0 0 16px">
+        Your TraceLayer account for <strong>{company_name}</strong> has been permanently deleted.
+        All associated data has been removed from our systems.
+      </p>
+      <p style="color:#475569;margin:0 0 24px">
+        If you did not request this, please contact us immediately at
+        <a href="mailto:support@tracelayer.it.com" style="color:#0f766e;">support@tracelayer.it.com</a>.
+      </p>
+      <p style="color:#94a3b8;font-size:12px;margin-top:24px">
+        TraceLayer — Continuous compliance evidence collection.
+      </p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
+def send_subscription_cancelled_email(to: str, company_name: str) -> None:
+    subject = "Your TraceLayer subscription has been cancelled"
+    html = f"""
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
+      <h2 style="margin:0 0 8px;color:#1e293b">Subscription cancelled</h2>
+      <p style="color:#475569;margin:0 0 16px">
+        Your Growth plan subscription for <strong>{company_name}</strong> has been cancelled.
+        Your account will revert to the Free plan at the end of your current billing period.
+      </p>
+      <p style="color:#475569;margin:0 0 16px">
+        Your data and evidence will be retained. You can reactivate your subscription at any time.
+      </p>
+      <a href="{settings.app_frontend_url}/settings#billing"
+         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
+                padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px">
+        Reactivate subscription
+      </a>
+      <p style="color:#94a3b8;font-size:12px;margin-top:24px">
+        Questions? Contact us at
+        <a href="mailto:support@tracelayer.it.com" style="color:#94a3b8;">support@tracelayer.it.com</a>
+      </p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
+def send_new_team_member_email(to: str, inviter_name: str, company_name: str, member_email: str) -> None:
+    subject = f"{member_email} has joined {company_name} on TraceLayer"
+    html = f"""
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
+      <h2 style="margin:0 0 8px;color:#1e293b">New team member joined</h2>
+      <p style="color:#475569;margin:0 0 16px">
+        <strong>{member_email}</strong> has accepted their invitation and joined
+        <strong>{company_name}</strong> on TraceLayer.
+      </p>
+      <a href="{settings.app_frontend_url}/team"
+         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
+                padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px">
+        View team
+      </a>
+      <p style="color:#94a3b8;font-size:12px;margin-top:24px">
+        TraceLayer — Continuous compliance evidence collection.
+      </p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
+def send_trial_ending_email(to: str, company_name: str, days_left: int) -> None:
+    subject = f"Your TraceLayer trial ends in {days_left} day{'s' if days_left != 1 else ''}"
+    html = f"""
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
+      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:24px">
+        <p style="margin:0;font-weight:700;color:#92400e;font-size:14px">
+          ⏰ Your trial ends in {days_left} day{'s' if days_left != 1 else ''}
+        </p>
+      </div>
+      <h2 style="margin:0 0 8px;color:#1e293b">Upgrade to keep your compliance program running</h2>
+      <p style="color:#475569;margin:0 0 16px">
+        Your free trial for <strong>{company_name}</strong> is ending soon.
+        Upgrade to the Growth plan to keep your automated evidence collection, AI reports,
+        and all 7 compliance frameworks active.
+      </p>
+      <a href="{settings.app_frontend_url}/settings#billing"
+         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
+                padding:13px 28px;border-radius:8px;font-weight:700;font-size:15px">
+        Upgrade to Growth →
+      </a>
+      <p style="color:#94a3b8;font-size:12px;margin-top:24px">
+        Questions? Reply to this email or contact us at
+        <a href="mailto:support@tracelayer.it.com" style="color:#94a3b8;">support@tracelayer.it.com</a>
+      </p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
+def send_audit_session_created_email(to: str, company_name: str, label: str, expires_at_str: str) -> None:
+    subject = f"Auditor access link created for {company_name}"
+    html = f"""
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
+      <h2 style="margin:0 0 8px;color:#1e293b">Auditor access link created</h2>
+      <p style="color:#475569;margin:0 0 16px">
+        An auditor access session has been created for <strong>{company_name}</strong>.
+      </p>
+      <div style="background:#f0fdf4;border:1px solid #d1fae5;border-radius:8px;padding:12px 16px;margin-bottom:24px">
+        <p style="margin:0 0 4px;font-size:13px;color:#065f46;font-weight:700">Session details</p>
+        <p style="margin:0;font-size:14px;color:#047857"><strong>Label:</strong> {label or "Untitled session"}</p>
+        <p style="margin:4px 0 0;font-size:14px;color:#047857"><strong>Expires:</strong> {expires_at_str}</p>
+      </div>
+      <p style="color:#64748b;font-size:13px;margin:0 0 24px">
+        If you did not create this session, please revoke it immediately from your settings.
+      </p>
+      <a href="{settings.app_frontend_url}/settings#audit-sessions"
+         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
+                padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px">
+        Manage audit sessions
+      </a>
+      <p style="color:#94a3b8;font-size:12px;margin-top:24px">
+        TraceLayer — Continuous compliance evidence collection.
+      </p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
+def send_2fa_enabled_email(to: str) -> None:
+    subject = "Two-factor authentication enabled on your TraceLayer account"
+    html = f"""
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
+      <div style="background:#f0fdf4;border:1px solid #d1fae5;border-radius:8px;padding:12px 16px;margin-bottom:24px">
+        <p style="margin:0;font-weight:700;color:#065f46;font-size:14px">✓ Two-factor authentication enabled</p>
+      </div>
+      <p style="color:#475569;margin:0 0 16px">
+        Two-factor authentication (2FA) has been successfully enabled on your TraceLayer account.
+        Your account is now more secure.
+      </p>
+      <p style="color:#475569;margin:0 0 24px">
+        You will need your authenticator app each time you sign in.
+        Make sure you've saved your backup codes in a safe place.
+      </p>
+      <a href="{settings.app_frontend_url}/settings#security"
+         style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;
+                padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px">
+        View security settings
+      </a>
+      <p style="color:#94a3b8;font-size:12px;margin-top:24px">
+        If you did not enable 2FA, contact support immediately at
+        <a href="mailto:support@tracelayer.it.com" style="color:#94a3b8;">support@tracelayer.it.com</a>
+      </p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
+def send_2fa_disabled_email(to: str) -> None:
+    subject = "⚠️ Two-factor authentication disabled on your TraceLayer account"
+    html = f"""
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:24px">
+        <p style="margin:0;font-weight:700;color:#991b1b;font-size:14px">⚠️ Security alert: 2FA disabled</p>
+      </div>
+      <p style="color:#475569;margin:0 0 16px">
+        Two-factor authentication has been disabled on your TraceLayer account.
+        Your account is now protected only by your password.
+      </p>
+      <p style="color:#475569;margin:0 0 24px">
+        If you did not do this, your account may be compromised. Please change your password
+        and re-enable 2FA immediately.
+      </p>
+      <a href="{settings.app_frontend_url}/settings#security"
+         style="display:inline-block;background:#dc2626;color:#fff;text-decoration:none;
+                padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px">
+        Secure your account
+      </a>
+      <p style="color:#94a3b8;font-size:12px;margin-top:24px">
+        Questions? Contact us at
+        <a href="mailto:support@tracelayer.it.com" style="color:#94a3b8;">support@tracelayer.it.com</a>
+      </p>
+    </div>
+    """
+    _send(to, subject, html)
+
+
 def send_alert_digest(to: str, company_name: str, alerts: list[dict], frontend_url: str) -> None:
     """Send a compliance alert digest email."""
     # alerts format: [{"type": str, "label": str, "count": int, "items": list[str]}]

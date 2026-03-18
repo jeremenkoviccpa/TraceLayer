@@ -5,6 +5,7 @@ export interface User {
   company_id: string;
   role: string;
   email_verified: boolean;
+  totp_enabled?: boolean;
 }
 
 export interface Company {
@@ -368,6 +369,131 @@ export interface Document {
   file_size: number;
   mime_type: string;
   uploader_email: string | null;
+  created_at: string;
+}
+
+export interface Incident {
+  id: string;
+  company_id: string;
+  title: string;
+  description: string | null;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  status: 'open' | 'investigating' | 'resolved' | 'closed';
+  detected_at: string | null;
+  resolved_at: string | null;
+  affected_systems: string | null;
+  root_cause: string | null;
+  lessons_learned: string | null;
+  reporter_user_id: string | null;
+  reporter_name: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Asset {
+  id: string;
+  company_id: string;
+  name: string;
+  asset_type: 'hardware' | 'software' | 'cloud' | 'data' | 'other';
+  owner_user_id: string | null;
+  owner_name: string | null;
+  environment: 'production' | 'staging' | 'development' | 'other';
+  classification: 'public' | 'internal' | 'confidential' | 'restricted';
+  status: 'active' | 'retired' | 'disposed';
+  vendor: string | null;
+  version: string | null;
+  ip_address: string | null;
+  location: string | null;
+  description: string | null;
+  last_reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Vulnerability {
+  id: string;
+  company_id: string;
+  title: string;
+  cve_id: string | null;
+  severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
+  status: 'open' | 'in_remediation' | 'resolved' | 'accepted_risk';
+  affected_system: string | null;
+  discovered_at: string | null;
+  due_date: string | null;
+  resolved_at: string | null;
+  description: string | null;
+  remediation_notes: string | null;
+  owner_user_id: string | null;
+  owner_name: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BcpRecord {
+  id: string;
+  company_id: string;
+  title: string;
+  record_type: 'bcp' | 'drp' | 'both';
+  status: 'not_tested' | 'scheduled' | 'tested' | 'passed' | 'failed';
+  last_tested_at: string | null;
+  next_test_due: string | null;
+  rto_minutes: number | null;
+  rpo_minutes: number | null;
+  test_results: string | null;
+  scope: string | null;
+  notes: string | null;
+  owner_user_id: string | null;
+  owner_name: string | null;
+  file_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BackgroundCheck {
+  id: string;
+  company_id: string;
+  employee_name: string;
+  employee_email: string | null;
+  check_type: 'standard' | 'enhanced' | 'international';
+  vendor: string | null;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed' | 'expired';
+  initiated_at: string | null;
+  completed_at: string | null;
+  valid_until: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChecklistItem {
+  item: string;
+  done: boolean;
+}
+
+export interface Offboarding {
+  id: string;
+  company_id: string;
+  employee_name: string;
+  employee_email: string | null;
+  last_day: string | null;
+  department: string | null;
+  status: 'pending' | 'in_progress' | 'completed';
+  checklist: ChecklistItem[];
+  completed_by_user_id: string | null;
+  completed_at: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AppNotification {
+  id: string;
+  type: 'info' | 'warning' | 'error' | 'success';
+  title: string;
+  message: string;
+  read: boolean;
+  resource_type?: string;
+  resource_id?: string;
   created_at: string;
 }
 
