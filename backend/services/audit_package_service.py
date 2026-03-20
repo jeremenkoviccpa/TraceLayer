@@ -4,7 +4,7 @@ import json
 import logging
 import re
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,7 +27,7 @@ _INT_LABELS = {
     "gcp": "GCP", "linear": "Linear", "datadog": "Datadog",
     "pagerduty": "PagerDuty", "sentry": "Sentry", "teams": "Microsoft Teams",
     "stripe": "Stripe", "rippling": "Rippling", "bamboohr": "BambooHR",
-    "notion": "Notion",
+    "notion": "Notion", "servicenow": "ServiceNow", "confluence": "Confluence",
 }
 
 
@@ -56,6 +56,7 @@ async def _gather_all_data(
     from models.pen_test import PenTest
     from models.policy import Policy
     from models.risk import Risk
+    from models.score_snapshot import ScoreSnapshot
     from models.training import TrainingRecord
     from models.vendor import Vendor
     from services.compliance_service import get_compliance_score
@@ -66,19 +67,49 @@ async def _gather_all_data(
 
     score_data = await get_compliance_score(company_id, framework, db)
 
+    now = datetime.now(timezone.utc)
+    period_end = now
+    period_start = now - timedelta(days=90)
+
     evidence_rows = list(
         (await db.execute(
             select(Evidence).where(Evidence.company_id == company_id)
         )).scalars().all()
     )
+
     by_control: dict[str, list] = {}
+    _ev_stats: dict = {}
+    _int_ev_count: dict[str, int] = {}
+    _int_ev_types: dict[str, set] = {}
+
     for e in evidence_rows:
         by_control.setdefault(e.control, []).append({
             "integration": e.integration,
             "evidence_type": e.evidence_type,
             "source_id": e.source_id,
             "timestamp": e.timestamp.isoformat(),
+            "data": e.data or {},
         })
+        ctrl_stats = _ev_stats.setdefault(e.control, {})
+        et_stats = ctrl_stats.setdefault(e.evidence_type, {
+            "count": 0, "integrations": set(), "timestamps": [],
+        })
+        et_stats["count"] += 1
+        et_stats["integrations"].add(e.integration)
+        et_stats["timestamps"].append(e.timestamp.isoformat())
+        _int_ev_count[e.integration] = _int_ev_count.get(e.integration, 0) + 1
+        _int_ev_types.setdefault(e.integration, set()).add(e.evidence_type)
+
+    evidence_stats: dict = {}
+    for ctrl, by_type in _ev_stats.items():
+        evidence_stats[ctrl] = {
+            et: {
+                "count": v["count"],
+                "integrations": sorted(v["integrations"]),
+                "freshest": max(v["timestamps"]),
+            }
+            for et, v in by_type.items()
+        }
 
     manual_controls = list(
         (await db.execute(
@@ -139,6 +170,36 @@ async def _gather_all_data(
         )).scalars().all()
     )
 
+    score_history_rows = list(
+        (await db.execute(
+            select(ScoreSnapshot)
+            .where(
+                ScoreSnapshot.company_id == company_id,
+                ScoreSnapshot.framework == framework,
+                ScoreSnapshot.snapshot_at >= period_start,
+            )
+            .order_by(ScoreSnapshot.snapshot_at.asc())
+        )).scalars().all()
+    )
+    score_history = [
+        {"date": s.snapshot_at.strftime("%Y-%m-%d"), "score": s.overall_score}
+        for s in score_history_rows
+    ]
+
+    active_integration_types = {i.integration_type for i in integrations}
+    connected_integrations_detail = sorted(
+        [
+            {
+                "name": intg,
+                "label": _INT_LABELS.get(intg, intg.replace("_", " ").title()),
+                "evidence_count": _int_ev_count.get(intg, 0),
+                "evidence_types": sorted(_int_ev_types.get(intg, set())),
+            }
+            for intg in active_integration_types
+        ],
+        key=lambda x: -x["evidence_count"],
+    )
+
     return {
         "company_name": company.name,
         "framework": framework,
@@ -146,6 +207,11 @@ async def _gather_all_data(
         "score_data": score_data,
         "total_evidence": len(evidence_rows),
         "controls_by_category": by_control,
+        "evidence_stats": evidence_stats,
+        "connected_integrations_detail": connected_integrations_detail,
+        "score_history": score_history,
+        "period_start": period_start.strftime("%B %d, %Y"),
+        "period_end": period_end.strftime("%B %d, %Y"),
         "manual_controls": manual_controls,
         "policies": policies,
         "pen_tests": pen_tests,
@@ -161,6 +227,14 @@ async def _gather_all_data(
 
 
 async def _generate_ai_narrative(data: dict) -> dict:
+    fallback_assertion = (
+        f"{data['company_name']} management is responsible for establishing and maintaining "
+        f"effective internal controls over {data['framework_label']} compliance. "
+        f"During the assessment period {data.get('period_start', 'N/A')} through "
+        f"{data.get('period_end', 'N/A')}, management asserts that the controls described "
+        f"in this report are suitably designed and operating with an overall compliance "
+        f"score of {data['score_data']['overall_score']}%."
+    )
     fallback = {
         "executive_summary": (
             f"{data['company_name']} is pursuing {data['framework_label']} compliance. "
@@ -168,6 +242,7 @@ async def _generate_ai_narrative(data: dict) -> dict:
         ),
         "gap_analysis": "",
         "recommendations": [],
+        "management_assertion": fallback_assertion,
     }
 
     from core.config import settings
@@ -184,13 +259,27 @@ async def _generate_ai_narrative(data: dict) -> dict:
     training = data["training"]
     vendors = data["vendors"]
     pen_tests = data["pen_tests"]
+    evidence_stats = data.get("evidence_stats", {})
+    integrations_detail = data.get("connected_integrations_detail", [])
 
-    control_lines = "\n".join(
-        f"  - {c['name']}: {c['score']}% ({c['status']}) | "
-        f"evidence: {c['evidence_count']} | "
-        f"missing: {', '.join(c['missing_types']) or 'none'}"
-        for c in score_data["controls"]
-    )
+    control_lines_parts = []
+    for c in score_data["controls"]:
+        ctrl_stats = evidence_stats.get(c["category"], {})
+        et_summary = "; ".join(
+            f"{et.replace('_', ' ')}: {v['count']} records via {', '.join(v['integrations'])}"
+            for et, v in sorted(ctrl_stats.items())
+        ) or "none"
+        control_lines_parts.append(
+            f"  - {c['name']}: {c['score']}% ({c['status']}) | "
+            f"evidence: {et_summary} | "
+            f"missing: {', '.join(c['missing_types']) or 'none'}"
+        )
+    control_lines = "\n".join(control_lines_parts)
+
+    int_summary = "; ".join(
+        f"{i['label']} ({i['evidence_count']} records, types: {', '.join(i['evidence_types'][:3])})"
+        for i in integrations_detail
+    ) or "none connected"
 
     risk_summary = (
         f"{len(risks)} risks — "
@@ -217,13 +306,23 @@ async def _generate_ai_narrative(data: dict) -> dict:
         if pen_tests else "No penetration tests on record"
     )
 
-    prompt = f"""You are a senior compliance advisor writing a formal AI Audit Package for {data['company_name']}.
+    failing_controls = [c["name"] for c in score_data["controls"] if c["status"] == "failing"]
+    warning_controls = [c["name"] for c in score_data["controls"] if c["status"] == "warning"]
 
+    prompt = f"""You are a senior compliance auditor writing a formal AI Audit Package for {data['company_name']}.
+
+Assessment Period: {data.get('period_start', 'N/A')} through {data.get('period_end', 'N/A')}
 Framework: {data['framework_label']}
 Overall Compliance Score: {score_data['overall_score']}%
+Total Evidence Records: {data['total_evidence']}
 
-Control Status:
+Connected Integrations: {int_summary}
+
+Control Assessment:
 {control_lines}
+
+Failing Controls: {', '.join(failing_controls) or 'none'}
+Warning Controls: {', '.join(warning_controls) or 'none'}
 
 Supporting Programs:
 - Risk register: {risk_summary}
@@ -232,24 +331,24 @@ Supporting Programs:
 - Penetration testing: {pt_summary}
 - Policies adopted: {len(data['policies'])}
 - Manual controls tracked: {len(data['manual_controls'])}
-- Active integrations: {len(data['integrations'])}
 
-Produce a formal audit package narrative. Return valid JSON only with these exact keys:
+Produce a formal audit package. Return valid JSON only with these exact keys:
 {{
-  "executive_summary": "3-4 paragraph executive summary suitable for a board presentation. Paragraph 1: overall compliance posture for {data['framework_label']}. Paragraph 2: strengths — what evidence collection and controls are working well. Paragraph 3: key gaps and risk exposure. Paragraph 4: path forward. Use formal, precise language. Separate paragraphs with \\n\\n.",
-  "gap_analysis": "2-3 paragraph technical gap analysis. Name specific control names and evidence types that are missing or insufficient. Address highest-priority gaps first. Separate paragraphs with \\n\\n.",
-  "recommendations": ["5 specific, actionable remediation steps. Each must start with a strong action verb. Reference specific control names or evidence types from the data. Max 30 words each."]
+  "executive_summary": "4-paragraph executive summary for board presentation. P1: overall {data['framework_label']} compliance posture with specific score and evidence count. P2: strengths — name the specific integrations providing evidence and which control domains they support. P3: gaps — name the specific failing/warning controls and what evidence types are missing. P4: recommended path forward. Formal audit language. Separate paragraphs with \\n\\n.",
+  "management_assertion": "1-paragraph formal management assertion. Start: '{data['company_name']} management is responsible for establishing and maintaining effective internal controls...' Include: what controls exist, which integrations provide automated evidence, the overall score, and the assessment period. End with management's assertion of operating effectiveness. Formal, signable tone. One paragraph only, no line breaks.",
+  "gap_analysis": "2-3 paragraphs. P1: technical root cause of failing controls — name each and what evidence types are absent. P2: impact and risk from these gaps referencing the risk register data. P3 (if applicable): warning controls needing remediation. Name specific controls and evidence types. Separate with \\n\\n.",
+  "recommendations": ["7 specific, actionable steps. Each: action verb + specific control/integration name from the data + max 35 words. Prioritize by severity."]
 }}
 
-Rules: Use actual control names and numbers from the data. Do not fabricate tool names or dates. Write for an experienced auditor. Return only the JSON object with no other text."""
+Rules: Use ONLY names from the actual data. Do not invent tools, metrics, or dates. Write for an experienced auditor. Return only the JSON object with no other text."""
 
     client = AsyncGroq(api_key=settings.groq_api_key)
     try:
         completion = await client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.2,
-            max_tokens=1800,
+            temperature=0.15,
+            max_tokens=2500,
         )
         content = completion.choices[0].message.content.strip()
         match = re.search(r"\{.*\}", content, re.DOTALL)
@@ -259,6 +358,7 @@ Rules: Use actual control names and numbers from the data. Do not fabricate tool
                 "executive_summary": parsed.get("executive_summary", ""),
                 "gap_analysis": parsed.get("gap_analysis", ""),
                 "recommendations": parsed.get("recommendations", []),
+                "management_assertion": parsed.get("management_assertion", fallback_assertion),
             }
     except Exception:
         logger.exception("Groq narrative generation failed")
@@ -300,10 +400,15 @@ async def generate_audit_package(
             "framework_label": data["framework_label"],
             "generated_at": now.strftime("%B %d, %Y"),
             "generated_at_full": now.strftime("%Y-%m-%d %H:%M UTC"),
+            "period_start": data["period_start"],
+            "period_end": data["period_end"],
             "overall_score": data["score_data"]["overall_score"],
             "total_evidence": data["total_evidence"],
             "control_scores": data["score_data"]["controls"],
             "controls_by_category": data["controls_by_category"],
+            "evidence_stats": data["evidence_stats"],
+            "connected_integrations_detail": data["connected_integrations_detail"],
+            "score_history": data["score_history"],
             "manual_controls": [
                 {
                     "control_id": m.control_id,
@@ -384,6 +489,7 @@ async def generate_audit_package(
             "ai_executive_summary": ai["executive_summary"],
             "ai_gap_analysis": ai["gap_analysis"],
             "ai_recommendations": ai["recommendations"],
+            "ai_management_assertion": ai["management_assertion"],
         }
 
         pdf_bytes = render_audit_package_pdf(context)
