@@ -37,5 +37,12 @@ export async function openPaddleCheckout(checkoutUrl: string): Promise<void> {
     return;
   }
 
-  paddle.Checkout.open({ transactionId });
+  paddle.Checkout.open({
+    transactionId,
+    settings: {
+      displayMode: "overlay",
+      theme: "light",
+      locale: "en",
+    },
+  });
 }
