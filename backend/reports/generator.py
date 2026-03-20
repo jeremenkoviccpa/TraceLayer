@@ -519,8 +519,9 @@ def _ev_table(recs: list[dict], ev_type: str, W: float, st: dict) -> Table:
             style_cmds.append(("BACKGROUND", (-1, row_i), (-1, row_i), AMBER_LIGHT))
 
     if len(recs) > max_show:
+        # 1 text cell + (len(cols) - 1) empty data cells + 1 empty age cell = len(cols) + 1 total
         more = [Paragraph(f"… and {len(recs) - max_show} more records", st["small"])]
-        more += [""] * len(cols)
+        more += [""] * len(cols)  # fills remaining data cols + age col slot
         rows.append(more)
 
     # Age column gets a narrower fixed width; data columns split the rest
@@ -528,17 +529,7 @@ def _ev_table(recs: list[dict], ev_type: str, W: float, st: dict) -> Table:
     data_col_w = (W - age_col_w) / len(cols)
     col_w = [data_col_w] * len(cols) + [age_col_w]
     tbl = Table(rows, colWidths=col_w, repeatRows=1)
-    tbl.setStyle(TableStyle([
-        ("BACKGROUND",    (0, 0), (-1, 0), TEAL_LIGHT),
-        ("LINEBELOW",     (0, 0), (-1, 0), 1.2, TEAL),
-        ("LINEBELOW",     (0, 1), (-1, -1), 0.3, GRAY_100),
-        ("ROWBACKGROUNDS",(0, 1), (-1, -1), [WHITE, colors.HexColor("#f8fafb")]),
-        ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
-        ("TOPPADDING",    (0, 0), (-1, -1), 5),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
-        ("LEFTPADDING",   (0, 0), (-1, -1), 7),
-        ("RIGHTPADDING",  (0, 0), (-1, -1), 7),
-    ]))
+    tbl.setStyle(TableStyle(style_cmds))  # uses style_cmds which includes age-cell highlights
     return tbl
 
 
@@ -558,7 +549,7 @@ def _control_card(c: dict, W: float, st: dict, framework: str = "") -> Table:
     left = Table([
         [Paragraph(c["name"], st["h3"])],
         [Paragraph(desc, st["small"])] if desc else [Spacer(1, 1)],
-        [Paragraph(crit_line, ParagraphStyle("crit_ref", fontName="Courier", fontSize=7,
+        [Paragraph(crit_line, ParagraphStyle(f"crit_ref_{c['category']}", fontName="Courier", fontSize=7,
                                               textColor=INDIGO, leading=10))] if crit_line else [Spacer(1, 1)],
         [Paragraph(
             f"Evidence records: <b>{c['evidence_count']}</b>   ·   Last collected: <b>{last}</b>",
