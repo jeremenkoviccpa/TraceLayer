@@ -274,6 +274,100 @@ function TerraformLogo() {
   );
 }
 
+function DuoLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#6DBE45"/>
+      <text x="3" y="17" fontSize="11" fontWeight="900" fill="white" fontFamily="Arial,sans-serif">duo</text>
+    </svg>
+  );
+}
+
+function WizLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#00BFA5"/>
+      <path d="M8 17l2.5-5.5L13 14l2-7 3 10H6l2-10" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    </svg>
+  );
+}
+
+function SnykLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#4C4A73"/>
+      <path d="M7 7l5 5-5 5M12 12h5" stroke="#00C4B4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function SentinelOneLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#7E2FD8"/>
+      <path d="M12 4L6 8v5c0 3 2.5 5.5 6 7 3.5-1.5 6-4 6-7V8l-6-4z" fill="none" stroke="white" strokeWidth="1.5"/>
+      <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function HackerOneLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#272727"/>
+      <text x="4" y="16" fontSize="10" fontWeight="900" fill="#FE6A37" fontFamily="Arial,sans-serif">H1</text>
+    </svg>
+  );
+}
+
+function KandjiLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#1B1B2A"/>
+      <path d="M8 6v12M8 12l5-6M8 12l5 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function KolideLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#00A878"/>
+      <circle cx="12" cy="12" r="5" stroke="white" strokeWidth="1.8" fill="none"/>
+      <circle cx="12" cy="12" r="2" fill="white"/>
+    </svg>
+  );
+}
+
+function SplunkLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#65A637"/>
+      <path d="M6 16l4-8 2 5 2-3 2 4" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    </svg>
+  );
+}
+
+function ConfluenceLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#0052CC"/>
+      <path d="M4.5 17.5c3-4 5-6.5 7.5-6.5s4.5 2.5 7.5 6.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
+      <path d="M4.5 6.5c3 4 5 6.5 7.5 6.5s4.5-2.5 7.5-6.5" stroke="#7AB3F5" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
+    </svg>
+  );
+}
+
+function ServiceNowLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#81B5A1"/>
+      <path d="M7 12a5 5 0 0110 0 5 5 0 01-10 0z" fill="white"/>
+      <path d="M12 9v6M9 12h6" stroke="#81B5A1" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
 const INTEGRATION_LOGOS = [
   { name: "AWS",              logo: <AwsLogo />       },
   { name: "GitHub",           logo: <GithubLogo />    },
@@ -299,14 +393,24 @@ const INTEGRATION_LOGOS = [
   { name: "CrowdStrike",      logo: <CrowdStrikeLogo />   },
   { name: "Vercel",           logo: <VercelLogo />        },
   { name: "Terraform",        logo: <TerraformLogo />     },
+  { name: "Duo Security",     logo: <DuoLogo />           },
+  { name: "Wiz",              logo: <WizLogo />           },
+  { name: "Snyk",             logo: <SnykLogo />          },
+  { name: "SentinelOne",      logo: <SentinelOneLogo />   },
+  { name: "HackerOne",        logo: <HackerOneLogo />     },
+  { name: "Kandji",           logo: <KandjiLogo />        },
+  { name: "Kolide",           logo: <KolideLogo />        },
+  { name: "Splunk",           logo: <SplunkLogo />        },
+  { name: "Confluence",       logo: <ConfluenceLogo />    },
+  { name: "ServiceNow",       logo: <ServiceNowLogo />    },
 ];
 
 // ── Static data ───────────────────────────────────────────────────────────────
 
 const STATS = [
-  { value: "24+",  label: "Native integrations"    },
+  { value: "34+",  label: "Native integrations"    },
   { value: "7",    label: "Compliance frameworks"   },
-  { value: "25+",  label: "Compliance modules"      },
+  { value: "28+",  label: "Compliance modules"      },
   { value: "100%", label: "Automated evidence"      },
 ];
 
@@ -323,8 +427,8 @@ const FRAMEWORKS = [
 const FEATURES = [
   {
     icon: Plug,
-    title: "24+ native integrations",
-    desc: "Connect AWS, GitHub, Okta, Cloudflare, 1Password, CrowdStrike, Jamf, Slack, Jira, and more in minutes. No agents. No code.",
+    title: "34+ native integrations",
+    desc: "Connect AWS, GitHub, Okta, GitLab, Datadog, CrowdStrike, SentinelOne, Snyk, Wiz, Jamf, Kandji, Kolide, Splunk, Duo, and more in minutes. No agents. No code.",
   },
   {
     icon: Zap,
@@ -387,7 +491,7 @@ const HOW_IT_WORKS = [
   {
     step: "01",
     title: "Connect your tools",
-    desc: "Link your cloud infrastructure and SaaS apps in under 5 minutes using API keys or service accounts. 24+ integrations, no OAuth dance.",
+    desc: "Link your cloud infrastructure and SaaS apps in under 5 minutes using API keys or service accounts. 34+ integrations, no OAuth dance.",
   },
   {
     step: "02",
