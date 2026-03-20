@@ -36,6 +36,7 @@ async def create_checkout(
                 os.environ.get("PADDLE_GROWTH_PRICE_ID", "NOT_IN_ENV"))
     try:
         url = await create_checkout_url(current_user.company_id, current_user.email)
+        logger.info("PADDLE CHECKOUT URL: %s", url)
     except ValueError as exc:
         logger.error("PADDLE CONFIG ERROR: %s", exc)
         raise HTTPException(status_code=503, detail=str(exc))
