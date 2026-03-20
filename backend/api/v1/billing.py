@@ -29,10 +29,10 @@ async def create_checkout(
     import os
     from core.config import settings as _s
     logger.info("PADDLE DEBUG key=%s price=%s sandbox=%s | RAW_KEY=%s RAW_PRICE=%s",
-                _s.paddle_api_key[:12] if _s.paddle_api_key else "EMPTY",
+                _s.paddle_sk[:12] if _s.paddle_sk else "EMPTY",
                 _s.paddle_growth_price_id or "EMPTY",
                 _s.paddle_sandbox,
-                os.environ.get("PADDLE_API_KEY", "NOT_IN_ENV")[:12],
+                os.environ.get("PADDLE_SK", "NOT_IN_ENV")[:12],
                 os.environ.get("PADDLE_GROWTH_PRICE_ID", "NOT_IN_ENV"))
     try:
         url = await create_checkout_url(current_user.company_id, current_user.email)

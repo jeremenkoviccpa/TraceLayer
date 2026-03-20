@@ -22,14 +22,14 @@ def _paddle_base() -> str:
 
 def _headers() -> dict:
     return {
-        "Authorization": f"Bearer {settings.paddle_api_key}",
+        "Authorization": f"Bearer {settings.paddle_sk}",
         "Content-Type": "application/json",
     }
 
 
 async def create_checkout_url(company_id: uuid.UUID, user_email: str) -> str:
     """Create a Paddle hosted checkout URL for the Growth plan subscription."""
-    if not settings.paddle_api_key or not settings.paddle_growth_price_id:
+    if not settings.paddle_sk or not settings.paddle_growth_price_id:
         raise ValueError("Paddle is not configured on this server.")
 
     payload = {
@@ -259,7 +259,7 @@ async def create_partner_client_checkout_url(
     user_email: str,
 ) -> str:
     """Create a Paddle one-time checkout URL for a partner client slot."""
-    if not settings.paddle_api_key or not settings.paddle_partner_client_price_id:
+    if not settings.paddle_sk or not settings.paddle_partner_client_price_id:
         raise ValueError("Partner billing is not configured (PADDLE_PARTNER_CLIENT_PRICE_ID missing).")
 
     success_url = (

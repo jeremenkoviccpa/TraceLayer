@@ -100,8 +100,8 @@ async def _seed_demo_data() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Config: frontend_url=%s backend_url=%s", settings.app_frontend_url, settings.backend_url)
-    logger.info("Config: paddle_api_key=%s growth_price=%s",
-                bool(settings.paddle_api_key), settings.paddle_growth_price_id)
+    logger.info("Config: paddle_sk=%s growth_price=%s",
+                bool(settings.paddle_sk), settings.paddle_growth_price_id)
     await _run_migrations()
     await _seed_demo_data()
     await _reschedule_active_integrations()

@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     seed_demo: bool = False
     groq_api_key: str = ""
     # Paddle billing
-    paddle_api_key: str = ""
+    paddle_sk: str = ""           # was PADDLE_API_KEY — renamed to PADDLE_SK to avoid Railway caching bug
     paddle_growth_price_id: str = ""        # pri_xxxx  (Growth monthly subscription)
     paddle_webhook_secret: str = ""         # pdl_ntfset_xxxx
     paddle_partner_client_price_id: str = ""  # pri_xxxx  ($99 one-time partner client slot)
