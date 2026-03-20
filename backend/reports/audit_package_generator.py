@@ -255,6 +255,100 @@ def _no_data(label: str, st: dict) -> Paragraph:
     )
 
 
+def _risk_heatmap(risks: list[dict], W: float, st: dict) -> Table:
+    """5×5 risk heat map rendered as a color-coded table with risk labels in cells."""
+    # Color scheme: low→green, medium→amber, high→red, critical→deep red
+    _CELL_COLOR = {
+        (1,1):"#d1fae5",(1,2):"#d1fae5",(1,3):"#d1fae5",(1,4):"#fef3c7",(1,5):"#fef3c7",
+        (2,1):"#d1fae5",(2,2):"#d1fae5",(2,3):"#fef3c7",(2,4):"#fef3c7",(2,5):"#fee2e2",
+        (3,1):"#d1fae5",(3,2):"#fef3c7",(3,3):"#fef3c7",(3,4):"#fee2e2",(3,5):"#fee2e2",
+        (4,1):"#fef3c7",(4,2):"#fef3c7",(4,3):"#fee2e2",(4,4):"#fee2e2",(4,5):"#fca5a5",
+        (5,1):"#fef3c7",(5,2):"#fee2e2",(5,3):"#fee2e2",(5,4):"#fca5a5",(5,5):"#fca5a5",
+    }
+    _CELL_TEXT = {
+        (1,1):"Low",(1,2):"Low",(1,3):"Low",(1,4):"Medium",(1,5):"Medium",
+        (2,1):"Low",(2,2):"Low",(2,3):"Medium",(2,4):"Medium",(2,5):"High",
+        (3,1):"Low",(3,2):"Medium",(3,3):"Medium",(3,4):"High",(3,5):"High",
+        (4,1):"Medium",(4,2):"Medium",(4,3):"High",(4,4):"High",(4,5):"Critical",
+        (5,1):"Medium",(5,2):"High",(5,3):"High",(5,4):"Critical",(5,5):"Critical",
+    }
+
+    # Cluster risks into cells
+    cell_risks: dict = {}
+    for r in risks:
+        l = min(5, max(1, r.get("likelihood", 3)))
+        i = min(5, max(1, r.get("impact", 3)))
+        cell_risks.setdefault((l, i), []).append(r["title"])
+
+    cell_w = (W - 20*mm) / 6  # label col + 5 impact cols
+
+    # Header row: Impact axis
+    header = [
+        Paragraph("L \\ I", ParagraphStyle("hm_corner", fontName="Helvetica-Bold", fontSize=7,
+                                            textColor=GRAY_500, alignment=TA_CENTER)),
+    ]
+    for j in range(1, 6):
+        header.append(Paragraph(str(j), ParagraphStyle(f"hm_ih_{j}", fontName="Helvetica-Bold",
+                                                         fontSize=8, textColor=GRAY_700, alignment=TA_CENTER)))
+
+    rows = [header]
+    style_cmds = [
+        ("BACKGROUND",    (0, 0), (-1, 0), GRAY_100),
+        ("LINEBELOW",     (0, 0), (-1, 0), 0.5, GRAY_300),
+        ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+        ("TOPPADDING",    (0, 0), (-1, -1), 7),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
+        ("LEFTPADDING",   (0, 0), (-1, -1), 4),
+        ("RIGHTPADDING",  (0, 0), (-1, -1), 4),
+        ("BOX",           (0, 0), (-1, -1), 0.5, GRAY_300),
+        ("INNERGRID",     (0, 0), (-1, -1), 0.3, WHITE),
+    ]
+
+    for row_i, l in enumerate(range(5, 0, -1), start=1):
+        row = [Paragraph(str(l), ParagraphStyle(f"hm_lh_{l}", fontName="Helvetica-Bold",
+                                                  fontSize=8, textColor=GRAY_700, alignment=TA_CENTER))]
+        for j in range(1, 6):
+            bg_hex = _CELL_COLOR.get((l, j), "#f9fafb")
+            zone   = _CELL_TEXT.get((l, j), "")
+            in_cell = cell_risks.get((l, j), [])
+            if in_cell:
+                names = in_cell[0][:18] + ("…" if len(in_cell[0]) > 18 else "")
+                if len(in_cell) > 1:
+                    names += f" +{len(in_cell)-1}"
+                text_color = colors.HexColor("#991b1b") if zone in ("Critical", "High") else colors.HexColor("#92400e")
+                cell_p = Paragraph(names, ParagraphStyle(f"hmc_{l}_{j}", fontName="Helvetica-Bold",
+                                                          fontSize=6, textColor=text_color, alignment=TA_CENTER))
+            else:
+                text_color = GRAY_500
+                cell_p = Paragraph(zone, ParagraphStyle(f"hme_{l}_{j}", fontName="Helvetica",
+                                                         fontSize=6, textColor=text_color, alignment=TA_CENTER))
+            row.append(cell_p)
+            col_idx = j
+            style_cmds.append(("BACKGROUND", (col_idx, row_i), (col_idx, row_i), colors.HexColor(bg_hex)))
+        rows.append(row)
+
+    tbl = Table(rows, colWidths=[cell_w] * 6)
+    tbl.setStyle(TableStyle(style_cmds))
+
+    # Wrap with axis labels
+    x_label = Paragraph("← Impact →",
+                         ParagraphStyle("hm_xl", fontName="Helvetica", fontSize=7, textColor=GRAY_500, alignment=TA_CENTER))
+    y_label = Paragraph("↑ Likelihood ↑",
+                         ParagraphStyle("hm_yl", fontName="Helvetica", fontSize=7, textColor=GRAY_500, alignment=TA_CENTER))
+
+    wrapper = Table([
+        [tbl],
+        [x_label],
+    ], colWidths=[W - 20*mm])
+    wrapper.setStyle(TableStyle([
+        ("LEFTPADDING",   (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING",  (0, 0), (-1, -1), 0),
+        ("TOPPADDING",    (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+    ]))
+    return wrapper
+
+
 # ── Main renderer ──────────────────────────────────────────────────────────────
 
 def render_audit_package_pdf(context: dict) -> bytes:
@@ -586,6 +680,18 @@ def render_audit_package_pdf(context: dict) -> bytes:
         ], W / 4, W))
         story.append(Spacer(1, 4 * mm))
 
+        # Risk heat map
+        story.append(Paragraph("Risk Heat Map", st["h3"]))
+        story.append(Paragraph(
+            "Each cell shows risks by Likelihood (1=rare → 5=almost certain) × Impact (1=negligible → 5=catastrophic). "
+            "Green = Low, Amber = Medium, Red = High, Dark red = Critical.",
+            st["small"],
+        ))
+        story.append(Spacer(1, 3 * mm))
+        story.append(_risk_heatmap(risks, W, st))
+        story.append(Spacer(1, 5 * mm))
+
+        story.append(Paragraph("Risk Register Detail", st["h3"]))
         risk_rows = []
         for r in risks:
             rl = r["risk_level"]
