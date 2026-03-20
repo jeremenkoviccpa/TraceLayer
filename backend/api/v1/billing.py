@@ -26,9 +26,15 @@ async def create_checkout(
     db: AsyncSession = Depends(get_db),
 ):
     """Return a hosted Paddle checkout URL for upgrading to Growth."""
+    from core.config import settings as _s
+    logger.info("PADDLE DEBUG key=%s price=%s sandbox=%s",
+                _s.paddle_api_key[:12] if _s.paddle_api_key else "EMPTY",
+                _s.paddle_growth_price_id or "EMPTY",
+                _s.paddle_sandbox)
     try:
         url = await create_checkout_url(current_user.company_id, current_user.email)
     except ValueError as exc:
+        logger.error("PADDLE CONFIG ERROR: %s", exc)
         raise HTTPException(status_code=503, detail=str(exc))
     except Exception:
         logger.exception("Failed to create checkout for company=%s", current_user.company_id)
