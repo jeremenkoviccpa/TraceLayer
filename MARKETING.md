@@ -22,11 +22,11 @@
 
 ## 1. What is TraceLayer
 
-**TraceLayer** is a continuous compliance automation platform for startups and growing engineering teams. It connects to the tools companies already use — AWS, GitHub, Okta, Slack, Google Workspace, and 14 others — and automatically collects the security evidence required for SOC 2, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, and NIST CSF audits.
+**TraceLayer** is a continuous compliance automation platform for startups and growing engineering teams. It connects to the tools companies already use — AWS, GitHub, Okta, Slack, Google Workspace, and 30+ others — and automatically collects the security evidence required for SOC 2, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, and NIST CSF audits.
 
 Instead of spending weeks gathering screenshots, spreadsheets, and access logs before an audit, TraceLayer collects this evidence continuously, scores your compliance posture in real time, and gives you a formatted audit package on demand.
 
-**In one sentence:** TraceLayer turns compliance from a quarterly fire drill into a always-on background process.
+**In one sentence:** TraceLayer turns compliance from a quarterly fire drill into an always-on background process.
 
 **URL:** https://tracelayer.it.com
 **App:** https://app.tracelayer.it.com
@@ -69,15 +69,30 @@ TraceLayer eliminates every one of these.
 TraceLayer connects to your existing tools and collects compliance evidence automatically every 24 hours — no agents, no scripts, no manual exports. Every record is timestamped and stored for the full observation period required by auditors.
 
 **What it collects:**
-- IAM users, roles, MFA status, access keys (AWS, Azure AD, Okta, Google Workspace)
+- IAM users, roles, MFA status, access keys (AWS, GCP, Okta, Google Workspace, Microsoft Entra ID, 1Password, Duo)
 - Repository settings, branch protection, secret scanning (GitHub, GitLab)
 - Incident and alerting policies (PagerDuty, Datadog, Sentry)
-- Employee training, HR records (Rippling, BambooHR)
-- Ticketing and change management (Jira, Linear)
-- Communication and security policies (Slack, Teams, Notion)
+- Employee and HR records (Rippling, BambooHR)
+- Ticketing and change management (Jira, Linear, ServiceNow)
+- Communication and documentation policies (Slack, Microsoft Teams, Notion, Confluence)
 - Payment security controls (Stripe)
+- Endpoint and device management (Jamf Pro, Kandji, Kolide)
+- Security tooling (CrowdStrike Falcon, SentinelOne, Wiz, Snyk, Splunk, HackerOne)
+- Infrastructure and deployment (Terraform Cloud, Vercel, Cloudflare)
 
-**Supported integrations (18+):** AWS · GitHub · Slack · Google Workspace · Okta · Azure AD · Jira · GitLab · GCP · Linear · Datadog · PagerDuty · Sentry · Microsoft Teams · Stripe · Rippling · BambooHR · Notion
+**Supported integrations (34+):**
+
+*Identity & Access:* Google Workspace · Okta · Microsoft Entra ID · 1Password · Rippling · Duo Security
+
+*Cloud & Infrastructure:* AWS · Google Cloud Platform · Vercel · Terraform Cloud · Wiz · Cloudflare
+
+*Code & Dev Tools:* GitHub · GitLab · Jira · Linear · Notion · Confluence · ServiceNow
+
+*Communication:* Slack · Microsoft Teams
+
+*Security & Monitoring:* CrowdStrike Falcon · Jamf Pro · Datadog · PagerDuty · Sentry · Snyk · SentinelOne · Splunk · Kolide · HackerOne
+
+*Finance & HR:* Stripe · BambooHR · Kandji
 
 #### 7 Compliance Frameworks
 - **SOC 2** — Trust Service Criteria (Security, Availability, Confidentiality, Privacy)
@@ -102,6 +117,9 @@ Shows your exact readiness percentage and a week-by-week estimate to audit-ready
 #### Risk Register
 Log risks with likelihood × impact scoring. Assign owners, track treatment status (open / mitigated / accepted), and generate CC3.2 evidence automatically.
 
+#### Statement of Applicability (SOA)
+ISO 27001-ready SOA that maps all Annex A controls to your implementation status, justification, and evidence. Keeps auditors happy out of the box.
+
 #### Policy Templates
 Pre-written, auditor-approved policy templates for every framework. Covers incident response, business continuity, vendor risk management, access control, acceptable use, data classification, and more. Customize and adopt in one click.
 
@@ -116,6 +134,36 @@ Run formal quarterly access reviews with documented reviewer sign-off, users rev
 
 #### Pen Test Tracker
 Log penetration tests with vendor, scope, dates, finding counts by severity, and remediation notes. Upload reports and track remediation status.
+
+#### Incident Register
+Log and manage security incidents with severity, status, timeline, and resolution notes. Linked to framework controls that require incident response evidence.
+
+#### Asset Inventory
+Track hardware, software, and cloud assets with owners, classification, and lifecycle status. Maps to physical and logical asset controls across SOC 2, ISO 27001, and HIPAA.
+
+#### Vulnerability Tracker
+Record vulnerabilities with CVSS scoring, affected systems, remediation status, and SLA tracking. Produces evidence for vulnerability management controls.
+
+#### Business Continuity
+Document BCP/DR plans, test history, RTO/RPO objectives, and review cycles. Required for availability trust services criteria and ISO 27001 A.17.
+
+#### Background Check Tracker
+Log employee background checks with type, date, status, and vendor. Required for SOC 2 CC1.1 and ISO 27001 A.7.1.
+
+#### Offboarding Tracker
+Track employee offboarding with access revocation checklist, equipment return, and exit interview status. Satisfies access deprovisioning controls.
+
+#### Data Breach Register
+Record data breaches with severity, data types affected, notification status, and regulatory deadlines. Required under GDPR Article 33 and HIPAA Breach Notification Rule.
+
+#### Record of Processing Activities (RoPA)
+GDPR-ready RoPA documenting all data processing activities with lawful basis, data categories, retention periods, and third-party transfers.
+
+#### Subject Request Tracker
+Log and manage GDPR/CCPA data subject requests (access, deletion, portability) with deadlines and response status.
+
+#### Management Reviews
+Document periodic management review meetings with agenda, attendees, decisions, and action items. Required for ISO 27001 and SOC 2 governance controls.
 
 #### Audit Package Builder (AI-powered)
 Generate a complete PDF audit package with 11 sections: executive summary, company overview, evidence summary, control analysis, risk assessment, policy index, integration inventory, training status, vendor risk summary, pen test history, and a narrative analysis written by AI (Groq). One click, ready to hand to an auditor.
@@ -140,6 +188,9 @@ Invite team members with role-based access (admin / member). Full team visibilit
 
 #### Notification Alerts
 Configurable alerts for: overdue training assignments, overdue access reviews, vendors needing review, stale evidence. Weekly digest via email. Slack webhook integration.
+
+#### Two-Factor Authentication (2FA)
+TOTP-based 2FA for all user accounts. Required by most frameworks for administrative access controls.
 
 ---
 
@@ -305,6 +356,7 @@ Consultants who manage security and compliance for 5–30 client companies. Curr
 - **Speed**: Connects in minutes, not weeks. No implementation calls, no professional services.
 - **Partner program**: No competitor has a purpose-built multi-client partner program at $99/client.
 - **Free plan**: Genuine free tier with real evidence collection — not a trial. Competitors charge from day one.
+- **Feature depth**: 28+ modules covering the full compliance lifecycle including GDPR-specific tools (RoPA, subject requests, data breaches), ISO 27001 SOA, BCP, background checks, offboarding, and more.
 
 ### Where TraceLayer is still building
 
@@ -330,13 +382,16 @@ Legacy compliance tools collect evidence when you trigger a scan. TraceLayer col
 Evidence collected from a single integration automatically populates every applicable control across all 7 frameworks. No separate setup per framework.
 
 ### 5. Built for the full compliance lifecycle
-From first evidence collection (automated) through policy adoption (templates), training assignment, risk management, vendor due diligence, readiness scoring, and all the way to audit package generation and auditor access links — the entire workflow lives in one tool.
+From first evidence collection (automated) through policy adoption (templates), training assignment, risk management, vendor due diligence, readiness scoring, and all the way to audit package generation and auditor access links — the entire workflow lives in one tool. Includes GDPR-specific modules (RoPA, subject requests, data breach register), ISO 27001 SOA, BCP, background check and offboarding tracking, vulnerability management, and more.
 
 ### 6. Partner program no competitor has
 A purpose-built multi-client management layer for compliance consultants and agencies at $99/client. No competitor offers this at this price point.
 
 ### 7. AI-powered audit package
 One-click PDF with 11 sections including an AI-written narrative analysis. Replaces the most time-consuming part of audit preparation.
+
+### 8. 34+ integrations across every major tool category
+Identity, cloud, code, communication, security, monitoring, HR, endpoint, and finance — covering the full stack of evidence sources auditors expect.
 
 ---
 
@@ -464,9 +519,9 @@ TraceLayer continuously collects compliance evidence from your existing tools an
 
 ### Product
 - [x] Free plan live with real evidence collection
-- [x] Growth plan ($149/mo) with LemonSqueezy billing
+- [x] Growth plan ($149/mo) with Paddle billing
 - [x] All 7 frameworks implemented
-- [x] 18+ integrations working
+- [x] 34+ integrations (full + stub adapters)
 - [x] Trust Center live
 - [x] AI Audit Package Builder
 - [x] Partner program (multi-client dashboard)
@@ -474,6 +529,11 @@ TraceLayer continuously collects compliance evidence from your existing tools an
 - [x] Email sequences: welcome, activation nudge (Day 1, Day 3, Day 7)
 - [x] In-app tooltips and empty states with clear CTAs
 - [x] Mobile experience reviewed
+- [x] GDPR modules: RoPA, Subject Requests, Data Breach Register
+- [x] ISO 27001 SOA
+- [x] Extended GRC modules: Incidents, Assets, Vulnerabilities, BCP, Background Checks, Offboarding, Management Reviews
+- [x] 2FA (TOTP) for all accounts
+- [x] Error pages and GitHub personal account support
 
 ### Marketing assets
 - [ ] Product demo video (2–3 minutes showing full flow)
@@ -485,10 +545,10 @@ TraceLayer continuously collects compliance evidence from your existing tools an
 
 ### SEO / Content
 - [ ] "SOC 2 checklist" blog post live before launch
-- [ ] Metadata on all public pages (title, description, OG image)
-- [ ] sitemap.xml and robots.txt
+- [x] Metadata on all public pages (title, description, OG image)
+- [x] sitemap.xml and robots.txt
 - [ ] Google Search Console set up
-- [ ] Analytics (Plausible or PostHog) installed
+- [x] Analytics (Vercel Analytics + PostHog) installed
 
 ### Legal / Trust
 - [x] Privacy Policy live (/privacy)
@@ -499,19 +559,26 @@ TraceLayer continuously collects compliance evidence from your existing tools an
 
 ### Operations
 - [x] Support email set up (support@tracelayer.it.com)
-- [x] Intercom or Crisp chat widget installed
+- [x] Crisp chat widget installed
 - [x] Error monitoring (Sentry) confirmed working in production
-- [x] Uptime monitoring (Better Uptime, UptimeRobot)
-- [x] Status page (statuspage.io or similar)
+- [x] Uptime monitoring configured
+- [x] Status page live
 - [x] Backup and recovery process documented
 
 ### Partner channel
 - [x] Partner registration live
 - [x] Partner login page live
-- [x] $99/client checkout flow (LemonSqueezy or direct provisioning)
+- [x] $99/client checkout flow (Paddle)
 - [x] Partner section on landing page
 - [x] Partner onboarding email sequence
-- [x] Partner directory / showcase (future)
+- [ ] Partner directory / showcase (future)
+
+### Billing (Paddle)
+- [x] Growth plan subscription product created (pri_01km17gg2d6dy0853pc7qmg79k)
+- [x] Partner client one-time product created (pri_01km17jqn909jjky21285v3rcy)
+- [x] Paddle env vars set in Railway production
+- [x] Default payment link set to https://www.tracelayer.it.com/ in Paddle checkout settings
+- [x] Webhook endpoint configured in Paddle → Notifications (https://compliance-project-production.up.railway.app/v1/billing/webhook)
 
 ---
 
@@ -521,7 +588,7 @@ TraceLayer continuously collects compliance evidence from your existing tools an
 > Continuous compliance automation that costs $149/mo instead of $15K/year
 
 ### Product Hunt description
-> TraceLayer connects to your existing tools — AWS, GitHub, Okta, Slack, and 14 more — and automatically collects compliance evidence every day. You get a live SOC 2 / ISO 27001 / HIPAA score, policy templates, risk register, training tracker, vendor risk hub, and a one-click AI audit package. The free plan is real, not a trial. Growth is $149/mo (vs $15K/year for Vanta). We also have a partner program for compliance consultants at $99/client.
+> TraceLayer connects to your existing tools — AWS, GitHub, Okta, Slack, and 30+ more — and automatically collects compliance evidence every day. You get a live SOC 2 / ISO 27001 / HIPAA / GDPR score, policy templates, risk register, training tracker, vendor risk hub, and a one-click AI audit package. The free plan is real, not a trial. Growth is $149/mo (vs $15K/year for Vanta). We also have a partner program for compliance consultants at $99/client.
 
 ### Cold email subject lines
 - "SOC 2 without the $50K consultant"
@@ -566,9 +633,9 @@ TraceLayer continuously collects compliance evidence from your existing tools an
 >
 > 2/ Current solutions cost $10K–$25K/year. They're built for companies with a full security team. Most early-stage startups can't afford them, so they either skip compliance or hire a consultant for $50K.
 >
-> 3/ TraceLayer connects to AWS, GitHub, Okta, Slack, and 14 other tools. It collects compliance evidence every 24 hours automatically. You see a live score. You know exactly what's missing.
+> 3/ TraceLayer connects to AWS, GitHub, Okta, Slack, and 30+ other tools. It collects compliance evidence every 24 hours automatically. You see a live score. You know exactly what's missing.
 >
-> 4/ Features: Live compliance score across 7 frameworks. Policy templates. Risk register. Training tracker. Vendor hub. AI audit package in one click. Trust Center for sharing with customers.
+> 4/ Features: Live compliance score across 7 frameworks. Policy templates. Risk register. Training tracker. Vendor hub. AI audit package in one click. Trust Center for sharing with customers. Plus GDPR, ISO 27001, BCP, vulnerability management, and more.
 >
 > 5/ Pricing: $0 to start (SOC 2, 3 integrations, real evidence collection). $149/mo for Growth (all 7 frameworks, unlimited integrations, AI features).
 >

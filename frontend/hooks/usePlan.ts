@@ -8,15 +8,15 @@ const CACHE_KEY = "billing_plan";
 const CACHE_AT_KEY = "billing_plan_at";
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-// Internal admin account always has full Growth access
-const INTERNAL_ADMIN = "admin@tracelayer.it.com";
+// Internal accounts always have full Growth access
+const INTERNAL_ADMINS = ["admin@tracelayer.it.com", "jeremenkovic23@gmail.com"];
 
 export function usePlan(): { plan: Plan; loading: boolean; isPro: boolean } {
   const { user } = useAuth();
   const [plan, setPlan] = useState<Plan>("free");
   const [loading, setLoading] = useState(true);
 
-  const isInternalAdmin = user?.email === INTERNAL_ADMIN;
+  const isInternalAdmin = INTERNAL_ADMINS.includes(user?.email ?? "");
 
   useEffect(() => {
     if (isInternalAdmin) { setLoading(false); return; }
