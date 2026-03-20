@@ -76,13 +76,15 @@ async def generate(
 ):
     # Gate PDF/CSV formats to Growth plan
     if body.format in ("pdf", "csv"):
-        result_company = await db.execute(select(Company).where(Company.id == current_user.company_id))
-        company_obj = result_company.scalar_one_or_none()
-        if not company_obj or company_obj.plan != "growth":
-            raise HTTPException(
-                status_code=402,
-                detail="PDF and CSV reports require the Growth plan. JSON reports are available on the free plan.",
-            )
+        from core.plan_gate import INTERNAL_ADMINS
+        if current_user.email not in INTERNAL_ADMINS:
+            result_company = await db.execute(select(Company).where(Company.id == current_user.company_id))
+            company_obj = result_company.scalar_one_or_none()
+            if not company_obj or company_obj.plan != "growth":
+                raise HTTPException(
+                    status_code=402,
+                    detail="PDF and CSV reports require the Growth plan. JSON reports are available on the free plan.",
+                )
 
     report = await create_report(
         company_id=current_user.company_id,

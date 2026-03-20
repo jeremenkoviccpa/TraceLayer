@@ -8,11 +8,16 @@ from models.company import Company
 from models.user import User
 
 
+INTERNAL_ADMINS = {"admin@tracelayer.it.com", "jeremenkovic23@gmail.com"}
+
+
 async def require_growth(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> User:
     """Dependency: raises 402 if company is not on the Growth plan."""
+    if current_user.email in INTERNAL_ADMINS:
+        return current_user
     result = await db.execute(select(Company).where(Company.id == current_user.company_id))
     company = result.scalar_one_or_none()
     if not company or company.plan != "growth":
