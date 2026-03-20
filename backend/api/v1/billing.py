@@ -46,9 +46,9 @@ async def get_subscription(
     company = result.scalar_one_or_none()
     if not company:
         raise HTTPException(status_code=404, detail="Company not found")
-    # Internal admin email always gets Growth (frontend also short-circuits for this email)
-    INTERNAL_ADMIN = "admin@tracelayer.it.com"
-    effective_plan = "growth" if current_user.email == INTERNAL_ADMIN else company.plan
+    # Internal accounts always get Growth (frontend also short-circuits for these emails)
+    INTERNAL_ADMINS = {"admin@tracelayer.it.com", "jeremenkovic23@gmail.com"}
+    effective_plan = "growth" if current_user.email in INTERNAL_ADMINS else company.plan
     return {
         "plan": effective_plan,
         "subscription_status": company.subscription_status,
