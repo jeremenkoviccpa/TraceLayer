@@ -4,11 +4,10 @@ system description, criteria test results, control test methodology, AI narrativ
 gap analysis, risk heatmap, and all data tables.
 """
 import logging
-from datetime import datetime, timezone
 from io import BytesIO
 
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
