@@ -2,13 +2,14 @@
 PDF report generator using ReportLab (pure Python, no system dependencies).
 """
 import logging
+from collections import defaultdict
 from io import BytesIO
 from pathlib import Path
 
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import (
     HRFlowable,
@@ -24,24 +25,127 @@ from reportlab.platypus import (
 logger = logging.getLogger(__name__)
 
 # ── Brand colours ─────────────────────────────────────────────────────────────
-INDIGO   = colors.HexColor("#4f46e5")
-GRAY_900 = colors.HexColor("#111827")
-GRAY_500 = colors.HexColor("#6b7280")
-GRAY_300 = colors.HexColor("#d1d5db")
-GRAY_100 = colors.HexColor("#f3f4f6")
-GREEN    = colors.HexColor("#10b981")
-AMBER    = colors.HexColor("#f59e0b")
-RED      = colors.HexColor("#ef4444")
-WHITE    = colors.white
+TEAL         = colors.HexColor("#0f766e")
+TEAL_LIGHT   = colors.HexColor("#f0fdfa")
+TEAL_MID     = colors.HexColor("#99f6e4")
+INDIGO       = colors.HexColor("#4f46e5")
+INDIGO_LIGHT = colors.HexColor("#eef2ff")
+GRAY_900     = colors.HexColor("#111827")
+GRAY_700     = colors.HexColor("#374151")
+GRAY_500     = colors.HexColor("#6b7280")
+GRAY_300     = colors.HexColor("#d1d5db")
+GRAY_100     = colors.HexColor("#f3f4f6")
+GREEN        = colors.HexColor("#059669")
+GREEN_LIGHT  = colors.HexColor("#d1fae5")
+AMBER        = colors.HexColor("#d97706")
+AMBER_LIGHT  = colors.HexColor("#fef3c7")
+RED          = colors.HexColor("#dc2626")
+RED_LIGHT    = colors.HexColor("#fee2e2")
+WHITE        = colors.white
 
 FRAMEWORK_LABELS = {
     "soc2":     "SOC 2 Type II",
-    "iso27001": "ISO/IEC 27001",
-    "hipaa":    "HIPAA",
+    "iso27001": "ISO/IEC 27001:2022",
+    "hipaa":    "HIPAA Security Rule",
+    "gdpr":     "GDPR",
+    "pci_dss":  "PCI DSS v4.0",
+    "ccpa":     "CCPA",
+    "nist_csf": "NIST CSF 2.0",
+}
+
+CONTROL_DESCRIPTIONS = {
+    "access_control":          "User access provisioning, privilege management, MFA enforcement, and authentication controls across all systems.",
+    "change_management":       "Software development lifecycle, code review workflows, branch protection, and change approval processes.",
+    "logging_monitoring":      "Audit logging configuration, security event monitoring, alerting rules, and SIEM integration.",
+    "endpoint_security":       "Device management, endpoint protection agents, MDM policy enforcement, and device compliance.",
+    "vulnerability_management":"Security scanning, penetration testing history, vulnerability tracking, and remediation timelines.",
+    "hr_security":             "Employee onboarding records, background checks, security awareness training completion, and offboarding.",
+    "network_security":        "Network segmentation, firewall and WAF rules, DNS security, and traffic monitoring.",
+    "operations_security":     "Operational procedures, patch management cadence, incident response, and change control.",
+    "communications_security": "Secure communication channels, encrypted messaging, and data-in-transit controls.",
+    "audit_controls":          "System audit log retention, access record completeness, and log integrity for compliance.",
+    "workforce_security":      "Staff access lifecycle management, least-privilege enforcement, and workforce security controls.",
 }
 
 REPORTS_DIR = Path("/tmp/tracelayer_reports")
 
+# ── Evidence display schema ────────────────────────────────────────────────────
+# Maps evidence_type -> interleaved (col_header, data_key, col_header, data_key, ...)
+_EV_SCHEMA: dict[str, tuple] = {
+    "iam_users":              ("Username",     "username",          "Active",     "active",               "MFA Enabled",  "mfa_enabled"),
+    "iam_policies":           ("Policy Name",  "name",              "Type",       "type",                 "Entities",     "entities_count"),
+    "github_members":         ("Username",     "username",          "Role",       "role",                 "MFA",          "two_factor_authentication"),
+    "github_admin_members":   ("Username",     "username",          "Role",       "role"),
+    "repositories":           ("Repository",   "name",              "Private",    "private",              "Default Branch","default_branch"),
+    "github_repos":           ("Repository",   "name",              "Visibility", "visibility",           "Protected",    "branch_protection"),
+    "slack_users":            ("Name",         "name",              "Email",      "email",                "Admin",        "is_admin"),
+    "slack_workspace":        ("Workspace",    "name",              "Domain",     "domain"),
+    "workspace_users":        ("Email",        "email",             "Admin",      "admin",                "Suspended",    "suspended"),
+    "workspace_admin_members":("Email",        "email",             "Role",       "role"),
+    "okta_users":             ("Login",        "login",             "Status",     "status",               "MFA",          "mfa_enrolled"),
+    "okta_groups":            ("Group Name",   "name",              "Type",       "type"),
+    "azure_users":            ("UPN",          "user_principal_name","Enabled",   "account_enabled"),
+    "azure_roles":            ("Role",         "role_name",         "Scope",      "scope"),
+    "jira_users":             ("Display Name", "display_name",      "Email",      "email_address",        "Active",       "active"),
+    "jira_projects":          ("Name",         "name",              "Key",        "key",                  "Type",         "project_type"),
+    "cloudtrail_logs":        ("Event Count",  "event_count",       "Log Group",  "log_group"),
+    "gitlab_repos":           ("Name",         "name",              "Visibility", "visibility",           "Branch Prot.", "default_branch_protection"),
+    "gitlab_members":         ("Username",     "username",          "Access Level","access_level"),
+    "linear_issues":          ("Title",        "title",             "State",      "state",                "Priority",     "priority"),
+    "datadog_monitors":       ("Monitor Name", "name",              "Type",       "type",                 "Status",       "status"),
+    "datadog_users":          ("Name",         "name",              "Email",      "email",                "Role",         "role"),
+    "pagerduty_users":        ("Name",         "name",              "Email",      "email",                "Role",         "role"),
+    "pagerduty_incidents":    ("Number",       "incident_number",   "Status",     "status",               "Urgency",      "urgency"),
+    "sentry_members":         ("Name",         "name",              "Email",      "email",                "Role",         "role"),
+    "crowdstrike_agents":     ("Hostname",     "hostname",          "OS",         "os_version",           "Status",       "status"),
+    "crowdstrike_detections": ("Hostname",     "hostname",          "Severity",   "severity",             "Status",       "status"),
+    "jamf_computers":         ("Name",         "name",              "OS",         "operating_system",     "Managed",      "managed"),
+    "sentinelone_agents":     ("Hostname",     "computerName",      "OS",         "osName",               "Active",       "isActive"),
+    "kandji_devices":         ("Name",         "name",              "Platform",   "platform",             "Status",       "status"),
+    "kolide_devices":         ("Name",         "name",              "Platform",   "platform",             "Enrolled",     "enrolled"),
+    "snyk_projects":          ("Name",         "name",              "Type",       "type",                 "Status",       "status"),
+    "hackerone_reports":      ("Report ID",    "id",                "State",      "state",                "Severity",     "severity_rating"),
+    "wiz_issues":             ("Severity",     "severity",          "Status",     "status",               "Type",         "type"),
+    "servicenow_incidents":   ("Number",       "number",            "State",      "state",                "Priority",     "priority"),
+    "servicenow_changes":     ("Number",       "number",            "Type",       "type",                 "State",        "state"),
+    "servicenow_users":       ("Username",     "username",          "Active",     "active",               "Dept.",        "department"),
+    "bamboohr_employees":     ("Name",         "displayName",       "Department", "department",           "Status",       "status"),
+    "rippling_employees":     ("Name",         "name",              "Department", "department",           "Status",       "status"),
+    "notion_users":           ("Name",         "name",              "Type",       "type",                 "Email",        "email"),
+    "confluence_spaces":      ("Name",         "name",              "Type",       "type",                 "Status",       "status"),
+    "confluence_groups":      ("Group Name",   "name",              "Type",       "type"),
+    "confluence_pages":       ("Title",        "title",             "Space",      "space",                "Created By",   "created_by"),
+    "duo_users":              ("Username",     "username",          "Status",     "status",               "Email",        "email"),
+    "splunk_alerts":          ("Name",         "name",              "Actions",    "actions"),
+    "stripe_webhooks":        ("URL",          "url",               "Status",     "status"),
+    "terraform_workspaces":   ("Name",         "name",              "Status",     "status",               "Locked",       "locked"),
+    "vercel_projects":        ("Name",         "name",              "Framework",  "framework"),
+    "cloudflare_zones":       ("Zone",         "name",              "Status",     "status",               "Plan",         "plan"),
+    "microsoft_teams_users":  ("Name",         "displayName",       "UPN",        "userPrincipalName"),
+    "microsoft_teams_teams":  ("Name",         "displayName",       "Members",    "memberCount"),
+}
+
+_INTEGRATION_COLORS: dict[str, object] = {
+    "aws":              colors.HexColor("#FF9900"),
+    "github":           colors.HexColor("#24292e"),
+    "slack":            colors.HexColor("#4A154B"),
+    "google_workspace": colors.HexColor("#4285F4"),
+    "jira":             colors.HexColor("#0052CC"),
+    "okta":             colors.HexColor("#007DC1"),
+    "azure_ad":         colors.HexColor("#0078D4"),
+    "gitlab":           colors.HexColor("#FC6D26"),
+    "datadog":          colors.HexColor("#632CA6"),
+    "pagerduty":        colors.HexColor("#06AC38"),
+    "crowdstrike":      colors.HexColor("#E42A24"),
+    "sentinelone":      colors.HexColor("#5B24FA"),
+    "sentry":           colors.HexColor("#362D59"),
+    "snyk":             colors.HexColor("#4C4A73"),
+    "cloudflare":       colors.HexColor("#F38020"),
+    "stripe":           colors.HexColor("#635BFF"),
+}
+
+
+# ── Score / status helpers ─────────────────────────────────────────────────────
 
 def _score_color(score: int):
     if score >= 80:
@@ -53,38 +157,42 @@ def _score_color(score: int):
 
 def _status_colors(status: str):
     mapping = {
-        "passing":    (colors.HexColor("#d1fae5"), colors.HexColor("#065f46")),
-        "warning":    (colors.HexColor("#fef3c7"), colors.HexColor("#92400e")),
-        "failing":    (colors.HexColor("#fee2e2"), colors.HexColor("#991b1b")),
-        "no_evidence":(GRAY_100,                   GRAY_500),
+        "passing":    (GREEN_LIGHT,  colors.HexColor("#065f46")),
+        "warning":    (AMBER_LIGHT,  colors.HexColor("#92400e")),
+        "failing":    (RED_LIGHT,    colors.HexColor("#991b1b")),
+        "no_evidence":(GRAY_100,     GRAY_500),
     }
     return mapping.get(status, (GRAY_100, GRAY_500))
 
 
-def _styles():
-    base = getSampleStyleSheet()
+# ── Style sheet ───────────────────────────────────────────────────────────────
+
+def _styles() -> dict:
     return {
-        "h1": ParagraphStyle("h1",  fontName="Helvetica-Bold",   fontSize=28, textColor=GRAY_900,  leading=34, spaceAfter=4),
-        "h2": ParagraphStyle("h2",  fontName="Helvetica-Bold",   fontSize=18, textColor=GRAY_900,  leading=22, spaceBefore=16, spaceAfter=12),
-        "h3": ParagraphStyle("h3",  fontName="Helvetica-Bold",   fontSize=12, textColor=GRAY_900,  leading=16, spaceBefore=12, spaceAfter=6),
-        "body": ParagraphStyle("body", fontName="Helvetica",     fontSize=10, textColor=GRAY_900,  leading=15),
-        "small": ParagraphStyle("small", fontName="Helvetica",   fontSize=9,  textColor=GRAY_500,  leading=13),
-        "label": ParagraphStyle("label", fontName="Helvetica-Bold", fontSize=8, textColor=INDIGO,  leading=12, spaceAfter=2),
-        "cover_brand": ParagraphStyle("cover_brand", fontName="Helvetica-Bold", fontSize=22, textColor=WHITE, leading=26),
-        "cover_eyebrow": ParagraphStyle("cover_eyebrow", fontName="Helvetica-Bold", fontSize=10, textColor=INDIGO, leading=14, spaceAfter=8),
-        "cover_subtitle": ParagraphStyle("cover_subtitle", fontName="Helvetica", fontSize=13, textColor=GRAY_500, leading=18),
-        "meta_label": ParagraphStyle("meta_label", fontName="Helvetica-Bold", fontSize=8, textColor=GRAY_500, leading=12),
-        "meta_value": ParagraphStyle("meta_value", fontName="Helvetica-Bold", fontSize=12, textColor=GRAY_900, leading=16),
-        "th": ParagraphStyle("th", fontName="Helvetica-Bold", fontSize=8, textColor=INDIGO, leading=11),
-        "td": ParagraphStyle("td", fontName="Helvetica", fontSize=9, textColor=GRAY_900, leading=12),
-        "td_mono": ParagraphStyle("td_mono", fontName="Courier", fontSize=8, textColor=GRAY_500, leading=11),
-        "tag": ParagraphStyle("tag", fontName="Helvetica-Bold", fontSize=8, textColor=colors.HexColor("#5b21b6"), leading=11),
-        "right": ParagraphStyle("right", fontName="Helvetica", fontSize=8, textColor=GRAY_500, leading=11, alignment=TA_RIGHT),
+        "h1":            ParagraphStyle("h1",  fontName="Helvetica-Bold", fontSize=26, textColor=GRAY_900, leading=32, spaceAfter=4),
+        "h2":            ParagraphStyle("h2",  fontName="Helvetica-Bold", fontSize=16, textColor=GRAY_900, leading=20, spaceBefore=14, spaceAfter=8),
+        "h3":            ParagraphStyle("h3",  fontName="Helvetica-Bold", fontSize=11, textColor=GRAY_900, leading=15, spaceBefore=8, spaceAfter=5),
+        "h4":            ParagraphStyle("h4",  fontName="Helvetica-Bold", fontSize=9,  textColor=GRAY_700, leading=13, spaceBefore=6, spaceAfter=3),
+        "body":          ParagraphStyle("body",  fontName="Helvetica", fontSize=10, textColor=GRAY_900, leading=15),
+        "body_sm":       ParagraphStyle("body_sm", fontName="Helvetica", fontSize=9, textColor=GRAY_700, leading=13),
+        "small":         ParagraphStyle("small",   fontName="Helvetica", fontSize=8,  textColor=GRAY_500, leading=12),
+        "label":         ParagraphStyle("label",   fontName="Helvetica-Bold", fontSize=8, textColor=TEAL, leading=11, spaceAfter=2),
+        "cover_eyebrow": ParagraphStyle("cover_eyebrow", fontName="Helvetica-Bold", fontSize=10, textColor=TEAL, leading=14, spaceAfter=8),
+        "cover_subtitle":ParagraphStyle("cover_subtitle", fontName="Helvetica", fontSize=12, textColor=GRAY_500, leading=17),
+        "meta_label":    ParagraphStyle("meta_label", fontName="Helvetica-Bold", fontSize=8, textColor=GRAY_500, leading=12),
+        "meta_value":    ParagraphStyle("meta_value", fontName="Helvetica-Bold", fontSize=12, textColor=GRAY_900, leading=16),
+        "th":            ParagraphStyle("th", fontName="Helvetica-Bold", fontSize=8, textColor=TEAL, leading=11),
+        "td":            ParagraphStyle("td", fontName="Helvetica", fontSize=9, textColor=GRAY_900, leading=12),
+        "td_sm":         ParagraphStyle("td_sm", fontName="Helvetica", fontSize=8, textColor=GRAY_700, leading=11),
+        "td_mono":       ParagraphStyle("td_mono", fontName="Courier", fontSize=8, textColor=GRAY_500, leading=11),
+        "right":         ParagraphStyle("right", fontName="Helvetica", fontSize=8, textColor=GRAY_500, leading=11, alignment=TA_RIGHT),
     }
 
 
+# ── Page template ─────────────────────────────────────────────────────────────
+
 class _PageTemplate:
-    """Adds brand left-bar and footer to every page except the cover."""
+    """Adds brand header/footer to every page; renders cover header on page 1."""
 
     def __init__(self, context: dict, styles: dict):
         self.ctx = context
@@ -96,29 +204,287 @@ class _PageTemplate:
         w, h = A4
 
         if self._is_first:
-            # Cover: solid indigo top bar
-            canvas.setFillColor(INDIGO)
-            canvas.rect(0, h - 75*mm, w, 75*mm, fill=1, stroke=0)
+            # Cover: full-bleed teal header band
+            canvas.setFillColor(TEAL)
+            canvas.rect(0, h - 80*mm, w, 80*mm, fill=1, stroke=0)
             canvas.setFillColor(WHITE)
-            canvas.setFont("Helvetica-Bold", 22)
-            canvas.drawString(20*mm, h - 50*mm, "TraceLayer")
+            canvas.setFont("Helvetica-Bold", 28)
+            canvas.drawString(20*mm, h - 44*mm, "TraceLayer")
+            canvas.setFont("Helvetica", 11)
+            canvas.setFillColor(colors.HexColor("#99f6e4"))
+            canvas.drawString(20*mm, h - 56*mm, "Continuous Compliance Evidence Platform")
             self._is_first = False
         else:
-            # Content pages: indigo left bar
-            canvas.setFillColor(INDIGO)
-            canvas.rect(0, 0, 5, h, fill=1, stroke=0)
-
-            # Footer
+            # Content pages: teal left bar
+            canvas.setFillColor(TEAL)
+            canvas.rect(0, 0, 4, h, fill=1, stroke=0)
+            # Top micro-header
+            canvas.setFillColor(GRAY_100)
+            canvas.rect(0, h - 10*mm, w, 10*mm, fill=1, stroke=0)
+            canvas.setFillColor(GRAY_500)
+            canvas.setFont("Helvetica", 7)
+            canvas.drawString(15*mm, h - 6*mm, "TraceLayer · Compliance Evidence Report")
+            canvas.drawRightString(w - 15*mm, h - 6*mm,
+                f"{self.ctx['company_name']} · {FRAMEWORK_LABELS.get(self.ctx['framework'], self.ctx['framework'].upper())}")
+            # Footer line
             canvas.setFillColor(GRAY_300)
             canvas.rect(15*mm, 12*mm, w - 30*mm, 0.4, fill=1, stroke=0)
             canvas.setFillColor(GRAY_500)
             canvas.setFont("Helvetica", 8)
-            label = f"TraceLayer · {self.ctx['company_name']} · {self.ctx['framework'].upper()} Report  —  Confidential"
-            canvas.drawString(15*mm, 8*mm, label)
+            canvas.drawString(15*mm, 8*mm,
+                f"CONFIDENTIAL — {self.ctx['company_name']} — {self.ctx['framework'].upper()} Report")
             canvas.drawRightString(w - 15*mm, 8*mm, f"Page {doc.page}")
 
         canvas.restoreState()
 
+
+# ── Evidence data helpers ─────────────────────────────────────────────────────
+
+def _trunc(val, max_len: int = 38) -> str:
+    s = str(val) if val is not None else "—"
+    return s[:max_len] + "…" if len(s) > max_len else s
+
+
+def _bool_label(val) -> str:
+    if val is True or str(val).lower() in ("true", "yes", "1", "enabled", "active"):
+        return "Yes"
+    if val is False or str(val).lower() in ("false", "no", "0", "disabled", "inactive"):
+        return "No"
+    return str(val) if val is not None else "—"
+
+
+def _is_truthy(val) -> bool:
+    if val is None:
+        return False
+    if isinstance(val, bool):
+        return val
+    return str(val).lower() in ("true", "yes", "1", "active", "enabled", "online", "managed")
+
+
+def _get_table_cols(evidence_type: str) -> list[tuple[str, str]]:
+    schema = _EV_SCHEMA.get(evidence_type)
+    if not schema:
+        return [("Source ID", "__source_id__"), ("Summary", "__preview__")]
+    it = iter(schema)
+    return [(lbl, next(it)) for lbl in it]
+
+
+def _get_cell_value(rec: dict, key: str) -> str:
+    if key == "__source_id__":
+        return _trunc(rec.get("source_id", ""), 38)
+    if key == "__preview__":
+        d = rec.get("data", {})
+        if isinstance(d, dict):
+            return ", ".join(f"{k}: {v}" for k, v in list(d.items())[:2])[:40]
+        return ""
+    d = rec.get("data", {})
+    if not isinstance(d, dict):
+        return "—"
+    val = d.get(key)
+    if val is None:
+        return "—"
+    if isinstance(val, bool):
+        return _bool_label(val)
+    return _trunc(str(val), 35)
+
+
+def _fmt_n(n: int) -> str:
+    return f"{n // 1000}k+" if n >= 1000 else str(n)
+
+
+def _extract_insights(ev_type: str, records: list[dict]) -> list[tuple[str, str, object]]:
+    """Return up to 4 (value_str, label, color) insight tuples for a given evidence type."""
+    data_list = [r.get("data", {}) for r in records if isinstance(r.get("data"), dict)]
+    n = len(data_list)
+    insights: list[tuple[str, str, object]] = [(_fmt_n(n), "Records", INDIGO)]
+
+    # User/employee-like types
+    if ev_type in ("iam_users", "workspace_users", "okta_users", "azure_users", "jira_users",
+                   "slack_users", "microsoft_teams_users", "servicenow_users",
+                   "bamboohr_employees", "rippling_employees", "notion_users", "duo_users"):
+        active = sum(1 for d in data_list if _is_truthy(
+            d.get("active") or d.get("account_enabled") or d.get("isActive") or
+            d.get("status") == "ACTIVE"))
+        insights.append((_fmt_n(active), "Active", GREEN if active > 0 else RED))
+        # MFA
+        mfa_key = next((k for k in ("mfa_enabled", "mfa_enrolled") if k in (data_list[0] if data_list else {})), None)
+        if mfa_key:
+            mfa_count = sum(1 for d in data_list if _is_truthy(d.get(mfa_key)))
+            insights.append((_fmt_n(mfa_count), "MFA On", GREEN if mfa_count == n else AMBER))
+
+    # Member / admin types
+    elif ev_type in ("github_members", "gitlab_members", "workspace_admin_members", "pagerduty_users",
+                     "sentry_members", "datadog_users", "confluence_groups"):
+        admins = sum(1 for d in data_list if str(d.get("role", d.get("access_level", ""))).lower()
+                     in ("admin", "owner", "50", "manager"))
+        insights.append((_fmt_n(admins), "Admins", AMBER))
+        mfa_count = sum(1 for d in data_list if _is_truthy(d.get("two_factor_authentication")))
+        if mfa_count > 0:
+            insights.append((_fmt_n(mfa_count), "MFA On", GREEN))
+
+    # Repository types
+    elif ev_type in ("repositories", "github_repos", "gitlab_repos"):
+        private = sum(1 for d in data_list if _is_truthy(d.get("private") or (d.get("visibility") == "private")))
+        insights.append((_fmt_n(private), "Private", INDIGO))
+        protected = sum(1 for d in data_list if _is_truthy(
+            d.get("branch_protection") or d.get("default_branch_protection")))
+        insights.append((_fmt_n(protected), "Protected", GREEN if protected == n else AMBER))
+
+    # Incident / issue types
+    elif ev_type in ("pagerduty_incidents", "servicenow_incidents", "wiz_issues", "hackerone_reports"):
+        open_c = sum(1 for d in data_list if str(d.get("status", "")).lower() in ("triggered", "open", "new", "active"))
+        insights.append((_fmt_n(open_c), "Open", RED if open_c > 0 else GREEN))
+        crit = sum(1 for d in data_list if str(d.get("severity", d.get("severity_rating", ""))).lower()
+                   in ("critical", "p1", "1", "high"))
+        if crit > 0:
+            insights.append((_fmt_n(crit), "Critical/High", RED))
+
+    # Endpoint / device types
+    elif ev_type in ("crowdstrike_agents", "sentinelone_agents", "kandji_devices", "kolide_devices", "jamf_computers"):
+        managed = sum(1 for d in data_list if _is_truthy(
+            d.get("managed") or d.get("isActive") or d.get("enrolled") or (d.get("status") == "online")))
+        insights.append((_fmt_n(managed), "Managed/Active", GREEN))
+        pct = int(managed / n * 100) if n else 0
+        insights.append((f"{pct}%", "Coverage", GREEN if pct >= 90 else AMBER))
+
+    # Monitor types
+    elif ev_type == "datadog_monitors":
+        ok_c = sum(1 for d in data_list if str(d.get("status", "")).lower() == "ok")
+        alert_c = sum(1 for d in data_list if str(d.get("status", "")).lower() in ("alert", "warn", "no data"))
+        insights.append((_fmt_n(ok_c), "OK", GREEN))
+        if alert_c > 0:
+            insights.append((_fmt_n(alert_c), "Alerting", RED))
+
+    return insights[:4]
+
+
+# ── Building blocks ───────────────────────────────────────────────────────────
+
+def _insight_strip(insights: list[tuple], W: float) -> Table:
+    """A row of colored metric boxes."""
+    n = len(insights)
+    col_w = W / n
+    cells = []
+    for val, lbl, color in insights:
+        cell = Table([
+            [Paragraph(val,  ParagraphStyle(f"iv_{lbl}", fontName="Helvetica-Bold", fontSize=18,
+                                             textColor=color, alignment=TA_CENTER))],
+            [Paragraph(lbl,  ParagraphStyle(f"il_{lbl}", fontName="Helvetica", fontSize=7,
+                                             textColor=GRAY_500, alignment=TA_CENTER))],
+        ], colWidths=[col_w - 2*mm])
+        cells.append(cell)
+    row = Table([cells], colWidths=[col_w] * n)
+    row.setStyle(TableStyle([
+        ("BACKGROUND",    (0, 0), (-1, -1), INDIGO_LIGHT),
+        ("BOX",           (0, 0), (-1, -1), 0.5, colors.HexColor("#c7d2fe")),
+        ("LINEAFTER",     (0, 0), (-2, -1), 0.5, colors.HexColor("#c7d2fe")),
+        ("TOPPADDING",    (0, 0), (-1, -1), 9),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 9),
+        ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+    ]))
+    return row
+
+
+def _ev_table(recs: list[dict], ev_type: str, W: float, st: dict) -> Table:
+    """Evidence table showing actual data fields, not just source_id."""
+    cols = _get_table_cols(ev_type)
+    max_show = 20
+    display = recs[:max_show]
+
+    header_row = [Paragraph(lbl, st["th"]) for lbl, _ in cols]
+    rows = [header_row]
+    for rec in display:
+        rows.append([Paragraph(_get_cell_value(rec, key), st["td_sm"]) for _, key in cols])
+    if len(recs) > max_show:
+        more = [Paragraph(f"… and {len(recs) - max_show} more records", st["small"])]
+        more += [""] * (len(cols) - 1)
+        rows.append(more)
+
+    col_w = [W / len(cols)] * len(cols)
+    tbl = Table(rows, colWidths=col_w, repeatRows=1)
+    tbl.setStyle(TableStyle([
+        ("BACKGROUND",    (0, 0), (-1, 0), TEAL_LIGHT),
+        ("LINEBELOW",     (0, 0), (-1, 0), 1.2, TEAL),
+        ("LINEBELOW",     (0, 1), (-1, -1), 0.3, GRAY_100),
+        ("ROWBACKGROUNDS",(0, 1), (-1, -1), [WHITE, colors.HexColor("#f8fafb")]),
+        ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+        ("TOPPADDING",    (0, 0), (-1, -1), 5),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+        ("LEFTPADDING",   (0, 0), (-1, -1), 7),
+        ("RIGHTPADDING",  (0, 0), (-1, -1), 7),
+    ]))
+    return tbl
+
+
+def _control_card(c: dict, W: float, st: dict) -> Table:
+    bg, fg = _status_colors(c["status"])
+    status_label = c["status"].replace("_", " ").title()
+    last = (c.get("last_collected") or "")[:10] or "Never"
+    missing = c.get("missing_types", [])
+    missing_str = ", ".join(missing) if missing else "All evidence types covered"
+    desc = CONTROL_DESCRIPTIONS.get(c["category"], "")
+
+    left = Table([
+        [Paragraph(c["name"], st["h3"])],
+        [Paragraph(desc, st["small"])] if desc else [Spacer(1, 1)],
+        [Paragraph(
+            f"Evidence records: <b>{c['evidence_count']}</b>   ·   Last collected: <b>{last}</b>",
+            st["small"],
+        )],
+        [Paragraph(
+            ("Missing: " + missing_str) if missing else "All evidence types covered",
+            ParagraphStyle("miss", fontName="Helvetica", fontSize=8,
+                           textColor=RED if missing else GREEN, leading=11),
+        )],
+    ], colWidths=[W - 34*mm])
+
+    right = Table([
+        [Paragraph(status_label, ParagraphStyle("badge", fontName="Helvetica-Bold", fontSize=7,
+                                                 textColor=fg, backColor=bg, leading=10,
+                                                 alignment=TA_CENTER))],
+        [Spacer(1, 2*mm)],
+        [Paragraph(f"{c['score']}%", ParagraphStyle("cscore", fontName="Helvetica-Bold",
+                                                      fontSize=22, textColor=_score_color(c["score"]),
+                                                      alignment=TA_CENTER, leading=26))],
+    ], colWidths=[28*mm])
+
+    card = Table([[left, right]], colWidths=[W - 34*mm, 34*mm])
+    card.setStyle(TableStyle([
+        ("BACKGROUND",   (0, 0), (-1, -1), colors.HexColor("#f8fafc")),
+        ("BOX",          (0, 0), (-1, -1), 0.5, GRAY_300),
+        ("LINEBEFORE",   (0, 0), (0, -1), 3, TEAL),
+        ("VALIGN",       (0, 0), (-1, -1), "MIDDLE"),
+        ("TOPPADDING",   (0, 0), (-1, -1), 10),
+        ("BOTTOMPADDING",(0, 0), (-1, -1), 10),
+        ("LEFTPADDING",  (0, 0), (-1, -1), 12),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+    ]))
+    return card
+
+
+def _recommendation(control: str, missing: list[str]) -> str:
+    RECS = {
+        "access_control":          "Connect Okta or Azure AD for user access records. Enforce MFA on all accounts. Review admin privileges quarterly.",
+        "change_management":       "Enable branch protection on all repos. Require pull request reviews. Connect Jira for change ticket tracking.",
+        "logging_monitoring":      "Enable CloudTrail in all AWS regions. Connect Datadog or Splunk for centralized log aggregation and alerting.",
+        "endpoint_security":       "Deploy CrowdStrike or SentinelOne to all endpoints. Enroll all devices in Jamf or Kandji MDM.",
+        "vulnerability_management":"Connect Snyk for automated code scanning. Schedule quarterly penetration tests. Track findings in HackerOne.",
+        "hr_security":             "Connect BambooHR or Rippling for employee records. Document security training completion. Review offboarding procedures.",
+        "network_security":        "Configure Cloudflare WAF. Review and document firewall rules. Implement network segmentation documentation.",
+        "operations_security":     "Enable CloudTrail. Connect PagerDuty for incident management. Document operational runbooks in Confluence.",
+        "communications_security": "Ensure Slack workspace has enterprise security features enabled. Enforce TLS for all communications.",
+        "audit_controls":          "Enable CloudTrail with log file validation. Set up log retention policy minimum 1 year. Review log access controls.",
+        "workforce_security":      "Connect HR system for employee lifecycle management. Implement quarterly access reviews.",
+    }
+    for k, v in RECS.items():
+        if k in control.lower():
+            return v
+    if missing:
+        return f"Collect missing evidence types: {', '.join(missing[:2])}. Connect relevant integrations in TraceLayer."
+    return "Re-collect evidence to improve recency score. Schedule automated weekly collections."
+
+
+# ── Main renderer ─────────────────────────────────────────────────────────────
 
 def render_pdf(context: dict) -> bytes:
     buf = BytesIO()
@@ -129,120 +495,108 @@ def render_pdf(context: dict) -> bytes:
         buf,
         pagesize=A4,
         leftMargin=20*mm, rightMargin=20*mm,
-        topMargin=18*mm,  bottomMargin=22*mm,
+        topMargin=22*mm,  bottomMargin=22*mm,
         onPage=pt,
     )
 
     story = []
-    W = A4[0] - 40*mm   # usable width
+    W = A4[0] - 40*mm
 
     # ── COVER ─────────────────────────────────────────────────────────────────
-    story.append(Spacer(1, 75*mm))   # space below the indigo band
+    story.append(Spacer(1, 84*mm))
 
     fw_label = FRAMEWORK_LABELS.get(context["framework"], context["framework"].upper())
     story.append(Paragraph("Compliance Evidence Report", st["cover_eyebrow"]))
-    story.append(Paragraph(f"{fw_label} Audit Report", st["h1"]))
-    story.append(Paragraph(f"{context['report_type'].title()} — Continuous Evidence Collection", st["cover_subtitle"]))
-    story.append(Spacer(1, 8*mm))
+    story.append(Paragraph(fw_label, st["h1"]))
+    story.append(Paragraph(
+        f"Automated evidence collection · {context['report_type'].title()} report",
+        st["cover_subtitle"],
+    ))
+    story.append(Spacer(1, 10*mm))
     story.append(HRFlowable(width=W, color=GRAY_300))
     story.append(Spacer(1, 6*mm))
 
-    # Meta grid
     meta = [
-        ("Organization",    context["company_name"]),
-        ("Framework",       fw_label),
-        ("Date Generated",  context["generated_at"]),
-        ("Compliance Score",f"{context['overall_score']}%"),
+        ("Organization",     context["company_name"]),
+        ("Framework",        fw_label),
+        ("Generated",        context["generated_at"]),
+        ("Compliance Score", f"{context['overall_score']}%"),
     ]
     meta_data = [[
         Table([[Paragraph(lbl, st["meta_label"])], [Paragraph(val, st["meta_value"])]],
-              colWidths=[W/4 - 4*mm])
+              colWidths=[W / 4 - 4*mm])
         for lbl, val in meta
     ]]
-    meta_tbl = Table(meta_data, colWidths=[W/4]*4)
-    meta_tbl.setStyle(TableStyle([("VALIGN", (0,0), (-1,-1), "TOP")]))
+    meta_tbl = Table(meta_data, colWidths=[W / 4] * 4)
+    meta_tbl.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP")]))
     story.append(meta_tbl)
     story.append(Spacer(1, 8*mm))
     story.append(HRFlowable(width=W, color=GRAY_300))
     story.append(Spacer(1, 4*mm))
-    story.append(Paragraph(f"Report ID: {context['report_id']}    ·    Generated: {context['generated_at_full']}    ·    CONFIDENTIAL", st["small"]))
-
+    story.append(Paragraph(
+        f"Report ID: {context['report_id']}  ·  {context['generated_at_full']}  ·  "
+        f"CONFIDENTIAL — For authorized use only",
+        st["small"],
+    ))
     story.append(PageBreak())
 
-    # ── EXECUTIVE SUMMARY ────────────────────────────────────────────────────
+    # ── SECTION 1: EXECUTIVE SUMMARY ──────────────────────────────────────────
     story.append(Paragraph("Section 1", st["label"]))
     story.append(Paragraph("Executive Summary", st["h2"]))
 
-    # Score card
-    score = context["overall_score"]
-    sc    = _score_color(score)
-    score_tbl = Table(
-        [[
-            Table([
-                [Paragraph(f"{score}", ParagraphStyle("sc_num", fontName="Helvetica-Bold", fontSize=32, textColor=sc, alignment=TA_CENTER))],
-                [Paragraph("/ 100", ParagraphStyle("sc_sub", fontName="Helvetica", fontSize=9, textColor=GRAY_500, alignment=TA_CENTER))],
-            ], colWidths=[30*mm]),
-            Table([
-                [Paragraph("Overall Compliance Score", st["h3"])],
-                [Paragraph("Based on evidence coverage, recency, and volume across all monitored controls.", st["small"])],
-                [Spacer(1, 2*mm)],
-                [Table([[
-                    Table([[Paragraph(str(context["total_records"]), ParagraphStyle("sv", fontName="Helvetica-Bold", fontSize=18, textColor=GRAY_900, alignment=TA_CENTER))],
-                           [Paragraph("Evidence records", ParagraphStyle("sl", fontName="Helvetica", fontSize=8, textColor=GRAY_500, alignment=TA_CENTER))]],
-                          colWidths=[30*mm]),
-                    Table([[Paragraph(str(len(context["control_scores"])), ParagraphStyle("sv", fontName="Helvetica-Bold", fontSize=18, textColor=GRAY_900, alignment=TA_CENTER))],
-                           [Paragraph("Controls monitored", ParagraphStyle("sl", fontName="Helvetica", fontSize=8, textColor=GRAY_500, alignment=TA_CENTER))]],
-                          colWidths=[30*mm]),
-                    Table([[Paragraph(str(sum(1 for c in context["control_scores"] if c["status"]=="passing")),
-                                      ParagraphStyle("sv", fontName="Helvetica-Bold", fontSize=18, textColor=GREEN, alignment=TA_CENTER))],
-                           [Paragraph("Passing", ParagraphStyle("sl", fontName="Helvetica", fontSize=8, textColor=GRAY_500, alignment=TA_CENTER))]],
-                          colWidths=[30*mm]),
-                ]], colWidths=[30*mm, 30*mm, 30*mm])],
-            ], colWidths=[W - 38*mm]),
-        ]],
-        colWidths=[38*mm, W - 38*mm],
-    )
-    score_tbl.setStyle(TableStyle([
-        ("VALIGN", (0,0), (-1,-1), "TOP"),
-        ("BOX",    (0,0), (0,0), 2, sc),
-        ("ROUNDEDCORNERS", [5]),
-        ("BACKGROUND", (0,0), (0,0), colors.HexColor("#f0f4ff")),
-        ("TOPPADDING",  (0,0), (-1,-1), 6),
-        ("BOTTOMPADDING",(0,0),(-1,-1), 6),
-        ("LEFTPADDING", (0,0), (-1,-1), 8),
-        ("RIGHTPADDING",(0,0), (-1,-1), 8),
-    ]))
-    story.append(score_tbl)
+    score   = context["overall_score"]
+    passing = sum(1 for c in context["control_scores"] if c["status"] == "passing")
+    failing = sum(1 for c in context["control_scores"] if c["status"] in ("failing", "no_evidence"))
+    warning = sum(1 for c in context["control_scores"] if c["status"] == "warning")
+
+    posture = "strong" if score >= 80 else "moderate" if score >= 50 else "needs improvement"
+    story.append(Paragraph(
+        f"This report documents the compliance posture of <b>{context['company_name']}</b> against the "
+        f"<b>{fw_label}</b> framework. Evidence was automatically collected from connected integrations "
+        f"and evaluated across <b>{len(context['control_scores'])}</b> control domains. "
+        f"Overall posture is assessed as <b>{posture}</b> with a score of <b>{score}/100</b>.",
+        st["body_sm"],
+    ))
+    story.append(Spacer(1, 4*mm))
+
+    # Summary metric strip
+    story.append(_insight_strip([
+        (str(score) + "%", "Compliance Score",   _score_color(score)),
+        (str(context["total_records"]), "Evidence Records", INDIGO),
+        (str(passing),  "Controls Passing",  GREEN),
+        (str(failing),  "Controls Failing",  RED if failing > 0 else GREEN),
+    ], W))
     story.append(Spacer(1, 6*mm))
 
     # Control breakdown table
-    story.append(Paragraph("Control Breakdown", st["h3"]))
-    tbl_header = [
-        Paragraph("Control", st["th"]),
-        Paragraph("Status", st["th"]),
-        Paragraph("Score", st["th"]),
-        Paragraph("Evidence", st["th"]),
-        Paragraph("Missing types", st["th"]),
-    ]
-    tbl_rows = [tbl_header]
+    story.append(Paragraph("Control Domain Summary", st["h3"]))
+    tbl_rows = [[
+        Paragraph("Control Domain", st["th"]),
+        Paragraph("Status",         st["th"]),
+        Paragraph("Score",          st["th"]),
+        Paragraph("Records",        st["th"]),
+        Paragraph("Last Collected", st["th"]),
+    ]]
     for c in context["control_scores"]:
         bg, fg = _status_colors(c["status"])
-        status_label = c["status"].replace("_", " ").title()
-        missing = ", ".join(c["missing_types"]) if c["missing_types"] else "All covered"
+        last = (c.get("last_collected") or "")[:10] or "Never"
         tbl_rows.append([
             Paragraph(c["name"], st["td"]),
-            Paragraph(status_label, ParagraphStyle("badge", fontName="Helvetica-Bold", fontSize=8, textColor=fg, backColor=bg, leading=11)),
-            Paragraph(f"{c['score']}%", ParagraphStyle("score_td", fontName="Helvetica-Bold", fontSize=9, textColor=_score_color(c["score"]), leading=12)),
+            Paragraph(c["status"].replace("_", " ").title(),
+                      ParagraphStyle("badge", fontName="Helvetica-Bold", fontSize=7,
+                                     textColor=fg, backColor=bg, leading=10)),
+            Paragraph(f"{c['score']}%",
+                      ParagraphStyle("sc_td", fontName="Helvetica-Bold", fontSize=9,
+                                     textColor=_score_color(c["score"]), leading=12)),
             Paragraph(str(c["evidence_count"]), st["td"]),
-            Paragraph(missing, st["small"]),
+            Paragraph(last, st["small"]),
         ])
-
-    col_w = [W*0.26, W*0.15, W*0.10, W*0.10, W*0.39]
+    col_w = [W*0.30, W*0.16, W*0.10, W*0.18, W*0.26]
     tbl = Table(tbl_rows, colWidths=col_w, repeatRows=1)
     tbl.setStyle(TableStyle([
-        ("BACKGROUND",    (0, 0), (-1, 0), colors.HexColor("#f5f3ff")),
-        ("LINEBELOW",     (0, 0), (-1, 0), 1.5, INDIGO),
-        ("LINEBELOW",     (0, 1), (-1, -1), 0.5, GRAY_100),
+        ("BACKGROUND",    (0, 0), (-1, 0), TEAL_LIGHT),
+        ("LINEBELOW",     (0, 0), (-1, 0), 1.5, TEAL),
+        ("LINEBELOW",     (0, 1), (-1, -1), 0.4, GRAY_100),
         ("ROWBACKGROUNDS",(0, 1), (-1, -1), [WHITE, colors.HexColor("#fafafa")]),
         ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
         ("TOPPADDING",    (0, 0), (-1, -1), 6),
@@ -251,6 +605,47 @@ def render_pdf(context: dict) -> bytes:
         ("RIGHTPADDING",  (0, 0), (-1, -1), 8),
     ]))
     story.append(tbl)
+    story.append(Spacer(1, 6*mm))
+
+    # Integration summary
+    all_ev = [rec for recs in context["controls"].values() for rec in recs]
+    by_integration: dict[str, int] = defaultdict(int)
+    int_controls: dict[str, set] = defaultdict(set)
+    for ctrl_key, recs in context["controls"].items():
+        for rec in recs:
+            by_integration[rec["integration"]] += 1
+            int_controls[rec["integration"]].add(ctrl_key.replace("_", " ").title())
+
+    if by_integration:
+        story.append(Paragraph("Connected Integrations", st["h3"]))
+        int_rows = [[
+            Paragraph("Integration",      st["th"]),
+            Paragraph("Records",          st["th"]),
+            Paragraph("Controls Covered", st["th"]),
+        ]]
+        for intg, count in sorted(by_integration.items(), key=lambda x: -x[1]):
+            ctrls = ", ".join(sorted(int_controls[intg]))
+            if len(ctrls) > 55:
+                ctrls = ctrls[:55] + "…"
+            int_rows.append([
+                Paragraph(intg.replace("_", " ").title(), st["td"]),
+                Paragraph(str(count), st["td"]),
+                Paragraph(ctrls, st["small"]),
+            ])
+        int_tbl = Table(int_rows, colWidths=[W*0.28, W*0.12, W*0.60], repeatRows=1)
+        int_tbl.setStyle(TableStyle([
+            ("BACKGROUND",    (0, 0), (-1, 0), TEAL_LIGHT),
+            ("LINEBELOW",     (0, 0), (-1, 0), 1.2, TEAL),
+            ("LINEBELOW",     (0, 1), (-1, -1), 0.3, GRAY_100),
+            ("ROWBACKGROUNDS",(0, 1), (-1, -1), [WHITE, colors.HexColor("#fafafa")]),
+            ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+            ("TOPPADDING",    (0, 0), (-1, -1), 5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 8),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 8),
+        ]))
+        story.append(int_tbl)
+
     story.append(PageBreak())
 
     # ── CONTROL DETAIL SECTIONS ───────────────────────────────────────────────
@@ -258,78 +653,99 @@ def render_pdf(context: dict) -> bytes:
         story.append(Paragraph(f"Section {i}", st["label"]))
         story.append(Paragraph(c["name"], st["h2"]))
 
-        # Control header card
-        bg, fg = _status_colors(c["status"])
-        status_label = c["status"].replace("_", " ").title()
-        last = (c["last_collected"] or "")[:10] or "Never"
-        missing_str = ", ".join(c["missing_types"]) if c["missing_types"] else "All covered"
+        story.append(KeepTogether([_control_card(c, W, st), Spacer(1, 5*mm)]))
 
-        card_left = Table([
-            [Paragraph(c["name"], st["h3"])],
-            [Paragraph(f"Category: {c['category'].replace('_',' ').title()}  ·  {c['evidence_count']} evidence records  ·  Last collected: {last}", st["small"])],
-            [Paragraph(f"Missing: {missing_str}" if c["missing_types"] else "All evidence types covered", ParagraphStyle("miss", fontName="Helvetica", fontSize=9, textColor=RED if c["missing_types"] else GREEN, leading=12))],
-        ], colWidths=[W - 28*mm])
-
-        card_right = Table([
-            [Paragraph(status_label, ParagraphStyle("badge2", fontName="Helvetica-Bold", fontSize=8, textColor=fg, backColor=bg, leading=11))],
-            [Paragraph(f"{c['score']}%", ParagraphStyle("cscore", fontName="Helvetica-Bold", fontSize=20, textColor=INDIGO, alignment=TA_CENTER, leading=24))],
-        ], colWidths=[22*mm])
-
-        card = Table([[card_left, card_right]], colWidths=[W - 28*mm, 28*mm])
-        card.setStyle(TableStyle([
-            ("BACKGROUND",   (0,0), (-1,-1), colors.HexColor("#f9fafb")),
-            ("BOX",          (0,0), (-1,-1), 0.5, GRAY_300),
-            ("LINEBEFORE",   (0,0), (0,-1), 3, INDIGO),
-            ("VALIGN",       (0,0), (-1,-1), "MIDDLE"),
-            ("TOPPADDING",   (0,0), (-1,-1), 10),
-            ("BOTTOMPADDING",(0,0), (-1,-1), 10),
-            ("LEFTPADDING",  (0,0), (-1,-1), 12),
-            ("RIGHTPADDING", (0,0), (-1,-1), 8),
-        ]))
-        story.append(KeepTogether([card, Spacer(1, 4*mm)]))
-
-        # Evidence table
         ev_list = context["controls"].get(c["category"], [])
+
         if ev_list:
-            ev_header = [
-                Paragraph("Integration", st["th"]),
-                Paragraph("Evidence type", st["th"]),
-                Paragraph("Source ID", st["th"]),
-                Paragraph("Collected at", st["th"]),
-            ]
-            ev_rows = [ev_header]
+            # Group by evidence_type and render each
+            by_type: dict[str, list] = defaultdict(list)
             for rec in ev_list:
-                src = rec["source_id"]
-                if len(src) > 48:
-                    src = src[:48] + "…"
-                ts = rec["timestamp"][:19].replace("T", " ")
-                ev_rows.append([
-                    Paragraph(rec["integration"], st["tag"]),
-                    Paragraph(rec["evidence_type"], st["td"]),
-                    Paragraph(src, st["td_mono"]),
-                    Paragraph(ts, st["small"]),
-                ])
-            ev_col_w = [W*0.15, W*0.25, W*0.37, W*0.23]
-            ev_tbl = Table(ev_rows, colWidths=ev_col_w, repeatRows=1)
-            ev_tbl.setStyle(TableStyle([
-                ("BACKGROUND",    (0, 0), (-1, 0), colors.HexColor("#f5f3ff")),
-                ("LINEBELOW",     (0, 1), (-1, -1), 0.3, GRAY_100),
-                ("ROWBACKGROUNDS",(0, 1), (-1, -1), [WHITE, colors.HexColor("#fafafa")]),
-                ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
-                ("TOPPADDING",    (0, 0), (-1, -1), 5),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
-                ("LEFTPADDING",   (0, 0), (-1, -1), 8),
-                ("RIGHTPADDING",  (0, 0), (-1, -1), 8),
-            ]))
-            story.append(ev_tbl)
+                by_type[rec["evidence_type"]].append(rec)
+
+            for ev_type, recs in sorted(by_type.items()):
+                story.append(Paragraph(
+                    ev_type.replace("_", " ").title(),
+                    st["h4"],
+                ))
+                # Insight strip
+                insights = _extract_insights(ev_type, recs)
+                if insights:
+                    story.append(_insight_strip(insights, W))
+                    story.append(Spacer(1, 3*mm))
+                # Data table
+                story.append(_ev_table(recs, ev_type, W, st))
+                story.append(Spacer(1, 4*mm))
         else:
+            missing_str = ", ".join(c.get("missing_types", [])) or "relevant evidence"
             story.append(Paragraph(
-                f"No evidence collected for this control. Connect an integration that provides: {missing_str}.",
-                ParagraphStyle("no_ev", fontName="Helvetica-Oblique", fontSize=10, textColor=GRAY_500, leading=14),
+                f"No evidence has been collected for this control. "
+                f"Connect integrations that provide: {missing_str}.",
+                ParagraphStyle("no_ev", fontName="Helvetica-Oblique", fontSize=9,
+                               textColor=GRAY_500, leading=13),
             ))
 
-        if i < len(context["control_scores"]) + 1:
-            story.append(PageBreak())
+        story.append(PageBreak())
+
+    # ── REMEDIATION ROADMAP ────────────────────────────────────────────────────
+    story.append(Paragraph("Final Section", st["label"]))
+    story.append(Paragraph("Remediation Roadmap", st["h2"]))
+    story.append(Paragraph(
+        "The following actions are recommended to close identified compliance gaps and improve your overall score.",
+        st["body_sm"],
+    ))
+    story.append(Spacer(1, 4*mm))
+
+    gaps = [c for c in context["control_scores"]
+            if c["status"] in ("failing", "no_evidence", "warning")]
+
+    if gaps:
+        rec_rows = [[
+            Paragraph("Priority", st["th"]),
+            Paragraph("Control",  st["th"]),
+            Paragraph("Gap",      st["th"]),
+            Paragraph("Recommended Action", st["th"]),
+        ]]
+        for c in sorted(gaps, key=lambda x: x["score"]):
+            missing = c.get("missing_types", [])
+            gap_str = ", ".join(missing[:2]) if missing else "Evidence recency"
+            action  = _recommendation(c["category"], missing)
+            priority = "High" if c["score"] < 30 else "Medium"
+            rec_rows.append([
+                Paragraph(priority, ParagraphStyle(
+                    f"pri_{c['category']}", fontName="Helvetica-Bold", fontSize=8,
+                    textColor=RED if priority == "High" else AMBER, leading=11)),
+                Paragraph(c["name"], st["td"]),
+                Paragraph(gap_str, st["small"]),
+                Paragraph(action,  st["small"]),
+            ])
+        rec_tbl = Table(rec_rows, colWidths=[W*0.11, W*0.20, W*0.24, W*0.45], repeatRows=1)
+        rec_tbl.setStyle(TableStyle([
+            ("BACKGROUND",    (0, 0), (-1, 0), TEAL_LIGHT),
+            ("LINEBELOW",     (0, 0), (-1, 0), 1.5, TEAL),
+            ("LINEBELOW",     (0, 1), (-1, -1), 0.4, GRAY_100),
+            ("ROWBACKGROUNDS",(0, 1), (-1, -1), [WHITE, colors.HexColor("#fafafa")]),
+            ("VALIGN",        (0, 0), (-1, -1), "TOP"),
+            ("TOPPADDING",    (0, 0), (-1, -1), 7),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 8),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 8),
+        ]))
+        story.append(rec_tbl)
+    else:
+        story.append(Paragraph(
+            "No critical gaps identified. Maintain evidence freshness by running collections on a weekly schedule.",
+            ParagraphStyle("no_gaps", fontName="Helvetica-Oblique", fontSize=10, textColor=GREEN, leading=14),
+        ))
+
+    story.append(Spacer(1, 8*mm))
+    story.append(HRFlowable(width=W, color=GRAY_300))
+    story.append(Spacer(1, 4*mm))
+    story.append(Paragraph(
+        f"Report generated by TraceLayer  ·  {context['generated_at_full']}  ·  "
+        f"Report ID: {context['report_id']}",
+        st["small"],
+    ))
 
     doc.build(story)
     return buf.getvalue()

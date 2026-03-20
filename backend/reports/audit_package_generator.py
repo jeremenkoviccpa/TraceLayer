@@ -451,39 +451,71 @@ def render_audit_package_pdf(context: dict) -> bytes:
 
     # ── SECTION 4: EVIDENCE RECORDS ───────────────────────────────────────────
     _section_header(story, 4, "Automated Evidence", "Evidence Records by Control", st)
+    story.append(Paragraph(
+        "Evidence was automatically collected from connected integrations. "
+        "Each table shows the actual data fields captured for audit review.",
+        st["small"],
+    ))
+    story.append(Spacer(1, 3 * mm))
+
+    from reports.generator import _get_table_cols, _get_cell_value, _extract_insights, _insight_strip
 
     by_cat = context["controls_by_category"]
     for ctrl in context["control_scores"]:
         story.append(Paragraph(ctrl["name"], st["h3"]))
         ev_list = by_cat.get(ctrl["category"], [])
         if ev_list:
-            ev_rows = []
-            for rec in ev_list[:50]:
-                src = rec["source_id"]
-                if len(src) > 45:
-                    src = src[:45] + "…"
-                ts = rec["timestamp"][:19].replace("T", " ")
-                ev_rows.append([
-                    Paragraph(rec["integration"],   ParagraphStyle("itag", fontName="Helvetica-Bold", fontSize=8, textColor=colors.HexColor("#5b21b6"), leading=11)),
-                    Paragraph(rec["evidence_type"], st["td"]),
-                    Paragraph(src,                  st["td_mono"]),
-                    Paragraph(ts,                   st["small"]),
-                ])
-            story.append(_data_table(
-                ["Integration", "Evidence Type", "Source ID", "Collected At"],
-                ev_rows,
-                [W * 0.15, W * 0.24, W * 0.38, W * 0.23],
-                st,
-            ))
-            if len(ev_list) > 50:
-                story.append(Paragraph(f"… and {len(ev_list) - 50} more records.", st["small"]))
+            by_type: dict = {}
+            for rec in ev_list:
+                by_type.setdefault(rec["evidence_type"], []).append(rec)
+
+            for ev_type, recs in sorted(by_type.items()):
+                story.append(Paragraph(
+                    ev_type.replace("_", " ").title(),
+                    ParagraphStyle("ev_sub", fontName="Helvetica-Bold", fontSize=9,
+                                   textColor=GRAY_700, leading=13, spaceBefore=4, spaceAfter=3),
+                ))
+                insights = _extract_insights(ev_type, recs)
+                if insights:
+                    story.append(_insight_strip(insights, W))
+                    story.append(Spacer(1, 3 * mm))
+
+                cols = _get_table_cols(ev_type)
+                display = recs[:25]
+                header_row = [Paragraph(lbl, st["th"]) for lbl, _ in cols]
+                rows = [header_row]
+                for rec in display:
+                    rows.append([
+                        Paragraph(_get_cell_value(rec, key), st["td"])
+                        for _, key in cols
+                    ])
+                if len(recs) > 25:
+                    note = [Paragraph(f"… and {len(recs) - 25} more records", st["small"])]
+                    note += [""] * (len(cols) - 1)
+                    rows.append(note)
+
+                col_w = [W / len(cols)] * len(cols)
+                ev_tbl = Table(rows, colWidths=col_w, repeatRows=1)
+                ev_tbl.setStyle(TableStyle([
+                    ("BACKGROUND",    (0, 0), (-1, 0), INDIGO_LIGHT),
+                    ("LINEBELOW",     (0, 0), (-1, 0), 1.5, INDIGO),
+                    ("LINEBELOW",     (0, 1), (-1, -1), 0.4, GRAY_100),
+                    ("ROWBACKGROUNDS",(0, 1), (-1, -1), [WHITE, colors.HexColor("#fafafa")]),
+                    ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+                    ("TOPPADDING",    (0, 0), (-1, -1), 5),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                    ("LEFTPADDING",   (0, 0), (-1, -1), 7),
+                    ("RIGHTPADDING",  (0, 0), (-1, -1), 7),
+                ]))
+                story.append(ev_tbl)
+                story.append(Spacer(1, 4 * mm))
         else:
             missing = ", ".join(ctrl["missing_types"]) if ctrl["missing_types"] else "all types"
             story.append(Paragraph(
                 f"No automated evidence collected. Missing evidence types: {missing}.",
                 st["no_data"],
             ))
-        story.append(Spacer(1, 4 * mm))
+        story.append(Spacer(1, 3 * mm))
     story.append(PageBreak())
 
     # ── SECTION 5: MANUAL CONTROLS ────────────────────────────────────────────
