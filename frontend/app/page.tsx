@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/components/auth-provider";
 import { api } from "@/lib/api";
+import { openPaddleCheckout } from "@/lib/paddle";
 import {
   ShieldCheck, Plug, FileText, Zap, ArrowRight, CheckCircle2,
   BarChart3, Lock, Star, Clock, TrendingUp, Users, ChevronDown,
@@ -683,7 +684,7 @@ export default function LandingPage() {
       setCheckoutLoading(true);
       try {
         const { checkout_url } = await api.createCheckout();
-        window.location.href = checkout_url;
+        await openPaddleCheckout(checkout_url);
       } catch {
         router.push("/settings#billing");
       } finally {

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Lock, Zap, Sparkles, Loader2 } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
 import { api } from "@/lib/api";
+import { openPaddleCheckout } from "@/lib/paddle";
 
 interface PlanGateProps {
   children: React.ReactNode;
@@ -20,7 +21,7 @@ function UpgradePrompt({ feature, compact }: { feature: string; compact?: boolea
     setLoading(true);
     try {
       const { checkout_url } = await api.createCheckout();
-      window.location.href = checkout_url;
+      await openPaddleCheckout(checkout_url);
     } catch {
       // Fall back to settings page if checkout fails
       router.push("/settings#billing");
@@ -141,7 +142,7 @@ export function useUpgrade() {
     setLoading(true);
     try {
       const { checkout_url } = await api.createCheckout();
-      window.location.href = checkout_url;
+      await openPaddleCheckout(checkout_url);
     } catch {
       router.push("/settings#billing");
     } finally {

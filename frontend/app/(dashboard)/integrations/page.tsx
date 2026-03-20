@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { openPaddleCheckout } from "@/lib/paddle";
 import type { BillingInfo, Integration } from "@/lib/types";
 import { CheckCircle2, AlertCircle, Clock, RefreshCw, Trash2, Plus, X, Zap, Lock, Search, BookOpen, ExternalLink } from "lucide-react";
 
@@ -729,7 +730,7 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
     setLoading(true);
     try {
       const { checkout_url } = await api.createCheckout();
-      window.location.href = checkout_url;
+      await openPaddleCheckout(checkout_url);
     } catch { router.push("/settings"); }
   };
   return (

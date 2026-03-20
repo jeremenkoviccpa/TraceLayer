@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { openPaddleCheckout } from "@/lib/paddle";
 import type { Report } from "@/lib/types";
 import {
   FileText,
@@ -197,7 +198,7 @@ export default function ReportsPage() {
     setUpgradingPdf(true);
     try {
       const { checkout_url } = await api.createCheckout();
-      window.location.href = checkout_url;
+      await openPaddleCheckout(checkout_url);
     } catch {
       router.push("/settings#billing");
     } finally {

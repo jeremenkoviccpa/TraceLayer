@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { api } from "@/lib/api";
+import { openPaddleCheckout } from "@/lib/paddle";
 import { useAuth } from "@/components/auth-provider";
 import type { AuditSession, BillingInfo, Company, NotificationSettings, TrustPageSettings } from "@/lib/types";
 import {
@@ -293,7 +294,7 @@ export default function SettingsPage() {
     setBillingLoading(true);
     try {
       const { checkout_url } = await api.createCheckout();
-      window.location.href = checkout_url;
+      await openPaddleCheckout(checkout_url);
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : "Could not open checkout", "error");
     } finally {

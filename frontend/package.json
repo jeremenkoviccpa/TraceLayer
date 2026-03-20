@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@paddle/paddle-js": "^1.6.2",
     "@sentry/nextjs": "^8.0.0",
     "@types/qrcode": "^1.5.6",
     "@vercel/analytics": "^2.0.1",
