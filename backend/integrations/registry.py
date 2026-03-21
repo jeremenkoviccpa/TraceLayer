@@ -127,6 +127,17 @@ _REGISTRY: dict[str, str] = {
     "leetcode":          "integrations.leetcode.adapter.LeetCodeIntegration",
     # ── Device Management ─────────────────────────────────────────────────────
     "icloud":            "integrations.icloud.adapter.ICloudIntegration",
+    # ── CRM & Marketing ───────────────────────────────────────────────────────
+    "hubspot":           "integrations.hubspot.adapter.HubSpotIntegration",
+    "salesforce":        "integrations.salesforce.adapter.SalesforceIntegration",
+    "mailchimp":         "integrations.mailchimp.adapter.MailchimpIntegration",
+    # ── Customer Data Platform ────────────────────────────────────────────────
+    "segment":           "integrations.segment.adapter.SegmentIntegration",
+    "mixpanel":          "integrations.mixpanel.adapter.MixpanelIntegration",
+    # ── AI Vendor Compliance ──────────────────────────────────────────────────
+    "openai":            "integrations.openai_api.adapter.OpenAIIntegration",
+    "google_gemini":     "integrations.google_gemini.adapter.GoogleGeminiIntegration",
+    "anthropic":         "integrations.anthropic_api.adapter.AnthropicIntegration",
 }
 
 

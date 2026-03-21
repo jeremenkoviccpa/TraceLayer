@@ -566,6 +566,83 @@ const LOGO_CONFIG: Record<string, LogoCfg> = {
       </>
     ),
   },
+  // ── CRM, Analytics & AI ────────────────────────────────────────────────────
+  mixpanel: {
+    bg: "#7856FF", label: "MX",
+    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.29}>MX</text>,
+  },
+  segment: {
+    bg: "#52BD94", label: "SG",
+    svg: (s) => (
+      <>
+        <circle cx={s/2} cy={s/2} r={s*0.28} fill="white" opacity="0.9"/>
+        <circle cx={s/2} cy={s/2} r={s*0.17} fill="#52BD94"/>
+        <rect x={s*0.62} y={s*0.28} width={s*0.16} height={s*0.07} rx={s*0.03} fill="white"/>
+        <rect x={s*0.62} y={s*0.48} width={s*0.16} height={s*0.07} rx={s*0.03} fill="white"/>
+        <rect x={s*0.62} y={s*0.65} width={s*0.16} height={s*0.07} rx={s*0.03} fill="white"/>
+      </>
+    ),
+  },
+  hubspot: {
+    bg: "#FF7A59", label: "HS",
+    svg: (s) => (
+      <>
+        <circle cx={s*0.62} cy={s*0.38} r={s*0.12} fill="white"/>
+        <rect x={s*0.54} y={s*0.38} width={s*0.08} height={s*0.32} rx={s*0.03} fill="white"/>
+        <rect x={s*0.22} y={s*0.42} width={s*0.32} height={s*0.08} rx={s*0.03} fill="white"/>
+        <rect x={s*0.22} y={s*0.56} width={s*0.32} height={s*0.08} rx={s*0.03} fill="white"/>
+        <rect x={s*0.22} y={s*0.3} width={s*0.08} height={s*0.34} rx={s*0.03} fill="white"/>
+      </>
+    ),
+  },
+  salesforce: {
+    bg: "#00A1E0", label: "SF",
+    svg: (s) => (
+      <>
+        <ellipse cx={s/2} cy={s*0.52} rx={s*0.28} ry={s*0.22} fill="white" opacity="0.9"/>
+        <text x={s/2} y={s*0.54} textAnchor="middle" dominantBaseline="central" fill="#00A1E0" fontFamily="system-ui" fontWeight="900" fontSize={s*0.22}>SF</text>
+      </>
+    ),
+  },
+  mailchimp: {
+    bg: "#FFE01B", label: "MC",
+    svg: (s) => (
+      <>
+        <ellipse cx={s/2} cy={s*0.46} rx={s*0.22} ry={s*0.24} fill="#1C1C1C"/>
+        <circle cx={s*0.35} cy={s*0.46} r={s*0.04} fill="#FFE01B"/>
+        <circle cx={s*0.65} cy={s*0.46} r={s*0.04} fill="#FFE01B"/>
+        <path d={`M${s*0.38} ${s*0.56} Q${s*0.5} ${s*0.64} ${s*0.62} ${s*0.56}`} stroke="#FFE01B" strokeWidth={s*0.04} fill="none" strokeLinecap="round"/>
+      </>
+    ),
+  },
+  openai: {
+    bg: "#10a37f", label: "OAI",
+    svg: (s) => (
+      <>
+        <circle cx={s/2} cy={s/2} r={s*0.28} stroke="white" strokeWidth={s*0.07} fill="none"/>
+        <line x1={s/2} y1={s*0.22} x2={s/2} y2={s*0.78} stroke="white" strokeWidth={s*0.06}/>
+        <line x1={s*0.28} y1={s*0.35} x2={s*0.72} y2={s*0.65} stroke="white" strokeWidth={s*0.06}/>
+        <line x1={s*0.72} y1={s*0.35} x2={s*0.28} y2={s*0.65} stroke="white" strokeWidth={s*0.06}/>
+      </>
+    ),
+  },
+  google_gemini: {
+    bg: "#1C73E8", label: "GM",
+    svg: (s) => (
+      <>
+        <path d={`M${s/2} ${s*0.2} Q${s*0.62} ${s/2} ${s/2} ${s*0.8} Q${s*0.38} ${s/2} ${s/2} ${s*0.2}`} fill="white"/>
+        <path d={`M${s*0.2} ${s/2} Q${s/2} ${s*0.62} ${s*0.8} ${s/2} Q${s/2} ${s*0.38} ${s*0.2} ${s/2}`} fill="white" opacity="0.7"/>
+      </>
+    ),
+  },
+  anthropic: {
+    bg: "#D4A574", label: "AN",
+    svg: (s) => (
+      <>
+        <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="#1a1a1a" fontFamily="Georgia,serif" fontWeight="700" fontSize={s*0.38}>A</text>
+      </>
+    ),
+  },
 };
 
 function LogoBadge({ type, size = 42 }: { type: string; size?: number }) {
@@ -1499,6 +1576,84 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
     ],
   },
   {
+    title: "CRM & Marketing",
+    integrations: [
+      {
+        type: "hubspot", label: "HubSpot",
+        description: "Collect CRM users, role assignments, owners, and account data-hosting region for access control and data protection evidence",
+        fields: [
+          { key: "access_token", label: "Private App Access Token", placeholder: "pat-na1-••••••••", type: "password", hint: "HubSpot → Settings → Integrations → Private Apps → Create private app" },
+        ],
+      },
+      {
+        type: "salesforce", label: "Salesforce",
+        description: "Collect CRM users, profiles, permission sets, and org configuration via SOQL for access control evidence",
+        fields: [
+          { key: "username", label: "Username", placeholder: "admin@mycompany.com" },
+          { key: "password", label: "Password", placeholder: "••••••••••••", type: "password" },
+          { key: "security_token", label: "Security Token", placeholder: "••••••••••••", type: "password", hint: "Salesforce → Settings → Reset My Security Token" },
+          { key: "client_id", label: "Connected App Client ID", placeholder: "3MVG9••••••••" },
+          { key: "client_secret", label: "Connected App Client Secret", placeholder: "••••••••••••", type: "password" },
+          { key: "is_sandbox", label: "Sandbox? (true/false)", placeholder: "false" },
+        ],
+      },
+      {
+        type: "mailchimp", label: "Mailchimp",
+        description: "Collect audience lists, subscriber counts, and authorized app access for data protection and vendor management evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-us1", type: "password", hint: "Mailchimp → Account → Extras → API keys → Create A Key" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Customer Data Platform",
+    integrations: [
+      {
+        type: "segment", label: "Segment",
+        description: "Collect data sources, destinations, warehouses, and workspace users — evidence for data flow governance and vendor management",
+        fields: [
+          { key: "access_token", label: "Public API Access Token", placeholder: "••••••••••••", type: "password", hint: "Segment → Settings → Access Management → Tokens → Create Token" },
+        ],
+      },
+      {
+        type: "mixpanel", label: "Mixpanel",
+        description: "Collect project configuration, team member access, and data residency settings for analytics data protection evidence",
+        fields: [
+          { key: "project_id", label: "Project ID", placeholder: "1234567", hint: "Mixpanel → Settings → Project Settings → Project ID" },
+          { key: "service_account_username", label: "Service Account Username", placeholder: "service-account.••••••••.mp-service-account" },
+          { key: "service_account_secret", label: "Service Account Secret", placeholder: "••••••••••••", type: "password", hint: "Mixpanel → Settings → Service Accounts → Create service account" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "AI Vendor Compliance",
+    integrations: [
+      {
+        type: "openai", label: "OpenAI",
+        description: "Collect model inventory, API key configurations, project structure, and organization settings as AI vendor risk management evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "sk-proj-••••••••", type: "password", hint: "platform.openai.com → API keys → Create new secret key. Use an Admin key for full org + key inventory." },
+        ],
+      },
+      {
+        type: "google_gemini", label: "Google Gemini",
+        description: "Collect Gemini model inventory and configuration from Google AI Studio as AI vendor compliance evidence",
+        fields: [
+          { key: "api_key", label: "Gemini API Key", placeholder: "AIza••••••••", type: "password", hint: "aistudio.google.com → Get API key → Create API key" },
+        ],
+      },
+      {
+        type: "anthropic", label: "Anthropic",
+        description: "Collect Claude model inventory, API key audit trail, and workspace configuration as AI vendor compliance evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "sk-ant-••••••••", type: "password", hint: "console.anthropic.com → API Keys → Create Key. Use an Admin API key for full key + workspace inventory." },
+        ],
+      },
+    ],
+  },
+  {
     title: "Coming Soon",
     integrations: [
       { type: "workday",      label: "Workday",        comingSoon: true, description: "Sync employee records, org chart, and lifecycle events for HR compliance evidence", fields: [] },
@@ -2003,6 +2158,76 @@ const SETUP_GUIDES: Record<string, SetupGuide> = {
       "In Google Analytics → Admin → Property → Property Access Management",
       "Add the service account email with Viewer role",
       "Copy your GA4 Property ID from Admin → Property details",
+    ],
+  },
+  hubspot: {
+    url: "https://app.hubspot.com/private-apps",
+    steps: [
+      "HubSpot → Settings (gear icon) → Integrations → Private Apps",
+      "Create a private app — give it a name (e.g. TraceLayer)",
+      "Under Scopes, add: crm.objects.owners.read, settings.users.read, account-info.security.read",
+      "Click Create App and copy the Access Token",
+    ],
+  },
+  salesforce: {
+    url: "https://help.salesforce.com/s/articleView?id=sf.connected_app_create.htm",
+    steps: [
+      "Setup → App Manager → New Connected App",
+      "Enable OAuth settings → add scopes: api, refresh_token",
+      "Save and copy the Consumer Key (Client ID) and Consumer Secret",
+      "Settings → My Personal Information → Reset My Security Token → copy the token from email",
+      "Use your Salesforce login email + password + security token",
+    ],
+  },
+  mailchimp: {
+    url: "https://us1.admin.mailchimp.com/account/api/",
+    steps: [
+      "Log in to Mailchimp → click your avatar → Account & billing",
+      "Extras → API keys → Create A Key",
+      "Copy the API key — it includes your datacenter (e.g. -us1 at the end)",
+    ],
+  },
+  segment: {
+    url: "https://app.segment.com/goto-my-workspace/settings/access-management/tokens",
+    steps: [
+      "Segment → Settings → Access Management → Tokens",
+      "Create Token → select role: Workspace Owner (read-only roles are sufficient)",
+      "Copy the token",
+    ],
+  },
+  mixpanel: {
+    url: "https://mixpanel.com/settings/project",
+    steps: [
+      "Mixpanel → Settings → Organization Settings → Service Accounts",
+      "Create a new service account with Analyst role",
+      "Copy the username and secret (shown once)",
+      "Find your Project ID in Settings → Project Settings",
+    ],
+  },
+  openai: {
+    url: "https://platform.openai.com/api-keys",
+    steps: [
+      "platform.openai.com → API keys → Create new secret key",
+      "For full inventory (org settings, all API keys): create an Admin key",
+      "For model access only: a standard Project key works",
+      "Copy the key — it starts with sk-proj- or sk-",
+    ],
+  },
+  google_gemini: {
+    url: "https://aistudio.google.com/app/apikey",
+    steps: [
+      "Go to aistudio.google.com → Get API key",
+      "Create API key in a new or existing Google Cloud project",
+      "Copy the key (starts with AIza)",
+    ],
+  },
+  anthropic: {
+    url: "https://console.anthropic.com/settings/keys",
+    steps: [
+      "console.anthropic.com → API Keys → Create Key",
+      "For full inventory (workspaces, all keys): use an Admin API key",
+      "For model access only: a standard API key works",
+      "Copy the key — it starts with sk-ant-",
     ],
   },
 };
