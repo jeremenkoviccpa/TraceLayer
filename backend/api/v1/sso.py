@@ -11,7 +11,6 @@ from models.sso_config import SSOConfig
 from models.user import User
 from schemas.sso import SSOConfigCreate, SSOConfigOut, SSOConfigUpdate
 from services.sso_service import (
-    decrypt_secret,
     encrypt_secret,
     fetch_oidc_discovery,
 )
