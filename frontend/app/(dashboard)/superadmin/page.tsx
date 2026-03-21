@@ -183,7 +183,7 @@ export default function SuperAdminPage() {
   const totalUsers = companies.reduce((sum, c) => sum + c.user_count, 0);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-6" onClick={() => setUserMenuOpen(null)}>
+    <div className="max-w-6xl mx-auto space-y-5" onClick={() => setUserMenuOpen(null)}>
       {confirm && (
         <ConfirmModal
           message={confirm.message}
@@ -194,50 +194,57 @@ export default function SuperAdminPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-purple-100 rounded-lg">
-          <Shield className="w-6 h-6 text-purple-600" />
+      <div className="flex items-center gap-2.5">
+        <div className="p-1.5 bg-purple-100 rounded-lg shrink-0">
+          <Shield className="w-5 h-5 text-purple-600" />
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Super Admin</h1>
-          <p className="text-slate-500 text-sm">Manage companies and user access</p>
+        <div className="min-w-0">
+          <h1 className="text-lg sm:text-2xl font-bold text-slate-900 leading-tight">Super Admin</h1>
+          <p className="text-slate-500 text-xs sm:text-sm hidden sm:block">Manage companies and user access</p>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
-          <div className="flex items-center gap-2 text-slate-500 text-sm mb-1">
-            <Building2 className="w-4 h-4" /> Companies
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4">
+          <div className="flex items-center gap-1.5 text-slate-500 text-xs sm:text-sm mb-1">
+            <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Companies</span>
+            <span className="sm:hidden">Cos</span>
           </div>
-          <div className="text-2xl font-bold text-slate-900">{totalCompanies}</div>
+          <div className="text-xl sm:text-2xl font-bold text-slate-900">{totalCompanies}</div>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
-          <div className="flex items-center gap-2 text-slate-500 text-sm mb-1">
-            <Crown className="w-4 h-4 text-emerald-600" /> Growth plans
+        <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4">
+          <div className="flex items-center gap-1.5 text-slate-500 text-xs sm:text-sm mb-1">
+            <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
+            <span className="hidden sm:inline">Growth plans</span>
+            <span className="sm:hidden">Growth</span>
           </div>
-          <div className="text-2xl font-bold text-slate-900">{growthCount}</div>
+          <div className="text-xl sm:text-2xl font-bold text-slate-900">{growthCount}</div>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
-          <div className="flex items-center gap-2 text-slate-500 text-sm mb-1">
-            <Users className="w-4 h-4" /> Total users
+        <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4">
+          <div className="flex items-center gap-1.5 text-slate-500 text-xs sm:text-sm mb-1">
+            <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Total users</span>
+            <span className="sm:hidden">Users</span>
           </div>
-          <div className="text-2xl font-bold text-slate-900">{totalUsers}</div>
+          <div className="text-xl sm:text-2xl font-bold text-slate-900">{totalUsers}</div>
         </div>
       </div>
 
       {/* Companies table */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
               <th className="text-left px-4 py-3 text-slate-500 font-medium w-6"></th>
               <th className="text-left px-4 py-3 text-slate-500 font-medium">Company</th>
-              <th className="text-left px-4 py-3 text-slate-500 font-medium">Admins</th>
-              <th className="text-left px-4 py-3 text-slate-500 font-medium">Users</th>
+              <th className="text-left px-4 py-3 text-slate-500 font-medium hidden md:table-cell">Admins</th>
+              <th className="text-left px-4 py-3 text-slate-500 font-medium hidden sm:table-cell">Users</th>
               <th className="text-left px-4 py-3 text-slate-500 font-medium">Plan</th>
-              <th className="text-left px-4 py-3 text-slate-500 font-medium">Partner</th>
-              <th className="text-left px-4 py-3 text-slate-500 font-medium">Created</th>
+              <th className="text-left px-4 py-3 text-slate-500 font-medium hidden lg:table-cell">Partner</th>
+              <th className="text-left px-4 py-3 text-slate-500 font-medium hidden lg:table-cell">Created</th>
               <th className="text-left px-4 py-3 text-slate-500 font-medium">Actions</th>
             </tr>
           </thead>
@@ -254,11 +261,11 @@ export default function SuperAdminPage() {
                       ? <ChevronDown className="w-4 h-4" />
                       : <ChevronRight className="w-4 h-4" />}
                   </td>
-                  <td className="px-4 py-3 font-medium text-slate-900">{company.name}</td>
-                  <td className="px-4 py-3 text-slate-500 text-xs">
+                  <td className="px-4 py-3 font-medium text-slate-900 max-w-[140px] sm:max-w-none truncate">{company.name}</td>
+                  <td className="px-4 py-3 text-slate-500 text-xs hidden md:table-cell">
                     {company.admin_emails.join(", ") || "—"}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">{company.user_count}</td>
+                  <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{company.user_count}</td>
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <select
                       value={company.plan}
@@ -270,7 +277,7 @@ export default function SuperAdminPage() {
                       <option value="growth">Growth</option>
                     </select>
                   </td>
-                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                  <td className="px-4 py-3 hidden lg:table-cell" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => setPartner(company, !company.is_partner_account)}
                       disabled={saving === company.id + ":partner"}
@@ -283,7 +290,7 @@ export default function SuperAdminPage() {
                       {company.is_partner_account ? "Yes" : "No"}
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-slate-400 text-xs">
+                  <td className="px-4 py-3 text-slate-400 text-xs hidden lg:table-cell">
                     {new Date(company.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
@@ -320,7 +327,7 @@ export default function SuperAdminPage() {
                 {/* Expanded user rows */}
                 {expanded === company.id && (
                   <tr key={company.id + "-users"}>
-                    <td colSpan={8} className="bg-slate-50 px-8 py-4">
+                    <td colSpan={8} className="bg-slate-50 px-4 sm:px-8 py-4">
                       {loadingUsers === company.id ? (
                         <p className="text-slate-400 text-sm">Loading users…</p>
                       ) : (users[company.id] ?? []).length === 0 ? (
