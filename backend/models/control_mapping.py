@@ -22,8 +22,8 @@ class ControlMapping(Base):
     to_control_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("controls.id", ondelete="CASCADE"), nullable=False
     )
-    # relationship: equivalent | supersedes | related | subset
-    relationship: Mapped[str] = mapped_column(String(50), nullable=False)
+    # mapping_type: equivalent | supersedes | related | subset
+    mapping_type: Mapped[str] = mapped_column(String(50), nullable=False)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
 

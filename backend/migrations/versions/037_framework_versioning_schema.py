@@ -53,7 +53,7 @@ def upgrade() -> None:
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, nullable=False),
         sa.Column('from_control_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('controls.id', ondelete='CASCADE'), nullable=False),
         sa.Column('to_control_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('controls.id', ondelete='CASCADE'), nullable=False),
-        sa.Column('relationship', sa.String(50), nullable=False),
+        sa.Column('mapping_type', sa.String(50), nullable=False),
         sa.Column('notes', sa.Text(), nullable=True),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.func.now()),
         sa.UniqueConstraint('from_control_id', 'to_control_id', name='uq_control_mappings_from_to'),
