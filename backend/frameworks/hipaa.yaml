@@ -1,0 +1,78 @@
+key: hipaa
+display_name: HIPAA Security Rule
+current_version: "2024"
+source_url: https://www.hhs.gov/hipaa/for-professionals/security/laws-regulations/index.html
+versions:
+  - version: "2024"
+    display_name: "HIPAA Security Rule 2024"
+    published_at: "2024-03-27"
+    is_current: true
+controls:
+  - external_id: "164.308(a)(1)"
+    name: Security Management Process
+    category: administrative_safeguards
+    description: "Implement policies and procedures to prevent, detect, contain, and correct security violations."
+  - external_id: "164.308(a)(2)"
+    name: Assigned Security Responsibility
+    category: administrative_safeguards
+    description: "Identify the security official responsible for developing and implementing required policies and procedures."
+  - external_id: "164.308(a)(3)"
+    name: Workforce Security
+    category: administrative_safeguards
+    description: "Implement policies and procedures to ensure that all workforce members have appropriate access."
+  - external_id: "164.308(a)(4)"
+    name: Information Access Management
+    category: administrative_safeguards
+    description: "Implement policies and procedures for authorizing access to ePHI."
+  - external_id: "164.308(a)(5)"
+    name: Security Awareness and Training
+    category: administrative_safeguards
+    description: "Implement a security awareness and training program for all members of the workforce."
+  - external_id: "164.308(a)(6)"
+    name: Security Incident Procedures
+    category: administrative_safeguards
+    description: "Implement policies and procedures to address security incidents."
+  - external_id: "164.308(a)(7)"
+    name: Contingency Plan
+    category: administrative_safeguards
+    description: "Establish and implement policies and procedures for responding to an emergency."
+  - external_id: "164.308(a)(8)"
+    name: Evaluation
+    category: administrative_safeguards
+    description: "Perform a periodic technical and nontechnical evaluation of security policies and procedures."
+  - external_id: "164.310(a)(1)"
+    name: Facility Access Controls
+    category: physical_safeguards
+    description: "Implement policies and procedures to limit physical access to electronic information systems."
+  - external_id: "164.310(b)"
+    name: Workstation Use
+    category: physical_safeguards
+    description: "Implement policies and procedures that specify proper functions to be performed on workstations."
+  - external_id: "164.310(c)"
+    name: Workstation Security
+    category: physical_safeguards
+    description: "Implement physical safeguards for all workstations that access ePHI."
+  - external_id: "164.310(d)(1)"
+    name: Device and Media Controls
+    category: physical_safeguards
+    description: "Implement policies and procedures governing the receipt and removal of hardware and electronic media."
+  - external_id: "164.312(a)(1)"
+    name: Access Control
+    category: technical_safeguards
+    description: "Implement technical policies and procedures for electronic information systems to allow access only to authorized persons."
+  - external_id: "164.312(b)"
+    name: Audit Controls
+    category: technical_safeguards
+    description: "Implement hardware, software, and/or procedural mechanisms that record and examine activity in information systems."
+  - external_id: "164.312(c)(1)"
+    name: Integrity
+    category: technical_safeguards
+    description: "Implement policies and procedures to protect ePHI from improper alteration or destruction."
+  - external_id: "164.312(d)"
+    name: Person or Entity Authentication
+    category: technical_safeguards
+    description: "Implement procedures to verify that a person or entity seeking access to ePHI is who they claim to be."
+  - external_id: "164.312(e)(1)"
+    name: Transmission Security
+    category: technical_safeguards
+    description: "Implement technical security measures to guard against unauthorized access to ePHI transmitted over a network."

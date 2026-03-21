@@ -1,0 +1,90 @@
+key: gdpr
+display_name: General Data Protection Regulation
+current_version: "2018"
+source_url: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32016R0679
+versions:
+  - version: "2018"
+    display_name: "GDPR 2018"
+    published_at: "2018-05-25"
+    is_current: true
+controls:
+  - external_id: Art.5
+    name: Principles Relating to Processing of Personal Data
+    category: data_processing_principles
+    description: "Personal data shall be processed lawfully, fairly, and in a transparent manner; collected for specified, explicit, and legitimate purposes; adequate, relevant, and limited to what is necessary; accurate and kept up to date; kept in a form that permits identification no longer than necessary; and processed in a manner that ensures appropriate security."
+  - external_id: Art.6
+    name: Lawfulness of Processing
+    category: data_processing_principles
+    description: "Processing shall be lawful only if and to the extent that at least one of the legal bases applies: consent, contract, legal obligation, vital interests, public task, or legitimate interests."
+  - external_id: Art.7
+    name: Conditions for Consent
+    category: data_processing_principles
+    description: "Where processing is based on consent, the controller shall be able to demonstrate that the data subject has consented. Consent shall be freely given, specific, informed, and unambiguous."
+  - external_id: Art.9
+    name: Processing of Special Categories of Personal Data
+    category: data_processing_principles
+    description: "Processing of personal data revealing racial or ethnic origin, political opinions, religious beliefs, genetic data, biometric data, health data, or data concerning sexual orientation is prohibited unless specific conditions apply."
+  - external_id: Art.12
+    name: Transparent Information and Communication
+    category: data_subject_rights
+    description: "The controller shall take appropriate measures to provide information relating to processing to the data subject in a concise, transparent, intelligible, and easily accessible form."
+  - external_id: Art.13
+    name: Information to Be Provided at Collection
+    category: data_subject_rights
+    description: "Where personal data are collected from the data subject, the controller shall provide identity, contact details, purposes, legal basis, retention periods, and rights information at the time of collection."
+  - external_id: Art.15
+    name: Right of Access by the Data Subject
+    category: data_subject_rights
+    description: "The data subject shall have the right to obtain confirmation of whether or not personal data concerning them are being processed, and where that is the case, access to the personal data."
+  - external_id: Art.16
+    name: Right to Rectification
+    category: data_subject_rights
+    description: "The data subject shall have the right to obtain without undue delay the rectification of inaccurate personal data concerning them."
+  - external_id: Art.17
+    name: Right to Erasure
+    category: data_subject_rights
+    description: "The data subject shall have the right to obtain the erasure of personal data concerning them without undue delay where one of the specified grounds applies."
+  - external_id: Art.20
+    name: Right to Data Portability
+    category: data_subject_rights
+    description: "The data subject shall have the right to receive personal data concerning them in a structured, commonly used, and machine-readable format."
+  - external_id: Art.25
+    name: Data Protection by Design and by Default
+    category: controller_obligations
+    description: "The controller shall implement appropriate technical and organisational measures designed to implement data protection principles and integrate necessary safeguards into processing."
+  - external_id: Art.28
+    name: Processor Obligations
+    category: controller_obligations
+    description: "Where processing is carried out on behalf of a controller, the controller shall only use processors providing sufficient guarantees to implement appropriate technical and organisational measures."
+  - external_id: Art.30
+    name: Records of Processing Activities
+    category: controller_obligations
+    description: "Each controller shall maintain a record of processing activities under its responsibility containing specified information about the processing."
+  - external_id: Art.32
+    name: Security of Processing
+    category: security_measures
+    description: "The controller and processor shall implement appropriate technical and organisational measures to ensure a level of security appropriate to the risk, including pseudonymisation, encryption, and resilience."
+  - external_id: Art.33
+    name: Notification of Personal Data Breach to Supervisory Authority
+    category: breach_notification
+    description: "In the case of a personal data breach, the controller shall notify the supervisory authority without undue delay and, where feasible, not later than 72 hours after becoming aware of the breach."
+  - external_id: Art.34
+    name: Communication of Personal Data Breach to Data Subject
+    category: breach_notification
+    description: "Where a personal data breach is likely to result in a high risk to the rights and freedoms of natural persons, the controller shall communicate the breach to the data subject without undue delay."
+  - external_id: Art.35
+    name: Data Protection Impact Assessment
+    category: accountability
+    description: "Where a type of processing is likely to result in a high risk to the rights and freedoms of natural persons, the controller shall carry out an assessment of the impact of the envisaged processing operations."
+  - external_id: Art.37
+    name: Designation of Data Protection Officer
+    category: accountability
+    description: "The controller and processor shall designate a data protection officer in any case where processing is carried out by a public authority, involves large-scale systematic monitoring, or involves special categories of data."
+  - external_id: Art.44
+    name: General Principle for Transfers
+    category: international_transfers
+    description: "Any transfer of personal data to a third country or an international organisation shall take place only if the conditions laid down in Chapter V are complied with."
+  - external_id: Art.46
+    name: Transfers Subject to Appropriate Safeguards
+    category: international_transfers
+    description: "In the absence of an adequacy decision, a controller or processor may transfer personal data to a third country only if the controller or processor has provided appropriate safeguards."

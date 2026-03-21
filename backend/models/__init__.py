@@ -11,6 +11,10 @@ from models.invitation import Invitation
 from models.score_snapshot import ScoreSnapshot
 from models.manual_control import ManualControl
 from models.trust_page import TrustPage
+from models.framework_version import FrameworkVersion
+from models.framework_source_manifest import FrameworkSourceManifest
+from models.framework_update_request import FrameworkUpdateRequest
+from models.control_mapping import ControlMapping
 
 __all__ = [
     "Base",
@@ -26,4 +30,8 @@ __all__ = [
     "ScoreSnapshot",
     "ManualControl",
     "TrustPage",
+    "FrameworkVersion",
+    "FrameworkSourceManifest",
+    "FrameworkUpdateRequest",
+    "ControlMapping",
 ]

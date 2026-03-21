@@ -1,0 +1,114 @@
+key: nist_csf
+display_name: NIST Cybersecurity Framework
+current_version: "2.0"
+source_url: https://www.nist.gov/cyberframework
+versions:
+  - version: "2.0"
+    display_name: "NIST CSF 2.0"
+    published_at: "2024-02-26"
+    is_current: true
+  - version: "1.1"
+    display_name: "NIST CSF 1.1"
+    published_at: "2018-04-16"
+    is_current: false
+controls:
+  - external_id: GV.OC-01
+    name: Organizational Mission and Objectives
+    category: govern
+    description: "The organizational mission is understood and informs cybersecurity risk management, roles, responsibilities, and policies."
+  - external_id: GV.OC-02
+    name: Internal and External Stakeholders
+    category: govern
+    description: "Internal and external stakeholders are understood, and their needs and expectations regarding cybersecurity risk management are understood and considered."
+  - external_id: GV.RM-01
+    name: Risk Management Strategy
+    category: govern
+    description: "Risk management objectives are established and agreed to by organizational stakeholders."
+  - external_id: GV.RM-02
+    name: Risk Appetite and Risk Tolerance
+    category: govern
+    description: "Risk appetite and risk tolerance statements are established, communicated, and maintained."
+  - external_id: GV.SC-01
+    name: Cybersecurity Supply Chain Risk Management
+    category: govern
+    description: "A cybersecurity supply chain risk management program, strategy, objectives, policies, and processes are established and agreed to by organizational stakeholders."
+  - external_id: ID.AM-01
+    name: Asset Inventory — Physical Devices
+    category: identify
+    description: "Inventories of hardware managed by the organization are maintained."
+  - external_id: ID.AM-02
+    name: Asset Inventory — Software
+    category: identify
+    description: "Inventories of software, services, and systems managed by the organization are maintained."
+  - external_id: ID.AM-05
+    name: Asset Prioritization
+    category: identify
+    description: "Assets are prioritized based on classification, criticality, resources, and impact on the mission."
+  - external_id: ID.RA-01
+    name: Vulnerability Identification
+    category: identify
+    description: "Vulnerabilities in assets are identified, validated, and recorded."
+  - external_id: ID.RA-03
+    name: Threat Intelligence
+    category: identify
+    description: "Internal and external threats to the organization are identified and recorded."
+  - external_id: ID.RA-05
+    name: Threats, Vulnerabilities, Likelihoods, and Impacts
+    category: identify
+    description: "Threats, vulnerabilities, likelihoods, and impacts are used to understand inherent risk and inform prioritization."
+  - external_id: PR.AA-01
+    name: Identities and Credentials Management
+    category: protect
+    description: "Identities and credentials for authorized users, services, and hardware are managed by the organization."
+  - external_id: PR.AA-03
+    name: Authentication
+    category: protect
+    description: "Users, services, and hardware are authenticated."
+  - external_id: PR.AA-05
+    name: Access Permissions and Authorizations
+    category: protect
+    description: "Access permissions, entitlements, and authorizations are defined in a policy, managed, enforced, and reviewed."
+  - external_id: PR.DS-01
+    name: Data-at-Rest Protection
+    category: protect
+    description: "The confidentiality, integrity, and availability of data-at-rest are protected."
+  - external_id: PR.DS-02
+    name: Data-in-Transit Protection
+    category: protect
+    description: "The confidentiality, integrity, and availability of data-in-transit are protected."
+  - external_id: PR.PS-01
+    name: Configuration Management
+    category: protect
+    description: "Configuration management practices are established and applied."
+  - external_id: DE.AE-02
+    name: Potentially Adverse Events Analysis
+    category: detect
+    description: "Potentially adverse events are analyzed to better characterize them and detect cybersecurity incidents."
+  - external_id: DE.AE-06
+    name: Information Sharing About Adverse Events
+    category: detect
+    description: "Information on adverse events is provided to authorized staff and tools."
+  - external_id: DE.CM-01
+    name: Networks and Network Services Monitoring
+    category: detect
+    description: "Networks and network services are monitored to find potentially adverse events."
+  - external_id: RS.MA-01
+    name: Incident Management Execution
+    category: respond
+    description: "The incident response plan is executed in coordination with relevant third parties once an incident is declared."
+  - external_id: RS.CO-02
+    name: Incident Reporting
+    category: respond
+    description: "Internal and external stakeholders are notified of incidents in a timely manner."
+  - external_id: RS.AN-03
+    name: Analysis to Establish Recovery Activities
+    category: respond
+    description: "Analysis is performed to establish what has taken place during an incident and the root cause of the incident."
+  - external_id: RC.RP-01
+    name: Recovery Plan Execution
+    category: recover
+    description: "The recovery portion of the incident response plan is executed once initiated from the incident response process."
+  - external_id: RC.CO-03
+    name: Recovery Activities Communication
+    category: recover
+    description: "Recovery activities and progress in restoring operational capabilities are communicated to designated internal and external stakeholders."

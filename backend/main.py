@@ -9,10 +9,12 @@ from slowapi.errors import RateLimitExceeded
 from sqlalchemy import select, text
 
 from api.v1 import access_reviews, api_keys, assets, audit, audit_sessions, auth, auth_google, auth_sso, background_checks, billing, business_continuity, compliance, data_breaches, documents, evidence, incidents, ingest, integrations, management_reviews, notifications, offboarding, org, partner, pen_tests, policies, questionnaire, reports, risks, ropa, soa, sso, subject_requests, superadmin, training, trust, vendors, vulnerabilities
+from api.v1.admin.framework_updates import manifests_router as framework_manifests_router
+from api.v1.admin.framework_updates import router as framework_updates_router
 from collectors.scheduler import schedule_integration
 from collectors.scheduler import start as start_scheduler
 from collectors.scheduler import stop as stop_scheduler
-from collectors.scheduler import schedule_weekly_reports, schedule_daily_alerts, schedule_activation_nudges, schedule_partner_nudges, schedule_risk_detection, schedule_auto_detection, schedule_detection_digest, schedule_control_owner_reminders
+from collectors.scheduler import schedule_weekly_reports, schedule_daily_alerts, schedule_activation_nudges, schedule_partner_nudges, schedule_risk_detection, schedule_auto_detection, schedule_detection_digest, schedule_control_owner_reminders, schedule_framework_monitor
 from core.config import settings
 from core.database import AsyncSessionLocal
 from core.limiter import limiter
@@ -128,6 +130,7 @@ async def lifespan(app: FastAPI):
     schedule_auto_detection()
     schedule_detection_digest()
     schedule_control_owner_reminders()
+    schedule_framework_monitor()
     yield
     await stop_scheduler()
 
@@ -203,6 +206,8 @@ app.include_router(management_reviews.router, prefix="/v1")
 app.include_router(api_keys.router, prefix="/v1")
 app.include_router(ingest.router, prefix="/v1")
 app.include_router(superadmin.router, prefix="/v1")
+app.include_router(framework_updates_router, prefix="/v1")
+app.include_router(framework_manifests_router, prefix="/v1")
 
 
 @app.get("/health")

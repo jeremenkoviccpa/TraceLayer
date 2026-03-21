@@ -1,0 +1,110 @@
+key: pci_dss
+display_name: PCI DSS Payment Card Industry Data Security Standard
+current_version: "4.0"
+source_url: https://www.pcisecuritystandards.org/document_library/
+versions:
+  - version: "4.0"
+    display_name: "PCI DSS v4.0"
+    published_at: "2022-03-31"
+    is_current: true
+  - version: "3.2.1"
+    display_name: "PCI DSS v3.2.1"
+    published_at: "2018-05-01"
+    is_current: false
+controls:
+  - external_id: "1.1"
+    name: Network Security Controls — Processes and Mechanisms
+    category: network_security
+    description: "Processes and mechanisms for installing and maintaining network security controls are defined and understood."
+  - external_id: "1.2"
+    name: Network Security Controls Configuration
+    category: network_security
+    description: "Network security controls (NSCs) are configured and maintained to restrict traffic between trusted and untrusted networks."
+  - external_id: "1.3"
+    name: Network Access to Cardholder Data Environment
+    category: network_security
+    description: "Network access to and from the cardholder data environment is restricted."
+  - external_id: "2.1"
+    name: Secure Configuration Processes and Mechanisms
+    category: secure_configurations
+    description: "Processes and mechanisms for applying secure configurations to all system components are defined and understood."
+  - external_id: "2.2"
+    name: System Components Secure Configuration
+    category: secure_configurations
+    description: "System components are configured and managed securely."
+  - external_id: "3.1"
+    name: Cardholder Data Protection Processes
+    category: account_data_protection
+    description: "Processes and mechanisms for protecting stored account data are defined and understood."
+  - external_id: "3.2"
+    name: Storage of Account Data
+    category: account_data_protection
+    description: "Storage of account data is kept to a minimum."
+  - external_id: "3.4"
+    name: Primary Account Number Rendering Unreadable
+    category: account_data_protection
+    description: "Access to displays of full PAN and ability to copy PAN is restricted."
+  - external_id: "3.5"
+    name: Primary Account Number Security
+    category: account_data_protection
+    description: "Primary account number (PAN) is secured wherever it is stored."
+  - external_id: "4.1"
+    name: Transmission of Account Data Processes
+    category: data_transmission_security
+    description: "Processes and mechanisms for protecting cardholder data with strong cryptography during transmission over open, public networks are defined and understood."
+  - external_id: "4.2"
+    name: Strong Cryptography for Transmission
+    category: data_transmission_security
+    description: "PAN is protected with strong cryptography during transmission."
+  - external_id: "5.1"
+    name: Malicious Software Protection Processes
+    category: vulnerability_management
+    description: "Processes and mechanisms for protecting all systems against malware are defined and understood."
+  - external_id: "5.2"
+    name: Malware Detection and Prevention
+    category: vulnerability_management
+    description: "Malware (malicious software) is prevented, or detected and addressed."
+  - external_id: "6.2"
+    name: Bespoke and Custom Software Security
+    category: secure_development
+    description: "Bespoke and custom software are developed securely."
+  - external_id: "6.3"
+    name: Security Vulnerabilities Identification and Address
+    category: secure_development
+    description: "Security vulnerabilities are identified and addressed."
+  - external_id: "7.1"
+    name: Access Control Processes and Mechanisms
+    category: access_control
+    description: "Processes and mechanisms for restricting access to system components and cardholder data by business need to know are defined and understood."
+  - external_id: "7.2"
+    name: Access to System Components and Data is Appropriately Defined
+    category: access_control
+    description: "Access to system components and data is appropriately defined and assigned."
+  - external_id: "8.2"
+    name: User Identification and Authentication
+    category: identity_management
+    description: "User identification and related accounts for users and administrators are strictly managed throughout an account's lifecycle."
+  - external_id: "8.3"
+    name: User Authentication Factors
+    category: identity_management
+    description: "User authentication to system components is adequately managed."
+  - external_id: "10.2"
+    name: Audit Logs Implementation
+    category: logging_monitoring
+    description: "Audit logs are implemented to support the detection of anomalies and suspicious activity and the forensic analysis of events."
+  - external_id: "10.3"
+    name: Audit Log Protection
+    category: logging_monitoring
+    description: "Audit logs are protected from destruction and unauthorized modifications."
+  - external_id: "11.3"
+    name: External and Internal Vulnerabilities
+    category: security_testing
+    description: "External and internal vulnerabilities are regularly identified, prioritized, and addressed."
+  - external_id: "12.1"
+    name: Information Security Policy
+    category: security_policy
+    description: "A comprehensive information security policy that governs and provides direction for protection of the entity's information assets is known and current."
+  - external_id: "12.6"
+    name: Security Awareness Program
+    category: security_policy
+    description: "Personnel are aware of and acknowledge their role in protecting the organization's cardholder data."

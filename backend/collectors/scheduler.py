@@ -179,3 +179,20 @@ def schedule_control_owner_reminders() -> None:
         misfire_grace_time=3600,
     )
     logger.info("Scheduled control owner reminders (Mon 09:30 UTC)")
+
+
+def schedule_framework_monitor() -> None:
+    """Weekly check of all framework source manifests for updates (Mon 09:00 UTC)."""
+    from jobs.framework_monitor_job import run_framework_monitor
+
+    scheduler.add_job(
+        run_framework_monitor,
+        "cron",
+        day_of_week="mon",
+        hour=9,
+        minute=0,
+        id="framework_source_monitor",
+        replace_existing=True,
+        misfire_grace_time=3600,
+    )
+    logger.info("Scheduled framework source monitor (Mon 09:00 UTC)")

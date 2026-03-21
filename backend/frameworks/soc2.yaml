@@ -1,0 +1,142 @@
+key: soc2
+display_name: SOC 2 Trust Services Criteria
+current_version: "2022"
+source_url: https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria
+versions:
+  - version: "2022"
+    display_name: "SOC 2 TSC 2022"
+    published_at: "2022-10-15"
+    is_current: true
+controls:
+  - external_id: CC1.1
+    name: Control Environment
+    category: organizational_controls
+    description: "COSO Principle 1: The entity demonstrates a commitment to integrity and ethical values."
+  - external_id: CC1.2
+    name: Board Independence and Oversight
+    category: organizational_controls
+    description: "COSO Principle 2: The board of directors demonstrates independence from management."
+  - external_id: CC1.3
+    name: Organizational Structure
+    category: organizational_controls
+    description: "COSO Principle 3: Management establishes structure, reporting lines, and appropriate authorities."
+  - external_id: CC1.4
+    name: HR Commitment to Competence
+    category: organizational_controls
+    description: "COSO Principle 4: The entity demonstrates a commitment to attract, develop, and retain competent individuals."
+  - external_id: CC1.5
+    name: Accountability
+    category: organizational_controls
+    description: "COSO Principle 5: The entity holds individuals accountable for their internal control responsibilities."
+  - external_id: CC2.1
+    name: Information Quality
+    category: information_communication
+    description: "COSO Principle 13: The entity obtains or generates and uses relevant, quality information."
+  - external_id: CC2.2
+    name: Internal Communication
+    category: information_communication
+    description: "COSO Principle 14: The entity internally communicates information necessary to support the functioning of internal control."
+  - external_id: CC2.3
+    name: External Communication
+    category: information_communication
+    description: "COSO Principle 15: The entity communicates with external parties regarding matters affecting the functioning of internal control."
+  - external_id: CC3.1
+    name: Risk Assessment Objectives
+    category: risk_assessment
+    description: "COSO Principle 6: The entity specifies objectives with sufficient clarity to enable the identification and assessment of risks."
+  - external_id: CC3.2
+    name: Risk Identification and Analysis
+    category: risk_assessment
+    description: "COSO Principle 7: The entity identifies risks to the achievement of its objectives and analyzes risks as a basis for determining how the risks should be managed."
+  - external_id: CC3.3
+    name: Fraud Risk
+    category: risk_assessment
+    description: "COSO Principle 8: The entity considers the potential for fraud in assessing risks."
+  - external_id: CC3.4
+    name: Change Risk
+    category: risk_assessment
+    description: "COSO Principle 9: The entity identifies and assesses changes that could significantly impact the system of internal control."
+  - external_id: CC4.1
+    name: Monitoring Activities
+    category: monitoring
+    description: "COSO Principle 16: The entity selects, develops, and performs ongoing and/or separate evaluations."
+  - external_id: CC4.2
+    name: Deficiency Evaluation
+    category: monitoring
+    description: "COSO Principle 17: The entity evaluates and communicates internal control deficiencies in a timely manner."
+  - external_id: CC5.1
+    name: Control Selection
+    category: control_activities
+    description: "COSO Principle 10: The entity selects and develops control activities that contribute to the mitigation of risks."
+  - external_id: CC5.2
+    name: Technology Controls
+    category: control_activities
+    description: "COSO Principle 11: The entity also selects and develops general control activities over technology."
+  - external_id: CC5.3
+    name: Policy Implementation
+    category: control_activities
+    description: "COSO Principle 12: The entity deploys control activities through policies that establish what is expected and procedures that put policies into action."
+  - external_id: CC6.1
+    name: Logical and Physical Access Controls
+    category: access_control
+    description: "The entity implements logical access security software, infrastructure, and architectures to protect against unauthorized access."
+  - external_id: CC6.2
+    name: Prior to Issuance Access Credentials
+    category: access_control
+    description: "Prior to issuing system credentials, the entity registers and authorizes new internal and external users."
+  - external_id: CC6.3
+    name: Access Removal
+    category: access_control
+    description: "The entity authorizes, modifies, or removes access based on roles and responsibilities."
+  - external_id: CC6.4
+    name: Physical Access Restriction
+    category: access_control
+    description: "The entity restricts physical access to facilities and protected information assets."
+  - external_id: CC6.5
+    name: Disposal of Assets
+    category: access_control
+    description: "The entity discontinues logical and physical protections over physical assets only after the ability to read or recover data has been diminished."
+  - external_id: CC6.6
+    name: External Threats
+    category: access_control
+    description: "The entity implements controls to prevent or detect and act upon the introduction of unauthorized or malicious software."
+  - external_id: CC6.7
+    name: Transmission of Data
+    category: access_control
+    description: "The entity restricts the transmission, movement, and removal of information to authorized personnel and processes."
+  - external_id: CC6.8
+    name: Malicious Code Prevention
+    category: access_control
+    description: "The entity implements controls to prevent or detect and act upon the introduction of unauthorized or malicious software."
+  - external_id: CC7.1
+    name: System Monitoring
+    category: system_operations
+    description: "To meet its objectives, the entity uses detection and monitoring procedures to identify changes to configurations."
+  - external_id: CC7.2
+    name: Monitoring for Anomalies
+    category: system_operations
+    description: "The entity monitors system components and the operation of those components for anomalies."
+  - external_id: CC7.3
+    name: Incident Evaluation
+    category: system_operations
+    description: "The entity evaluates security events to determine whether they could or have resulted in a failure of the entity to meet its objectives."
+  - external_id: CC7.4
+    name: Incident Response
+    category: system_operations
+    description: "The entity responds to identified security incidents by executing a defined incident response program."
+  - external_id: CC7.5
+    name: Incident Recovery
+    category: system_operations
+    description: "The entity identifies, develops, and implements activities to recover from identified security incidents."
+  - external_id: CC8.1
+    name: Change Management
+    category: change_management
+    description: "The entity authorizes, designs, develops or acquires, configures, documents, tests, approves, and implements changes to infrastructure, data, software, and procedures."
+  - external_id: CC9.1
+    name: Risk Mitigation
+    category: risk_mitigation
+    description: "The entity identifies, selects, and develops risk mitigation activities for risks arising from potential business disruptions."
+  - external_id: CC9.2
+    name: Vendor Risk Management
+    category: risk_mitigation
+    description: "The entity assesses and manages risks associated with vendors and business partners."
