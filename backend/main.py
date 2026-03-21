@@ -8,7 +8,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from sqlalchemy import select, text
 
-from api.v1 import access_reviews, assets, audit, audit_sessions, auth, auth_google, auth_sso, background_checks, billing, business_continuity, compliance, data_breaches, documents, evidence, incidents, integrations, management_reviews, notifications, offboarding, org, partner, pen_tests, policies, questionnaire, reports, risks, ropa, soa, sso, subject_requests, training, trust, vendors, vulnerabilities
+from api.v1 import access_reviews, api_keys, assets, audit, audit_sessions, auth, auth_google, auth_sso, background_checks, billing, business_continuity, compliance, data_breaches, documents, evidence, incidents, ingest, integrations, management_reviews, notifications, offboarding, org, partner, pen_tests, policies, questionnaire, reports, risks, ropa, soa, sso, subject_requests, training, trust, vendors, vulnerabilities
 from collectors.scheduler import schedule_integration
 from collectors.scheduler import start as start_scheduler
 from collectors.scheduler import stop as stop_scheduler
@@ -192,6 +192,8 @@ app.include_router(ropa.router, prefix="/v1")
 app.include_router(data_breaches.router, prefix="/v1")
 app.include_router(subject_requests.router, prefix="/v1")
 app.include_router(management_reviews.router, prefix="/v1")
+app.include_router(api_keys.router, prefix="/v1")
+app.include_router(ingest.router, prefix="/v1")
 
 
 @app.get("/health")

@@ -26,6 +26,7 @@ class Company(Base):
     # Notifications
     notification_prefs: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default="{}")
     slack_webhook_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    teams_webhook_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # Onboarding
     onboarding_completed: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { api } from "@/lib/api";
 import { openPaddleCheckout } from "@/lib/paddle";
 import { useAuth } from "@/components/auth-provider";
-import type { AuditSession, BillingInfo, Company, NotificationSettings, TrustPageSettings } from "@/lib/types";
+import type { ApiKey, AuditSession, BillingInfo, Company, NotificationSettings, TrustPageSettings } from "@/lib/types";
 import {
   CreditCard,
   Lock,
@@ -25,6 +25,7 @@ import {
   Globe,
   Smartphone,
   KeyRound,
+  Key,
   AlertCircle,
   LogIn,
 } from "lucide-react";
@@ -303,6 +304,7 @@ export default function SettingsPage() {
   const defaultNotifSettings: NotificationSettings = {
     prefs: { training_overdue: true, access_review_overdue: true, vendor_needs_review: true, evidence_stale: true, weekly_digest: true },
     slack_webhook_url: null,
+    teams_webhook_url: null,
   };
   const [notifSettings, setNotifSettings] = useState<NotificationSettings>(defaultNotifSettings);
   const [notifLoading, setNotifLoading] = useState(false);
@@ -431,6 +433,44 @@ export default function SettingsPage() {
     } catch {
       showToast("Deletion failed — please try again", "error");
       setGdprLoading(false);
+    }
+  };
+
+  // ── API Keys ──────────────────────────────────────────────────────────────
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+  const [apiKeyName, setApiKeyName] = useState("");
+  const [apiKeyCreating, setApiKeyCreating] = useState(false);
+  const [newRawKey, setNewRawKey] = useState<string | null>(null);
+  const [apiKeyCopied, setApiKeyCopied] = useState(false);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    api.getApiKeys().then(setApiKeys).catch(() => {});
+  }, [isAdmin]);
+
+  const handleCreateApiKey = async () => {
+    if (!apiKeyName.trim()) return;
+    setApiKeyCreating(true);
+    try {
+      const { key, raw_key } = await api.createApiKey(apiKeyName.trim());
+      setApiKeys((prev) => [key, ...prev]);
+      setApiKeyName("");
+      setNewRawKey(raw_key);
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Failed to create API key", "error");
+    } finally {
+      setApiKeyCreating(false);
+    }
+  };
+
+  const handleRevokeApiKey = async (id: string) => {
+    if (!confirm("Revoke this API key? This cannot be undone.")) return;
+    try {
+      await api.revokeApiKey(id);
+      setApiKeys((prev) => prev.filter((k) => k.id !== id));
+      showToast("API key revoked");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Failed to revoke key", "error");
     }
   };
 
@@ -1134,6 +1174,19 @@ export default function SettingsPage() {
           />
         </div>
 
+        {/* Microsoft Teams webhook */}
+        <div className="mt-5 pt-5 border-t border-gray-100">
+          <p className="text-sm font-medium text-gray-800 mb-1">Microsoft Teams webhook URL</p>
+          <p className="text-xs text-gray-500 mb-2">Post alerts to a Teams channel. Leave blank to disable.</p>
+          <input
+            type="url"
+            value={notifSettings.teams_webhook_url ?? ""}
+            onChange={(e) => setNotifSettings((s) => ({ ...s, teams_webhook_url: e.target.value || null }))}
+            placeholder="https://outlook.office.com/webhook/…"
+            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400"
+          />
+        </div>
+
         <div className="flex justify-end mt-5">
           <button
             type="button"
@@ -1582,7 +1635,97 @@ export default function SettingsPage() {
         </section>
       )}
 
-      {/* ── H. Your Data (GDPR) ───────────────────────────────────────────────── */}
+      {/* ── H. API Keys ───────────────────────────────────────────────────────── */}
+      {isAdmin && (
+        <section id="api-keys" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-20 lg:scroll-mt-8">
+          <SectionHeader
+            icon={Key}
+            title="API Keys"
+            subtitle="Create API keys to access the TraceLayer API programmatically."
+            color="gray"
+          />
+
+          {/* Existing keys */}
+          {apiKeys.length > 0 && (
+            <div className="mb-5 space-y-2">
+              {apiKeys.map((k) => (
+                <div key={k.id} className="flex items-center justify-between gap-3 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-gray-800 truncate">{k.name}</p>
+                    <p className="text-xs text-gray-400 font-mono mt-0.5">{k.prefix}****</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Created {new Date(k.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      {" · "}
+                      Last used: {k.last_used_at ? new Date(k.last_used_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Never"}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleRevokeApiKey(k.id)}
+                    className="shrink-0 text-xs font-medium text-red-600 border border-red-200 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    Revoke
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {apiKeys.length === 0 && (
+            <p className="text-sm text-gray-400 mb-5">No API keys yet.</p>
+          )}
+
+          {/* Create new key */}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={apiKeyName}
+              onChange={(e) => setApiKeyName(e.target.value)}
+              placeholder="Key name (e.g. CI pipeline)"
+              className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400"
+              onKeyDown={(e) => { if (e.key === "Enter") handleCreateApiKey(); }}
+            />
+            <button
+              onClick={handleCreateApiKey}
+              disabled={apiKeyCreating || !apiKeyName.trim()}
+              className="flex items-center gap-1.5 px-4 py-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              {apiKeyCreating ? "Creating…" : "Create"}
+            </button>
+          </div>
+
+          {/* One-time raw key modal */}
+          {newRawKey && (
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+              <p className="text-xs font-bold text-amber-700 mb-2">Save this key now — it won&apos;t be shown again</p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 text-xs font-mono text-gray-800 bg-white border border-gray-200 rounded-lg px-3 py-2 break-all select-all">
+                  {newRawKey}
+                </code>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(newRawKey);
+                    setApiKeyCopied(true);
+                    setTimeout(() => setApiKeyCopied(false), 2000);
+                  }}
+                  className="shrink-0 flex items-center gap-1 px-3 py-2 border border-gray-200 bg-white hover:bg-gray-50 text-xs font-medium text-gray-700 rounded-lg transition-colors"
+                >
+                  {apiKeyCopied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  {apiKeyCopied ? "Copied" : "Copy"}
+                </button>
+              </div>
+              <button
+                onClick={() => setNewRawKey(null)}
+                className="mt-3 text-xs text-amber-600 hover:underline"
+              >
+                I&apos;ve saved it — dismiss
+              </button>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* ── I. Your Data (GDPR) ───────────────────────────────────────────────── */}
       <section id="your-data" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-20 lg:scroll-mt-8">
         <SectionHeader icon={ShieldAlert} title="Your Data" color="red" />
         <div className="space-y-3">

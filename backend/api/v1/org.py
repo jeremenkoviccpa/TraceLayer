@@ -334,6 +334,7 @@ async def delete_account(
     from models.invitation import Invitation
     from models.audit_session import AuditSession
     from models.trust_page import TrustPage
+    from models.api_key import ApiKey
     from sqlalchemy import delete
 
     company_id = current_user.company_id
@@ -367,6 +368,7 @@ async def delete_account(
     await db.execute(delete(AuditSession).where(AuditSession.company_id == company_id))
     await db.execute(delete(TrustPage).where(TrustPage.company_id == company_id))
     await db.execute(delete(Invitation).where(Invitation.company_id == company_id))
+    await db.execute(delete(ApiKey).where(ApiKey.company_id == company_id))
 
     # Delete per-user tokens
     for uid in member_ids:

@@ -1,3 +1,5 @@
+import csv
+import io
 import logging
 import math
 import uuid
@@ -6,6 +8,7 @@ from typing import Optional
 
 import httpx
 from fastapi import APIRouter, Depends, Form, HTTPException, Query, UploadFile
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -107,6 +110,48 @@ async def upload_evidence_file(
     await db.commit()
     await db.refresh(evidence)
     return evidence
+
+
+@router.get("/export")
+async def export_evidence_csv(
+    control: Optional[str] = Query(None),
+    integration: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Download all matching evidence as a CSV file."""
+    items, _ = await list_evidence(
+        company_id=current_user.company_id,
+        db=db,
+        control=control,
+        integration=integration,
+        page=1,
+        page_size=10_000,
+    )
+
+    def _generate():
+        buf = io.StringIO()
+        writer = csv.writer(buf)
+        writer.writerow(["id", "integration", "control", "evidence_type", "source_id", "timestamp"])
+        yield buf.getvalue()
+        for item in items:
+            buf.seek(0); buf.truncate(0)
+            writer.writerow([
+                str(item.id),
+                item.integration,
+                item.control,
+                item.evidence_type,
+                item.source_id,
+                item.timestamp.isoformat() if item.timestamp else "",
+            ])
+            yield buf.getvalue()
+
+    filename = f"evidence_{current_user.company_id}.csv"
+    return StreamingResponse(
+        _generate(),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 class BulkDeleteRequest(BaseModel):

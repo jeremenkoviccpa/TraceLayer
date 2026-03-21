@@ -23,11 +23,13 @@ router = APIRouter(prefix="/notifications", tags=["notifications"])
 class NotificationPrefsResponse(BaseModel):
     prefs: dict[str, Any]
     slack_webhook_url: Optional[str]
+    teams_webhook_url: Optional[str]
 
 
 class NotificationPrefsUpdate(BaseModel):
     prefs: dict[str, Any]
     slack_webhook_url: Optional[str] = None
+    teams_webhook_url: Optional[str] = None
 
 
 @router.get("/prefs", response_model=NotificationPrefsResponse)
@@ -46,6 +48,7 @@ async def get_notification_prefs(
     return NotificationPrefsResponse(
         prefs=company.notification_prefs or {},
         slack_webhook_url=company.slack_webhook_url,
+        teams_webhook_url=company.teams_webhook_url,
     )
 
 
@@ -65,6 +68,7 @@ async def update_notification_prefs(
 
     company.notification_prefs = body.prefs
     company.slack_webhook_url = body.slack_webhook_url
+    company.teams_webhook_url = body.teams_webhook_url
 
     await audit_service.log_action(
         db=db,
@@ -72,7 +76,11 @@ async def update_notification_prefs(
         action="company.notification_prefs_updated",
         user_id=current_user.id,
         user_email=current_user.email,
-        metadata={"prefs": body.prefs, "slack_webhook_set": body.slack_webhook_url is not None},
+        metadata={
+            "prefs": body.prefs,
+            "slack_webhook_set": body.slack_webhook_url is not None,
+            "teams_webhook_set": body.teams_webhook_url is not None,
+        },
     )
     await db.commit()
     await db.refresh(company)
@@ -80,6 +88,7 @@ async def update_notification_prefs(
     return NotificationPrefsResponse(
         prefs=company.notification_prefs or {},
         slack_webhook_url=company.slack_webhook_url,
+        teams_webhook_url=company.teams_webhook_url,
     )
 
 

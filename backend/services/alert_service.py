@@ -113,6 +113,28 @@ async def send_slack_alert(webhook_url: str, company_name: str, alerts: list[dic
         await client.post(webhook_url, json={"text": text}, timeout=10)
 
 
+async def send_teams_alert(webhook_url: str, company_name: str, alerts: list[dict]) -> None:
+    """Send a Microsoft Teams message via incoming webhook (Adaptive Card)."""
+    facts = [{"title": a["label"], "value": f"{a['count']} item(s)"} for a in alerts]
+    payload = {
+        "type": "message",
+        "attachments": [{
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.4",
+                "body": [
+                    {"type": "TextBlock", "text": f"TraceLayer Alert — {company_name}", "weight": "bolder", "size": "medium"},
+                    {"type": "FactSet", "facts": facts},
+                ],
+            },
+        }],
+    }
+    async with httpx.AsyncClient() as client:
+        await client.post(webhook_url, json=payload, timeout=10)
+
+
 async def run_daily_alerts(db: AsyncSession) -> None:
     """Check all companies for alert conditions and send notifications."""
     from services.email_service import send_alert_digest
@@ -205,9 +227,18 @@ async def run_daily_alerts(db: AsyncSession) -> None:
                         alerts=alerts,
                     )
                 except Exception as exc:
-                    logger.warning(
-                        "Failed to send Slack alert for company %s: %s", company.id, exc
+                    logger.warning("Failed to send Slack alert for company %s: %s", company.id, exc)
+
+            # Send Teams notification if configured
+            if company.teams_webhook_url:
+                try:
+                    await send_teams_alert(
+                        webhook_url=company.teams_webhook_url,
+                        company_name=company.name,
+                        alerts=alerts,
                     )
+                except Exception as exc:
+                    logger.warning("Failed to send Teams alert for company %s: %s", company.id, exc)
 
         except Exception as exc:
             logger.error(

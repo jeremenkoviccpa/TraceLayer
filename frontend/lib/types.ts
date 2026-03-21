@@ -537,6 +537,15 @@ export interface NotificationPrefs {
 export interface NotificationSettings {
   prefs: NotificationPrefs;
   slack_webhook_url: string | null;
+  teams_webhook_url: string | null;
+}
+
+export interface ApiKey {
+  id: string;
+  name: string;
+  prefix: string;
+  created_at: string;
+  last_used_at: string | null;
 }
 
 export interface PublicTrustPageView {

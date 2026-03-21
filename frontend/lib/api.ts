@@ -1,4 +1,4 @@
-import type { AccessReview, AppNotification, Asset, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Document, DownloadResponse, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SoaItem, SubjectRequest, TrainingRecord, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
+import type { AccessReview, ApiKey, AppNotification, Asset, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Document, DownloadResponse, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SoaItem, SubjectRequest, TrainingRecord, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -821,6 +821,32 @@ class ApiClient {
   async createManagementReview(data: Partial<ManagementReview>): Promise<ManagementReview> { return this.request("POST", "/management-reviews", data); }
   async updateManagementReview(id: string, data: Partial<ManagementReview>): Promise<ManagementReview> { return this.request("PATCH", `/management-reviews/${id}`, data); }
   async deleteManagementReview(id: string): Promise<void> { return this.request("DELETE", `/management-reviews/${id}`); }
+
+  // ── API Keys ──────────────────────────────────────────────────────────────
+  async getApiKeys(): Promise<ApiKey[]> { return this.request("GET", "/api-keys"); }
+  async createApiKey(name: string): Promise<{ key: ApiKey; raw_key: string }> { return this.request("POST", "/api-keys", { name }); }
+  async revokeApiKey(id: string): Promise<void> { return this.request("DELETE", `/api-keys/${id}`); }
+
+  // ── Evidence Export ───────────────────────────────────────────────────────
+  async exportEvidenceCsv(params?: { control?: string; integration?: string }): Promise<void> {
+    const token = this.getToken();
+    if (!token) throw new Error("Not authenticated");
+    const q = new URLSearchParams();
+    if (params?.control) q.set("control", params.control);
+    if (params?.integration) q.set("integration", params.integration);
+    const qs = q.toString();
+    const res = await fetch(`${API_URL}/v1/evidence/export${qs ? `?${qs}` : ""}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("Export failed");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "evidence.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 }
 
 export const api = new ApiClient();

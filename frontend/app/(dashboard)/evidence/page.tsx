@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Plug,
   Trash2,
+  Download,
 } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 
@@ -40,6 +41,20 @@ function IntegrationBadge({ name }: { name: string }) {
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border capitalize ${cls}`}>
       {name}
+    </span>
+  );
+}
+
+function StaleBadge({ timestamp }: { timestamp: string }) {
+  const days = Math.floor((Date.now() - new Date(timestamp).getTime()) / 86400000);
+  if (days < 7) return null;
+  const isStale = days >= 90;
+  const isAging = days >= 30;
+  return (
+    <span className={`ml-1.5 inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded-md border ${
+      isStale ? "bg-red-50 text-red-600 border-red-200" : isAging ? "bg-amber-50 text-amber-600 border-amber-200" : "bg-yellow-50 text-yellow-600 border-yellow-200"
+    }`}>
+      {isStale ? "Stale" : isAging ? "30d+" : "7d+"}
     </span>
   );
 }
@@ -79,6 +94,7 @@ function EvidenceRow({ evidence, selected, onToggle }: {
             day: "numeric",
             year: "numeric",
           })}
+          <StaleBadge timestamp={evidence.timestamp} />
         </td>
         <td className="px-4 py-3.5 text-gray-300 cursor-pointer" onClick={() => setExpanded((v) => !v)}>
           {expanded ? <ChevronUp className="w-4 h-4 text-cyan-500" /> : <ChevronDown className="w-4 h-4" />}
@@ -128,6 +144,7 @@ export default function EvidencePage() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -262,14 +279,29 @@ export default function EvidencePage() {
           </div>
 
           {/* Right — action */}
-          <button
-            onClick={load}
-            disabled={loading}
-            className="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-sm font-medium hover:bg-cyan-500/25 transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-            Refresh
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={async () => {
+                setExporting(true);
+                try { await api.exportEvidenceCsv({ control: control || undefined, integration: integration || undefined }); }
+                catch { /* ignore */ }
+                finally { setExporting(false); }
+              }}
+              disabled={exporting}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white/80 text-sm font-medium hover:bg-white/20 transition-colors disabled:opacity-50"
+            >
+              <Download className={`w-4 h-4 ${exporting ? "animate-pulse" : ""}`} />
+              {exporting ? "Exporting…" : "Export CSV"}
+            </button>
+            <button
+              onClick={load}
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-sm font-medium hover:bg-cyan-500/25 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+              Refresh
+            </button>
+          </div>
         </div>
       </div>
 
