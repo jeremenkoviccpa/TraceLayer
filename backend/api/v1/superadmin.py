@@ -7,9 +7,9 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
@@ -52,6 +52,7 @@ class CompanyRow(BaseModel):
 class PatchCompanyBody(BaseModel):
     plan: Optional[str] = None
     is_partner_account: Optional[bool] = None
+    reset_subscription: Optional[bool] = None  # wipe billing fields → free
 
 
 class UserRow(BaseModel):
@@ -68,6 +69,7 @@ class UserRow(BaseModel):
 
 class PatchUserBody(BaseModel):
     role: Optional[str] = None
+    email_verified: Optional[bool] = None
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
@@ -121,6 +123,12 @@ async def patch_company(
 
     if body.is_partner_account is not None:
         company.is_partner_account = body.is_partner_account
+
+    if body.reset_subscription:
+        company.plan = "free"
+        company.subscription_status = None
+        company.ls_subscription_id = None
+        company.ls_customer_id = None
 
     await audit_service.log_action(
         db=db,
@@ -189,6 +197,9 @@ async def patch_company_user(
             raise HTTPException(status_code=400, detail="Role must be admin, member, or viewer")
         user.role = body.role
 
+    if body.email_verified is not None:
+        user.email_verified = body.email_verified
+
     await audit_service.log_action(
         db=db,
         company_id=company_id,
@@ -207,3 +218,51 @@ async def patch_company_user(
         email_verified=user.email_verified,
         created_at=user.created_at,
     )
+
+
+@router.delete("/companies/{company_id}", status_code=204)
+async def delete_company(
+    company_id: uuid.UUID,
+    current_user: User = Depends(require_super_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Permanently delete a company and all its associated data."""
+    result = await db.execute(select(Company).where(Company.id == company_id))
+    company = result.scalar_one_or_none()
+    if not company:
+        raise HTTPException(status_code=404, detail="Company not found")
+
+    await audit_service.log_action(
+        db=db,
+        company_id=company_id,
+        action="superadmin.company_deleted",
+        user_id=current_user.id,
+        user_email=current_user.email,
+        metadata={"company_name": company.name},
+    )
+    await db.commit()
+
+    # Use raw SQL so Postgres CASCADE constraints handle child records
+    await db.execute(text("DELETE FROM companies WHERE id = :id"), {"id": company_id})
+    await db.commit()
+    return Response(status_code=204)
+
+
+@router.delete("/companies/{company_id}/users/{user_id}", status_code=204)
+async def delete_company_user(
+    company_id: uuid.UUID,
+    user_id: uuid.UUID,
+    current_user: User = Depends(require_super_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Remove a user from a company."""
+    result = await db.execute(
+        select(User).where(User.id == user_id, User.company_id == company_id)
+    )
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    await db.delete(user)
+    await db.commit()
+    return Response(status_code=204)

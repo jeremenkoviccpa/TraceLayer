@@ -829,9 +829,11 @@ class ApiClient {
 
   // ── Super-Admin ───────────────────────────────────────────────────────────
   async superAdminListCompanies(): Promise<SuperAdminCompany[]> { return this.request("GET", "/super-admin/companies"); }
-  async superAdminPatchCompany(id: string, data: { plan?: string; is_partner_account?: boolean }): Promise<SuperAdminCompany> { return this.request("PATCH", `/super-admin/companies/${id}`, data); }
+  async superAdminPatchCompany(id: string, data: { plan?: string; is_partner_account?: boolean; reset_subscription?: boolean }): Promise<SuperAdminCompany> { return this.request("PATCH", `/super-admin/companies/${id}`, data); }
+  async superAdminDeleteCompany(id: string): Promise<void> { return this.request("DELETE", `/super-admin/companies/${id}`); }
   async superAdminListUsers(companyId: string): Promise<SuperAdminUser[]> { return this.request("GET", `/super-admin/companies/${companyId}/users`); }
-  async superAdminPatchUser(companyId: string, userId: string, data: { role?: string }): Promise<SuperAdminUser> { return this.request("PATCH", `/super-admin/companies/${companyId}/users/${userId}`, data); }
+  async superAdminPatchUser(companyId: string, userId: string, data: { role?: string; email_verified?: boolean }): Promise<SuperAdminUser> { return this.request("PATCH", `/super-admin/companies/${companyId}/users/${userId}`, data); }
+  async superAdminDeleteUser(companyId: string, userId: string): Promise<void> { return this.request("DELETE", `/super-admin/companies/${companyId}/users/${userId}`); }
 
   // ── Evidence Export ───────────────────────────────────────────────────────
   async exportEvidenceCsv(params?: { control?: string; integration?: string }): Promise<void> {
