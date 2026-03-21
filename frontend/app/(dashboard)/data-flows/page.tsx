@@ -407,9 +407,9 @@ export default function DataFlowsPage() {
     try {
       const updated = await api.scanDataFlows();
       setFlows(updated);
-      toast.success(`Scanned — ${updated.length} data flows mapped`);
+      toast(`Scanned — ${updated.length} data flows mapped`);
     } catch {
-      toast.error("Scan failed");
+      toast("Scan failed", "error");
     } finally {
       setScanning(false);
     }
@@ -418,20 +418,20 @@ export default function DataFlowsPage() {
   const handleCreate = async (data: Partial<DataFlow>) => {
     const created = await api.createDataFlow(data);
     setFlows((prev) => [created, ...prev]);
-    toast.success("Data flow added");
+    toast("Data flow added");
   };
 
   const handleUpdate = async (data: Partial<DataFlow>) => {
     if (!editFlow) return;
     const updated = await api.updateDataFlow(editFlow.id, data);
     setFlows((prev) => prev.map((f) => (f.id === updated.id ? updated : f)));
-    toast.success("Updated");
+    toast("Updated");
   };
 
   const handleDelete = async (id: string) => {
     await api.deleteDataFlow(id);
     setFlows((prev) => prev.filter((f) => f.id !== id));
-    toast.success("Removed");
+    toast("Removed");
   };
 
   const exportCsv = () => {
