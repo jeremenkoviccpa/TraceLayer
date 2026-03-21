@@ -13,7 +13,8 @@ import {
   BarChart3, Lock, Star, Clock, TrendingUp, Users, ChevronDown,
   Menu, X, AlertTriangle, BookOpen, GraduationCap, Target,
   Globe, ClipboardList, Building2, UserCheck, Shield,
-  Siren, Server, Bug, RefreshCw, Database,
+  Siren, Server, Bug, RefreshCw, Database, Workflow,
+  Sparkles, ClipboardCheck, Network,
 } from "lucide-react";
 
 // ── Integration logos ────────────────────────────────────────────────────────
@@ -424,6 +425,83 @@ function QualysLogo() {
   );
 }
 
+function SegmentLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#52BD95"/>
+      <path d="M7 12h10M7 8h5M7 16h8" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function HubSpotLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#FF7A59"/>
+      <circle cx="14.5" cy="9.5" r="3" fill="white"/>
+      <circle cx="9.5" cy="14.5" r="2" fill="white"/>
+      <path d="M11.5 9.5H7M14.5 12.5v5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function SalesforceLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#00A1E0"/>
+      <path d="M12 5c-2.2 0-4 1.6-4 3.6 0 .4.1.8.2 1.1-1 .3-1.7 1.2-1.7 2.3 0 1.4 1.1 2.5 2.5 2.5h6c1.4 0 2.5-1.1 2.5-2.5 0-1-.6-1.9-1.5-2.3C16 8.2 14.2 5 12 5z" fill="white"/>
+    </svg>
+  );
+}
+
+function MailchimpLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#FFE01B"/>
+      <path d="M12 5c-2 0-4 1.5-4 4 0 .8.2 1.5.6 2.1C7.6 11.6 7 12.5 7 13.5c0 1.7 2.2 3 5 3s5-1.3 5-3c0-1-.6-1.9-1.6-2.4.4-.6.6-1.3.6-2.1C16 6.5 14 5 12 5z" fill="#241C15"/>
+    </svg>
+  );
+}
+
+function OpenAILogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#000000"/>
+      <path d="M12 4.5a7.5 7.5 0 100 15 7.5 7.5 0 000-15zm0 2a5.5 5.5 0 110 11 5.5 5.5 0 010-11z" fill="white" opacity="0.9"/>
+      <path d="M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" fill="white" opacity="0.5"/>
+      <circle cx="12" cy="12" r="2" fill="white"/>
+    </svg>
+  );
+}
+
+function AnthropicLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#CC785C"/>
+      <path d="M8.5 17l3.5-10 3.5 10M10 13.5h5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function HarvestLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#FA5D00"/>
+      <circle cx="12" cy="12" r="5" stroke="white" strokeWidth="1.8" fill="none"/>
+      <path d="M12 7v5l3 3" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function LeverLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#1A1A2E"/>
+      <text x="4" y="16" fontSize="10" fontWeight="900" fill="white" fontFamily="Arial,sans-serif">LVR</text>
+    </svg>
+  );
+}
+
 const INTEGRATION_LOGOS = [
   { name: "AWS",              logo: <AwsLogo />       },
   { name: "GitHub",           logo: <GithubLogo />    },
@@ -465,12 +543,20 @@ const INTEGRATION_LOGOS = [
   { name: "Kubernetes",       logo: <KubernetesLogo />    },
   { name: "CircleCI",         logo: <CircleCILogo />      },
   { name: "Qualys",           logo: <QualysLogo />        },
+  { name: "Segment",          logo: <SegmentLogo />       },
+  { name: "HubSpot",          logo: <HubSpotLogo />       },
+  { name: "Salesforce",       logo: <SalesforceLogo />    },
+  { name: "Mailchimp",        logo: <MailchimpLogo />     },
+  { name: "OpenAI",           logo: <OpenAILogo />        },
+  { name: "Anthropic",        logo: <AnthropicLogo />     },
+  { name: "Harvest",          logo: <HarvestLogo />       },
+  { name: "Lever",            logo: <LeverLogo />         },
 ];
 
 // ── Static data ───────────────────────────────────────────────────────────────
 
 const STATS = [
-  { value: "89+",  label: "Native integrations"     },
+  { value: "100+", label: "Native integrations"     },
   { value: "7",    label: "Compliance frameworks"    },
   { value: "3",    label: "AI engines built-in"      },
   { value: "100%", label: "Automated evidence"       },
@@ -509,8 +595,8 @@ const FEATURES = [
   },
   {
     icon: Plug,
-    title: "89+ native integrations",
-    desc: "Connect AWS, GitHub, Okta, GitLab, Datadog, CrowdStrike, Snowflake, Databricks, Auth0, Zscaler, Grafana, SentinelOne, Snyk, Wiz, Jamf, and 74 more — in minutes. No agents. No code.",
+    title: "100+ native integrations",
+    desc: "Connect AWS, GitHub, Okta, Salesforce, Segment, HubSpot, Datadog, CrowdStrike, Snyk, Wiz, KnowBe4, Anthropic, OpenAI, and 87 more — in minutes. No agents. No code.",
   },
   {
     icon: Target,
@@ -558,9 +644,9 @@ const FEATURES = [
     desc: "Push compliance evidence directly from your CI/CD pipelines — test results, deployment records, and security scans land in your evidence library automatically.",
   },
   {
-    icon: null,
-    title: "and more",
-    desc: "Audit sessions, management reviews, subject access requests, background checks, offboarding checklists — everything your auditor needs to sign off.",
+    icon: Workflow,
+    title: "Data Flow Map",
+    desc: "Auto-maps every connected integration to its data types, storage region, risk level, and applicable regulations — GDPR, CCPA, HIPAA, PCI DSS. Pre-populates your RoPA on day one.",
   },
 ];
 
@@ -604,11 +690,11 @@ const TESTIMONIALS = [
 ];
 
 const PAIN_POINTS = [
-  { before: "Spreadsheets tracking evidence manually",          after: "AI collects evidence every 24h across 89+ integrations" },
+  { before: "Spreadsheets tracking evidence manually",          after: "AI collects evidence every 24h across 100+ integrations" },
   { before: "No idea a control broke until the audit",          after: "AI drift detection fires within minutes of any degradation" },
   { before: "Vendor questionnaires take days to fill out",      after: "AI autofills all answers in seconds from your live data"  },
-  { before: "Regulation changes catch you off guard",           after: "AI monitors official sources and flags updates weekly"    },
-  { before: "GDPR compliance managed in spreadsheets",          after: "RoPA, breach register, SARs, and SoA in one place"       },
+  { before: "Data flows mapped manually in a spreadsheet",      after: "Auto-mapped from integrations — data, region, risk, regulation" },
+  { before: "GDPR compliance managed in spreadsheets",          after: "RoPA, breach register, SARs, SoA, and Data Flow Map in one place" },
   { before: "Consultants charging $50k+ for the same thing",   after: "Full AI compliance program self-served at startup cost"   },
 ];
 
@@ -628,7 +714,7 @@ const FAQ = [
   },
   {
     q: "What integrations are supported?",
-    a: "89+ integrations: AWS, GitHub, Slack, Google Workspace, Okta, Azure AD, Jira, GitLab, GCP, Linear, Datadog, PagerDuty, Sentry, Stripe, Rippling, BambooHR, CrowdStrike, Jamf, SentinelOne, Kandji, Kolide, Snyk, HackerOne, Wiz, Splunk, Duo, Auth0, Doppler, Zscaler, Snowflake, Databricks, Grafana, Kubernetes, CircleCI, and many more — each collecting multiple evidence types automatically.",
+    a: "100+ integrations: AWS, GitHub, Slack, Google Workspace, Okta, Salesforce, Segment, HubSpot, Mailchimp, OpenAI, Anthropic, Azure AD, Jira, GitLab, GCP, Datadog, CrowdStrike, Jamf, SentinelOne, Snyk, KnowBe4, 360Learning, Lever, Harvest, and many more — each collecting multiple evidence types automatically.",
   },
   {
     q: "Does TraceLayer cover training and vendor management?",
@@ -956,7 +1042,7 @@ export default function LandingPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            AI-Powered Compliance · SOC 2 · ISO 27001 · HIPAA · GDPR · PCI DSS
+            New: Data Flow Mapping · AI Audit Package · 100+ Integrations
           </div>
 
           <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[64px] font-extrabold leading-[1.1] mb-6 tracking-tight">
@@ -967,7 +1053,7 @@ export default function LandingPage() {
           </h1>
 
           <p data-animate data-delay="200" className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 leading-relaxed">
-            TraceLayer is your AI-powered compliance platform — three built-in AI engines handle evidence collection across 89+ integrations, detect compliance drift the moment it happens, answer enterprise security questionnaires automatically, and monitor regulatory changes before they catch you off guard.
+            TraceLayer is your AI-powered compliance platform — three built-in AI engines handle evidence collection across 100+ integrations, auto-map your data flows to regulations, detect compliance drift the moment it happens, and answer enterprise security questionnaires automatically.
           </p>
 
           <div data-animate data-delay="300" className="flex items-center justify-center gap-3 flex-wrap mb-5">
@@ -1124,7 +1210,7 @@ export default function LandingPage() {
               AI that works while you sleep
             </h2>
             <p className="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
-              TraceLayer doesn't just collect evidence — it thinks about it. Three AI engines run continuously so you're never surprised by a compliance failure.
+              TraceLayer doesn't just collect evidence — it thinks about it. Three AI engines run continuously so you&apos;re never surprised by a compliance failure or a data flow risk.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-5">
@@ -1219,31 +1305,35 @@ export default function LandingPage() {
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Complete platform</p>
             <h2 className="text-2xl md:text-4xl font-extrabold">Every tool your compliance program needs</h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto leading-relaxed">
-              Not just evidence collection. A full compliance stack for startups chasing SOC 2, ISO 27001, HIPAA, GDPR, and more.
+              Not just evidence collection. A full compliance stack — evidence, risk, privacy, people, vendors, and AI — for startups chasing SOC 2, ISO 27001, HIPAA, GDPR, and more.
             </p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {[
-              { icon: Zap,          label: "Evidence Collection",  desc: "Automated, 24h"        },
-              { icon: BarChart3,    label: "Compliance Score",     desc: "Real-time"              },
-              { icon: Target,       label: "Readiness Timeline",   desc: "Weeks to audit"         },
-              { icon: AlertTriangle,label: "Risk Register",        desc: "CC3 & CC9"              },
-              { icon: Siren,        label: "Incident Management",  desc: "Track & resolve"        },
-              { icon: BookOpen,     label: "Policy Templates",     desc: "Pre-written"            },
-              { icon: GraduationCap,label: "Training Tracker",     desc: "CC1.4 evidence"         },
-              { icon: Shield,       label: "Pen Test Tracker",     desc: "Annual requirement"     },
-              { icon: Building2,    label: "Vendor Diligence",     desc: "CC9.2"                  },
-              { icon: UserCheck,    label: "Access Reviews",       desc: "CC6.3 sign-off"         },
-              { icon: Server,       label: "Asset Inventory",      desc: "CC6.1 / CC6.7"          },
-              { icon: Bug,          label: "Vulnerability Mgmt",   desc: "Severity tracking"      },
-              { icon: RefreshCw,    label: "Business Continuity",  desc: "BCP/DR + RTO/RPO"       },
-              { icon: Database,     label: "GDPR Privacy Suite",   desc: "RoPA, SoA, Breaches"    },
-              { icon: ClipboardList,label: "AI Questionnaire",     desc: "17 data sources"        },
-              { icon: Globe,        label: "Trust Page",           desc: "Live public page"       },
-              { icon: FileText,     label: "Audit Reports",        desc: "PDF & JSON"             },
-              { icon: Lock,         label: "Auditor Portal",       desc: "Read-only access"       },
-              { icon: Users,        label: "Team RBAC",            desc: "Admin & member"         },
-              { icon: Plug,         label: "43+ Integrations",     desc: "AWS, Cloudflare, Okta…" },
+              { icon: Zap,           label: "Evidence Collection",  desc: "Automated, 24h"          },
+              { icon: BarChart3,     label: "Compliance Score",     desc: "Real-time"               },
+              { icon: Target,        label: "Readiness Timeline",   desc: "Weeks to audit"          },
+              { icon: AlertTriangle, label: "Risk Register",        desc: "CC3 & CC9"               },
+              { icon: Siren,         label: "Incident Management",  desc: "Track & resolve"         },
+              { icon: BookOpen,      label: "Policy Templates",     desc: "Pre-written"             },
+              { icon: GraduationCap, label: "Training Tracker",     desc: "CC1.4 evidence"          },
+              { icon: Shield,        label: "Pen Test Tracker",     desc: "Annual requirement"      },
+              { icon: Building2,     label: "Vendor Diligence",     desc: "CC9.2"                   },
+              { icon: UserCheck,     label: "Access Reviews",       desc: "CC6.3 sign-off"          },
+              { icon: Server,        label: "Asset Inventory",      desc: "CC6.1 / CC6.7"           },
+              { icon: Bug,           label: "Vulnerability Mgmt",   desc: "Severity tracking"       },
+              { icon: RefreshCw,     label: "Business Continuity",  desc: "BCP/DR + RTO/RPO"        },
+              { icon: Workflow,      label: "Data Flow Map",        desc: "Auto-mapped, GDPR-ready" },
+              { icon: Database,      label: "GDPR Privacy Suite",   desc: "RoPA, SoA, Breaches"     },
+              { icon: ClipboardList, label: "AI Questionnaire",     desc: "17 data sources"         },
+              { icon: Globe,         label: "Trust Page",           desc: "Live public page"        },
+              { icon: FileText,      label: "Audit Reports",        desc: "PDF & JSON"              },
+              { icon: Sparkles,      label: "AI Audit Package",     desc: "AI narrative PDF"        },
+              { icon: ClipboardCheck,label: "Management Reviews",   desc: "Leadership sign-off"     },
+              { icon: Lock,          label: "Auditor Portal",       desc: "Read-only access"        },
+              { icon: Users,         label: "Team RBAC",            desc: "Admin & member"          },
+              { icon: Network,       label: "CI/CD Ingest",         desc: "Push from pipelines"     },
+              { icon: Plug,          label: "100+ Integrations",    desc: "Salesforce, AWS, Okta…"  },
             ].map(({ icon: Icon, label, desc }) => (
               <div key={label} className="bg-[var(--card)] rounded-2xl border border-black/5 p-4 hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 transition-all duration-200 group">
                 <div className="w-8 h-8 bg-[color:var(--accent)]/10 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[color:var(--accent)]/18 transition-colors">
@@ -1251,6 +1341,121 @@ export default function LandingPage() {
                 </div>
                 <p className="text-xs font-bold text-[var(--ink)] leading-snug">{label}</p>
                 <p className="text-[10px] text-[var(--muted)] mt-0.5">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Data Flow Map ─────────────────────────────────────────────────────── */}
+      <section className="py-16 md:py-24 bg-white border-y border-black/5">
+        <div className="max-w-6xl mx-auto px-6">
+          <div data-animate className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-teal-50 text-teal-700 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4 border border-teal-100">
+              <Workflow className="w-3.5 h-3.5" />
+              New — Data Flow Mapping
+            </div>
+            <h2 className="text-2xl md:text-4xl font-extrabold text-[var(--ink)]">Know where every byte of data goes</h2>
+            <p className="text-[var(--muted)] mt-3 text-sm max-w-xl mx-auto leading-relaxed">
+              TraceLayer auto-maps your connected integrations to data types, regions, risk levels, and regulations. No spreadsheets. No manual entry. Your RoPA is pre-populated on day one.
+            </p>
+          </div>
+
+          {/* Flow visualization */}
+          <div className="flex items-stretch justify-center gap-2 md:gap-3 flex-wrap md:flex-nowrap mb-10" data-animate>
+            {/* Data */}
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 md:p-5 flex-1 min-w-[130px] max-w-[180px]">
+              <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-3">Data</p>
+              {["Email address", "Health records", "Payment info", "Device ID", "Location data"].map((d) => (
+                <div key={d} className="flex items-center gap-2 mb-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
+                  <span className="text-xs text-blue-800 font-medium leading-tight">{d}</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-center shrink-0">
+              <ArrowRight className="w-4 h-4 text-gray-300" />
+            </div>
+            {/* Tools */}
+            <div className="bg-[color:var(--accent)]/5 border border-[color:var(--accent)]/10 rounded-2xl p-4 md:p-5 flex-1 min-w-[130px] max-w-[180px]">
+              <p className="text-[10px] font-bold text-[var(--accent)] uppercase tracking-widest mb-3">Tools</p>
+              {["Salesforce", "Segment", "Stripe", "Google Analytics", "HubSpot"].map((t) => (
+                <div key={t} className="flex items-center gap-2 mb-2">
+                  <div className="w-4 h-4 rounded bg-[color:var(--accent)]/15 flex items-center justify-center shrink-0">
+                    <Plug className="w-2.5 h-2.5 text-[var(--accent)]" />
+                  </div>
+                  <span className="text-xs text-[var(--ink)] font-medium">{t}</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-center shrink-0">
+              <ArrowRight className="w-4 h-4 text-gray-300" />
+            </div>
+            {/* Region */}
+            <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 md:p-5 flex-1 min-w-[120px] max-w-[165px]">
+              <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-3">Region</p>
+              {[["United States", "🇺🇸"], ["European Union", "🇪🇺"], ["Global", "🌐"]].map(([r, flag]) => (
+                <div key={r} className="flex items-center gap-1.5 mb-2.5">
+                  <span className="text-sm leading-none">{flag}</span>
+                  <span className="text-xs text-amber-800 font-medium">{r}</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-center shrink-0">
+              <ArrowRight className="w-4 h-4 text-gray-300" />
+            </div>
+            {/* Risk */}
+            <div className="bg-red-50 border border-red-100 rounded-2xl p-4 md:p-5 flex-1 min-w-[110px] max-w-[150px]">
+              <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-3">Risk</p>
+              {[
+                { label: "Critical", cls: "bg-red-100 text-red-700 border-red-200" },
+                { label: "High",     cls: "bg-orange-100 text-orange-700 border-orange-200" },
+                { label: "Medium",   cls: "bg-amber-100 text-amber-700 border-amber-200" },
+                { label: "Low",      cls: "bg-emerald-100 text-emerald-700 border-emerald-200" },
+              ].map(({ label, cls }) => (
+                <div key={label} className={`text-[11px] font-semibold px-2 py-0.5 rounded-md mb-1.5 border inline-block ${cls}`}>{label}</div>
+              ))}
+            </div>
+            <div className="flex items-center justify-center shrink-0">
+              <ArrowRight className="w-4 h-4 text-gray-300" />
+            </div>
+            {/* Regulations */}
+            <div className="bg-purple-50 border border-purple-100 rounded-2xl p-4 md:p-5 flex-1 min-w-[110px] max-w-[150px]">
+              <p className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mb-3">Regulations</p>
+              {["GDPR", "CCPA", "HIPAA", "PCI DSS"].map((r) => (
+                <div key={r} className="flex items-center gap-1.5 mb-2">
+                  <CheckCircle2 className="w-3 h-3 text-purple-500 shrink-0" />
+                  <span className="text-xs text-purple-800 font-semibold">{r}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Three benefits — 3 columns, perfectly symmetric */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              {
+                icon: Zap,
+                title: "Auto-detected on connect",
+                desc: "Connect Salesforce → TraceLayer instantly maps customer PII to GDPR, CCPA, and the US region. Every integration carries a pre-built data profile. Zero manual entry.",
+              },
+              {
+                icon: AlertTriangle,
+                title: "Risk-scored by default",
+                desc: "Health data = critical. Payment data = critical. Cross-border transfers = elevated. Your highest privacy risks surface on day one, before your auditor asks.",
+              },
+              {
+                icon: FileText,
+                title: "RoPA pre-populated",
+                desc: "Data flow records automatically feed your GDPR Article 30 Record of Processing Activities. Export as CSV for your DPO or auditor — no spreadsheet juggling.",
+              },
+            ].map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="bg-[var(--card)] border border-black/5 rounded-2xl p-5 shadow-[0_4px_16px_rgba(15,23,42,0.05)]">
+                <div className="w-9 h-9 rounded-xl bg-[color:var(--accent)]/10 flex items-center justify-center mb-3">
+                  <Icon className="w-4 h-4 text-[var(--accent)]" />
+                </div>
+                <h3 className="text-sm font-bold text-[var(--ink)] mb-1.5">{title}</h3>
+                <p className="text-xs text-[var(--muted)] leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -1304,36 +1509,17 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {FEATURES.map(({ icon: Icon, title, desc }, i) => {
-              const isMore = Icon === null;
-              return (
-                <div key={title} data-animate data-delay={String((i % 3) * 100 + 100)}
-                  className={`rounded-2xl border p-6 transition-all duration-200 ${
-                    isMore
-                      ? "lg:col-span-3 border-dashed border-black/10 bg-transparent flex flex-col md:flex-row items-center justify-center text-center md:text-left gap-4 md:gap-8"
-                      : "bg-[var(--card)] border-black/5 shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_32px_rgba(15,23,42,0.08)] hover:-translate-y-0.5"
-                  }`}
-                >
-                  {isMore ? (
-                    <>
-                      <span className="text-3xl font-black text-[var(--accent)] leading-none shrink-0">···</span>
-                      <div>
-                        <h3 className="font-bold text-sm text-[var(--ink)] mb-1">{title}</h3>
-                        <p className="text-sm text-[var(--muted)] leading-relaxed">{desc}</p>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="w-10 h-10 bg-[color:var(--accent)]/10 rounded-xl flex items-center justify-center mb-4">
-                        <Icon className="w-5 h-5 text-[var(--accent)]" />
-                      </div>
-                      <h3 className="font-bold mb-2 text-sm">{title}</h3>
-                      <p className="text-sm text-[var(--muted)] leading-relaxed">{desc}</p>
-                    </>
-                  )}
+            {FEATURES.map(({ icon: Icon, title, desc }, i) => (
+              <div key={title} data-animate data-delay={String((i % 3) * 100 + 100)}
+                className="rounded-2xl border bg-[var(--card)] border-black/5 p-6 shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_32px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 transition-all duration-200"
+              >
+                <div className="w-10 h-10 bg-[color:var(--accent)]/10 rounded-xl flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-[var(--accent)]" />
                 </div>
-              );
-            })}
+                <h3 className="font-bold mb-2 text-sm">{title}</h3>
+                <p className="text-sm text-[var(--muted)] leading-relaxed">{desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -1533,12 +1719,13 @@ export default function LandingPage() {
               <p className="text-xs mb-6 leading-relaxed text-white/45">AI features, PDF reports, all 7 frameworks, Trust Center, unlimited integrations and team members.</p>
               <div className="space-y-2.5 mb-7 flex-1">
                 {[
-                  "Unlimited integrations (43+)",
+                  "Unlimited integrations (100+)",
                   "All 7 frameworks (incl. GDPR, PCI DSS, CCPA, NIST CSF)",
                   "PDF & CSV audit reports",
                   "AI Compliance Advisor",
                   "AI Questionnaire Autofill (17 data sources)",
                   "AI Audit Package",
+                  "Data Flow Map (auto-mapped regulations & risk)",
                   "GDPR Privacy Suite (RoPA, SoA, Breach Register, SARs)",
                   "Incident, Vulnerability & Asset Management",
                   "Public Trust Center page",
