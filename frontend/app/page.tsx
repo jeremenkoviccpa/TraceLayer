@@ -368,6 +368,61 @@ function ServiceNowLogo() {
     </svg>
   );
 }
+function JumpCloudLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#0073E6"/>
+      <text x="3.5" y="16" fontSize="9" fontWeight="900" fill="white" fontFamily="Arial,sans-serif">JC</text>
+    </svg>
+  );
+}
+function BitbucketLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#0052CC"/>
+      <path d="M4 7l3.5 10 5-6 5 6L21 7z" fill="white" opacity="0.9"/>
+      <path d="M12.5 11l-1 6h1l1-6z" fill="#0052CC"/>
+    </svg>
+  );
+}
+function ZendeskLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#03363D"/>
+      <path d="M7 8a5 5 0 0110 0v1H7V8z" fill="#00363D"/>
+      <path d="M7 9h10l-2 7H9L7 9z" fill="white"/>
+    </svg>
+  );
+}
+function KubernetesLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#326CE5"/>
+      <circle cx="12" cy="12" r="5" stroke="white" strokeWidth="1.5" fill="none"/>
+      <line x1="12" y1="7" x2="12" y2="17" stroke="white" strokeWidth="1.2"/>
+      <line x1="7" y1="12" x2="17" y2="12" stroke="white" strokeWidth="1.2"/>
+      <line x1="8.5" y1="8.5" x2="15.5" y2="15.5" stroke="white" strokeWidth="1.2"/>
+      <line x1="15.5" y1="8.5" x2="8.5" y2="15.5" stroke="white" strokeWidth="1.2"/>
+    </svg>
+  );
+}
+function CircleCILogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#343434"/>
+      <circle cx="12" cy="12" r="5" stroke="#F5A623" strokeWidth="1.8" fill="none"/>
+      <circle cx="12" cy="12" r="2" fill="#F5A623"/>
+    </svg>
+  );
+}
+function QualysLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#E2002A"/>
+      <text x="3" y="16" fontSize="9" fontWeight="900" fill="white" fontFamily="Arial,sans-serif">QL</text>
+    </svg>
+  );
+}
 
 const INTEGRATION_LOGOS = [
   { name: "AWS",              logo: <AwsLogo />       },
@@ -404,19 +459,25 @@ const INTEGRATION_LOGOS = [
   { name: "Splunk",           logo: <SplunkLogo />        },
   { name: "Confluence",       logo: <ConfluenceLogo />    },
   { name: "ServiceNow",       logo: <ServiceNowLogo />    },
+  { name: "JumpCloud",        logo: <JumpCloudLogo />     },
+  { name: "Bitbucket",        logo: <BitbucketLogo />     },
+  { name: "Zendesk",          logo: <ZendeskLogo />       },
+  { name: "Kubernetes",       logo: <KubernetesLogo />    },
+  { name: "CircleCI",         logo: <CircleCILogo />      },
+  { name: "Qualys",           logo: <QualysLogo />        },
 ];
 
 // ── Static data ───────────────────────────────────────────────────────────────
 
 const STATS = [
-  { value: "34+",  label: "Native integrations"    },
+  { value: "43+",  label: "Native integrations"    },
   { value: "7",    label: "Compliance frameworks"   },
-  { value: "28+",  label: "Compliance modules"      },
+  { value: "30+",  label: "Compliance modules"      },
   { value: "100%", label: "Automated evidence"      },
 ];
 
 const FRAMEWORKS = [
-  { name: "SOC 2",    desc: "Type I & II",       detail: "Trust Service Criteria — security, availability, confidentiality, and privacy", color: "from-teal-500 to-emerald-500" },
+  { name: "SOC 2",    desc: "Type I & II — toggle in readiness view",       detail: "Trust Service Criteria — security, availability, confidentiality, and privacy", color: "from-teal-500 to-emerald-500" },
   { name: "ISO 27001",desc: "2022 Edition",      detail: "93 Annex A controls across 4 themes — organizational, people, physical, technological", color: "from-blue-500 to-cyan-500" },
   { name: "HIPAA",    desc: "Security Rule",     detail: "Administrative, physical, and technical safeguards for protected health information", color: "from-violet-500 to-purple-500" },
   { name: "GDPR",     desc: "EU Regulation",     detail: "Data protection by design, DPIA, consent management, DPO, and breach notification", color: "from-indigo-500 to-blue-500" },
@@ -428,8 +489,8 @@ const FRAMEWORKS = [
 const FEATURES = [
   {
     icon: Plug,
-    title: "34+ native integrations",
-    desc: "Connect AWS, GitHub, Okta, GitLab, Datadog, CrowdStrike, SentinelOne, Snyk, Wiz, Jamf, Kandji, Kolide, Splunk, Duo, and more in minutes. No agents. No code.",
+    title: "43+ native integrations",
+    desc: "Connect AWS, GitHub, Okta, GitLab, Datadog, CrowdStrike, SentinelOne, Snyk, Wiz, Jamf, Kandji, JumpCloud, Kubernetes, Bitbucket, Zendesk, CircleCI, Qualys, and 26 more — in minutes. No agents. No code.",
   },
   {
     icon: Zap,
@@ -482,6 +543,11 @@ const FEATURES = [
     desc: "Share a live compliance posture page with customers and investors — verified by TraceLayer, updated continuously, no manual upkeep.",
   },
   {
+    icon: Database,
+    title: "API keys for CI/CD",
+    desc: "Generate API keys to push compliance evidence directly from your CI/CD pipelines — test results, deployment records, and security scans land in your evidence library automatically.",
+  },
+  {
     icon: null,
     title: "and more",
     desc: "Audit sessions, management reviews, subject access requests, background checks, offboarding checklists — everything to pass your audit.",
@@ -492,7 +558,7 @@ const HOW_IT_WORKS = [
   {
     step: "01",
     title: "Connect your tools",
-    desc: "Link your cloud infrastructure and SaaS apps in under 5 minutes using API keys or service accounts. 34+ integrations, no OAuth dance.",
+    desc: "Link your cloud infrastructure and SaaS apps in under 5 minutes using API keys or service accounts. 43+ integrations, no OAuth dance.",
   },
   {
     step: "02",
@@ -528,7 +594,7 @@ const TESTIMONIALS = [
 ];
 
 const PAIN_POINTS = [
-  { before: "Spreadsheets tracking evidence manually",         after: "Automated collection every 24 hours across 24+ tools" },
+  { before: "Spreadsheets tracking evidence manually",         after: "Automated collection every 24 hours across 43+ integrations" },
   { before: "No idea how close you are to audit-ready",        after: "Live readiness score with week-by-week estimate"       },
   { before: "Vendor security questionnaires take days",        after: "AI autofill drafts all answers in seconds from your real data" },
   { before: "GDPR compliance managed in spreadsheets",         after: "RoPA, breach register, SARs, and SoA in one place"    },
@@ -552,7 +618,7 @@ const FAQ = [
   },
   {
     q: "What integrations are supported?",
-    a: "AWS, GitHub, Slack, Google Workspace, Okta, Azure AD, Jira — with active collectors — plus Cloudflare, 1Password, CrowdStrike, Jamf, Vercel, Terraform Cloud, GitLab, GCP, Linear, Datadog, PagerDuty, Sentry, Microsoft Teams, Stripe, Rippling, BambooHR, and Notion — 24 integrations, each collecting multiple evidence types.",
+    a: "AWS, GitHub, Slack, Google Workspace, Okta, Azure AD, Jira — with active collectors — plus Cloudflare, 1Password, CrowdStrike, Jamf, Vercel, Terraform Cloud, GitLab, GCP, Linear, Datadog, PagerDuty, Sentry, Microsoft Teams, Stripe, Rippling, BambooHR, Notion, JumpCloud, Bitbucket, Zendesk, Kubernetes, CircleCI, Qualys, and more — 43 integrations total, each collecting multiple evidence types.",
   },
   {
     q: "Does TraceLayer cover training and vendor management?",
@@ -883,7 +949,7 @@ export default function LandingPage() {
           </h1>
 
           <p data-animate data-delay="200" className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 leading-relaxed">
-            TraceLayer is your complete compliance program — automated evidence collection across 24+ integrations, risk register, incident and vulnerability management, GDPR privacy suite, policy templates, training tracker, vendor management, and a live readiness score. Everything in one platform.
+            TraceLayer is your complete compliance program — automated evidence collection across 43+ integrations, risk register, incident and vulnerability management, GDPR privacy suite, policy templates, training tracker, vendor management, and a live readiness score. Everything in one platform.
           </p>
 
           <div data-animate data-delay="300" className="flex items-center justify-center gap-3 flex-wrap mb-5">
@@ -926,7 +992,7 @@ export default function LandingPage() {
                 <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                 <div className="flex-1 mx-4">
                   <div className="bg-white border border-gray-200 rounded-md px-3 py-1 text-[11px] text-gray-400 font-mono hidden sm:block max-w-[220px] mx-auto text-center">
-                    app.tracelayer.io/readiness
+                    app.tracelayer.it.com/readiness
                   </div>
                 </div>
               </div>
@@ -1078,7 +1144,7 @@ export default function LandingPage() {
               { icon: FileText,     label: "Audit Reports",        desc: "PDF & JSON"             },
               { icon: Lock,         label: "Auditor Portal",       desc: "Read-only access"       },
               { icon: Users,        label: "Team RBAC",            desc: "Admin & member"         },
-              { icon: Plug,         label: "24+ Integrations",     desc: "AWS, Cloudflare, Okta…" },
+              { icon: Plug,         label: "43+ Integrations",     desc: "AWS, Cloudflare, Okta…" },
             ].map(({ icon: Icon, label, desc }) => (
               <div key={label} className="bg-[var(--card)] rounded-2xl border border-black/5 p-4 hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 transition-all duration-200 group">
                 <div className="w-8 h-8 bg-[color:var(--accent)]/10 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[color:var(--accent)]/18 transition-colors">
@@ -1167,6 +1233,34 @@ export default function LandingPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Security trust strip ───────────────────────────────────────────── */}
+      <section className="py-10 border-y border-black/6 bg-white/40">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 items-center">
+            <div className="flex flex-col items-center text-center gap-1.5">
+              <Lock className="w-6 h-6 text-[var(--accent)]"/>
+              <span className="text-xs font-semibold text-[var(--ink)]">Fernet-encrypted secrets</span>
+              <span className="text-[11px] text-[var(--muted)]">All credentials AES-256 at rest</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-1.5">
+              <Database className="w-6 h-6 text-[var(--accent)]"/>
+              <span className="text-xs font-semibold text-[var(--ink)]">Supabase PostgreSQL</span>
+              <span className="text-[11px] text-[var(--muted)]">Isolated per-company data</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-1.5">
+              <ShieldCheck className="w-6 h-6 text-[var(--accent)]"/>
+              <span className="text-xs font-semibold text-[var(--ink)]">API key CI/CD integration</span>
+              <span className="text-[11px] text-[var(--muted)]">Push evidence from your pipelines</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-1.5">
+              <Globe className="w-6 h-6 text-[var(--accent)]"/>
+              <span className="text-xs font-semibold text-[var(--ink)]">Live Trust Center</span>
+              <span className="text-[11px] text-[var(--muted)]">Share compliance posture publicly</span>
+            </div>
           </div>
         </div>
       </section>
@@ -1305,7 +1399,7 @@ export default function LandingPage() {
               <p className="text-xs mb-6 leading-relaxed text-white/45">AI features, PDF reports, all 7 frameworks, Trust Center, unlimited integrations and team members.</p>
               <div className="space-y-2.5 mb-7 flex-1">
                 {[
-                  "Unlimited integrations (24+)",
+                  "Unlimited integrations (43+)",
                   "All 7 frameworks (incl. GDPR, PCI DSS, CCPA, NIST CSF)",
                   "PDF & CSV audit reports",
                   "AI Compliance Advisor",
