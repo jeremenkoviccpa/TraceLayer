@@ -373,6 +373,27 @@ class ApiClient {
     return this.request<{ checkout_url: string }>("POST", "/billing/checkout");
   }
 
+  // SSO
+  async checkSSODomain(domain: string): Promise<{ sso_enabled: boolean; company_id?: string }> {
+    return this.request("GET", `/auth/sso/check?domain=${encodeURIComponent(domain)}`);
+  }
+
+  async getSSOConfig(): Promise<{ id: string; enabled: boolean; domain: string; issuer: string; client_id: string; scopes: string }> {
+    return this.request("GET", "/sso/config");
+  }
+
+  async upsertSSOConfig(body: { domain: string; issuer: string; client_id: string; client_secret: string; scopes?: string }): Promise<unknown> {
+    return this.request("POST", "/sso/config", body);
+  }
+
+  async toggleSSO(enabled: boolean): Promise<unknown> {
+    return this.request("PATCH", "/sso/config", { enabled });
+  }
+
+  async deleteSSOConfig(): Promise<void> {
+    return this.request("DELETE", "/sso/config");
+  }
+
   async getBillingPortal(): Promise<{ portal_url: string }> {
     return this.request<{ portal_url: string }>("POST", "/billing/portal");
   }

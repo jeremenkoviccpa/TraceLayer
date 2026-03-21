@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/components/auth-provider";
 import { api } from "@/lib/api";
-import { Eye, EyeOff, AlertCircle, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, CheckCircle2, ShieldCheck, Building2 } from "lucide-react";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -16,10 +16,27 @@ export default function LoginPage() {
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // SSO state
+  const [ssoCompanyId, setSsoCompanyId] = useState<string | null>(null);
+  const [ssoChecking, setSsoChecking] = useState(false);
   // 2FA state
   const [totpStep, setTotpStep] = useState(false);
   const [totpToken, setTotpToken] = useState("");
   const [totpCode, setTotpCode] = useState("");
+
+  const handleEmailBlur = async () => {
+    const domain = email.split("@")[1];
+    if (!domain) return;
+    setSsoChecking(true);
+    try {
+      const result = await api.checkSSODomain(domain);
+      setSsoCompanyId(result.sso_enabled && result.company_id ? result.company_id : null);
+    } catch {
+      setSsoCompanyId(null);
+    } finally {
+      setSsoChecking(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -202,13 +219,24 @@ export default function LoginPage() {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); setSsoCompanyId(null); }}
+                  onBlur={handleEmailBlur}
                   required
                   autoFocus
                   className="input"
                   placeholder="you@company.com"
                 />
               </div>
+
+              {ssoCompanyId && (
+                <a
+                  href={`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/v1/auth/sso/${ssoCompanyId}/login`}
+                  className="w-full flex items-center justify-center gap-3 border border-brand-200 bg-brand-50 rounded-xl py-2.5 text-sm font-medium text-brand-700 hover:bg-brand-100 transition-colors"
+                >
+                  <Building2 className="w-4 h-4" />
+                  Continue with SSO
+                </a>
+              )}
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
