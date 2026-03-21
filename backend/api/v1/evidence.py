@@ -135,7 +135,8 @@ async def export_evidence_csv(
         writer.writerow(["id", "integration", "control", "evidence_type", "source_id", "timestamp"])
         yield buf.getvalue()
         for item in items:
-            buf.seek(0); buf.truncate(0)
+            buf.seek(0)
+            buf.truncate(0)
             writer.writerow([
                 str(item.id),
                 item.integration,

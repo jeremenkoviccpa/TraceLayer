@@ -1,11 +1,10 @@
 import uuid
-import secrets
 from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import Boolean, ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import TIMESTAMP
 
 from models.base import Base
