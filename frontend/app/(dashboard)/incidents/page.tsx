@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Incident } from "@/lib/types";
 import { Siren, Plus, Trash2, X, ChevronDown, Sparkles, RefreshCw } from "lucide-react";
+import { toast } from "@/lib/toast";
 
 const SEVERITIES = ["critical", "high", "medium", "low"] as const;
 const STATUSES = ["open", "investigating", "resolved", "closed"] as const;
@@ -36,7 +37,7 @@ export default function IncidentsPage() {
   const [saving, setSaving]       = useState(false);
   const [expanded, setExpanded]   = useState<string | null>(null);
   const [detecting, setDetecting] = useState(false);
-  const [detectMsg, setDetectMsg] = useState<string | null>(null);
+  const [detectMsg] = useState<string | null>(null); // toasts used instead
 
   useEffect(() => {
     api.getIncidents().then(setIncidents).finally(() => setLoading(false));
@@ -53,33 +54,36 @@ export default function IncidentsPage() {
       if (editing) {
         const updated = await api.updateIncident(editing.id, form);
         setIncidents(prev => prev.map(i => i.id === updated.id ? updated : i));
+        toast("Incident updated");
       } else {
         const created = await api.createIncident(form);
         setIncidents(prev => [created, ...prev]);
+        toast("Incident created");
       }
       closeModal();
-    } catch { /* silent */ } finally { setSaving(false); }
+    } catch { toast("Failed to save incident", "error"); } finally { setSaving(false); }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this incident?")) return;
-    await api.deleteIncident(id);
-    setIncidents(prev => prev.filter(i => i.id !== id));
+    try {
+      await api.deleteIncident(id);
+      setIncidents(prev => prev.filter(i => i.id !== id));
+      toast("Incident deleted");
+    } catch { toast("Failed to delete incident", "error"); }
   };
 
   const handleDetect = async () => {
     setDetecting(true);
-    setDetectMsg(null);
     try {
       const result = await api.runIncidentDetection();
       const fresh = await api.getIncidents();
       setIncidents(fresh);
-      setDetectMsg(result.created > 0 ? `${result.created} incident${result.created > 1 ? "s" : ""} detected` : "No new incidents found");
+      toast(result.created > 0 ? `${result.created} incident${result.created > 1 ? "s" : ""} detected` : "No new incidents found");
     } catch {
-      setDetectMsg("Detection failed");
+      toast("Detection failed", "error");
     } finally {
       setDetecting(false);
-      setTimeout(() => setDetectMsg(null), 4000);
     }
   };
 

@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import type { Member, Risk } from "@/lib/types";
 import { AlertTriangle, Plus, Trash2, X, ChevronDown, ChevronUp, Sparkles, RefreshCw } from "lucide-react";
 import { DocumentUpload } from "@/components/document-upload";
+import { toast } from "@/lib/toast";
 
 const CATEGORIES = ["Access Control", "Data Protection", "Availability", "Change Management", "Logging & Monitoring", "Incident Response", "Vendor Management", "Physical Security", "General"];
 const STATUSES: Risk["status"][] = ["open", "mitigated", "accepted"];
@@ -76,7 +77,7 @@ export default function RisksPage() {
   const [sortAsc, setSortAsc]     = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [detecting, setDetecting] = useState(false);
-  const [detectMsg, setDetectMsg] = useState<string | null>(null);
+  const [detectMsg] = useState<string | null>(null); // kept for layout compat; toasts used instead
 
   useEffect(() => {
     Promise.all([api.getRisks(), api.getMembers()])
@@ -95,32 +96,35 @@ export default function RisksPage() {
       if (editing) {
         const updated = await api.updateRisk(editing.id, form);
         setRisks((prev) => prev.map((r) => r.id === updated.id ? updated : r));
+        toast("Risk updated");
       } else {
         const created = await api.createRisk(form);
         setRisks((prev) => [created, ...prev]);
+        toast("Risk created");
       }
       closeModal();
-    } catch { /* ignore */ } finally { setSaving(false); }
+    } catch { toast("Failed to save risk", "error"); } finally { setSaving(false); }
   };
 
   const handleDelete = async (id: string) => {
-    await api.deleteRisk(id).catch(() => {});
-    setRisks((prev) => prev.filter((r) => r.id !== id));
+    try {
+      await api.deleteRisk(id);
+      setRisks((prev) => prev.filter((r) => r.id !== id));
+      toast("Risk deleted");
+    } catch { toast("Failed to delete risk", "error"); }
   };
 
   const handleDetect = async () => {
     setDetecting(true);
-    setDetectMsg(null);
     try {
       const result = await api.runRiskDetection();
       const fresh = await api.getRisks();
       setRisks(fresh);
-      setDetectMsg(result.created > 0 ? `${result.created} new risk${result.created > 1 ? "s" : ""} detected` : "No new risks found");
+      toast(result.created > 0 ? `${result.created} new risk${result.created > 1 ? "s" : ""} detected` : "No new risks found");
     } catch {
-      setDetectMsg("Detection failed");
+      toast("Detection failed", "error");
     } finally {
       setDetecting(false);
-      setTimeout(() => setDetectMsg(null), 4000);
     }
   };
 

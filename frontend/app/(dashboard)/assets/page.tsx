@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Asset } from "@/lib/types";
 import { Server, Plus, Trash2, X } from "lucide-react";
+import { toast } from "@/lib/toast";
 
 const ASSET_TYPES = ["hardware", "software", "cloud", "data", "other"] as const;
 const ENVIRONMENTS = ["production", "staging", "development", "other"] as const;
@@ -62,18 +63,23 @@ export default function AssetsPage() {
       if (editing) {
         const updated = await api.updateAsset(editing.id, form);
         setAssets(prev => prev.map(a => a.id === updated.id ? updated : a));
+        toast("Asset updated");
       } else {
         const created = await api.createAsset(form);
         setAssets(prev => [created, ...prev]);
+        toast("Asset added");
       }
       closeModal();
-    } catch { /**/ } finally { setSaving(false); }
+    } catch { toast("Failed to save asset", "error"); } finally { setSaving(false); }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this asset?")) return;
-    await api.deleteAsset(id);
-    setAssets(prev => prev.filter(a => a.id !== id));
+    try {
+      await api.deleteAsset(id);
+      setAssets(prev => prev.filter(a => a.id !== id));
+      toast("Asset deleted");
+    } catch { toast("Failed to delete asset", "error"); }
   };
 
   const filtered = filter === "all" ? assets : assets.filter(a => a.asset_type === filter);

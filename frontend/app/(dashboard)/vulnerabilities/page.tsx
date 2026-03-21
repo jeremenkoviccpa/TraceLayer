@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Vulnerability } from "@/lib/types";
 import { Bug, Plus, Trash2, X } from "lucide-react";
+import { toast } from "@/lib/toast";
 
 const SEVERITIES = ["critical", "high", "medium", "low", "info"] as const;
 const STATUSES = ["open", "in_remediation", "resolved", "accepted_risk"] as const;
@@ -49,18 +50,23 @@ export default function VulnerabilitiesPage() {
       if (editing) {
         const updated = await api.updateVulnerability(editing.id, form);
         setVulns(prev => prev.map(v => v.id === updated.id ? updated : v));
+        toast("Vulnerability updated");
       } else {
         const created = await api.createVulnerability(form);
         setVulns(prev => [created, ...prev]);
+        toast("Vulnerability logged");
       }
       closeModal();
-    } catch { /**/ } finally { setSaving(false); }
+    } catch { toast("Failed to save", "error"); } finally { setSaving(false); }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this vulnerability?")) return;
-    await api.deleteVulnerability(id);
-    setVulns(prev => prev.filter(v => v.id !== id));
+    try {
+      await api.deleteVulnerability(id);
+      setVulns(prev => prev.filter(v => v.id !== id));
+      toast("Vulnerability deleted");
+    } catch { toast("Failed to delete", "error"); }
   };
 
   const isOverdue = (v: Vulnerability) => v.due_date && new Date(v.due_date) < new Date() && v.status !== "resolved" && v.status !== "accepted_risk";

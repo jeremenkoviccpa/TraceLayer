@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import type { Vendor } from "@/lib/types";
 import { Building2, Plus, Trash2, X, CheckCircle2, Circle, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { DocumentUpload } from "@/components/document-upload";
+import { toast } from "@/lib/toast";
 
 const RISK_STYLES: Record<string, string> = {
   low: "bg-emerald-50 text-emerald-700",
@@ -136,20 +137,29 @@ export default function VendorsPage() {
   }, []);
 
   const handleCreate = async (data: Partial<Vendor>) => {
-    const v = await api.createVendor(data);
-    setVendors((prev) => [...prev, v].sort((a, b) => a.name.localeCompare(b.name)));
+    try {
+      const v = await api.createVendor(data);
+      setVendors((prev) => [...prev, v].sort((a, b) => a.name.localeCompare(b.name)));
+      toast("Vendor added");
+    } catch { toast("Failed to add vendor", "error"); throw new Error("failed"); }
   };
 
   const handleUpdate = async (data: Partial<Vendor>) => {
     if (!editing) return;
-    const v = await api.updateVendor(editing.id, data);
-    setVendors((prev) => prev.map((x) => x.id === editing.id ? v : x));
-    setEditing(null);
+    try {
+      const v = await api.updateVendor(editing.id, data);
+      setVendors((prev) => prev.map((x) => x.id === editing.id ? v : x));
+      setEditing(null);
+      toast("Vendor updated");
+    } catch { toast("Failed to update vendor", "error"); throw new Error("failed"); }
   };
 
   const handleDelete = async (id: string) => {
-    await api.deleteVendor(id);
-    setVendors((prev) => prev.filter((v) => v.id !== id));
+    try {
+      await api.deleteVendor(id);
+      setVendors((prev) => prev.filter((v) => v.id !== id));
+      toast("Vendor deleted");
+    } catch { toast("Failed to delete vendor", "error"); }
   };
 
   const highRisk = vendors.filter((v) => v.risk_level === "high" || v.risk_level === "critical").length;
