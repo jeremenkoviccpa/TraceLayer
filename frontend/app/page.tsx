@@ -424,6 +424,185 @@ function QualysLogo() {
   );
 }
 
+// ── New integration logos ─────────────────────────────────────────────────────
+function Auth0Logo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#EB5424"/>
+      <path d="M12 4l4 8H8l4-8zM8 12l-3 6h14l-3-6" stroke="white" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
+    </svg>
+  );
+}
+function TailscaleLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#242424"/>
+      <circle cx="12" cy="7" r="2" fill="white"/>
+      <circle cx="7" cy="12" r="2" fill="white" opacity="0.6"/>
+      <circle cx="17" cy="12" r="2" fill="white" opacity="0.6"/>
+      <circle cx="7" cy="17" r="2" fill="white" opacity="0.35"/>
+      <circle cx="17" cy="17" r="2" fill="white" opacity="0.35"/>
+    </svg>
+  );
+}
+function BitwardenLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#175DDC"/>
+      <path d="M12 4l7 3v5c0 4-3 6.5-7 8-4-1.5-7-4-7-8V7l7-3z" fill="none" stroke="white" strokeWidth="1.5"/>
+    </svg>
+  );
+}
+function DopplerLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#3C1DCF"/>
+      <text x="3.5" y="17" fontSize="10" fontWeight="900" fill="white" fontFamily="Arial,sans-serif">DP</text>
+    </svg>
+  );
+}
+function AzureInfraLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#0078D4"/>
+      <text x="4" y="17" fontSize="12" fontWeight="900" fill="white" fontFamily="Arial,sans-serif">Az</text>
+    </svg>
+  );
+}
+function DigitalOceanLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#0080FF"/>
+      <circle cx="12" cy="11" r="5" fill="white"/>
+      <circle cx="12" cy="11" r="3" fill="#0080FF"/>
+      <rect x="5" y="16" width="4" height="2" rx="1" fill="white"/>
+      <rect x="5" y="19" width="3" height="2" rx="1" fill="white"/>
+    </svg>
+  );
+}
+function AsanaLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#F06A6A"/>
+      <circle cx="12" cy="9" r="3" fill="white"/>
+      <circle cx="7" cy="15" r="3" fill="white" opacity="0.75"/>
+      <circle cx="17" cy="15" r="3" fill="white" opacity="0.75"/>
+    </svg>
+  );
+}
+function MondayLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#FF3D57"/>
+      <circle cx="7" cy="12" r="2.5" fill="white"/>
+      <circle cx="12" cy="12" r="2.5" fill="white"/>
+      <circle cx="17" cy="12" r="2.5" fill="white"/>
+    </svg>
+  );
+}
+function ZoomLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#2D8CFF"/>
+      <rect x="4" y="8" width="11" height="8" rx="2" fill="white"/>
+      <path d="M15 11l5-3v8l-5-3v-2z" fill="white"/>
+    </svg>
+  );
+}
+function GrafanaLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#F46800"/>
+      <circle cx="12" cy="12" r="5" fill="none" stroke="white" strokeWidth="1.5"/>
+      <path d="M12 7v5l3 2" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+}
+function SnowflakeLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#29B5E8"/>
+      <line x1="12" y1="4" x2="12" y2="20" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="4" y1="12" x2="20" y2="12" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="6.3" y1="6.3" x2="17.7" y2="17.7" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="17.7" y1="6.3" x2="6.3" y2="17.7" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  );
+}
+function DatabricksLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#E8252A"/>
+      <path d="M5 14l7-4 7 4-7 4-7-4zM5 10l7-4 7 4" stroke="white" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
+    </svg>
+  );
+}
+function GreenhouseLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#24A47F"/>
+      <text x="3.5" y="17" fontSize="10" fontWeight="900" fill="white" fontFamily="Arial,sans-serif">GH</text>
+    </svg>
+  );
+}
+function DeelLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#1A56DB"/>
+      <text x="3" y="17" fontSize="11" fontWeight="900" fill="white" fontFamily="Arial,sans-serif">DE</text>
+    </svg>
+  );
+}
+function NetlifyLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#00C7B7"/>
+      <path d="M8 16l4-8 4 8M7 13h10" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    </svg>
+  );
+}
+function RenderLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#46E3B7"/>
+      <text x="5" y="17" fontSize="13" fontWeight="900" fill="#1a2e3b" fontFamily="Arial,sans-serif">R</text>
+    </svg>
+  );
+}
+function ZscalerLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#0076BC"/>
+      <text x="3" y="17" fontSize="10" fontWeight="900" fill="white" fontFamily="Arial,sans-serif">ZS</text>
+    </svg>
+  );
+}
+function ClickUpLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#7B68EE"/>
+      <path d="M5 14l4-5 4 4 6-7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    </svg>
+  );
+}
+function BetterUptimeLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#16C784"/>
+      <path d="M6 12a6 6 0 0112 0" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      <circle cx="12" cy="12" r="2" fill="white"/>
+    </svg>
+  );
+}
+function OpsGenieLogo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#0052CC"/>
+      <text x="3" y="17" fontSize="10" fontWeight="900" fill="white" fontFamily="Arial,sans-serif">OG</text>
+    </svg>
+  );
+}
+
 const INTEGRATION_LOGOS = [
   { name: "AWS",              logo: <AwsLogo />       },
   { name: "GitHub",           logo: <GithubLogo />    },
@@ -465,12 +644,33 @@ const INTEGRATION_LOGOS = [
   { name: "Kubernetes",       logo: <KubernetesLogo />    },
   { name: "CircleCI",         logo: <CircleCILogo />      },
   { name: "Qualys",           logo: <QualysLogo />        },
+  // ── Second batch ───────────────────────────────────────────────────────────
+  { name: "Auth0",            logo: <Auth0Logo />         },
+  { name: "Tailscale",        logo: <TailscaleLogo />     },
+  { name: "Bitwarden",        logo: <BitwardenLogo />     },
+  { name: "Doppler",          logo: <DopplerLogo />       },
+  { name: "Azure",            logo: <AzureInfraLogo />    },
+  { name: "DigitalOcean",     logo: <DigitalOceanLogo />  },
+  { name: "Asana",            logo: <AsanaLogo />         },
+  { name: "Monday.com",       logo: <MondayLogo />        },
+  { name: "Zoom",             logo: <ZoomLogo />          },
+  { name: "Grafana",          logo: <GrafanaLogo />       },
+  { name: "Snowflake",        logo: <SnowflakeLogo />     },
+  { name: "Databricks",       logo: <DatabricksLogo />    },
+  { name: "Greenhouse",       logo: <GreenhouseLogo />    },
+  { name: "Deel",             logo: <DeelLogo />          },
+  { name: "Netlify",          logo: <NetlifyLogo />       },
+  { name: "Render",           logo: <RenderLogo />        },
+  { name: "Zscaler",          logo: <ZscalerLogo />       },
+  { name: "ClickUp",          logo: <ClickUpLogo />       },
+  { name: "Better Uptime",    logo: <BetterUptimeLogo />  },
+  { name: "Opsgenie",         logo: <OpsGenieLogo />      },
 ];
 
 // ── Static data ───────────────────────────────────────────────────────────────
 
 const STATS = [
-  { value: "43+",  label: "Native integrations"    },
+  { value: "89+",  label: "Native integrations"    },
   { value: "7",    label: "Compliance frameworks"   },
   { value: "30+",  label: "Compliance modules"      },
   { value: "100%", label: "Automated evidence"      },
@@ -489,8 +689,8 @@ const FRAMEWORKS = [
 const FEATURES = [
   {
     icon: Plug,
-    title: "43+ native integrations",
-    desc: "Connect AWS, GitHub, Okta, GitLab, Datadog, CrowdStrike, SentinelOne, Snyk, Wiz, Jamf, Kandji, JumpCloud, Kubernetes, Bitbucket, Zendesk, CircleCI, Qualys, and 26 more — in minutes. No agents. No code.",
+    title: "89+ native integrations",
+    desc: "Connect AWS, GitHub, Okta, Datadog, CrowdStrike, Snowflake, Databricks, Auth0, Zscaler, Grafana, Deel, Greenhouse, and 77 more — in minutes. No agents. No code. Evidence collection starts immediately.",
   },
   {
     icon: Zap,
@@ -558,7 +758,7 @@ const HOW_IT_WORKS = [
   {
     step: "01",
     title: "Connect your tools",
-    desc: "Link your cloud infrastructure and SaaS apps in under 5 minutes using API keys or service accounts. 43+ integrations, no OAuth dance.",
+    desc: "Link your cloud infrastructure and SaaS apps in under 5 minutes using API keys or service accounts. 89+ integrations, no OAuth dance.",
   },
   {
     step: "02",
@@ -594,7 +794,7 @@ const TESTIMONIALS = [
 ];
 
 const PAIN_POINTS = [
-  { before: "Spreadsheets tracking evidence manually",         after: "Automated collection every 24 hours across 43+ integrations" },
+  { before: "Spreadsheets tracking evidence manually",         after: "Automated collection every 24 hours across 89+ integrations" },
   { before: "No idea how close you are to audit-ready",        after: "Live readiness score with week-by-week estimate"       },
   { before: "Vendor security questionnaires take days",        after: "AI autofill drafts all answers in seconds from your real data" },
   { before: "GDPR compliance managed in spreadsheets",         after: "RoPA, breach register, SARs, and SoA in one place"    },
@@ -618,7 +818,7 @@ const FAQ = [
   },
   {
     q: "What integrations are supported?",
-    a: "AWS, GitHub, Slack, Google Workspace, Okta, Azure AD, Jira — with active collectors — plus Cloudflare, 1Password, CrowdStrike, Jamf, Vercel, Terraform Cloud, GitLab, GCP, Linear, Datadog, PagerDuty, Sentry, Microsoft Teams, Stripe, Rippling, BambooHR, Notion, JumpCloud, Bitbucket, Zendesk, Kubernetes, CircleCI, Qualys, and more — 43 integrations total, each collecting multiple evidence types.",
+    a: "89 integrations across every major category — Identity & Access (AWS, Okta, Azure AD, Auth0, Tailscale, Bitwarden, Zscaler, Ping Identity, Duo, JumpCloud), Cloud Infrastructure (GCP, Azure, DigitalOcean, Heroku, Render, Fly.io, Netlify, Oracle Cloud, Vercel, Terraform), Source Control (GitHub, GitLab, Bitbucket), HR & People (BambooHR, Rippling, Greenhouse, HiBob, Personio, Deel, Remote, Lattice, Checkr, Trainual), Monitoring & Security (Datadog, CrowdStrike, Snyk, SentinelOne, Wiz, Grafana, Graylog, Splunk, Better Uptime, Veracode, Aqua Security, StackHawk, Bugcrowd, HackerOne), Data & Analytics (Snowflake, Databricks), and more. Each integration collects multiple evidence types automatically.",
   },
   {
     q: "Does TraceLayer cover training and vendor management?",
@@ -949,7 +1149,7 @@ export default function LandingPage() {
           </h1>
 
           <p data-animate data-delay="200" className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 leading-relaxed">
-            TraceLayer is your complete compliance program — automated evidence collection across 43+ integrations, risk register, incident and vulnerability management, GDPR privacy suite, policy templates, training tracker, vendor management, and a live readiness score. Everything in one platform.
+            TraceLayer is your complete compliance program — automated evidence collection across 89+ integrations, risk register, incident and vulnerability management, GDPR privacy suite, policy templates, training tracker, vendor management, and a live readiness score. Everything in one platform.
           </p>
 
           <div data-animate data-delay="300" className="flex items-center justify-center gap-3 flex-wrap mb-5">
@@ -1144,7 +1344,7 @@ export default function LandingPage() {
               { icon: FileText,     label: "Audit Reports",        desc: "PDF & JSON"             },
               { icon: Lock,         label: "Auditor Portal",       desc: "Read-only access"       },
               { icon: Users,        label: "Team RBAC",            desc: "Admin & member"         },
-              { icon: Plug,         label: "43+ Integrations",     desc: "AWS, Cloudflare, Okta…" },
+              { icon: Plug,         label: "89+ Integrations",     desc: "AWS, Snowflake, Auth0…" },
             ].map(({ icon: Icon, label, desc }) => (
               <div key={label} className="bg-[var(--card)] rounded-2xl border border-black/5 p-4 hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 transition-all duration-200 group">
                 <div className="w-8 h-8 bg-[color:var(--accent)]/10 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[color:var(--accent)]/18 transition-colors">
@@ -1434,7 +1634,7 @@ export default function LandingPage() {
               <p className="text-xs mb-6 leading-relaxed text-white/45">AI features, PDF reports, all 7 frameworks, Trust Center, unlimited integrations and team members.</p>
               <div className="space-y-2.5 mb-7 flex-1">
                 {[
-                  "Unlimited integrations (43+)",
+                  "Unlimited integrations (89+)",
                   "All 7 frameworks (incl. GDPR, PCI DSS, CCPA, NIST CSF)",
                   "PDF & CSV audit reports",
                   "AI Compliance Advisor",
