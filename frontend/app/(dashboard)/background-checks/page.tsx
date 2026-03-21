@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { BackgroundCheck } from "@/lib/types";
-import { UserCheck, Plus, Trash2, X } from "lucide-react";
+import { UserCheck, Plus, Trash2, X, Sparkles, RefreshCw } from "lucide-react";
 
 const CHECK_TYPES = ["standard", "enhanced", "international"] as const;
 const STATUSES    = ["pending", "in_progress", "completed", "failed", "expired"] as const;
@@ -27,6 +27,8 @@ export default function BackgroundChecksPage() {
   const [editing, setEditing]     = useState<BackgroundCheck | null>(null);
   const [form, setForm]           = useState<Partial<BackgroundCheck>>(EMPTY);
   const [saving, setSaving]       = useState(false);
+  const [detecting, setDetecting] = useState(false);
+  const [detectMsg, setDetectMsg] = useState<string | null>(null);
 
   useEffect(() => {
     api.getBackgroundChecks().then(setChecks).finally(() => setLoading(false));
@@ -56,6 +58,22 @@ export default function BackgroundChecksPage() {
     setChecks(prev => prev.filter(c => c.id !== id));
   };
 
+  const handleDetect = async () => {
+    setDetecting(true);
+    setDetectMsg(null);
+    try {
+      const result = await api.runBackgroundCheckDetection();
+      const fresh = await api.getBackgroundChecks();
+      setChecks(fresh);
+      setDetectMsg(result.created > 0 ? `${result.created} member${result.created > 1 ? "s" : ""} flagged` : "All members have records");
+    } catch {
+      setDetectMsg("Detection failed");
+    } finally {
+      setDetecting(false);
+      setTimeout(() => setDetectMsg(null), 4000);
+    }
+  };
+
   const isExpired = (c: BackgroundCheck) => c.valid_until && new Date(c.valid_until) < new Date() && c.status === "completed";
   const pending = checks.filter(c => c.status === "pending" || c.status === "in_progress");
   const done    = checks.filter(c => c.status === "completed" || c.status === "failed" || c.status === "expired");
@@ -76,9 +94,20 @@ export default function BackgroundChecksPage() {
           </h1>
           <p className="text-sm text-gray-500 mt-1">Track employee background check status and expiry</p>
         </div>
-        <button onClick={openCreate} className="btn-primary gap-2">
-          <Plus className="w-4 h-4" /> Add Check
-        </button>
+        <div className="flex items-center gap-2">
+          {detectMsg && <span className="text-xs text-gray-500">{detectMsg}</span>}
+          <button
+            onClick={handleDetect}
+            disabled={detecting}
+            className="btn-secondary gap-2 disabled:opacity-50"
+          >
+            {detecting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            Auto-detect
+          </button>
+          <button onClick={openCreate} className="btn-primary gap-2">
+            <Plus className="w-4 h-4" /> Add Check
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -120,7 +149,14 @@ export default function BackgroundChecksPage() {
               {checks.map(check => (
                 <tr key={check.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-4 py-3">
-                    <p className="font-medium text-gray-900">{check.employee_name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-gray-900">{check.employee_name}</p>
+                      {check.auto_detected && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-600 border border-violet-100">
+                          <Sparkles className="h-2.5 w-2.5" />Auto
+                        </span>
+                      )}
+                    </div>
                     {check.employee_email && <p className="text-xs text-gray-400">{check.employee_email}</p>}
                   </td>
                   <td className="px-4 py-3 hidden sm:table-cell">

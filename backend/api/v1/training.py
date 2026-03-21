@@ -27,6 +27,8 @@ def _to_response(t: TrainingRecord) -> TrainingResponse:
         status=t.status,
         annual=t.annual,
         notes=t.notes,
+        auto_detected=t.auto_detected,
+        detection_key=t.detection_key,
         created_at=t.created_at,
         updated_at=t.updated_at,
     )
@@ -130,3 +132,17 @@ async def delete_training(
         raise HTTPException(status_code=404, detail="Training record not found")
     await db.delete(record)
     await db.commit()
+
+
+@router.post("/detect", status_code=200)
+async def trigger_training_detection(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Auto-create pending training assignments for team members with no training record (admin only)."""
+    if current_user.role not in ("admin", "owner"):
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    from services.auto_detector import run_training_detection_for_company
+    created = await run_training_detection_for_company(db, current_user.company_id)
+    return {"created": created}

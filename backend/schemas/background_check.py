@@ -40,5 +40,7 @@ class BackgroundCheckResponse(BaseModel):
     completed_at: Optional[datetime]
     valid_until: Optional[datetime]
     notes: Optional[str]
+    auto_detected: bool = False
+    detection_key: Optional[str] = None
     created_at: datetime
     updated_at: datetime

@@ -29,6 +29,8 @@ def _to_response(check: BackgroundCheck) -> BackgroundCheckResponse:
         completed_at=check.completed_at,
         valid_until=check.valid_until,
         notes=check.notes,
+        auto_detected=check.auto_detected,
+        detection_key=check.detection_key,
         created_at=check.created_at,
         updated_at=check.updated_at,
     )
@@ -115,3 +117,17 @@ async def delete_background_check(
 
     await db.delete(check)
     await db.commit()
+
+
+@router.post("/detect", status_code=200)
+async def trigger_background_check_detection(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Auto-flag team members with no background check on file (admin only)."""
+    if current_user.role not in ("admin", "owner"):
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    from services.auto_detector import run_background_check_detection_for_company
+    created = await run_background_check_detection_for_company(db, current_user.company_id)
+    return {"created": created}

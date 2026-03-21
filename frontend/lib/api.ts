@@ -468,6 +468,10 @@ class ApiClient {
     return this.request("DELETE", `/training/${id}`);
   }
 
+  async runTrainingDetection(): Promise<{ created: number }> {
+    return this.request<{ created: number }>("POST", "/training/detect");
+  }
+
   // ── Pen Tests ─────────────────────────────────────────────────────────────
 
   async getPenTests(): Promise<PenTest[]> {
@@ -679,6 +683,10 @@ class ApiClient {
 
   async deleteBackgroundCheck(id: string): Promise<void> {
     return this.request("DELETE", `/background-checks/${id}`);
+  }
+
+  async runBackgroundCheckDetection(): Promise<{ created: number }> {
+    return this.request<{ created: number }>("POST", "/background-checks/detect");
   }
 
   // ── Offboarding ───────────────────────────────────────────────────────────

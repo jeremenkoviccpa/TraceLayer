@@ -38,6 +38,8 @@ class TrainingResponse(BaseModel):
     status: str
     annual: bool
     notes: Optional[str]
+    auto_detected: bool = False
+    detection_key: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

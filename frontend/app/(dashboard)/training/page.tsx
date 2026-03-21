@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { TrainingRecord } from "@/lib/types";
-import { GraduationCap, Plus, CheckCircle2, Clock, AlertTriangle, Trash2, X, RefreshCw } from "lucide-react";
+import { GraduationCap, Plus, CheckCircle2, Clock, AlertTriangle, Trash2, X, RefreshCw, Sparkles } from "lucide-react";
 
 const STATUS_STYLES: Record<string, string> = {
   completed: "bg-emerald-50 text-emerald-700",
@@ -143,6 +143,8 @@ export default function TrainingPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [detecting, setDetecting] = useState(false);
+  const [detectMsg, setDetectMsg] = useState<string | null>(null);
 
   const load = () => api.getTraining().then(setRecords).catch(() => {}).finally(() => setLoading(false));
 
@@ -166,6 +168,22 @@ export default function TrainingPage() {
     setRecords((prev) => prev.filter((r) => r.id !== id));
   };
 
+  const handleDetect = async () => {
+    setDetecting(true);
+    setDetectMsg(null);
+    try {
+      const result = await api.runTrainingDetection();
+      const fresh = await api.getTraining();
+      setRecords(fresh);
+      setDetectMsg(result.created > 0 ? `${result.created} training assignment${result.created > 1 ? "s" : ""} created` : "All team members have training");
+    } catch {
+      setDetectMsg("Detection failed");
+    } finally {
+      setDetecting(false);
+      setTimeout(() => setDetectMsg(null), 4000);
+    }
+  };
+
   const completed = records.filter((r) => r.status === "completed").length;
   const overdue = records.filter((r) => r.status === "overdue").length;
   const pending = records.filter((r) => r.status === "pending").length;
@@ -187,12 +205,23 @@ export default function TrainingPage() {
               <p className="text-sm text-slate-400 mt-0.5">Track security awareness training for SOC 2 CC1.4 compliance.</p>
             </div>
           </div>
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors shrink-0"
-          >
-            <Plus className="w-4 h-4" /> Assign training
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {detectMsg && <span className="text-xs text-slate-300">{detectMsg}</span>}
+            <button
+              onClick={handleDetect}
+              disabled={detecting}
+              className="flex items-center gap-2 bg-white/10 border border-white/20 hover:bg-white/20 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors disabled:opacity-50"
+            >
+              {detecting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              Auto-detect
+            </button>
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors"
+            >
+              <Plus className="w-4 h-4" /> Assign training
+            </button>
+          </div>
         </div>
 
         {/* Row 2: stats grid */}
@@ -275,6 +304,11 @@ export default function TrainingPage() {
                         <div className="flex items-center gap-2">
                           <span className="text-gray-700">{r.title}</span>
                           {r.annual && <span title="Annual renewal"><RefreshCw className="w-3 h-3 text-gray-400" /></span>}
+                          {r.auto_detected && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-600 border border-violet-100">
+                              <Sparkles className="h-2.5 w-2.5" />Auto
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="px-5 py-3.5 text-gray-500 hidden md:table-cell">

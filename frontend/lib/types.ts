@@ -281,6 +281,8 @@ export interface TrainingRecord {
   status: "pending" | "completed" | "overdue";
   annual: boolean;
   notes: string | null;
+  auto_detected: boolean;
+  detection_key: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -484,6 +486,8 @@ export interface BackgroundCheck {
   completed_at: string | null;
   valid_until: string | null;
   notes: string | null;
+  auto_detected: boolean;
+  detection_key: string | null;
   created_at: string;
   updated_at: string;
 }

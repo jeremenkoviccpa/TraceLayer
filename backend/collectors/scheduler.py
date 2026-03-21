@@ -124,3 +124,19 @@ def schedule_risk_detection() -> None:
         misfire_grace_time=3600,
     )
     logger.info("Scheduled auto risk detection (02:00 UTC)")
+
+
+def schedule_auto_detection() -> None:
+    """Schedule nightly training + background check auto-detection at 02:15 UTC."""
+    from services.auto_detector import run_auto_detection_all_companies
+
+    scheduler.add_job(
+        run_auto_detection_all_companies,
+        "cron",
+        hour=2,
+        minute=15,
+        id="auto_detection",
+        replace_existing=True,
+        misfire_grace_time=3600,
+    )
+    logger.info("Scheduled auto detection (02:15 UTC)")
