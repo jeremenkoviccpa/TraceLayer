@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.database import AsyncSessionFactory
+from core.database import AsyncSessionLocal
 from models.background_check import BackgroundCheck
 from models.company import Company
 from models.incident import Incident
@@ -87,13 +87,13 @@ async def run_detection_digest_for_company(
 
 async def run_detection_digest_all_companies() -> None:
     """Scheduler entry point."""
-    async with AsyncSessionFactory() as db:
+    async with AsyncSessionLocal() as db:
         companies_result = await db.execute(select(Company.id))
         company_ids = [row[0] for row in companies_result.all()]
 
     sent = 0
     for company_id in company_ids:
-        async with AsyncSessionFactory() as db:
+        async with AsyncSessionLocal() as db:
             if await run_detection_digest_for_company(db, company_id):
                 sent += 1
 

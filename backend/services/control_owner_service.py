@@ -8,7 +8,7 @@ from collections import defaultdict
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.database import AsyncSessionFactory
+from core.database import AsyncSessionLocal
 from models.company import Company
 from models.manual_control import ManualControl
 from models.user import User
@@ -72,13 +72,13 @@ async def run_control_owner_reminders_for_company(
 
 async def run_control_owner_reminders() -> None:
     """Scheduler entry point — runs weekly across all companies."""
-    async with AsyncSessionFactory() as db:
+    async with AsyncSessionLocal() as db:
         companies_result = await db.execute(select(Company.id))
         company_ids = [row[0] for row in companies_result.all()]
 
     total_sent = 0
     for company_id in company_ids:
-        async with AsyncSessionFactory() as db:
+        async with AsyncSessionLocal() as db:
             sent = await run_control_owner_reminders_for_company(db, company_id)
             total_sent += sent
 

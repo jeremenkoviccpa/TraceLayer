@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import type { ReadinessData } from "@/lib/types";
-import { Target, CheckCircle2, AlertTriangle, Clock, ArrowRight, TrendingUp, Zap, Lock } from "lucide-react";
+import type { ReadinessData, ComplianceScore } from "@/lib/types";
+import { Target, CheckCircle2, AlertTriangle, Clock, ArrowRight, TrendingUp, Zap, Lock, XCircle, MinusCircle } from "lucide-react";
 import Link from "next/link";
 import { usePlan } from "@/hooks/usePlan";
 import { useUpgrade } from "@/components/plan-gate";
@@ -79,12 +79,17 @@ export default function ReadinessPage() {
   const { trigger: triggerUpgrade } = useUpgrade();
   const [framework, setFramework] = useState("soc2");
   const [data, setData] = useState<ReadinessData | null>(null);
+  const [score, setScore] = useState<ComplianceScore | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
     setData(null);
-    api.getReadiness(framework).then(setData).catch(() => {}).finally(() => setLoading(false));
+    setScore(null);
+    Promise.all([
+      api.getReadiness(framework),
+      api.getComplianceScore(framework),
+    ]).then(([r, s]) => { setData(r); setScore(s); }).catch(() => {}).finally(() => setLoading(false));
   }, [framework]);
 
   const stage = data?.stage ?? "just_started";
@@ -262,6 +267,72 @@ export default function ReadinessPage() {
               ))}
             </div>
           </div>
+
+          {/* Gap Analysis */}
+          {score && score.controls.some((c) => c.status !== "passing") && (
+            <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <div className="flex items-center gap-2 mb-1">
+                <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0"/>
+                <p className="text-sm font-bold text-gray-900">Gap Analysis</p>
+                <span className="text-xs text-gray-400 ml-1">
+                  {score.controls.filter((c) => c.status !== "passing").length} controls need attention
+                </span>
+              </div>
+              <p className="text-xs text-gray-400 mb-4">
+                Controls that are failing or missing evidence — fix these to improve your score.
+              </p>
+              <div className="space-y-2">
+                {score.controls
+                  .filter((c) => c.status !== "passing")
+                  .sort((a, b) => {
+                    const order = { failing: 0, warning: 1, no_evidence: 2 };
+                    return (order[a.status as keyof typeof order] ?? 3) - (order[b.status as keyof typeof order] ?? 3);
+                  })
+                  .map((c) => (
+                    <div key={c.category} className={`rounded-xl border px-4 py-3 ${
+                      c.status === "failing"     ? "border-red-100 bg-red-50/50" :
+                      c.status === "warning"     ? "border-amber-100 bg-amber-50/50" :
+                      "border-gray-100 bg-gray-50/50"
+                    }`}>
+                      <div className="flex items-start gap-2.5">
+                        <div className="mt-0.5 shrink-0">
+                          {c.status === "failing"     && <XCircle className="w-4 h-4 text-red-500"/>}
+                          {c.status === "warning"     && <AlertTriangle className="w-4 h-4 text-amber-500"/>}
+                          {c.status === "no_evidence" && <MinusCircle className="w-4 h-4 text-gray-400"/>}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <p className="text-sm font-semibold text-gray-800">{c.name}</p>
+                            <span className={`text-xs font-bold shrink-0 ${
+                              c.status === "failing"     ? "text-red-500" :
+                              c.status === "warning"     ? "text-amber-600" :
+                              "text-gray-400"
+                            }`}>{c.score}%</span>
+                          </div>
+                          {c.missing_types.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              <span className="text-[11px] text-gray-400 mr-0.5">Missing:</span>
+                              {c.missing_types.map((t) => (
+                                <span key={t} className="inline-flex items-center gap-1 bg-red-100 text-red-600 text-[11px] font-medium px-2 py-0.5 rounded-full">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0"/>
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {c.status === "no_evidence" && c.missing_types.length === 0 && (
+                            <p className="text-[11px] text-gray-400 mt-1">No evidence collected yet — connect an integration.</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+              <Link href="/compliance" className="flex items-center justify-center gap-1.5 mt-4 text-xs font-semibold text-teal-600 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 py-2.5 rounded-xl transition-colors">
+                Fix in compliance dashboard <ArrowRight className="w-3.5 h-3.5"/>
+              </Link>
+            </div>
+          )}
         </>
       )}
     </div>

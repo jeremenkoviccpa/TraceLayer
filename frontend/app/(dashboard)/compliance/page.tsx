@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import type { ComplianceScore, ManualControl, Member } from "@/lib/types";
+import type { ComplianceScore, ManualControl, Member, Document } from "@/lib/types";
 import { PlanGate, useUpgrade } from "@/components/plan-gate";
 import { usePlan } from "@/hooks/usePlan";
 import { getRemediationForMissingType, getRemediationForCategory } from "@/lib/remediation";
@@ -21,6 +21,11 @@ import {
   Wrench,
   User as UserIcon,
   Lock,
+  Paperclip,
+  Upload,
+  Trash2,
+  FileText,
+  X,
 } from "lucide-react";
 
 const FRAMEWORKS = [
@@ -159,6 +164,103 @@ function RemediationPanel({ missingTypes, category }: { missingTypes: string[]; 
               )}
             </div>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Control documents ─────────────────────────────────────────────────────────
+function ControlDocuments({ controlId, framework }: { controlId: string; framework: string }) {
+  const resourceId = `${framework}_${controlId}`;
+  const [docs, setDocs] = useState<Document[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      api.getDocuments("control", resourceId).then(setDocs).catch(() => {});
+    }
+  }, [open, resourceId]);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    setUploading(true);
+    try {
+      const doc = await api.uploadDocument(file, "control", resourceId);
+      setDocs((prev) => [doc, ...prev]);
+    } catch { /* ignore */ } finally { setUploading(false); }
+  };
+
+  const handleDelete = async (id: string) => {
+    setDeleting(id);
+    try {
+      await api.deleteDocument(id);
+      setDocs((prev) => prev.filter((d) => d.id !== id));
+    } catch { /* ignore */ } finally { setDeleting(null); }
+  };
+
+  const handleDownload = async (doc: Document) => {
+    try {
+      const { url } = await api.getDocumentUrl(doc.id);
+      window.open(url, "_blank");
+    } catch { /* ignore */ }
+  };
+
+  const formatBytes = (b: number) =>
+    b < 1024 ? `${b} B` : b < 1024 * 1024 ? `${(b / 1024).toFixed(0)} KB` : `${(b / (1024 * 1024)).toFixed(1)} MB`;
+
+  return (
+    <div className="mt-2.5">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 hover:text-slate-700 transition-colors"
+      >
+        <Paperclip className="w-3 h-3" />
+        {open ? "Hide attachments" : `Attachments${docs.length > 0 && !open ? ` (${docs.length})` : ""}`}
+        {open ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+      </button>
+
+      {open && (
+        <div className="mt-2 bg-slate-50 border border-slate-100 rounded-xl p-3">
+          {/* Upload */}
+          <label className={`flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border border-dashed cursor-pointer transition-colors mb-2 ${
+            uploading ? "opacity-50 cursor-not-allowed border-slate-200 text-slate-400" : "border-teal-200 text-teal-600 hover:bg-teal-50"
+          }`}>
+            {uploading ? <Upload className="w-3.5 h-3.5 animate-pulse" /> : <Upload className="w-3.5 h-3.5" />}
+            {uploading ? "Uploading…" : "Attach file"}
+            <input type="file" className="hidden" disabled={uploading} onChange={handleUpload} />
+          </label>
+
+          {/* List */}
+          {docs.length === 0 ? (
+            <p className="text-[11px] text-slate-400 text-center py-1">No files attached yet.</p>
+          ) : (
+            <div className="space-y-1.5">
+              {docs.map((doc) => (
+                <div key={doc.id} className="flex items-center gap-2 bg-white rounded-lg border border-slate-100 px-2.5 py-1.5">
+                  <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <button
+                    onClick={() => handleDownload(doc)}
+                    className="flex-1 min-w-0 text-left text-[11px] text-slate-600 hover:text-teal-600 font-medium truncate transition-colors"
+                  >
+                    {doc.filename}
+                  </button>
+                  <span className="text-[10px] text-slate-400 shrink-0">{formatBytes(doc.file_size)}</span>
+                  <button
+                    onClick={() => handleDelete(doc.id)}
+                    disabled={deleting === doc.id}
+                    className="shrink-0 text-slate-300 hover:text-red-400 transition-colors disabled:opacity-40"
+                  >
+                    {deleting === doc.id ? <X className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -321,6 +423,8 @@ function ManualControlRow({
               Updated {new Date(control.updated_at).toLocaleString()}
             </p>
           )}
+
+          <ControlDocuments controlId={control.control_id} framework={framework} />
         </div>
       )}
     </div>
