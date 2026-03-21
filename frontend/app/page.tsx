@@ -1462,6 +1462,54 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Revenue Impact lead magnet ────────────────────────────────────────── */}
+      <section className="py-14 md:py-20 bg-[var(--bg)]">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl overflow-hidden shadow-2xl">
+            <div className="grid md:grid-cols-2 gap-0">
+              {/* Left — copy */}
+              <div className="p-8 md:p-12">
+                <div className="inline-flex items-center gap-2 bg-orange-500/15 text-orange-400 text-xs font-bold px-3 py-1.5 rounded-full mb-5 border border-orange-500/20">
+                  <TrendingDown className="w-3.5 h-3.5" />
+                  Free calculator · No signup
+                </div>
+                <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3 leading-tight">
+                  How much is non-compliance<br />
+                  <span className="bg-gradient-to-r from-orange-400 to-rose-400 bg-clip-text text-transparent">costing your business?</span>
+                </h2>
+                <p className="text-white/60 text-sm leading-relaxed mb-6">
+                  Answer 3 quick questions. See the exact dollar impact — blocked deals, fines exposure, and staff time — plus the ROI if you fix it today.
+                </p>
+                <Link
+                  href="/tools/revenue-impact"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-orange-500/25 text-sm"
+                >
+                  Calculate my risk <ArrowRight className="w-4 h-4" />
+                </Link>
+                <p className="text-white/30 text-xs mt-3">Takes 2 minutes · Free forever</p>
+              </div>
+
+              {/* Right — stat preview */}
+              <div className="bg-white/5 border-l border-white/10 p-8 md:p-12 flex flex-col justify-center gap-5">
+                {[
+                  { stat: "78%", desc: "of enterprise buyers require SOC 2 before signing", color: "text-rose-400" },
+                  { stat: "6 mo", desc: "average deal delay when compliance is missing", color: "text-orange-400" },
+                  { stat: "12%", desc: "of eng team time lost to manual compliance work", color: "text-amber-400" },
+                ].map((item) => (
+                  <div key={item.stat} className="flex items-center gap-4">
+                    <span className={`text-2xl font-extrabold shrink-0 ${item.color}`}>{item.stat}</span>
+                    <p className="text-sm text-white/50 leading-snug">{item.desc}</p>
+                  </div>
+                ))}
+                <div className="mt-2 pt-5 border-t border-white/10">
+                  <p className="text-xs text-white/30">Based on industry data from Vanta, Drata, and Ponemon Institute research.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Before / After ────────────────────────────────────────────────────── */}
       <section className="bg-slate-900 py-14 md:py-22">
         <div className="max-w-5xl mx-auto px-6">
@@ -1885,7 +1933,7 @@ export default function LandingPage() {
       {/* ── Footer ────────────────────────────────────────────────────────────── */}
       <footer className="border-t border-black/5 pt-14 pb-8 bg-[var(--bg)]">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-12">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-8 mb-12">
             {/* Brand */}
             <div className="col-span-2 sm:col-span-1">
               <div className="flex items-center gap-2.5 mb-3">
@@ -1952,6 +2000,24 @@ export default function LandingPage() {
                         {l.label}
                       </Link>
                     )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Free Tools */}
+            <div>
+              <p className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider mb-4">Free Tools</p>
+              <ul className="space-y-2.5">
+                {[
+                  { label: "Readiness Check",        href: "/tools#readiness"               },
+                  { label: "SOC 2 Gap Scanner",       href: "/tools#gap-scanner"             },
+                  { label: "Revenue Impact Calculator", href: "/tools/revenue-impact"        },
+                ].map((l) => (
+                  <li key={l.label}>
+                    <Link href={l.href} className="text-xs text-[var(--muted)] hover:text-[var(--ink)] transition-colors">
+                      {l.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
