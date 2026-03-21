@@ -29,6 +29,7 @@ import {
   ClipboardCheck,
   ArrowRight,
   CheckCircle2,
+  ChevronDown,
   Target,
 } from "lucide-react";
 
@@ -209,37 +210,32 @@ export default function GuidePage() {
   return (
     <div className="max-w-4xl">
       {/* Header */}
-      <div className="flex items-start gap-3 mb-2">
+      <div className="flex items-center gap-3 mb-8">
         <div className="w-9 h-9 rounded-xl bg-brand-100 flex items-center justify-center shrink-0">
           <Compass className="w-5 h-5 text-brand-600" />
         </div>
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">How to use TraceLayer</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            A recommended workflow from first integration to audit-ready. Follow the steps in order for the fastest path to compliance.
+        <div className="min-w-0">
+          <h1 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight">How to use TraceLayer</h1>
+          <p className="text-xs sm:text-sm text-gray-500 mt-0.5 hidden sm:block">
+            A recommended workflow from first integration to audit-ready. Follow the steps in order.
           </p>
         </div>
       </div>
 
-      {/* Workflow path indicator */}
-      <div className="flex items-center gap-1.5 flex-wrap mb-8 mt-5 px-1">
-        {STEPS.map((s, i) => (
-          <div key={s.number} className="flex items-center gap-1.5">
-            <div className="flex items-center gap-1.5 bg-white border border-gray-100 rounded-full px-3 py-1 shadow-sm">
-              <span className="w-4 h-4 rounded-full bg-brand-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
-                {s.number}
-              </span>
-              <span className="text-xs font-medium text-gray-700 whitespace-nowrap">{s.title}</span>
-            </div>
-            {i < STEPS.length - 1 && <ArrowRight className="w-3 h-3 text-gray-300 shrink-0" />}
+      {/* Steps with connectors */}
+      <div className="mb-10">
+        {STEPS.map((step, i) => (
+          <div key={step.number}>
+            <StepCard step={step} />
+            {i < STEPS.length - 1 && (
+              <div className="flex justify-center py-2">
+                <div className="flex flex-col items-center gap-0.5">
+                  <div className="w-px h-3 bg-gray-300" />
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                </div>
+              </div>
+            )}
           </div>
-        ))}
-      </div>
-
-      {/* Steps */}
-      <div className="space-y-4 mb-10">
-        {STEPS.map((step) => (
-          <StepCard key={step.number} step={step} />
         ))}
       </div>
 
