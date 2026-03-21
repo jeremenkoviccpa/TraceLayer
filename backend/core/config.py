@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     storage_endpoint: str = ""
     storage_access_key: str = ""
     storage_secret_key: str = ""
-    cors_origins: str = "http://localhost:3000"
+    cors_origins: str = "http://localhost:3000,https://tracelayer.it.com"
     app_frontend_url: str = "http://localhost:3000"
     resend_api_key: str = ""
     email_from: str = "TraceLayer <hello@tracelayer.it.com>"
@@ -42,7 +42,16 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins_list(self) -> list[str]:
-        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+        raw = self.cors_origins.strip()
+        # Handle JSON array format e.g. '["https://foo.com","https://bar.com"]'
+        if raw.startswith("["):
+            import json
+            try:
+                return json.loads(raw)
+            except json.JSONDecodeError:
+                pass
+        # Handle comma-separated format
+        return [o.strip() for o in raw.split(",") if o.strip()]
 
     class Config:
         env_file = ".env"
