@@ -87,15 +87,18 @@ export default function AssetsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2.5">
-            <Server className="w-6 h-6 text-brand-600" /> Asset Inventory
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">Track hardware, software, cloud, and data assets</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <Server className="w-5 h-5 text-brand-600 shrink-0" />
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-900 leading-tight truncate">Asset Inventory</h1>
+            <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">Track hardware, software, cloud, and data assets</p>
+          </div>
         </div>
-        <button onClick={openCreate} className="btn-primary gap-2">
-          <Plus className="w-4 h-4" /> Add Asset
+        <button onClick={openCreate} className="btn-primary gap-1.5 !px-3 !py-2 text-xs shrink-0">
+          <Plus className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Add Asset</span>
+          <span className="sm:hidden">Add</span>
         </button>
       </div>
 
