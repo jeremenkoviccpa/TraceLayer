@@ -92,25 +92,27 @@ export default function IncidentsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2.5">
-            <Siren className="w-6 h-6 text-red-500" /> Incident Management
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">Track and manage security incidents</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <Siren className="w-5 h-5 text-red-500 shrink-0" />
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-900 leading-tight truncate">Incident Management</h1>
+            <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">Track and manage security incidents</p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          {detectMsg && <span className="text-xs text-gray-500">{detectMsg}</span>}
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={handleDetect}
             disabled={detecting}
-            className="btn-secondary gap-2 disabled:opacity-50"
+            className="btn-secondary gap-1.5 disabled:opacity-50 !px-3 !py-2 text-xs"
           >
-            {detecting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-            Auto-detect
+            {detecting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">Auto-detect</span>
           </button>
-          <button onClick={openCreate} className="btn-primary gap-2">
-            <Plus className="w-4 h-4" /> New Incident
+          <button onClick={openCreate} className="btn-primary gap-1.5 !px-3 !py-2 text-xs">
+            <Plus className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">New Incident</span>
+            <span className="sm:hidden">New</span>
           </button>
         </div>
       </div>
