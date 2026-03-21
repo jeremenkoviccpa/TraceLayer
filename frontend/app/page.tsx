@@ -550,7 +550,7 @@ const FEATURES = [
   {
     icon: null,
     title: "and more",
-    desc: "Audit sessions, management reviews, subject access requests, background checks, offboarding checklists — everything to pass your audit.",
+    desc: "Audit sessions, management reviews, subject access requests, background checks, offboarding checklists — everything your auditor needs to sign off.",
   },
 ];
 
@@ -568,7 +568,7 @@ const HOW_IT_WORKS = [
   {
     step: "03",
     title: "Score, report, repeat",
-    desc: "See your readiness score update in real time. Generate a formatted PDF report for your auditor whenever you need it — no prep, no consultants.",
+    desc: "See your readiness score update in real time. Generate a formatted PDF report for your auditor whenever you need it — organized, timestamped, and mapped to controls.",
   },
 ];
 
@@ -1095,7 +1095,7 @@ export default function LandingPage() {
           <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">How it works</p>
           <h2 className="text-2xl md:text-4xl font-extrabold">Up and running in minutes</h2>
           <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto leading-relaxed">
-            No consultants. No long implementation projects. Connect your tools and compliance evidence starts flowing automatically.
+            No implementation projects. No spreadsheet juggling. Connect your tools and compliance evidence starts flowing automatically.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 relative">

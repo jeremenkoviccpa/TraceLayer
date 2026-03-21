@@ -268,6 +268,7 @@ type IntegrationDef = {
   label: string;
   description: string;
   comingSoon?: boolean;
+  core?: boolean;
   fields?: { key: string; label: string; placeholder: string; type?: string; hint?: string }[];
 };
 
@@ -278,7 +279,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
     title: "Identity & Access",
     integrations: [
       {
-        type: "google_workspace", label: "Google Workspace",
+        type: "google_workspace", label: "Google Workspace", core: true,
         description: "Collect users, admin accounts, and groups via Admin SDK",
         fields: [
           { key: "admin_email", label: "Admin Email", placeholder: "admin@yourcompany.com" },
@@ -286,7 +287,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "okta", label: "Okta",
+        type: "okta", label: "Okta", core: true,
         description: "Collect users, groups, and password & MFA policies",
         fields: [
           { key: "domain", label: "Okta Domain", placeholder: "mycompany.okta.com" },
@@ -338,7 +339,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
     title: "Cloud Infrastructure",
     integrations: [
       {
-        type: "aws", label: "Amazon Web Services",
+        type: "aws", label: "Amazon Web Services", core: true,
         description: "Collect IAM users, policies, CloudTrail logs, and S3 configs",
         fields: [
           { key: "access_key_id", label: "Access Key ID", placeholder: "AKIAIOSFODNN7EXAMPLE" },
@@ -385,7 +386,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
     title: "Source Control",
     integrations: [
       {
-        type: "github", label: "GitHub",
+        type: "github", label: "GitHub", core: true,
         description: "Collect repositories, members, admin users, and branch protection rules",
         fields: [
           { key: "token", label: "Personal Access Token", placeholder: "ghp_••••••••", type: "password", hint: "Starts with ghp_ or github_pat_" },
@@ -393,7 +394,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "gitlab", label: "GitLab",
+        type: "gitlab", label: "GitLab", core: true,
         description: "Collect projects, members, and merge request approval settings",
         fields: [
           { key: "token", label: "Personal Access Token", placeholder: "glpat-••••••••", type: "password", hint: "Starts with glpat-" },
@@ -415,7 +416,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
     title: "Project Management",
     integrations: [
       {
-        type: "jira", label: "Jira",
+        type: "jira", label: "Jira", core: true,
         description: "Collect projects, users, and change tickets for change management evidence",
         fields: [
           { key: "domain", label: "Domain", placeholder: "mycompany.atlassian.net" },
@@ -461,7 +462,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
     title: "Communication",
     integrations: [
       {
-        type: "slack", label: "Slack",
+        type: "slack", label: "Slack", core: true,
         description: "Collect workspace users, admin users, and channel retention policies",
         fields: [
           { key: "bot_token", label: "Bot Token", placeholder: "xoxb-••••••••", type: "password", hint: "Starts with xoxb-" },
@@ -508,7 +509,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "jamf", label: "Jamf Pro",
+        type: "jamf", label: "Jamf Pro", core: true,
         description: "Collect device enrollment, MDM profiles, disk encryption status, and patch compliance for Mac fleets",
         fields: [
           { key: "domain", label: "Jamf Domain", placeholder: "mycompany.jamfcloud.com" },
@@ -517,7 +518,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "datadog", label: "Datadog",
+        type: "datadog", label: "Datadog", core: true,
         description: "Pull audit logs, alert rules, and monitoring coverage as evidence",
         fields: [
           { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password" },
@@ -608,7 +609,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
     title: "HR & People",
     integrations: [
       {
-        type: "bamboohr", label: "BambooHR",
+        type: "bamboohr", label: "BambooHR", core: true,
         description: "Sync employee records, offboarding workflows, and org chart data",
         fields: [
           { key: "subdomain", label: "Subdomain", placeholder: "mycompany" },
@@ -1234,6 +1235,9 @@ function IntegrationCard({ def, connected, canConnect, collecting, onConnect, on
         <div className="flex items-center gap-2 flex-wrap mb-0.5">
           <span className="font-semibold text-sm text-gray-900">{def.label}</span>
           {connected && <StatusBadge status={connected.status}/>}
+          {def.core && !connected && !def.comingSoon && (
+            <span title="Actively maintained by TraceLayer" className="text-[10px] font-bold uppercase tracking-wide text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded-md">Core</span>
+          )}
           {def.comingSoon && (
             <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md">Soon</span>
           )}
