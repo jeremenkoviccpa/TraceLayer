@@ -601,12 +601,12 @@ def send_weekly_compliance_report(
             )
             + '<div style="background:{bg};border-radius:14px;padding:20px 14px 16px;text-align:center;">'.format(bg=bg)
             + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;'
-            + 'letter-spacing:0.1em;text-transform:uppercase;color:#64748b;margin-bottom:12px;">'
+            + 'letter-spacing:0.1em;text-transform:uppercase;color:#1e293b;margin-bottom:12px;">'
             + fw["label"]
             + "</div>"
             + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:44px;font-weight:800;'
             + 'line-height:1;color:{color};letter-spacing:-2px;margin-bottom:2px;">{score}</div>'.format(color=color, score=score)
-            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#94a3b8;'
+            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#64748b;'
             + 'margin-bottom:14px;font-weight:600;">/ 100</div>'
             + '<div style="background:{bar};border-radius:99px;height:5px;width:100%%;overflow:hidden;">'.format(bar=bar_bg)
             + '<div style="background:{c};border-radius:99px;height:5px;width:{p}%%;"></div>'.format(c=color, p=pct)
@@ -813,8 +813,8 @@ def send_weekly_compliance_report(
 
           <!-- DARK GRADIENT HEADER -->
           <tr>
-            <td class="header-cell"
-                style="background:#0d9488;background:linear-gradient(135deg,#134e4a 0%%,#0d9488 60%%,#0891b2 100%%);
+            <td class="header-cell" bgcolor="#0f4f4a"
+                style="background:#0f4f4a;background:linear-gradient(135deg,#134e4a 0%%,#0d9488 60%%,#0891b2 100%%);
                        padding:36px 36px 32px 36px;">
               <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;
                           letter-spacing:0.15em;text-transform:uppercase;color:#5eead4;
@@ -838,7 +838,7 @@ def send_weekly_compliance_report(
 
               <!-- SECTION LABEL: FRAMEWORK SCORES -->
               <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;
-                          letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;
+                          letter-spacing:0.12em;text-transform:uppercase;color:#475569;
                           margin-bottom:12px;">Framework Scores</div>
 
               <!-- SCORECARDS -->
@@ -857,7 +857,7 @@ def send_weekly_compliance_report(
 
               <!-- SECTION LABEL: PRIORITY ACTIONS -->
               <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;
-                          letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;
+                          letter-spacing:0.12em;text-transform:uppercase;color:#475569;
                           margin-bottom:12px;">Priority Actions</div>
               <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
                      style="margin-bottom:28px;">
@@ -872,7 +872,7 @@ def send_weekly_compliance_report(
 
               <!-- SECTION LABEL: CONTROL STATUS -->
               <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;
-                          letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;
+                          letter-spacing:0.12em;text-transform:uppercase;color:#475569;
                           margin-bottom:4px;">Control Status</div>
               <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
                      style="margin-bottom:32px;">
