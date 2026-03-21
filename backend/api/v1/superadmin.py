@@ -242,8 +242,35 @@ async def delete_company(
     )
     await db.commit()
 
-    # Use raw SQL so Postgres CASCADE constraints handle child records
-    await db.execute(text("DELETE FROM companies WHERE id = :id"), {"id": company_id})
+    # Delete in FK-safe order:
+    # 1. Tokens/sessions that reference users (must go before users)
+    await db.execute(text("""
+        DELETE FROM email_verification_tokens
+        WHERE user_id IN (SELECT id FROM users WHERE company_id = :cid)
+    """), {"cid": company_id})
+    await db.execute(text("""
+        DELETE FROM password_reset_tokens
+        WHERE user_id IN (SELECT id FROM users WHERE company_id = :cid)
+    """), {"cid": company_id})
+    await db.execute(text("""
+        DELETE FROM refresh_tokens
+        WHERE user_id IN (SELECT id FROM users WHERE company_id = :cid)
+    """), {"cid": company_id})
+    # 2. All company-scoped tables (in any order — they only FK to companies/users)
+    for tbl in [
+        "access_reviews", "api_keys", "assets", "audit_logs", "audit_sessions",
+        "background_checks", "bcp_records", "compliance_score_snapshots",
+        "data_breaches", "documents", "evidence", "incidents", "integrations",
+        "invitations", "management_reviews", "manual_controls", "notifications",
+        "offboardings", "partner_client_payments", "pen_tests", "policies",
+        "reports", "risks", "ropa_records", "soa_items", "sso_configs",
+        "subject_requests", "training_records", "trust_pages", "vendors",
+        "vulnerabilities",
+    ]:
+        await db.execute(text(f"DELETE FROM {tbl} WHERE company_id = :cid"), {"cid": company_id})  # noqa: S608
+    # 3. Users, then the company itself
+    await db.execute(text("DELETE FROM users WHERE company_id = :cid"), {"cid": company_id})
+    await db.execute(text("DELETE FROM companies WHERE id = :cid"), {"cid": company_id})
     await db.commit()
     return Response(status_code=204)
 
