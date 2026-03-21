@@ -47,6 +47,7 @@ import {
   Archive,
   ShieldHalf,
   Workflow,
+  Compass,
 } from "lucide-react";
 import type { AppNotification } from "@/lib/types";
 import { usePlan } from "@/hooks/usePlan";
@@ -122,6 +123,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/team",      label: "Team",      icon: Users     },
       { href: "/audit-log", label: "Audit Log", icon: ScrollText },
+      { href: "/guide",     label: "Guide",     icon: Compass   },
       { href: "/settings",  label: "Settings",  icon: Settings  },
     ],
   },
