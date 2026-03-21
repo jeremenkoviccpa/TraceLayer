@@ -196,6 +196,52 @@ const LOGO_CONFIG: Record<string, LogoCfg> = {
   vault:       { bg: "#FFD814", label: "V",
     svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="#1C1C1C" fontFamily="system-ui" fontWeight="800" fontSize={s*0.42}>V</text>,
   },
+  // ── New batch ──────────────────────────────────────────────────────────────
+  jumpcloud:    { bg: "#0073E6", label: "JC" },
+  bitbucket:    { bg: "#0052CC", label: "BB",
+    svg: (s) => (
+      <>
+        <rect width={s} height={s} rx={Math.round(s*0.25)} fill="#0052CC"/>
+        <path d={`M${s*0.15} ${s*0.28} L${s*0.38} ${s*0.72} L${s*0.62} ${s*0.72} L${s*0.85} ${s*0.28} Z`} fill="white" opacity="0.9"/>
+        <path d={`M${s*0.38} ${s*0.72} L${s*0.44} ${s*0.54} L${s*0.56} ${s*0.54} L${s*0.62} ${s*0.72} Z`} fill="#0052CC"/>
+      </>
+    ),
+  },
+  zendesk:      { bg: "#03363D", label: "ZD" },
+  kubernetes:   { bg: "#326CE5", label: "K8S",
+    svg: (s) => (
+      <>
+        <circle cx={s/2} cy={s/2} r={s*0.3} stroke="white" strokeWidth={s*0.08} fill="none"/>
+        <line x1={s/2} y1={s*0.2} x2={s/2} y2={s*0.8} stroke="white" strokeWidth={s*0.06}/>
+        <line x1={s*0.2} y1={s/2} x2={s*0.8} y2={s/2} stroke="white" strokeWidth={s*0.06}/>
+        <line x1={s*0.29} y1={s*0.29} x2={s*0.71} y2={s*0.71} stroke="white" strokeWidth={s*0.06}/>
+        <line x1={s*0.71} y1={s*0.29} x2={s*0.29} y2={s*0.71} stroke="white" strokeWidth={s*0.06}/>
+      </>
+    ),
+  },
+  circleci:     { bg: "#343434", label: "CI",
+    svg: (s) => (
+      <>
+        <circle cx={s/2} cy={s/2} r={s*0.3} stroke="#F5A623" strokeWidth={s*0.08} fill="none"/>
+        <circle cx={s/2} cy={s/2} r={s*0.1} fill="#F5A623"/>
+      </>
+    ),
+  },
+  qualys:       { bg: "#E2002A", label: "QL" },
+  // ── Coming soon ────────────────────────────────────────────────────────────
+  workday:      { bg: "#FF6D3B", label: "WD" },
+  gusto:        { bg: "#F45D48", label: "GU" },
+  jenkins:      { bg: "#D33833", label: "JK" },
+  elastic:      { bg: "#005571", label: "EL" },
+  dynatrace:    { bg: "#1496FF", label: "DT" },
+  sumo_logic:   { bg: "#000099", label: "SL" },
+  lacework:     { bg: "#FF5F00", label: "LW" },
+  carbon_black: { bg: "#101820", label: "CB" },
+  rapid7:       { bg: "#E8451C", label: "R7" },
+  prisma_cloud: { bg: "#00C0E8", label: "PC" },
+  azure_devops: { bg: "#0078D4", label: "ADO" },
+  freshdesk:    { bg: "#25C16F", label: "FD" },
+  argocd:       { bg: "#EF7B4D", label: "ARGO" },
 };
 
 function LogoBadge({ type, size = 42 }: { type: string; size?: number }) {
@@ -279,6 +325,13 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
           { key: "api_hostname", label: "API Hostname", placeholder: "api-xxxxxxxx.duosecurity.com" },
         ],
       },
+      {
+        type: "jumpcloud", label: "JumpCloud",
+        description: "Collect users, user groups, device compliance, and access policies from JumpCloud directory for CC6.1 evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password", hint: "Admin → API Settings → API Key" },
+        ],
+      },
     ],
   },
   {
@@ -347,6 +400,15 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
           { key: "domain", label: "GitLab Domain", placeholder: "gitlab.com" },
         ],
       },
+      {
+        type: "bitbucket", label: "Bitbucket",
+        description: "Collect repositories, branch protection rules, and workspace members for change management evidence",
+        fields: [
+          { key: "username", label: "Username", placeholder: "your-username" },
+          { key: "app_password", label: "App Password", placeholder: "••••••••••••", type: "password", hint: "Create in Bitbucket → Personal Settings → App passwords" },
+          { key: "workspace", label: "Workspace", placeholder: "my-workspace", hint: "The workspace slug from your Bitbucket URL" },
+        ],
+      },
     ],
   },
   {
@@ -412,6 +474,15 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
           { key: "tenant_id", label: "Tenant ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
           { key: "client_id", label: "Client ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
           { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••", type: "password" },
+        ],
+      },
+      {
+        type: "zendesk", label: "Zendesk",
+        description: "Collect support agents, SLA policies, and ticket workflow controls for availability and process evidence",
+        fields: [
+          { key: "subdomain", label: "Subdomain", placeholder: "mycompany", hint: "The part before .zendesk.com" },
+          { key: "email", label: "Admin Email", placeholder: "admin@mycompany.com" },
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password", hint: "Admin → Apps & Integrations → APIs → Zendesk API" },
         ],
       },
     ],
@@ -560,6 +631,50 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
           { key: "token", label: "Token", placeholder: "hvs.••••••••", type: "password", hint: "Needs read access to sys/auth, sys/policy, and sys/audit" },
         ],
       },
+      {
+        type: "kubernetes", label: "Kubernetes",
+        description: "Collect namespaces, RBAC bindings, cluster roles, network policies, and pod inventory for infrastructure evidence",
+        fields: [
+          { key: "api_url", label: "API Server URL", placeholder: "https://k8s.mycompany.com:6443" },
+          { key: "service_account_token", label: "Service Account Token", placeholder: "eyJhbGci...", type: "password", hint: "Bearer token from a read-only ServiceAccount" },
+          { key: "verify_ssl", label: "Verify SSL", placeholder: "true", hint: "Set to false for self-signed certs" },
+        ],
+      },
+      {
+        type: "circleci", label: "CircleCI",
+        description: "Collect pipeline runs, project settings, and organization access for change management and CI/CD evidence",
+        fields: [
+          { key: "api_token", label: "Personal API Token", placeholder: "••••••••••••", type: "password", hint: "CircleCI → User Settings → Personal API Tokens" },
+          { key: "org_slug", label: "Org Slug (optional)", placeholder: "github/myorg", hint: "e.g. github/your-org-name" },
+        ],
+      },
+      {
+        type: "qualys", label: "Qualys",
+        description: "Pull vulnerability scan results, asset inventory, and report history for continuous vulnerability management evidence",
+        fields: [
+          { key: "username", label: "Username", placeholder: "api-user" },
+          { key: "password", label: "Password", placeholder: "••••••••••••", type: "password" },
+          { key: "api_url", label: "API URL", placeholder: "https://qualysapi.qualys.com", hint: "Platform-specific — check your Qualys subscription portal" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Coming Soon",
+    integrations: [
+      { type: "workday",      label: "Workday",            comingSoon: true, description: "Sync employee records, org chart, and lifecycle events for HR compliance evidence", fields: [] },
+      { type: "gusto",        label: "Gusto",              comingSoon: true, description: "Collect payroll runs, employee onboarding, and benefits enrollment records", fields: [] },
+      { type: "azure_devops", label: "Azure DevOps",       comingSoon: true, description: "Pull pipeline runs, branch policies, and work item audit trails for change management", fields: [] },
+      { type: "jenkins",      label: "Jenkins",            comingSoon: true, description: "Collect build history, job configurations, and plugin audit for CI/CD evidence", fields: [] },
+      { type: "argocd",       label: "Argo CD",            comingSoon: true, description: "Sync GitOps deployment history, RBAC policies, and app health status", fields: [] },
+      { type: "elastic",      label: "Elastic Security",   comingSoon: true, description: "Collect SIEM alerts, detection rules, and log retention policies for CC7.2 evidence", fields: [] },
+      { type: "dynatrace",    label: "Dynatrace",          comingSoon: true, description: "Pull availability monitoring, SLO compliance, and alert configurations", fields: [] },
+      { type: "sumo_logic",   label: "Sumo Logic",         comingSoon: true, description: "Collect log retention settings, access controls, and audit events", fields: [] },
+      { type: "lacework",     label: "Lacework",           comingSoon: true, description: "Pull cloud security posture findings, anomaly detections, and compliance benchmarks", fields: [] },
+      { type: "carbon_black", label: "Carbon Black",       comingSoon: true, description: "Collect endpoint sensor deployment, policy enforcement, and threat detections", fields: [] },
+      { type: "rapid7",       label: "Rapid7",             comingSoon: true, description: "Pull vulnerability scan results, asset risk scores, and remediation tracking", fields: [] },
+      { type: "prisma_cloud", label: "Prisma Cloud",       comingSoon: true, description: "Collect CSPM findings, compliance benchmarks, and misconfiguration alerts", fields: [] },
+      { type: "freshdesk",    label: "Freshdesk",          comingSoon: true, description: "Collect support agents, SLA configurations, and ticket workflow policies", fields: [] },
     ],
   },
 ];
@@ -882,6 +997,57 @@ const SETUP_GUIDES: Record<string, SetupGuide> = {
       "Assign the policy to a token: vault token create -policy=tracelayer-reader",
       "Copy the token (starts with hvs.)",
       "Your Vault address is the URL you use to access Vault (e.g. https://vault.mycompany.com)",
+    ],
+  },
+  jumpcloud: {
+    url: "https://console.jumpcloud.com/#/settings",
+    steps: [
+      "Log in to JumpCloud Admin Console",
+      "Click your avatar (top right) → API Settings",
+      "Copy the API Key shown — it grants read access to your directory",
+    ],
+  },
+  bitbucket: {
+    url: "https://bitbucket.org/account/settings/app-passwords/new",
+    steps: [
+      "Bitbucket → Personal Settings → App passwords → Create app password",
+      "Grant permissions: Account: Read, Workspace membership: Read, Repositories: Read",
+      "Copy the generated password (shown once)",
+      "Your workspace slug is the short name in your Bitbucket URLs (e.g. bitbucket.org/{workspace}/...)",
+    ],
+  },
+  zendesk: {
+    url: "https://support.zendesk.com/hc/en-us/articles/4408889192858",
+    steps: [
+      "Zendesk Admin → Apps & Integrations → APIs → Zendesk API",
+      "Enable Token Access if not already on",
+      "Click 'Add API token', give it a name, copy the token",
+      "Your subdomain is the part before .zendesk.com in your URL",
+    ],
+  },
+  kubernetes: {
+    steps: [
+      "Create a read-only ClusterRole and ServiceAccount in your cluster",
+      "kubectl create serviceaccount tracelayer-reader -n kube-system",
+      "kubectl create clusterrolebinding tracelayer-reader --clusterrole=view --serviceaccount=kube-system:tracelayer-reader",
+      "kubectl create token tracelayer-reader -n kube-system --duration=8760h",
+      "Your API URL is the server address from kubectl cluster-info",
+    ],
+  },
+  circleci: {
+    url: "https://app.circleci.com/settings/user/tokens",
+    steps: [
+      "CircleCI → User Settings → Personal API Tokens → Create New Token",
+      "Give it a name (e.g. TraceLayer) and copy the token",
+      "Org slug format: github/your-org-name or bitbucket/your-org-name (optional)",
+    ],
+  },
+  qualys: {
+    steps: [
+      "Log in to your Qualys subscription portal",
+      "Go to Users → Add User — create an API-only user with Reader role",
+      "Your API URL is platform-specific: US1 = qualysapi.qualys.com, EU1 = qualysapi.eu.qualys.com",
+      "Check help.qualys.com → Get Started → Qualys Platform URLs for your region",
     ],
   },
 };

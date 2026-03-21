@@ -41,6 +41,13 @@ _REGISTRY: dict[str, str] = {
     "new_relic":         "integrations.new_relic.adapter.NewRelicIntegration",
     "tenable":           "integrations.tenable.adapter.TenableIntegration",
     "vault":             "integrations.vault.adapter.VaultIntegration",
+    # ── New batch ─────────────────────────────────────────────────────────────
+    "jumpcloud":         "integrations.jumpcloud.adapter.JumpCloudIntegration",
+    "bitbucket":         "integrations.bitbucket.adapter.BitbucketIntegration",
+    "zendesk":           "integrations.zendesk.adapter.ZendeskIntegration",
+    "kubernetes":        "integrations.kubernetes.adapter.KubernetesIntegration",
+    "circleci":          "integrations.circleci.adapter.CircleCIIntegration",
+    "qualys":            "integrations.qualys.adapter.QualysIntegration",
 }
 
 
