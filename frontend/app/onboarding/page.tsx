@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Sparkles,
   Users,
+  Mail,
 } from "lucide-react";
 
 // ── Frameworks ────────────────────────────────────────────────────────────────
@@ -212,6 +213,13 @@ export default function OnboardingPage() {
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteError, setInviteError] = useState("");
   const [completing, setCompleting] = useState(false);
+  const [resendSent, setResendSent] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+
+  const handleResend = async () => {
+    setResendLoading(true);
+    try { await api.resendVerification(); setResendSent(true); } catch { /* silent */ } finally { setResendLoading(false); }
+  };
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
@@ -329,6 +337,24 @@ export default function OnboardingPage() {
                   </div>
                 ))}
               </div>
+
+              {!user.email_verified && (
+                <div className="mb-6 flex items-start gap-3 bg-white/8 border border-white/15 rounded-2xl px-4 py-3 text-left">
+                  <Mail className="w-4 h-4 text-brand-300 shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-white/80">
+                      We sent a verification link to <span className="font-semibold text-white">{user.email}</span>. Check your inbox.
+                    </p>
+                    {resendSent ? (
+                      <p className="text-xs text-brand-300 mt-1">✓ Sent! Check your inbox.</p>
+                    ) : (
+                      <button onClick={handleResend} disabled={resendLoading} className="text-xs text-brand-300 hover:text-brand-200 underline underline-offset-2 mt-1 disabled:opacity-60">
+                        {resendLoading ? "Sending…" : "Resend email"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <button
                 onClick={() => setStep(1)}
