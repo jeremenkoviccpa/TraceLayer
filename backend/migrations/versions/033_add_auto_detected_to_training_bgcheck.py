@@ -1,13 +1,13 @@
 """Add auto_detected and detection_key to training_records and background_checks
 
-Revision ID: 033_add_auto_detected_to_training_bgcheck
+Revision ID: 033_auto_training_bgcheck
 Revises: 032_add_risk_auto_fields
 Create Date: 2026-03-21 00:00:00.000000
 """
 from alembic import op
 import sqlalchemy as sa
 
-revision = '033_add_auto_detected_to_training_bgcheck'
+revision = '033_auto_training_bgcheck'
 down_revision = '032_add_risk_auto_fields'
 branch_labels = None
 depends_on = None

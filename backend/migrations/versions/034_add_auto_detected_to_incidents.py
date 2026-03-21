@@ -1,14 +1,14 @@
 """Add auto_detected and detection_key to incidents table
 
-Revision ID: 034_add_auto_detected_to_incidents
-Revises: 033_add_auto_detected_to_training_bgcheck
+Revision ID: 034_auto_incidents
+Revises: 033_auto_training_bgcheck
 Create Date: 2026-03-21 00:00:00.000000
 """
 from alembic import op
 import sqlalchemy as sa
 
-revision = '034_add_auto_detected_to_incidents'
-down_revision = '033_add_auto_detected_to_training_bgcheck'
+revision = '034_auto_incidents'
+down_revision = '033_auto_training_bgcheck'
 branch_labels = None
 depends_on = None
 
