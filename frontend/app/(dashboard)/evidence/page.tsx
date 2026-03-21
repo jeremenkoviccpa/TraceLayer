@@ -236,71 +236,50 @@ export default function EvidencePage() {
         {/* Cyan glow blob */}
         <div className="pointer-events-none absolute -top-16 -left-16 w-72 h-72 rounded-full bg-cyan-500/10 blur-3xl" />
 
-        <div className="relative px-4 sm:px-7 py-5 sm:py-7 flex flex-col gap-4 sm:gap-6 sm:flex-row sm:items-center sm:justify-between">
-          {/* Left — icon + copy */}
-          <div className="flex items-start gap-5">
-            <div className="shrink-0 flex items-center justify-center w-14 h-14 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 shadow-lg shadow-cyan-500/10">
-              <Database className="w-7 h-7 text-cyan-400" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white tracking-tight">
-                Evidence Library
-              </h1>
-              <p className="text-slate-400 text-sm mt-1 max-w-md leading-relaxed">
-                Automatically collected compliance evidence from your integrations.
-              </p>
-              {/* Stats row */}
-              <div className="flex flex-wrap gap-3 sm:gap-6 mt-4">
-                <StatCard
-                  label="Total records"
-                  value={totalRecords.toLocaleString()}
-                  colorClass="text-cyan-400"
-                />
-                <div className="w-px bg-slate-700 self-stretch hidden sm:block" />
-                <StatCard
-                  label="Collected today"
-                  value={todayCount}
-                  colorClass="text-teal-400"
-                />
-                <div className="w-px bg-slate-700 self-stretch hidden sm:block" />
-                <StatCard
-                  label="Integrations active"
-                  value={activeIntegrations}
-                  colorClass="text-blue-400"
-                />
-                <div className="w-px bg-slate-700 self-stretch hidden sm:block" />
-                <StatCard
-                  label="Frameworks covered"
-                  value={frameworks}
-                  colorClass="text-indigo-400"
-                />
+        <div className="relative px-4 sm:px-7 py-4 sm:py-6">
+          {/* Title row */}
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div className="flex items-center gap-3">
+              <div className="shrink-0 flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-cyan-500/15 border border-cyan-500/30">
+                <Database className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
               </div>
+              <div>
+                <h1 className="text-lg sm:text-2xl font-bold text-white tracking-tight leading-tight">Evidence Library</h1>
+                <p className="text-slate-400 text-xs sm:text-sm leading-snug hidden sm:block">Automatically collected compliance evidence from your integrations.</p>
+              </div>
+            </div>
+            {/* Buttons — top-right on all sizes */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={async () => {
+                  setExporting(true);
+                  try { await api.exportEvidenceCsv({ control: control || undefined, integration: integration || undefined }); }
+                  catch { /* ignore */ }
+                  finally { setExporting(false); }
+                }}
+                disabled={exporting}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white/80 text-xs font-medium hover:bg-white/20 transition-colors disabled:opacity-50"
+              >
+                <Download className={`w-3.5 h-3.5 ${exporting ? "animate-pulse" : ""}`} />
+                <span className="hidden sm:inline">{exporting ? "Exporting…" : "Export CSV"}</span>
+              </button>
+              <button
+                onClick={load}
+                disabled={loading}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-medium hover:bg-cyan-500/25 transition-colors disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </button>
             </div>
           </div>
 
-          {/* Right — action */}
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={async () => {
-                setExporting(true);
-                try { await api.exportEvidenceCsv({ control: control || undefined, integration: integration || undefined }); }
-                catch { /* ignore */ }
-                finally { setExporting(false); }
-              }}
-              disabled={exporting}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white/80 text-sm font-medium hover:bg-white/20 transition-colors disabled:opacity-50"
-            >
-              <Download className={`w-4 h-4 ${exporting ? "animate-pulse" : ""}`} />
-              {exporting ? "Exporting…" : "Export CSV"}
-            </button>
-            <button
-              onClick={load}
-              disabled={loading}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-sm font-medium hover:bg-cyan-500/25 transition-colors disabled:opacity-50"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-              Refresh
-            </button>
+          {/* Stats — 2×2 on mobile, single row on sm+ */}
+          <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3 sm:gap-6">
+            <StatCard label="Total records"      value={totalRecords.toLocaleString()} colorClass="text-cyan-400"   />
+            <StatCard label="Collected today"    value={todayCount}                    colorClass="text-teal-400"   />
+            <StatCard label="Integrations active" value={activeIntegrations}           colorClass="text-blue-400"   />
+            <StatCard label="Frameworks covered" value={frameworks}                    colorClass="text-indigo-400" />
           </div>
         </div>
       </div>
