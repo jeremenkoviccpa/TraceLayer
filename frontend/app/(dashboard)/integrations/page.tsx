@@ -191,6 +191,11 @@ const LOGO_CONFIG: Record<string, LogoCfg> = {
   kolide:      { bg: "#5C7CFF", label: "KL" },
   hackerone:   { bg: "#494649", label: "H1" },
   confluence:  { bg: "#1868DB", label: "CO" },
+  new_relic:   { bg: "#008C99", label: "NR" },
+  tenable:     { bg: "#00A1CB", label: "TE" },
+  vault:       { bg: "#FFD814", label: "V",
+    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="#1C1C1C" fontFamily="system-ui" fontWeight="800" fontSize={s*0.42}>V</text>,
+  },
 };
 
 function LogoBadge({ type, size = 42 }: { type: string; size?: number }) {
@@ -268,7 +273,11 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
       {
         type: "duo", label: "Duo Security",
         description: "Collect MFA enrollment rates, authentication policies, and device trust settings for CC6.1 evidence",
-        comingSoon: true,
+        fields: [
+          { key: "integration_key", label: "Integration Key", placeholder: "DIXXXXXXXXXXXXXXXXXX" },
+          { key: "secret_key", label: "Secret Key", placeholder: "••••••••••••", type: "password" },
+          { key: "api_hostname", label: "API Hostname", placeholder: "api-xxxxxxxx.duosecurity.com" },
+        ],
       },
     ],
   },
@@ -311,7 +320,11 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
       {
         type: "wiz", label: "Wiz",
         description: "Pull cloud security posture findings, misconfigurations, and risk inventory for continuous evidence",
-        comingSoon: true,
+        fields: [
+          { key: "client_id", label: "Client ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••", type: "password" },
+          { key: "api_endpoint", label: "API Endpoint", placeholder: "https://api.us1.app.wiz.io/graphql" },
+        ],
       },
     ],
   },
@@ -365,12 +378,20 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
       {
         type: "confluence", label: "Confluence",
         description: "Collect policy pages, runbooks, and space permissions as documentation evidence",
-        comingSoon: true,
+        fields: [
+          { key: "domain", label: "Confluence Domain", placeholder: "mycompany.atlassian.net" },
+          { key: "email", label: "Admin Email", placeholder: "admin@mycompany.com" },
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password" },
+        ],
       },
       {
         type: "servicenow", label: "ServiceNow",
         description: "Collect ITSM tickets, change requests, and incident records for ITIL-aligned evidence",
-        comingSoon: true,
+        fields: [
+          { key: "instance", label: "Instance Name", placeholder: "mycompany", hint: "The part before .service-now.com" },
+          { key: "username", label: "Username", placeholder: "admin" },
+          { key: "password", label: "Password", placeholder: "••••••••••••", type: "password" },
+        ],
       },
     ],
   },
@@ -458,27 +479,57 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
       {
         type: "snyk", label: "Snyk",
         description: "Pull dependency vulnerability findings and fix rates as continuous security evidence",
-        comingSoon: true,
+        fields: [
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password" },
+        ],
       },
       {
         type: "sentinelone", label: "SentinelOne",
         description: "Collect endpoint protection coverage, threat detection, and agent deployment status",
-        comingSoon: true,
+        fields: [
+          { key: "management_url", label: "Management URL", placeholder: "https://mycompany.sentinelone.net" },
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password" },
+        ],
       },
       {
         type: "splunk", label: "Splunk",
         description: "Collect SIEM alerts, log retention policies, and security monitoring coverage",
-        comingSoon: true,
+        fields: [
+          { key: "host", label: "Splunk Host", placeholder: "splunk.mycompany.com" },
+          { key: "username", label: "Username", placeholder: "admin" },
+          { key: "password", label: "Password", placeholder: "••••••••••••", type: "password" },
+        ],
       },
       {
         type: "kolide", label: "Kolide",
         description: "Collect device health checks, compliance posture, and failed policy counts for CC6.8",
-        comingSoon: true,
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password" },
+        ],
       },
       {
         type: "hackerone", label: "HackerOne",
         description: "Sync bug bounty program reports and remediation timelines as penetration testing evidence",
-        comingSoon: true,
+        fields: [
+          { key: "api_username", label: "API Username", placeholder: "mycompany_api" },
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password" },
+        ],
+      },
+      {
+        type: "new_relic", label: "New Relic",
+        description: "Collect alert policies, user access, and observability coverage for availability evidence",
+        fields: [
+          { key: "api_key", label: "User API Key", placeholder: "NRAK-••••••••", type: "password", hint: "Starts with NRAK-" },
+          { key: "account_id", label: "Account ID", placeholder: "1234567" },
+        ],
+      },
+      {
+        type: "tenable", label: "Tenable",
+        description: "Pull vulnerability scan results and asset exposure for continuous CC7.1 evidence",
+        fields: [
+          { key: "access_key", label: "Access Key", placeholder: "••••••••••••", type: "password" },
+          { key: "secret_key", label: "Secret Key", placeholder: "••••••••••••", type: "password" },
+        ],
       },
     ],
   },
@@ -496,7 +547,18 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
       {
         type: "kandji", label: "Kandji",
         description: "Collect Apple device enrollment, MDM compliance blueprints, and patch status for CC6.8",
-        comingSoon: true,
+        fields: [
+          { key: "subdomain", label: "Subdomain", placeholder: "mycompany", hint: "The part before .kandji.io" },
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password" },
+        ],
+      },
+      {
+        type: "vault", label: "HashiCorp Vault",
+        description: "Collect secrets engine policies, auth methods, and audit log status for CC6.1 evidence",
+        fields: [
+          { key: "address", label: "Vault Address", placeholder: "https://vault.mycompany.com" },
+          { key: "token", label: "Token", placeholder: "hvs.••••••••", type: "password", hint: "Needs read access to sys/auth, sys/policy, and sys/audit" },
+        ],
       },
     ],
   },
@@ -504,12 +566,8 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
 
 const ALL_DEFS: IntegrationDef[] = INTEGRATION_GROUPS.flatMap((g) => g.integrations);
 
-// Integrations that validate credentials but don't yet collect evidence
-const STUB_TYPES = new Set([
-  "vercel", "gitlab", "linear", "notion", "cloudflare", "datadog",
-  "pagerduty", "sentry", "stripe", "terraform_cloud", "1password",
-  "rippling", "bamboohr", "google_cloud", "microsoft_teams", "crowdstrike", "jamf",
-]);
+// All integrations collect real evidence — no stubs
+const STUB_TYPES = new Set<string>();
 
 // ── Setup guides ──────────────────────────────────────────────────────────────
 type SetupGuide = { steps: string[]; url?: string };
@@ -720,6 +778,112 @@ const SETUP_GUIDES: Record<string, SetupGuide> = {
       "Team ID is optional — find it in your team Settings → General",
     ],
   },
+  duo: {
+    steps: [
+      "Log in to Duo Admin Panel → Applications → Protect an Application",
+      "Search for 'Admin API' and click Protect",
+      "Copy the Integration Key, Secret Key, and API Hostname",
+      "Grant the application 'Read resource' permission",
+    ],
+  },
+  wiz: {
+    steps: [
+      "Wiz portal → Settings → Service Accounts → Add Service Account",
+      "Select role: Security Auditor (read-only)",
+      "Copy Client ID and Client Secret (shown once)",
+      "Your API endpoint is shown in Settings → General (e.g. https://api.us1.app.wiz.io/graphql)",
+    ],
+  },
+  snyk: {
+    url: "https://app.snyk.io/account",
+    steps: [
+      "Snyk → Account Settings → Auth Token",
+      "Click 'click to show' to reveal your API token",
+      "Copy the token",
+    ],
+  },
+  sentinelone: {
+    steps: [
+      "SentinelOne console → Settings → Users → Service Users",
+      "Create new service user with Viewer role",
+      "Generate API token and copy it",
+      "Your management URL is your SentinelOne console URL (e.g. https://mycompany.sentinelone.net)",
+    ],
+  },
+  splunk: {
+    steps: [
+      "Log in to Splunk Web as admin",
+      "Use your Splunk server hostname or IP as the host",
+      "Provide admin credentials (read-only user recommended)",
+      "Ensure the REST API port (8089) is accessible",
+    ],
+  },
+  kolide: {
+    url: "https://k2.kolide.com/settings/api",
+    steps: [
+      "Kolide → Settings → API Keys",
+      "Create a new API key with Read access",
+      "Copy the key",
+    ],
+  },
+  hackerone: {
+    url: "https://hackerone.com/settings/api_token",
+    steps: [
+      "HackerOne → Settings → API Token",
+      "Create a new API token",
+      "Copy the API Username and Token (both are needed)",
+    ],
+  },
+  confluence: {
+    url: "https://id.atlassian.com/manage-profile/security/api-tokens",
+    steps: [
+      "Go to id.atlassian.com → Account Settings → Security → API Tokens",
+      "Create an API token and copy it",
+      "Use your Atlassian email as the admin email",
+      "Your domain is yourcompany.atlassian.net",
+    ],
+  },
+  servicenow: {
+    steps: [
+      "Log in to your ServiceNow instance as admin",
+      "Create a dedicated read-only user for API access",
+      "Grant the user the 'rest_api_explorer' and 'snc_read_only' roles",
+      "Your instance name is the part before .service-now.com",
+    ],
+  },
+  kandji: {
+    steps: [
+      "Kandji → Settings → Access → API Token",
+      "Create a new API token with Read access",
+      "Copy the token",
+      "Your subdomain is the part before .kandji.io in your console URL",
+    ],
+  },
+  new_relic: {
+    url: "https://one.newrelic.com/api-keys",
+    steps: [
+      "New Relic → API Keys (top right menu)",
+      "Create key → User key → name it 'TraceLayer'",
+      "Copy the key (starts with NRAK-)",
+      "Find your Account ID in the URL or under Account Settings",
+    ],
+  },
+  tenable: {
+    url: "https://app.tenable.io/#/api-keys",
+    steps: [
+      "Tenable.io → Settings → My Account → API Keys",
+      "Generate new API keys",
+      "Copy both the Access Key and Secret Key (shown once)",
+    ],
+  },
+  vault: {
+    steps: [
+      "Create a read-only Vault policy: path \"sys/*\" { capabilities = [\"read\", \"list\"] }",
+      "Assign the policy to a token: vault token create -policy=tracelayer-reader",
+      "Copy the token (starts with hvs.)",
+      "Your Vault address is the URL you use to access Vault (e.g. https://vault.mycompany.com)",
+    ],
+  },
 };
 
 // ── Upgrade Modal ─────────────────────────────────────────────────────────────
@@ -872,12 +1036,7 @@ function ConnectModal({ def, onClose, onConnected, onUpgradeNeeded }: {
 }
 
 // ── Status badge ──────────────────────────────────────────────────────────────
-function StatusBadge({ status, isStub }: { status: string; isStub?: boolean }) {
-  if (status === "active" && isStub) return (
-    <span className="flex items-center gap-1 text-[11px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">
-      <CheckCircle2 className="w-3 h-3"/> Connected
-    </span>
-  );
+function StatusBadge({ status }: { status: string }) {
   if (status === "active") return (
     <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
       <CheckCircle2 className="w-3 h-3"/> Active
@@ -900,7 +1059,6 @@ function IntegrationCard({ def, connected, canConnect, collecting, onConnect, on
   def: IntegrationDef; connected?: Integration; canConnect: boolean; collecting: boolean;
   onConnect: () => void; onCollect: () => void; onDisconnect: () => void; onUpgrade: () => void;
 }) {
-  const isStub = STUB_TYPES.has(def.type);
   return (
     <div className={`bg-white rounded-2xl border p-4 flex items-center gap-4 transition-shadow ${
       connected ? "border-gray-100 shadow-card" : def.comingSoon ? "border-gray-100 opacity-60" : "border-gray-100 hover:shadow-sm"
@@ -909,17 +1067,14 @@ function IntegrationCard({ def, connected, canConnect, collecting, onConnect, on
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap mb-0.5">
           <span className="font-semibold text-sm text-gray-900">{def.label}</span>
-          {connected && <StatusBadge status={connected.status} isStub={isStub}/>}
+          {connected && <StatusBadge status={connected.status}/>}
           {def.comingSoon && (
             <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md">Soon</span>
           )}
         </div>
         <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">{def.description}</p>
-        {connected && isStub && connected.status !== "error" && (
-          <p className="text-[11px] text-blue-500 mt-0.5">Credentials verified · Evidence collection coming soon</p>
-        )}
         {connected?.last_error && <p className="text-xs text-red-500 mt-1 truncate">{connected.last_error}</p>}
-        {connected?.last_collected_at && !isStub && (
+        {connected?.last_collected_at && (
           <p className="text-[11px] text-gray-400 mt-0.5">Synced {new Date(connected.last_collected_at).toLocaleString()}</p>
         )}
       </div>

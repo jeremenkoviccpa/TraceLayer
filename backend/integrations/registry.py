@@ -38,6 +38,9 @@ _REGISTRY: dict[str, str] = {
     "notion":            "integrations.notion.adapter.NotionIntegration",
     "confluence":        "integrations.confluence.adapter.ConfluenceIntegration",
     "servicenow":        "integrations.servicenow.adapter.ServiceNowIntegration",
+    "new_relic":         "integrations.new_relic.adapter.NewRelicIntegration",
+    "tenable":           "integrations.tenable.adapter.TenableIntegration",
+    "vault":             "integrations.vault.adapter.VaultIntegration",
 }
 
 
