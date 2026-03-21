@@ -596,27 +596,29 @@ def send_weekly_compliance_report(
         bar_bg = _score_bar_bg(score)
         pct = min(score, 100)
         scorecard_cells += (
-            '<td class="scorecard-cell" style="width:{w}%;padding:4px 5px;vertical-align:top;">'.format(
+            '<td class="scorecard-cell" style="width:{w}%;padding:4px 8px;vertical-align:top;">'.format(
                 w=round(100 / max(num_fw, 1))
             )
-            + '<div style="background:{bg};border-radius:14px;padding:20px 14px 16px;text-align:center;">'.format(bg=bg)
+            # White card, subtle grey border, colored 4px top accent stripe
+            + '<div style="background:#ffffff;border:1.5px solid #e2e8f0;border-top:4px solid {color};'
+            'border-radius:12px;padding:20px 12px 18px;text-align:center;">'.format(color=color)
             + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;'
-            + 'letter-spacing:0.1em;text-transform:uppercase;color:#1e293b;margin-bottom:12px;">'
+            + 'letter-spacing:0.1em;text-transform:uppercase;color:#64748b;margin-bottom:14px;">'
             + fw["label"]
             + "</div>"
-            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:44px;font-weight:800;'
-            + 'line-height:1;color:{color};letter-spacing:-2px;margin-bottom:2px;">{score}</div>'.format(color=color, score=score)
-            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#64748b;'
-            + 'margin-bottom:14px;font-weight:600;">/ 100</div>'
-            + '<div style="background:{bar};border-radius:99px;height:5px;width:100%%;overflow:hidden;">'.format(bar=bar_bg)
-            + '<div style="background:{c};border-radius:99px;height:5px;width:{p}%%;"></div>'.format(c=color, p=pct)
+            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:48px;font-weight:800;'
+            + 'line-height:1;color:{color};letter-spacing:-2px;margin-bottom:3px;">{score}</div>'.format(color=color, score=score)
+            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#94a3b8;'
+            + 'margin-bottom:16px;font-weight:500;">/ 100</div>'
+            + '<div style="background:#f1f5f9;border-radius:99px;height:6px;width:100%%;overflow:hidden;">'
+            + '<div style="background:{c};border-radius:99px;height:6px;width:{p}%%;"></div>'.format(c=color, p=pct)
             + "</div></div>"
             + "</td>"
         )
 
     # Pad to 3 columns if fewer frameworks passed
     while num_fw < 3:
-        scorecard_cells += '<td class="scorecard-cell" style="width:33%;padding:4px 5px;"></td>'
+        scorecard_cells += '<td class="scorecard-cell" style="width:33%;padding:4px 8px;"></td>'
         num_fw += 1
 
     # ------------------------------------------------------------------ deduplicated controls across frameworks
