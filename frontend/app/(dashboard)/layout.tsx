@@ -60,29 +60,33 @@ type NavGroup = { title?: string; items: NavItem[] };
 
 const NAV_GROUPS: NavGroup[] = [
   {
+    // Home — always visible, no section label
     items: [
       { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/readiness", label: "Readiness", icon: Target },
     ],
   },
   {
+    // Step 1: connect tools → collect evidence → review controls → measure readiness
     title: "Compliance",
     items: [
-      { href: "/compliance",   label: "Controls",     icon: ShieldCheck },
-      { href: "/evidence",     label: "Evidence",     icon: Database    },
-      { href: "/integrations", label: "Integrations", icon: Plug,       tourId: "tour-integrations" },
+      { href: "/integrations", label: "Integrations", icon: Plug,        tourId: "tour-integrations" },
+      { href: "/evidence",     label: "Evidence",     icon: Database     },
+      { href: "/compliance",   label: "Controls",     icon: ShieldCheck  },
+      { href: "/readiness",    label: "Readiness",    icon: Target       },
     ],
   },
   {
+    // Step 2: identify and manage security risks
     title: "Risk & Security",
     items: [
-      { href: "/risks",           label: "Risk Register",  icon: AlertTriangle },
-      { href: "/incidents",       label: "Incidents",      icon: Siren         },
-      { href: "/vulnerabilities", label: "Vulnerabilities", icon: Bug          },
-      { href: "/pen-tests",       label: "Pen Tests",      icon: ShieldAlert   },
+      { href: "/risks",           label: "Risk Register",   icon: AlertTriangle },
+      { href: "/incidents",       label: "Incidents",       icon: Siren         },
+      { href: "/vulnerabilities", label: "Vulnerabilities", icon: Bug           },
+      { href: "/pen-tests",       label: "Pen Tests",       icon: ShieldAlert   },
     ],
   },
   {
+    // Step 3: operational controls auditors expect
     title: "Operations",
     items: [
       { href: "/assets",              label: "Asset Inventory",     icon: Server    },
@@ -92,6 +96,7 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    // Step 4: people controls — hire to depart
     title: "People",
     items: [
       { href: "/training",          label: "Training",          icon: GraduationCap },
@@ -101,25 +106,34 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    // Step 5: GDPR/CCPA — map data first, then document, then handle requests
     title: "Privacy",
     items: [
-      { href: "/data-flows",       label: "Data Flow Map",              icon: Workflow   },
-      { href: "/soa",              label: "Statement of Applicability", icon: BookCheck  },
-      { href: "/ropa",             label: "Data Processing (RoPA)",     icon: Archive    },
-      { href: "/data-breaches",    label: "Breach Register",            icon: ShieldX    },
-      { href: "/subject-requests", label: "Subject Requests",           icon: UserSearch },
+      { href: "/data-flows",       label: "Data Flow Map",   icon: Workflow   },
+      { href: "/ropa",             label: "RoPA",            icon: Archive    },
+      { href: "/soa",              label: "Applicability",   icon: BookCheck  },
+      { href: "/data-breaches",    label: "Breach Register", icon: ShieldX    },
+      { href: "/subject-requests", label: "Subject Requests",icon: UserSearch },
     ],
   },
   {
-    title: "Reporting",
+    // Step 6: AI-powered tools — questionnaires and audit prep
+    title: "AI Tools",
     items: [
-      { href: "/reports",            label: "Reports",           icon: FileText       },
-      { href: "/questionnaire",      label: "Questionnaire",     icon: ClipboardList  },
-      { href: "/audit-package",      label: "Audit Package",     icon: Sparkles       },
+      { href: "/questionnaire", label: "AI Questionnaire", icon: ClipboardList },
+      { href: "/audit-package", label: "AI Audit Package", icon: Sparkles      },
+    ],
+  },
+  {
+    // Step 7: formal outputs for leadership and auditors
+    title: "Reports",
+    items: [
+      { href: "/reports",            label: "Reports",            icon: FileText       },
       { href: "/management-reviews", label: "Management Reviews", icon: ClipboardCheck },
     ],
   },
   {
+    // Admin — always at the bottom
     items: [
       { href: "/team",      label: "Team",      icon: Users     },
       { href: "/audit-log", label: "Audit Log", icon: ScrollText },
@@ -337,7 +351,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       id={
                         group.title === "Compliance" ? "tour-nav-compliance" :
                         group.title === "Risk & Security" ? "tour-nav-risk" :
-                        group.title === "Reporting" ? "tour-nav-reporting" :
+                        group.title === "Reports" ? "tour-nav-reporting" :
                         undefined
                       }
                       onClick={() => toggleGroup(group.title!)}
