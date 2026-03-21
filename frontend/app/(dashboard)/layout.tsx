@@ -49,8 +49,9 @@ import {
 import type { AppNotification } from "@/lib/types";
 import { usePlan } from "@/hooks/usePlan";
 import { api } from "@/lib/api";
+import AppTour from "@/components/AppTour";
 
-type NavItem = { href: string; label: string; icon: React.ElementType };
+type NavItem = { href: string; label: string; icon: React.ElementType; tourId?: string };
 type NavGroup = { title?: string; items: NavItem[] };
 
 const NAV_GROUPS: NavGroup[] = [
@@ -65,7 +66,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/compliance",   label: "Controls",     icon: ShieldCheck },
       { href: "/evidence",     label: "Evidence",     icon: Database    },
-      { href: "/integrations", label: "Integrations", icon: Plug        },
+      { href: "/integrations", label: "Integrations", icon: Plug,       tourId: "tour-integrations" },
     ],
   },
   {
@@ -327,6 +328,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   {/* Section label — clickable toggle when expanded, divider when collapsed */}
                   {group.title && !collapsed && (
                     <button
+                      id={
+                        group.title === "Compliance" ? "tour-nav-compliance" :
+                        group.title === "Risk & Security" ? "tour-nav-risk" :
+                        group.title === "Reporting" ? "tour-nav-reporting" :
+                        undefined
+                      }
                       onClick={() => toggleGroup(group.title!)}
                       className="w-full flex items-center justify-between px-3 mb-1 rounded-lg py-0.5 group/section hover:bg-gray-50 transition-colors"
                     >
@@ -343,12 +350,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   )}
                   {isOpen && (
                     <div className="space-y-0.5">
-                      {group.items.map(({ href, label, icon: Icon }) => {
+                      {group.items.map(({ href, label, icon: Icon, tourId }) => {
                         const active = pathname === href;
                         return (
                           <div key={href} className="relative group/item">
                             <Link
                               href={href}
+                              id={tourId}
                               className={`flex items-center rounded-xl text-sm font-medium transition-all duration-150
                                 ${collapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 py-2"}
                                 ${active
@@ -546,6 +554,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <main className="flex-1 p-5 md:p-8 max-w-7xl mx-auto w-full">{children}</main>
       </div>
+
+      <AppTour />
 
       {/* Desktop notification bell — fixed top-right */}
       <div className="hidden md:block fixed top-4 right-4 z-50">

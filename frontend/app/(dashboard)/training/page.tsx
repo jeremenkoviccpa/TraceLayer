@@ -269,7 +269,9 @@ export default function TrainingPage() {
         <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-12 text-center">
           <GraduationCap className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <p className="text-sm font-medium text-gray-600 mb-1">No training records yet</p>
-          <p className="text-xs text-gray-400 mb-4">Assign security training to your team to satisfy SOC 2 CC1.4.</p>
+          <p className="text-xs text-gray-400 mb-4 max-w-xs mx-auto">
+            SOC 2 CC1.4 requires annual security awareness training for all employees. Auditors will ask to see records. Assign training to each team member and mark it complete when done.
+          </p>
           <button
             onClick={() => setShowModal(true)}
             className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2 rounded-xl text-sm"

@@ -241,7 +241,9 @@ export default function RisksPage() {
             <AlertTriangle className="h-7 w-7 text-brand-500" />
           </div>
           <p className="text-sm font-semibold text-gray-700">No risks recorded yet</p>
-          <p className="mt-1 text-xs text-gray-400">Add your first risk to start tracking your compliance posture.</p>
+          <p className="mt-1 text-xs text-gray-400 max-w-xs">
+            A risk register is required by SOC 2 (CC3) and ISO 27001. Log anything that could threaten your data security, availability, or compliance — we also auto-detect gaps like missing pen tests and stale vendor reviews.
+          </p>
           <button
             onClick={openCreate}
             className="mt-5 flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-brand-500 active:scale-95"

@@ -131,7 +131,9 @@ export default function IncidentsPage() {
         <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
           <Siren className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <p className="text-gray-500 font-medium">No incidents recorded</p>
-          <p className="text-sm text-gray-400 mt-1">Create an incident to start tracking security events</p>
+          <p className="text-sm text-gray-400 mt-1 max-w-sm mx-auto">
+            SOC 2 CC7.3 requires you to document and respond to security incidents. Zero recorded incidents looks suspicious to auditors — it means you&apos;re not monitoring, not that you&apos;re perfect.
+          </p>
           <button onClick={openCreate} className="btn-primary mt-4 gap-2"><Plus className="w-4 h-4" /> New Incident</button>
         </div>
       ) : (

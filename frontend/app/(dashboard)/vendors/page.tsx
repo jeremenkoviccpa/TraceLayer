@@ -209,7 +209,9 @@ export default function VendorsPage() {
         <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-12 text-center">
           <Building2 className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <p className="text-sm font-medium text-gray-600 mb-1">No vendors tracked yet</p>
-          <p className="text-xs text-gray-400 mb-4">Add your key vendors to demonstrate CC9.2 vendor risk management.</p>
+          <p className="text-xs text-gray-400 mb-4 max-w-xs mx-auto">
+            SOC 2 CC9.2 requires vendor risk management. Add the tools and services you rely on (AWS, Stripe, Salesforce…) and track whether each is SOC 2 or ISO 27001 certified. Enterprise buyers ask about this.
+          </p>
           <button onClick={() => setShowModal(true)} className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2 rounded-xl text-sm">
             <Plus className="w-4 h-4" /> Add first vendor
           </button>

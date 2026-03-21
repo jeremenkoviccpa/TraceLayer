@@ -422,9 +422,9 @@ export default function ReportsPage() {
           <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4">
             <BarChart2 className="w-7 h-7 text-emerald-300" />
           </div>
-          <p className="text-gray-700 font-semibold">No reports yet</p>
+          <p className="text-gray-700 font-semibold">No reports generated yet</p>
           <p className="text-gray-400 text-sm mt-1 max-w-xs">
-            Collect evidence first, then use the controls above to generate your first report.
+            Reports are the deliverable you hand to auditors or enterprise security teams. Once you have evidence collected, use the controls above to generate a SOC 2, ISO 27001, or GDPR readiness report as a PDF.
           </p>
         </div>
       ) : (
