@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 HashiCorp Vault integration via Vault HTTP API.
 
@@ -97,3 +99,24 @@ class VaultIntegration(IntegrationAdapter):
                         ))
 
         return evidence
+
+    def normalize(self, raw_data=None, **kwargs):
+        """Satisfies abstract interface; also works as single-item builder."""
+        if raw_data is not None:
+            return raw_data
+        from datetime import datetime, timezone
+        rt = kwargs.get("resource_type", "unknown")
+        control_map = {
+            "auth_method": "access_control",
+            "policy": "access_control",
+            "audit_device": "logging",
+            "secrets_engine": "data_security",
+        }
+        return {
+            "integration": "vault",
+            "control": control_map.get(rt, "data_security"),
+            "evidence_type": f"vault_{rt}",
+            "source_id": kwargs.get("resource_id", ""),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "data": kwargs.get("data", {}),
+        }

@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Google Cloud Platform integration adapter.
 

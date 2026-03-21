@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Sentry integration via Sentry Web API.
 
