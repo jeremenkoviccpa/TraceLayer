@@ -486,25 +486,25 @@ export default function AiAgentsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-8 h-8 rounded-xl bg-brand-100 flex items-center justify-center">
-              <Bot className="w-4 h-4 text-brand-600" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-900">AI Agent Monitor</h1>
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-brand-100 flex items-center justify-center shrink-0">
+            <Bot className="w-4 h-4 text-brand-600" />
           </div>
-          <p className="text-sm text-gray-500">Track every autonomous action your AI agents take across systems — what triggered, what data moved, and the full call chain.</p>
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight truncate">AI Agent Monitor</h1>
+            <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">Track every autonomous action your AI agents take across systems — what triggered, what data moved, and the full call chain.</p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={exportCsv} className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-            <Download className="w-4 h-4" />Export
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button onClick={exportCsv} className="flex items-center gap-1.5 px-3 py-2 text-xs text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+            <Download className="w-3.5 h-3.5" /><span className="hidden sm:inline">Export</span>
           </button>
-          <button onClick={() => load()} className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-            <RefreshCw className="w-4 h-4" />Refresh
+          <button onClick={() => load()} className="flex items-center gap-1.5 px-3 py-2 text-xs text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+            <RefreshCw className="w-3.5 h-3.5" /><span className="hidden sm:inline">Refresh</span>
           </button>
-          <button onClick={() => setShowLog(true)} className="flex items-center gap-1.5 px-3 py-2 text-sm bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors font-medium">
-            <Plus className="w-4 h-4" />Log Event
+          <button onClick={() => setShowLog(true)} className="flex items-center gap-1.5 px-3 py-2 text-xs bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors font-medium">
+            <Plus className="w-3.5 h-3.5" /><span className="hidden sm:inline">Log Event</span><span className="sm:hidden">Log</span>
           </button>
         </div>
       </div>
@@ -520,8 +520,8 @@ export default function AiAgentsPage() {
         </div>
       )}
 
-      {/* Summary cards — 5 columns, symmetric */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+      {/* Summary cards */}
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3 mb-6">
         {[
           { label: "Total Events",    value: events.length,     sub: "logged",          color: "text-gray-900" },
           { label: "Critical + High", value: criticalHigh,      sub: "risk events",     color: "text-red-600"  },
@@ -529,10 +529,10 @@ export default function AiAgentsPage() {
           { label: "Unique Agents",   value: uniqueAgents,      sub: "active",          color: "text-brand-600" },
           { label: "Deepest Chain",   value: maxDepth,          sub: `${chainedEvents} chained calls`, color: "text-purple-600" },
         ].map((s) => (
-          <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-4">
-            <p className="text-xs text-gray-400 font-medium mb-1">{s.label}</p>
-            <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-[11px] text-gray-400 mt-0.5">{s.sub}</p>
+          <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-4">
+            <p className="text-[10px] sm:text-xs text-gray-400 font-medium mb-1 leading-tight">{s.label}</p>
+            <p className={`text-xl sm:text-2xl font-bold ${s.color}`}>{s.value}</p>
+            <p className="text-[10px] text-gray-400 mt-0.5 hidden sm:block">{s.sub}</p>
           </div>
         ))}
       </div>
@@ -569,7 +569,7 @@ export default function AiAgentsPage() {
             <input
               type="search" placeholder="Search agent or tool…" value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 w-48"
+              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 w-full sm:w-48"
             />
             <select value={filterRisk} onChange={(e) => setFilterRisk(e.target.value)} className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30">
               <option value="all">All risks</option>
