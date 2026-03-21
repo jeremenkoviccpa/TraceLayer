@@ -1671,6 +1671,384 @@ const SETUP_GUIDES: Record<string, SetupGuide> = {
       "Check help.qualys.com → Get Started → Qualys Platform URLs for your region",
     ],
   },
+  // ── Batch 1 new integrations ────────────────────────────────────────────────
+  tailscale: {
+    url: "https://login.tailscale.com/admin/settings/keys",
+    steps: [
+      "Tailscale Admin Console → Settings → Keys",
+      "Generate API Key — copy the key (starts with tskey-api-)",
+      "Your tailnet name is shown at the top of the admin console (e.g. mycompany.com)",
+    ],
+  },
+  bitwarden: {
+    url: "https://bitwarden.com/help/public-api/",
+    steps: [
+      "Bitwarden Admin Console → Settings → Organization → API Key",
+      "Copy the Client ID and Client Secret shown",
+      "These credentials are scoped to your organization only — no personal vault access",
+    ],
+  },
+  lastpass: {
+    steps: [
+      "Log in to LastPass Admin Console as an admin",
+      "Advanced → Enterprise API — copy your Account Number (CID)",
+      "Generate a Provisioning Hash from the same page",
+      "Both values are required to authenticate the integration",
+    ],
+  },
+  azure: {
+    url: "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade",
+    steps: [
+      "Azure Portal → Azure Active Directory → App registrations → New registration",
+      "Certificates & secrets → New client secret → copy the value immediately",
+      "API permissions → Add: Reader role at the subscription level (IAM → Role assignments)",
+      "Copy Tenant ID, Client ID from the app overview, and your Subscription ID from the subscription blade",
+    ],
+  },
+  digitalocean: {
+    url: "https://cloud.digitalocean.com/account/api/tokens",
+    steps: [
+      "DigitalOcean → API → Personal access tokens → Generate New Token",
+      "Set Read scope only (no write access needed)",
+      "Token starts with dop_v1_ — copy it immediately, it won't be shown again",
+    ],
+  },
+  heroku: {
+    url: "https://dashboard.heroku.com/account",
+    steps: [
+      "Heroku Dashboard → Account Settings → scroll to API Key section",
+      "Click 'Reveal' to show your API Key and copy it",
+      "Alternatively, run: heroku auth:token in the Heroku CLI",
+    ],
+  },
+  asana: {
+    url: "https://app.asana.com/0/my-apps",
+    steps: [
+      "Asana → My Profile (top right) → Apps → Manage Developer Apps",
+      "Create a new access token — give it a descriptive name (e.g. TraceLayer)",
+      "Copy the token immediately (shown only once)",
+      "Workspace GID is optional — find it in your workspace URL if needed",
+    ],
+  },
+  monday: {
+    url: "https://monday.com/apps/manage/tokens",
+    steps: [
+      "Monday.com → Profile picture (bottom left) → Administration → API",
+      "Copy your Personal API Token from the token section",
+      "Alternatively: Profile → Developer → My Access Tokens → Show",
+    ],
+  },
+  shortcut: {
+    url: "https://app.shortcut.com/settings/api-tokens",
+    steps: [
+      "Shortcut → Your Profile (bottom left) → API Tokens",
+      "Generate Token → give it a name (e.g. TraceLayer)",
+      "Copy the token (UUID format) — shown only once",
+    ],
+  },
+  zoom: {
+    url: "https://marketplace.zoom.us/",
+    steps: [
+      "Zoom Marketplace → Develop → Build App → Server-to-Server OAuth",
+      "Create the app and activate it",
+      "Add scopes: user:read:admin, meeting:read:admin, account:read:admin",
+      "Copy the Account ID, Client ID, and Client Secret from the app credentials page",
+    ],
+  },
+  intercom: {
+    url: "https://app.intercom.com/a/apps/_/settings/developer-hub",
+    steps: [
+      "Intercom → Settings → Developers → Build Your Own App",
+      "Create an internal integration and copy the Access Token from the Authentication tab",
+      "Grant read permissions for Contacts, Conversations, and Teams",
+    ],
+  },
+  detectify: {
+    steps: [
+      "Log in to Detectify → Team Settings (top right gear icon)",
+      "Go to API Tokens → Create Token",
+      "Give it a name, copy the 32-character token",
+      "Token grants read-only access to scan results and assets",
+    ],
+  },
+  nightfall: {
+    steps: [
+      "Log in to Nightfall Console → Settings → API Keys",
+      "Create a new API key — give it a descriptive name (e.g. TraceLayer)",
+      "Copy the key immediately",
+    ],
+  },
+  opsgenie: {
+    url: "https://app.opsgenie.com/settings/api-key-management",
+    steps: [
+      "Opsgenie → Settings → API Key Management (under Integrations)",
+      "Add API Key — set access rights to Read",
+      "Copy the key (UUID format)",
+    ],
+  },
+  checkr: {
+    url: "https://dashboard.checkr.com/account/developer",
+    steps: [
+      "Checkr Dashboard → Account → Developer",
+      "Copy your Live API Key (or Test API Key for testing)",
+      "Use the Live key for real background check records",
+    ],
+  },
+  lattice: {
+    steps: [
+      "Log in to Lattice as an admin",
+      "Admin → Integrations → API Access",
+      "Generate an API token and copy it",
+      "The token grants read access to performance and people data",
+    ],
+  },
+  trainual: {
+    steps: [
+      "Log in to Trainual as an admin",
+      "Settings → Integrations → scroll to API Key section",
+      "Copy the API key shown",
+    ],
+  },
+  greenhouse: {
+    url: "https://app.greenhouse.io/configure/dev_center/credentials",
+    steps: [
+      "Greenhouse → Configure (top nav) → Dev Center → API Credential Management",
+      "Create Credential → type: Harvest (not Ingestion)",
+      "Set permissions: all read-only endpoints",
+      "Copy the API key shown — this is your Harvest API key",
+    ],
+  },
+  jenkins: {
+    steps: [
+      "Log in to Jenkins as admin",
+      "Click your username (top right) → Configure",
+      "API Token section → Add new Token → copy the token immediately",
+      "Your Jenkins URL is the base URL you use to access Jenkins",
+    ],
+  },
+  azure_devops: {
+    url: "https://dev.azure.com",
+    steps: [
+      "Azure DevOps → User Settings (top right) → Personal Access Tokens",
+      "New Token → set expiry and select Read scopes for: Build, Code, Work Items, Project",
+      "Copy the token immediately — not shown again",
+      "Your organization name is the part after dev.azure.com/ in your URL",
+    ],
+  },
+  argocd: {
+    steps: [
+      "Log in to Argo CD UI or use the CLI",
+      "Settings → Accounts → create a read-only account (or use the admin account for testing)",
+      "Generate a token: argocd account generate-token --account tracelayer",
+      "Your server URL is the base URL of your Argo CD instance",
+    ],
+  },
+  elastic: {
+    url: "https://cloud.elastic.co",
+    steps: [
+      "Elastic Cloud → Deployments → select your deployment → Overview",
+      "Copy the Cloud ID from the overview page",
+      "Kibana → Stack Management → API Keys → Create API Key",
+      "Set cluster privileges: monitor, read_ilm — copy the encoded key",
+    ],
+  },
+  // ── Batch 2 new integrations ────────────────────────────────────────────────
+  auth0: {
+    url: "https://manage.auth0.com/#/applications",
+    steps: [
+      "Auth0 Dashboard → Applications → Create Application → Machine to Machine",
+      "Authorize the app against the Management API",
+      "Grant scopes: read:users, read:clients, read:connections, read:logs",
+      "Copy the Domain, Client ID, and Client Secret from the app Settings tab",
+    ],
+  },
+  doppler: {
+    url: "https://dashboard.doppler.com/workplace/settings",
+    steps: [
+      "Doppler → select your project → Access → Service Tokens",
+      "Create a service token with read-only access",
+      "Token starts with dp.st. — copy it immediately",
+    ],
+  },
+  ping_identity: {
+    steps: [
+      "PingOne Admin Console → Applications → Add Application → Worker",
+      "Enable the application and grant the Environment Admin or Identity Data Read Only role",
+      "Copy the Environment ID from Settings → Environment Properties",
+      "Copy Client ID and Client Secret from the application's Configuration tab",
+    ],
+  },
+  zscaler: {
+    steps: [
+      "Log in to Zscaler Admin Console",
+      "Administration → API Key Management — note your API Key and Cloud name",
+      "Your cloud name is in your admin URL (e.g. admin.zscaler.net → cloud is zsapi.zscaler.net)",
+      "Use your admin username and password alongside the API key",
+    ],
+  },
+  render: {
+    url: "https://dashboard.render.com/u/settings#api-keys",
+    steps: [
+      "Render Dashboard → Account Settings → API Keys",
+      "Create API Key — give it a name (e.g. TraceLayer)",
+      "Copy the key (starts with rnd_) — shown only once",
+    ],
+  },
+  flyio: {
+    url: "https://fly.io/user/personal_access_tokens",
+    steps: [
+      "Fly.io Dashboard → Account → Access Tokens → Create Token",
+      "Or run: fly auth token in the Fly CLI to get your current token",
+      "Copy the token — it starts with FlyV1",
+    ],
+  },
+  netlify: {
+    url: "https://app.netlify.com/user/applications",
+    steps: [
+      "Netlify → User Settings → Applications → Personal Access Tokens",
+      "New access token → give it a description and expiry",
+      "Copy the token immediately — not shown again",
+    ],
+  },
+  oracle_cloud: {
+    url: "https://cloud.oracle.com/identity/users",
+    steps: [
+      "OCI Console → Identity → Users → select your user → API Keys → Add API Key",
+      "Generate API key pair → download the private key PEM file",
+      "Copy the fingerprint shown after upload",
+      "Tenancy OCID and User OCID are found under Identity → Tenancy and the user profile page",
+      "Paste the full private key PEM content into the Private Key field",
+    ],
+  },
+  veracode: {
+    url: "https://analysiscenter.veracode.com/auth/index.jsp#ApiTokens",
+    steps: [
+      "Veracode Platform → My Profile (top right) → API Credentials",
+      "Generate API Credentials — copy the API ID and API Key",
+      "Store securely — the API key is not shown again after generation",
+    ],
+  },
+  aquasec: {
+    steps: [
+      "Log in to Aqua Security console as admin",
+      "Go to Administration → Users → Add User",
+      "Create a service account with Scanner or Auditor role (read-only)",
+      "Your server URL is the base URL of your Aqua console",
+    ],
+  },
+  bugcrowd: {
+    url: "https://bugcrowd.com/user/settings",
+    steps: [
+      "Bugcrowd → Settings (top right) → API Tokens",
+      "Create a new API token — give it a name",
+      "Copy the token immediately",
+    ],
+  },
+  stackhawk: {
+    url: "https://app.stackhawk.com/settings",
+    steps: [
+      "StackHawk → Organization Settings → API Keys",
+      "Create API Key → give it a name (e.g. TraceLayer)",
+      "Copy the key (starts with hawk.) — shown only once",
+    ],
+  },
+  hibob: {
+    steps: [
+      "HiBob Admin → Settings → Integrations → Service Users",
+      "Create a new service user — assign read-only access to People data",
+      "Copy the Service User ID and Service User Token shown after creation",
+    ],
+  },
+  personio: {
+    url: "https://app.personio.com/configuration/integrations/api",
+    steps: [
+      "Personio → Settings → Integrations → API Credentials",
+      "Create new API credentials — copy the Client ID and Client Secret",
+      "Grant read access to Employees and Absences",
+    ],
+  },
+  deel: {
+    url: "https://app.deel.com/settings/developer",
+    steps: [
+      "Deel → Settings → Developer → API Tokens",
+      "Create a new token — select Read Only scope",
+      "Copy the token immediately",
+    ],
+  },
+  remote: {
+    steps: [
+      "Remote → Settings → Integrations → API Access",
+      "Request API access if not already enabled (available on Scale plan)",
+      "Generate an API key and copy it",
+    ],
+  },
+  clickup: {
+    url: "https://app.clickup.com/settings/apps",
+    steps: [
+      "ClickUp → Profile (bottom left) → Apps",
+      "Generate an API Key — click '+ Generate' next to Personal API Token",
+      "Copy the token (starts with pk_)",
+    ],
+  },
+  trello: {
+    url: "https://trello.com/power-ups/admin",
+    steps: [
+      "Trello Power-Up Admin → New → create a Power-Up for your workspace",
+      "Go to the API Key tab — copy your API Key",
+      "Click the token link next to your API Key, authorize, and copy the token",
+      "Both API Key and Token are required",
+    ],
+  },
+  microsoft_sentinel: {
+    url: "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade",
+    steps: [
+      "Azure Portal → Azure Active Directory → App registrations → New registration",
+      "Certificates & secrets → New client secret → copy the value",
+      "IAM → Role assignments → assign 'Microsoft Sentinel Reader' role to the app",
+      "Copy Tenant ID, Client ID, Subscription ID, your Resource Group name, and Workspace name",
+    ],
+  },
+  grafana: {
+    steps: [
+      "Grafana → Administration → Service Accounts → Add service account",
+      "Give it a name (e.g. TraceLayer) with Viewer role",
+      "Click 'Add service account token' → copy the token (starts with glsa_)",
+      "Your Grafana URL is the base URL of your Grafana instance",
+    ],
+  },
+  graylog: {
+    steps: [
+      "Log in to Graylog as admin",
+      "Use your Graylog instance URL as the base URL",
+      "A read-only admin account or viewer role is recommended",
+      "Provide the username and password for the API user",
+    ],
+  },
+  snowflake: {
+    steps: [
+      "Log in to Snowflake as ACCOUNTADMIN",
+      "Create a dedicated read-only user: CREATE USER tracelayer PASSWORD='...' DEFAULT_ROLE=SYSADMIN",
+      "Grant role: GRANT ROLE SYSADMIN TO USER tracelayer (or a custom read-only role)",
+      "Your account identifier is in your Snowflake URL: <account>.snowflakecomputing.com",
+    ],
+  },
+  databricks: {
+    url: "https://docs.databricks.com/en/dev-tools/auth/pat.html",
+    steps: [
+      "Databricks Workspace → User Settings (top right) → Access Tokens",
+      "Generate New Token → give it a name and set a reasonable lifetime",
+      "Copy the token (starts with dapi) — shown only once",
+      "Your workspace URL is the hostname of your Databricks workspace",
+    ],
+  },
+  betteruptime: {
+    url: "https://betterstack.com/team/user-keys",
+    steps: [
+      "Better Stack → Settings → API → Create API Token",
+      "Give it a name (e.g. TraceLayer) with Read scope",
+      "Copy the token immediately",
+    ],
+  },
 };
 
 // ── Upgrade Modal ─────────────────────────────────────────────────────────────
