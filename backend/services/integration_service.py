@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from integrations.base import IntegrationAuthError
 from integrations.registry import get_adapter
 from models.integration import Integration
+from services import data_flow_service
 from utils.encryption import encrypt_credentials
 
 
@@ -54,6 +55,7 @@ async def connect_integration(
 
     await db.commit()
     await db.refresh(integration)
+    await data_flow_service.add_flow_for_integration(company_id, integration_type, db)
     return integration
 
 
@@ -73,4 +75,5 @@ async def disconnect_integration(
         return False
     await db.delete(integration)
     await db.commit()
+    await data_flow_service.remove_flows_for_integration(company_id, integration_type, db)
     return True

@@ -664,3 +664,22 @@ export type DriftEvent = {
   trigger_integration: string | null;
   detected_at: string;
 };
+
+export interface DataFlow {
+  id: string;
+  company_id: string;
+  data_type: string;
+  data_category: string;
+  tool: string;
+  tool_label: string;
+  region: string;
+  risk_level: string;
+  regulations: string[];
+  purpose: string | null;
+  legal_basis: string | null;
+  is_auto_detected: boolean;
+  is_cross_border: boolean;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}

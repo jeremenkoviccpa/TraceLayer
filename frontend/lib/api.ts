@@ -859,6 +859,28 @@ class ApiClient {
     a.click();
     URL.revokeObjectURL(url);
   }
+
+  // ── Data Flows ────────────────────────────────────────────────────────────
+
+  async getDataFlows(): Promise<import("./types").DataFlow[]> {
+    return this.request("GET", "/data-flows");
+  }
+
+  async createDataFlow(body: Partial<import("./types").DataFlow>): Promise<import("./types").DataFlow> {
+    return this.request("POST", "/data-flows", body);
+  }
+
+  async updateDataFlow(id: string, body: Partial<import("./types").DataFlow>): Promise<import("./types").DataFlow> {
+    return this.request("PATCH", `/data-flows/${id}`, body);
+  }
+
+  async deleteDataFlow(id: string): Promise<void> {
+    return this.request("DELETE", `/data-flows/${id}`);
+  }
+
+  async scanDataFlows(): Promise<import("./types").DataFlow[]> {
+    return this.request("POST", "/data-flows/scan");
+  }
 }
 
 export const api = new ApiClient();

@@ -46,6 +46,7 @@ import {
   BadgeCheck,
   Archive,
   ShieldHalf,
+  Workflow,
 } from "lucide-react";
 import type { AppNotification } from "@/lib/types";
 import { usePlan } from "@/hooks/usePlan";
@@ -101,6 +102,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     title: "Privacy",
     items: [
+      { href: "/data-flows",       label: "Data Flow Map",              icon: Workflow   },
       { href: "/soa",              label: "Statement of Applicability", icon: BookCheck  },
       { href: "/ropa",             label: "Data Processing (RoPA)",     icon: Archive    },
       { href: "/data-breaches",    label: "Breach Register",            icon: ShieldX    },
