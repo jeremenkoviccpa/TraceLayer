@@ -77,7 +77,7 @@ async def generate(
     # Gate PDF/CSV formats to Growth plan
     if body.format in ("pdf", "csv"):
         from core.config import settings
-        if current_user.email not in settings.internal_admins:
+        if current_user.email not in settings.internal_admins_list:
             result_company = await db.execute(select(Company).where(Company.id == current_user.company_id))
             company_obj = result_company.scalar_one_or_none()
             if not company_obj or company_obj.plan != "growth":

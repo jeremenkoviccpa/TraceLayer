@@ -14,7 +14,7 @@ async def require_growth(
     db: AsyncSession = Depends(get_db),
 ) -> User:
     """Dependency: raises 402 if company is not on the Growth plan."""
-    if current_user.email in settings.internal_admins:
+    if current_user.email in settings.internal_admins_list:
         return current_user
     result = await db.execute(select(Company).where(Company.id == current_user.company_id))
     company = result.scalar_one_or_none()

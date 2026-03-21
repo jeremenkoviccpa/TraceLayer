@@ -33,12 +33,12 @@ class Settings(BaseSettings):
     # Observability
     sentry_dsn: str = ""
     # Internal accounts that bypass billing checks (comma-separated emails in env)
-    # Stored as plain string, split on use — avoids pydantic JSON-parsing of List[str]
-    internal_admins_raw: str = ""
+    # Field name matches env var INTERNAL_ADMINS via pydantic-settings case-insensitive mapping
+    internal_admins: str = ""
 
     @property
-    def internal_admins(self) -> list[str]:
-        return [e.strip() for e in self.internal_admins_raw.split(",") if e.strip()]
+    def internal_admins_list(self) -> list[str]:
+        return [e.strip() for e in self.internal_admins.split(",") if e.strip()]
 
     @property
     def cors_origins_list(self) -> list[str]:
@@ -56,8 +56,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_prefix = ""
-        # Map INTERNAL_ADMINS env var → internal_admins_raw field
-        fields = {"internal_admins_raw": {"env": "INTERNAL_ADMINS"}}
 
 
 settings = Settings()

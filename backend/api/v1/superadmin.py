@@ -28,7 +28,7 @@ router = APIRouter(prefix="/super-admin", tags=["super-admin"])
 async def require_super_admin(
     current_user: User = Depends(get_current_user),
 ) -> User:
-    if current_user.email not in settings.internal_admins:
+    if current_user.email not in settings.internal_admins_list:
         raise HTTPException(status_code=403, detail="Super-admin access required.")
     return current_user
 

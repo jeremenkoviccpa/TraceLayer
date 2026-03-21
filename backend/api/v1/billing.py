@@ -48,7 +48,7 @@ async def get_subscription(
     if not company:
         raise HTTPException(status_code=404, detail="Company not found")
     from core.config import settings
-    effective_plan = "growth" if current_user.email in settings.internal_admins else company.plan
+    effective_plan = "growth" if current_user.email in settings.internal_admins_list else company.plan
     return {
         "plan": effective_plan,
         "subscription_status": company.subscription_status,
