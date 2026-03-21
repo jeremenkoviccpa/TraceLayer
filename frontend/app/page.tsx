@@ -1381,6 +1381,47 @@ export default function LandingPage() {
             </p>
           </div>
 
+          {/* Feature comparison */}
+          <div className="mt-10 max-w-2xl mx-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 font-semibold text-gray-700">Feature</th>
+                  <th className="text-center py-3 font-semibold text-gray-500 w-28">Free</th>
+                  <th className="text-center py-3 font-semibold text-[var(--accent)] w-28">Growth</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {[
+                  ["SOC 2 framework", true, true],
+                  ["ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, NIST", false, true],
+                  ["Integrations", "Up to 3", "Unlimited"],
+                  ["Team members", "Up to 3", "Unlimited"],
+                  ["Automated evidence collection", true, true],
+                  ["Risk register & vendor hub", true, true],
+                  ["Policy templates & training", true, true],
+                  ["JSON reports", true, true],
+                  ["PDF audit reports", false, true],
+                  ["AI compliance advisor", false, true],
+                  ["Trust Center (public page)", false, true],
+                  ["AI Audit Package builder", false, true],
+                  ["Priority support", false, true],
+                  ["SOC 2 Type II evidence window", false, true],
+                ].map(([feature, free, growth]) => (
+                  <tr key={String(feature)} className="hover:bg-gray-50/50">
+                    <td className="py-2.5 text-gray-700">{feature}</td>
+                    <td className="py-2.5 text-center text-gray-400">
+                      {free === true ? <CheckCircle2 className="w-4 h-4 text-emerald-500 mx-auto"/> : free === false ? <span className="text-gray-300">—</span> : <span className="text-xs font-medium text-gray-500">{free}</span>}
+                    </td>
+                    <td className="py-2.5 text-center">
+                      {growth === true ? <CheckCircle2 className="w-4 h-4 text-emerald-500 mx-auto"/> : growth === false ? <span className="text-gray-300">—</span> : <span className="text-xs font-medium text-[var(--accent)]">{growth}</span>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
         </div>
       </section>
 

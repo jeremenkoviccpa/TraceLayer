@@ -81,6 +81,11 @@ export default function ReadinessPage() {
   const [data, setData] = useState<ReadinessData | null>(null);
   const [score, setScore] = useState<ComplianceScore | null>(null);
   const [loading, setLoading] = useState(true);
+  const [socType, setSocType] = useState<"type1" | "type2">("type1");
+  const [periodStart, setPeriodStart] = useState(() => {
+    const d = new Date(); d.setMonth(d.getMonth() - 6); return d.toISOString().split("T")[0];
+  });
+  const [periodEnd, setPeriodEnd] = useState(() => new Date().toISOString().split("T")[0]);
 
   useEffect(() => {
     setLoading(true);
@@ -138,6 +143,62 @@ export default function ReadinessPage() {
               })}
             </div>
           </div>
+
+          {/* SOC 2 Type selector */}
+          {framework === "soc2" && (
+            <div className="mb-5">
+              <div className="flex gap-2 flex-wrap">
+                {(["type1", "type2"] as const).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setSocType(t)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                      socType === t
+                        ? "bg-teal-500 text-white border-teal-500 shadow-sm"
+                        : "bg-white/10 text-slate-300 border-white/20 hover:bg-white/20"
+                    }`}
+                  >
+                    {t === "type1" ? "Type I — Point in time" : "Type II — 6-month period"}
+                  </button>
+                ))}
+              </div>
+
+              {socType === "type2" && (
+                <div className="mt-3 space-y-3">
+                  <div className="flex flex-wrap gap-3">
+                    <div>
+                      <label className="text-xs text-slate-400 block mb-1">Period start</label>
+                      <input
+                        type="date"
+                        value={periodStart}
+                        onChange={(e) => setPeriodStart(e.target.value)}
+                        className="bg-white/10 border border-white/20 text-white text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-slate-400 block mb-1">Period end</label>
+                      <input
+                        type="date"
+                        value={periodEnd}
+                        onChange={(e) => setPeriodEnd(e.target.value)}
+                        className="bg-white/10 border border-white/20 text-white text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2 bg-teal-500/10 border border-teal-500/25 rounded-xl px-3 py-2.5">
+                    <Clock className="w-3.5 h-3.5 text-teal-400 mt-0.5 shrink-0" />
+                    <p className="text-xs text-teal-300 leading-relaxed">
+                      Type II requires evidence collected continuously over the audit period. Your current evidence spans{" "}
+                      <span className="font-bold">
+                        {Math.max(0, Math.floor((new Date(periodEnd).getTime() - new Date(periodStart).getTime()) / 86400000))}
+                      </span>{" "}
+                      days.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Main hero content */}
           {loading ? (
