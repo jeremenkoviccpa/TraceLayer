@@ -72,11 +72,40 @@ _REGISTRY: dict[str, str] = {
     "lattice":           "integrations.lattice.adapter.LatticeIntegration",
     "trainual":          "integrations.trainual.adapter.TrainualIntegration",
     "greenhouse":        "integrations.greenhouse.adapter.GreenhouseIntegration",
+    "hibob":             "integrations.hibob.adapter.HiBobIntegration",
+    "personio":          "integrations.personio.adapter.PersonioIntegration",
+    "deel":              "integrations.deel.adapter.DeelIntegration",
+    "remote":            "integrations.remote.adapter.RemoteIntegration",
     # ── CI/CD & DevOps ────────────────────────────────────────────────────────
     "jenkins":           "integrations.jenkins.adapter.JenkinsIntegration",
     "azure_devops":      "integrations.azure_devops.adapter.AzureDevOpsIntegration",
     "argocd":            "integrations.argocd.adapter.ArgoCDIntegration",
     "elastic":           "integrations.elastic.adapter.ElasticIntegration",
+    # ── Identity & Access (extended) ──────────────────────────────────────────
+    "auth0":             "integrations.auth0.adapter.Auth0Integration",
+    "doppler":           "integrations.doppler.adapter.DopplerIntegration",
+    "ping_identity":     "integrations.ping_identity.adapter.PingIdentityIntegration",
+    "zscaler":           "integrations.zscaler.adapter.ZscalerIntegration",
+    # ── Cloud Infrastructure (extended) ───────────────────────────────────────
+    "render":            "integrations.render.adapter.RenderIntegration",
+    "flyio":             "integrations.flyio.adapter.FlyioIntegration",
+    "netlify":           "integrations.netlify.adapter.NetlifyIntegration",
+    "oracle_cloud":      "integrations.oracle_cloud.adapter.OracleCloudIntegration",
+    # ── Project Management (extended) ─────────────────────────────────────────
+    "clickup":           "integrations.clickup.adapter.ClickUpIntegration",
+    "trello":            "integrations.trello.adapter.TrelloIntegration",
+    # ── Monitoring & Security (extended) ──────────────────────────────────────
+    "microsoft_sentinel":"integrations.microsoft_sentinel.adapter.MicrosoftSentinelIntegration",
+    "grafana":           "integrations.grafana.adapter.GrafanaIntegration",
+    "graylog":           "integrations.graylog.adapter.GraylogIntegration",
+    "veracode":          "integrations.veracode.adapter.VeracodeIntegration",
+    "aquasec":           "integrations.aquasec.adapter.AquasecIntegration",
+    "bugcrowd":          "integrations.bugcrowd.adapter.BugcrowdIntegration",
+    "stackhawk":         "integrations.stackhawk.adapter.StackHawkIntegration",
+    "betteruptime":      "integrations.betteruptime.adapter.BetterUptimeIntegration",
+    # ── Data & Analytics ──────────────────────────────────────────────────────
+    "snowflake":         "integrations.snowflake.adapter.SnowflakeIntegration",
+    "databricks":        "integrations.databricks.adapter.DatabricksIntegration",
 }
 
 

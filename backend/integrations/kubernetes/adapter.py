@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Kubernetes integration via the Kubernetes API server.
 

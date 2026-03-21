@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 New Relic integration via New Relic REST API v2 and NerdGraph.
 
@@ -78,3 +80,23 @@ class NewRelicIntegration(IntegrationAdapter):
                     ))
 
         return evidence
+
+    def normalize(self, raw_data=None, **kwargs):
+        """Satisfies abstract interface; also works as single-item builder."""
+        if raw_data is not None:
+            return raw_data
+        from datetime import datetime, timezone
+        rt = kwargs.get("resource_type", "unknown")
+        control_map = {
+            "user": "access_control",
+            "alert_policy": "monitoring",
+            "notification_channel": "monitoring",
+        }
+        return {
+            "integration": "new_relic",
+            "control": control_map.get(rt, "monitoring"),
+            "evidence_type": f"new_relic_{rt}",
+            "source_id": kwargs.get("resource_id", ""),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "data": kwargs.get("data", {}),
+        }

@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Wiz integration via Wiz GraphQL API with OAuth2 client credentials.
 
