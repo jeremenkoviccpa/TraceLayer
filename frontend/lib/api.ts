@@ -277,6 +277,13 @@ class ApiClient {
     return this.request<Company>("GET", "/org/company");
   }
 
+  async getOnboardingStatus(): Promise<{
+    has_integration: boolean; has_evidence: boolean; has_vendor: boolean;
+    has_member: boolean; has_training: boolean; has_report: boolean; has_risk: boolean;
+  }> {
+    return this.request("GET", "/org/onboarding-status");
+  }
+
   async updateCompany(name: string): Promise<Company> {
     return this.request<Company>("PATCH", "/org/company", { name });
   }

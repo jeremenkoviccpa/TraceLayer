@@ -140,3 +140,36 @@ def schedule_auto_detection() -> None:
         misfire_grace_time=3600,
     )
     logger.info("Scheduled auto detection (02:15 UTC)")
+
+
+def schedule_detection_digest() -> None:
+    """Nightly digest email summarising overnight auto-detections at 03:00 UTC."""
+    from services.detection_digest_service import run_detection_digest_all_companies
+
+    scheduler.add_job(
+        run_detection_digest_all_companies,
+        "cron",
+        hour=3,
+        minute=0,
+        id="detection_digest",
+        replace_existing=True,
+        misfire_grace_time=3600,
+    )
+    logger.info("Scheduled detection digest emails (03:00 UTC)")
+
+
+def schedule_control_owner_reminders() -> None:
+    """Weekly reminder emails to control owners with pending controls (Mon 09:30 UTC)."""
+    from services.control_owner_service import run_control_owner_reminders
+
+    scheduler.add_job(
+        run_control_owner_reminders,
+        "cron",
+        day_of_week="mon",
+        hour=9,
+        minute=30,
+        id="control_owner_reminders",
+        replace_existing=True,
+        misfire_grace_time=3600,
+    )
+    logger.info("Scheduled control owner reminders (Mon 09:30 UTC)")

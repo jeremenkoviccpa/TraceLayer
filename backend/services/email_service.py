@@ -882,3 +882,93 @@ def send_weekly_compliance_report(
     )
 
     _send(to, subject, html)
+
+
+def send_control_owner_reminder(
+    to: str,
+    owner_name: str,
+    company_name: str,
+    controls: list[dict],
+) -> None:
+    """Weekly reminder to a control owner listing their pending controls."""
+    count = len(controls)
+    rows = "".join(
+        f'<tr>'
+        f'<td style="padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px;color:{_TEXT_BODY};">{c["name"]}</td>'
+        f'<td style="padding:8px 0 8px 16px;border-bottom:1px solid #f1f5f9;font-size:11px;font-weight:600;color:{_TEXT_MUTED};text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;">{c["framework"]}</td>'
+        f'</tr>'
+        for c in controls
+    )
+    subject = f"Action needed: {count} compliance control{'s' if count != 1 else ''} assigned to you"
+    body = f"""
+      <h2 style="margin:0 0 8px;color:{_TEXT_HEAD};font-size:22px;">Controls waiting on you</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 24px;font-size:15px;line-height:1.6;">
+        Hi {owner_name}, you have <strong>{count} pending compliance control{'s' if count != 1 else ''}</strong>
+        assigned to you in <strong>{company_name}</strong>. These need to be marked compliant before your next audit.
+      </p>
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 28px;">
+        <tr>
+          <th style="text-align:left;font-size:11px;font-weight:700;color:{_TEXT_MUTED};text-transform:uppercase;letter-spacing:0.06em;padding:0 0 10px;">Control</th>
+          <th style="text-align:left;font-size:11px;font-weight:700;color:{_TEXT_MUTED};text-transform:uppercase;letter-spacing:0.06em;padding:0 0 10px 16px;">Framework</th>
+        </tr>
+        {rows}
+      </table>
+      {_btn(f"{settings.app_frontend_url}/compliance", "Review my controls →")}
+      <p style="color:{_TEXT_MUTED};font-size:12px;margin:20px 0 0;line-height:1.6;">
+        You're receiving this because you're the assigned owner of these controls in TraceLayer.
+        To stop receiving these, ask your admin to reassign the controls.
+      </p>
+    """
+    _send(to, subject, _layout(body))
+
+
+def send_auto_detection_digest(
+    to: str,
+    company_name: str,
+    risks: int,
+    training: int,
+    background_checks: int,
+    incidents: int,
+) -> None:
+    """Nightly digest to admins: what auto-detection found overnight."""
+    total = risks + training + background_checks + incidents
+    if total == 0:
+        return
+
+    def _row(label: str, count: int, href: str) -> str:
+        if count == 0:
+            return ""
+        return (
+            f'<tr>'
+            f'<td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;color:{_TEXT_BODY};">{label}</td>'
+            f'<td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;text-align:right;">'
+            f'<a href="{settings.app_frontend_url}{href}" style="font-size:13px;font-weight:700;color:{_BRAND};text-decoration:none;">'
+            f'{count} new →</a></td>'
+            f'</tr>'
+        )
+
+    rows = (
+        _row("Risks auto-detected", risks, "/risks")
+        + _row("Training assignments created", training, "/training")
+        + _row("Background check gaps flagged", background_checks, "/background-checks")
+        + _row("Incidents auto-created", incidents, "/incidents")
+    )
+
+    subject = f"TraceLayer found {total} new item{'s' if total != 1 else ''} overnight — {company_name}"
+    body = f"""
+      <h2 style="margin:0 0 8px;color:{_TEXT_HEAD};font-size:22px;">Overnight detection summary</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 24px;font-size:15px;line-height:1.6;">
+        TraceLayer's nightly scan found <strong>{total} new item{'s' if total != 1 else ''}</strong>
+        for <strong>{company_name}</strong>. Here's what was auto-created:
+      </p>
+      <table cellpadding="0" cellspacing="0" border="0" width="100%"
+        style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin:0 0 28px;">
+        {rows}
+      </table>
+      {_btn(f"{settings.app_frontend_url}/dashboard", "Review in TraceLayer →")}
+      <p style="color:{_TEXT_MUTED};font-size:12px;margin:20px 0 0;line-height:1.6;">
+        These items were auto-detected from your existing data. If they're already handled,
+        you can dismiss or update them in the dashboard. No action is required otherwise.
+      </p>
+    """
+    _send(to, subject, _layout(body))

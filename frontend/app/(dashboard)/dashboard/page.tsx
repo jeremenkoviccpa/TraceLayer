@@ -147,18 +147,24 @@ function staleBadge(lastCollected: string | null) {
 // ── Getting started checklist ─────────────────────────────────────────────────
 const CHECKLIST_KEY = "tl_checklist_dismissed";
 
-function GettingStarted({ hasIntegration, hasEvidence, hasScore, hasReport }: {
-  hasIntegration: boolean; hasEvidence: boolean; hasScore: boolean; hasReport: boolean;
-}) {
+type OnboardingStatus = {
+  has_integration: boolean; has_evidence: boolean; has_vendor: boolean;
+  has_member: boolean; has_training: boolean; has_report: boolean; has_risk: boolean;
+} | null;
+
+function GettingStarted({ status }: { status: OnboardingStatus }) {
   const [dismissed, setDismissed] = useState(() =>
     typeof window !== "undefined" && localStorage.getItem(CHECKLIST_KEY) === "1"
   );
+  const s = status;
   const steps = [
-    { label: "Create your account",          done: true },
-    { label: "Connect your first integration", done: hasIntegration, href: "/integrations" },
-    { label: "Collect evidence automatically", done: hasEvidence,    href: hasIntegration ? undefined : "/integrations" },
-    { label: "View your compliance score",    done: hasScore,        href: "/compliance" },
-    { label: "Generate a compliance report",  done: hasReport,       href: "/reports" },
+    { label: "Create your account",            done: true },
+    { label: "Connect an integration",          done: s?.has_integration ?? false,  href: "/integrations" },
+    { label: "Collect evidence automatically",  done: s?.has_evidence ?? false,     href: "/integrations" },
+    { label: "Add a vendor",                    done: s?.has_vendor ?? false,       href: "/vendors" },
+    { label: "Invite a team member",            done: s?.has_member ?? false,       href: "/team" },
+    { label: "Assign security training",        done: s?.has_training ?? false,     href: "/training" },
+    { label: "Generate a compliance report",    done: s?.has_report ?? false,       href: "/reports" },
   ];
   const completed = steps.filter((s) => s.done).length;
   const pct = Math.round((completed / steps.length) * 100);
@@ -288,8 +294,14 @@ export default function DashboardPage() {
   const [integrationsExpanded, setIntegrationsExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [scoreLoading, setScoreLoading] = useState(false);
+  const [onboardingStatus, setOnboardingStatus] = useState<{
+    has_integration: boolean; has_evidence: boolean; has_vendor: boolean;
+    has_member: boolean; has_training: boolean; has_report: boolean; has_risk: boolean;
+  } | null>(null);
 
   useEffect(() => {
+    api.getOnboardingStatus().then(setOnboardingStatus).catch(() => {});
+
     Promise.all([
       api.getIntegrations(),
       api.getEvidence({ page_size: 1 }),
@@ -413,12 +425,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Getting started ── */}
-      <GettingStarted
-        hasIntegration={integrations.length > 0}
-        hasEvidence={evidenceTotal > 0}
-        hasScore={!!compliance && compliance.controls.length > 0}
-        hasReport={reports.length > 0}
-      />
+      <GettingStarted status={onboardingStatus} />
 
       {/* ── Hero row: Score card + mini stats ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

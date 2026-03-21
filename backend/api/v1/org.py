@@ -43,6 +43,42 @@ async def get_company(
     return company
 
 
+@router.get("/onboarding-status")
+async def get_onboarding_status(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Granular onboarding completion flags for the dashboard checklist."""
+    from models.evidence import Evidence
+    from models.integration import Integration
+    from models.report import Report
+    from models.risk import Risk
+    from models.training import TrainingRecord
+    from models.vendor import Vendor
+    from sqlalchemy import func
+
+    cid = current_user.company_id
+
+    async def _has(model):
+        res = await db.execute(select(func.count()).where(model.company_id == cid))
+        return (res.scalar() or 0) > 0
+
+    member_count_res = await db.execute(
+        select(func.count()).where(User.company_id == cid)
+    )
+    has_member = (member_count_res.scalar() or 0) > 1
+
+    return {
+        "has_integration":  await _has(Integration),
+        "has_evidence":     await _has(Evidence),
+        "has_vendor":       await _has(Vendor),
+        "has_member":       has_member,
+        "has_training":     await _has(TrainingRecord),
+        "has_report":       await _has(Report),
+        "has_risk":         await _has(Risk),
+    }
+
+
 @router.post("/onboarding/complete", status_code=204)
 async def complete_onboarding(
     current_user: User = Depends(get_current_user),
