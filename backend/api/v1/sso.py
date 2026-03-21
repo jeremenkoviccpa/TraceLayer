@@ -30,7 +30,7 @@ async def _require_growth(current_user: User, db: AsyncSession) -> None:
         raise HTTPException(status_code=402, detail="SSO is available on the Growth plan.")
 
 
-@router.get("/config", response_model=SSOConfigOut)
+@router.get("/config", response_model=SSOConfigOut | None)
 async def get_sso_config(
     current_user: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
@@ -41,7 +41,7 @@ async def get_sso_config(
     )
     config = result.scalar_one_or_none()
     if not config:
-        raise HTTPException(status_code=404, detail="No SSO configuration found.")
+        return None
     return config
 
 
