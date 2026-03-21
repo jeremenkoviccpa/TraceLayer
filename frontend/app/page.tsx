@@ -10,7 +10,7 @@ import { api } from "@/lib/api";
 import { openPaddleCheckout } from "@/lib/paddle";
 import {
   ShieldCheck, Plug, FileText, Zap, ArrowRight, CheckCircle2,
-  BarChart3, Lock, Star, Clock, TrendingUp, Users, ChevronDown,
+  BarChart3, Lock, Star, Clock, TrendingUp, TrendingDown, Users, ChevronDown,
   Menu, X, AlertTriangle, BookOpen, GraduationCap, Target,
   Globe, ClipboardList, Building2, UserCheck, Shield,
   Siren, Server, Bug, RefreshCw, Database, Workflow,
