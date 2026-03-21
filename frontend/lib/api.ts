@@ -1,4 +1,4 @@
-import type { AccessReview, ApiKey, AppNotification, Asset, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Document, DownloadResponse, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TrainingRecord, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
+import type { AccessReview, ApiKey, AppNotification, Asset, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TrainingRecord, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -329,6 +329,10 @@ class ApiClient {
 
   async assignManualControl(controlId: string, framework: string, ownerUserId: string | null): Promise<ManualControl> {
     return this.request<ManualControl>("PATCH", `/compliance/manual-controls/${controlId}/assign?framework=${framework}`, { owner_user_id: ownerUserId });
+  }
+
+  async driftEvents(limit = 20): Promise<DriftEvent[]> {
+    return this.request<DriftEvent[]>("GET", `/compliance/drift-events?limit=${limit}`);
   }
 
   // ── Audit Sessions ────────────────────────────────────────────────────────

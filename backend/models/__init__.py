@@ -15,6 +15,8 @@ from models.framework_version import FrameworkVersion
 from models.framework_source_manifest import FrameworkSourceManifest
 from models.framework_update_request import FrameworkUpdateRequest
 from models.control_mapping import ControlMapping
+from models.control_status_snapshot import ControlStatusSnapshot
+from models.control_drift_event import ControlDriftEvent
 
 __all__ = [
     "Base",
@@ -34,4 +36,6 @@ __all__ = [
     "FrameworkSourceManifest",
     "FrameworkUpdateRequest",
     "ControlMapping",
+    "ControlStatusSnapshot",
+    "ControlDriftEvent",
 ]

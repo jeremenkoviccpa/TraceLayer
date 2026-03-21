@@ -395,6 +395,44 @@ async def readiness(
     }
 
 
+@router.get("/drift-events")
+async def list_drift_events(
+    limit: int = 50,
+    framework: str | None = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Return recent control drift events for the current company, newest first."""
+    from models.control_drift_event import ControlDriftEvent
+    from sqlalchemy import select
+
+    q = (
+        select(ControlDriftEvent)
+        .where(ControlDriftEvent.company_id == current_user.company_id)
+        .order_by(ControlDriftEvent.detected_at.desc())
+        .limit(min(limit, 200))
+    )
+    if framework:
+        q = q.where(ControlDriftEvent.framework == framework)
+
+    result = await db.execute(q)
+    events = result.scalars().all()
+    return [
+        {
+            "id": str(e.id),
+            "framework": e.framework,
+            "control_category": e.control_category,
+            "control_name": e.control_name,
+            "previous_status": e.previous_status,
+            "new_status": e.new_status,
+            "is_regression": e.is_regression,
+            "trigger_integration": e.trigger_integration,
+            "detected_at": e.detected_at.isoformat(),
+        }
+        for e in events
+    ]
+
+
 @router.post("/ai-summary", response_model=AISummaryResponse)
 async def ai_summary(
     framework: str = Query("soc2"),

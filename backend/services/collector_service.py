@@ -93,6 +93,13 @@ async def run_collection(
         integration.last_error = None
         await db.commit()
 
+        # Detect compliance drift after successful collection
+        try:
+            from services.drift_detection_service import run_drift_detection
+            await run_drift_detection(company_id, integration_type, db)
+        except Exception as drift_exc:
+            logger.warning("Drift detection failed for %s/%s: %s", company_id, integration_type, drift_exc)
+
         logger.info(
             "Collection complete: company=%s integration=%s records=%d",
             company_id, integration_type, count,

@@ -652,3 +652,15 @@ export interface ManagementReview {
   outcome: string;
   notes?: string | null;
 }
+
+export type DriftEvent = {
+  id: string;
+  framework: string;
+  control_category: string;
+  control_name: string;
+  previous_status: string;
+  new_status: string;
+  is_regression: boolean;
+  trigger_integration: string | null;
+  detected_at: string;
+};

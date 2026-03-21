@@ -7,7 +7,7 @@ import {
 } from "recharts";
 import { api } from "@/lib/api";
 import type {
-  AuditLog, ComplianceScore, EvidenceActivityPoint,
+  AuditLog, ComplianceScore, DriftEvent, EvidenceActivityPoint,
   Integration, ScoreHistoryPoint, ReadinessData,
 } from "@/lib/types";
 import Link from "next/link";
@@ -278,6 +278,90 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
   );
 }
 
+// ── Compliance Drift Feed ──────────────────────────────────────────────────────
+const STATUS_ARROW: Record<string, string> = {
+  passing: "Passing", warning: "Warning", failing: "Failing", no_evidence: "No data",
+};
+
+const STATUS_COLOR: Record<string, string> = {
+  passing: "text-emerald-600", warning: "text-amber-600",
+  failing: "text-red-500", no_evidence: "text-gray-400",
+};
+
+function DriftFeed({ events }: { events: DriftEvent[] }) {
+  if (events.length === 0) {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900">Compliance Drift</h3>
+            <p className="text-[11px] text-gray-400">Control status changes</p>
+          </div>
+        </div>
+        <div className="flex flex-col items-center justify-center py-6 gap-2">
+          <ShieldCheck className="w-8 h-8 text-emerald-500" />
+          <p className="text-sm font-medium text-gray-700">All controls stable</p>
+          <p className="text-xs text-gray-400">No status changes detected</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center">
+            <Activity className="w-4 h-4 text-red-500" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900">Compliance Drift</h3>
+            <p className="text-[11px] text-gray-400">{events.length} recent change{events.length !== 1 ? "s" : ""}</p>
+          </div>
+        </div>
+        {events.some(e => e.is_regression) && (
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-600">
+            {events.filter(e => e.is_regression).length} regression{events.filter(e => e.is_regression).length !== 1 ? "s" : ""}
+          </span>
+        )}
+      </div>
+      <div className="space-y-2">
+        {events.slice(0, 8).map((e) => (
+          <div key={e.id} className={`flex items-start gap-3 rounded-xl p-3 ${e.is_regression ? "bg-red-50/60" : "bg-emerald-50/60"}`}>
+            <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${e.is_regression ? "bg-red-100" : "bg-emerald-100"}`}>
+              {e.is_regression
+                ? <AlertTriangle className="w-3 h-3 text-red-500" />
+                : <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold text-gray-900 truncate">{e.control_name}</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className={`text-[10px] font-medium ${STATUS_COLOR[e.previous_status] ?? "text-gray-500"}`}>
+                  {STATUS_ARROW[e.previous_status] ?? e.previous_status}
+                </span>
+                <ArrowRight className="w-3 h-3 text-gray-400 shrink-0" />
+                <span className={`text-[10px] font-semibold ${STATUS_COLOR[e.new_status] ?? "text-gray-500"}`}>
+                  {STATUS_ARROW[e.new_status] ?? e.new_status}
+                </span>
+                <span className="text-[10px] text-gray-400 ml-1">· {e.framework.toUpperCase()}</span>
+              </div>
+              {e.trigger_integration && (
+                <p className="text-[10px] text-gray-400 mt-0.5">via {e.trigger_integration}</p>
+              )}
+            </div>
+            <p className="text-[10px] text-gray-400 shrink-0 mt-0.5">
+              {new Date(e.detected_at).toLocaleDateString([], { month: "short", day: "numeric" })}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const { isPro } = usePlan();
@@ -291,6 +375,7 @@ export default function DashboardPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
   const [recentActivity, setRecentActivity] = useState<AuditLog[]>([]);
+  const [driftEvents, setDriftEvents] = useState<DriftEvent[]>([]);
   const [integrationsExpanded, setIntegrationsExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [scoreLoading, setScoreLoading] = useState(false);
@@ -301,6 +386,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     api.getOnboardingStatus().then(setOnboardingStatus).catch(() => {});
+    api.driftEvents(20).then(setDriftEvents).catch(() => {});
 
     Promise.all([
       api.getIntegrations(),
@@ -835,6 +921,11 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* ── Compliance Drift ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <DriftFeed events={driftEvents} />
       </div>
 
       {/* ── Bottom row: Quick links + Integrations + Action items ── */}
