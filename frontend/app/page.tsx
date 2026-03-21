@@ -1211,15 +1211,17 @@ export default function LandingPage() {
                 <div key={title} data-animate data-delay={String((i % 3) * 100 + 100)}
                   className={`rounded-2xl border p-6 transition-all duration-200 ${
                     isMore
-                      ? "border-dashed border-black/10 bg-transparent flex flex-col items-center justify-center text-center gap-3"
+                      ? "lg:col-span-3 border-dashed border-black/10 bg-transparent flex flex-col md:flex-row items-center justify-center text-center md:text-left gap-4 md:gap-8"
                       : "bg-[var(--card)] border-black/5 shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_32px_rgba(15,23,42,0.08)] hover:-translate-y-0.5"
                   }`}
                 >
                   {isMore ? (
                     <>
-                      <span className="text-3xl font-black text-[var(--accent)] leading-none">···</span>
-                      <h3 className="font-bold text-sm text-[var(--ink)]">{title}</h3>
-                      <p className="text-sm text-[var(--muted)] leading-relaxed">{desc}</p>
+                      <span className="text-3xl font-black text-[var(--accent)] leading-none shrink-0">···</span>
+                      <div>
+                        <h3 className="font-bold text-sm text-[var(--ink)] mb-1">{title}</h3>
+                        <p className="text-sm text-[var(--muted)] leading-relaxed">{desc}</p>
+                      </div>
                     </>
                   ) : (
                     <>
