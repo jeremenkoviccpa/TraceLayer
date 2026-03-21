@@ -313,17 +313,17 @@ export default function ReportsPage() {
 
         <div className="relative px-4 sm:px-7 py-5 sm:py-7 flex flex-col gap-4 sm:gap-6 sm:flex-row sm:items-center sm:justify-between">
           {/* Left — icon + copy + stats */}
-          <div className="flex items-start gap-5">
-            <div className="shrink-0 flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 shadow-lg shadow-emerald-500/10">
-              <FileText className="w-7 h-7 text-emerald-400" />
+          <div className="flex items-start gap-3 sm:gap-5">
+            <div className="shrink-0 flex items-center justify-center w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 shadow-lg shadow-emerald-500/10">
+              <FileText className="w-5 h-5 sm:w-7 sm:h-7 text-emerald-400" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white tracking-tight">Reports</h1>
-              <p className="text-slate-400 text-sm mt-1 max-w-md leading-relaxed">
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-2xl font-bold text-white tracking-tight">Reports</h1>
+              <p className="text-slate-400 text-xs sm:text-sm mt-0.5 sm:mt-1 max-w-md leading-relaxed hidden sm:block">
                 Generate audit-ready compliance reports for your auditors and stakeholders.
               </p>
               {/* Stats row */}
-              <div className="flex flex-wrap gap-3 sm:gap-6 mt-4">
+              <div className="flex flex-wrap gap-3 sm:gap-6 mt-2 sm:mt-4">
                 <HeroStat
                   label="Total reports"
                   value={totalReports}
@@ -341,7 +341,7 @@ export default function ReportsPage() {
 
           {/* Right — generate controls */}
           <div className="shrink-0 flex flex-col gap-3 sm:items-end">
-            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            <div className="flex items-center gap-2 flex-wrap">
               {/* Framework picker */}
               <select
                 value={framework}
