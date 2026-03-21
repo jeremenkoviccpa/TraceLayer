@@ -384,7 +384,7 @@ const LOGO_CONFIG: Record<string, LogoCfg> = {
   gusto:        { bg: "#F45D48", label: "GU" },
   jenkins:      { bg: "#D33833", label: "JK" },
   elastic:      { bg: "#005571", label: "EL" },
-  dynatrace:    { bg: "#1496FF", label: "DT" },
+  dynatrace:    { bg: "#1496FF", label: "DYN" },
   sumo_logic:   { bg: "#000099", label: "SL" },
   lacework:     { bg: "#FF5F00", label: "LW" },
   carbon_black: { bg: "#101820", label: "CB" },
@@ -393,6 +393,74 @@ const LOGO_CONFIG: Record<string, LogoCfg> = {
   azure_devops: { bg: "#0078D4", label: "ADO" },
   freshdesk:    { bg: "#25C16F", label: "FD" },
   argocd:       { bg: "#EF7B4D", label: "ARGO" },
+  // ── New batch ──────────────────────────────────────────────────────────────
+  azure:        { bg: "#0078D4", label: "AZ",
+    svg: (s) => (
+      <>
+        <text x={s/2} y={s*0.54} textAnchor="middle" dominantBaseline="central" fill="white"
+          fontFamily="system-ui" fontWeight="800" fontSize={s*0.36}>Az</text>
+      </>
+    ),
+  },
+  digitalocean: { bg: "#0080FF", label: "DO",
+    svg: (s) => (
+      <>
+        <circle cx={s/2} cy={s/2} r={s*0.27} fill="white"/>
+        <circle cx={s/2} cy={s/2} r={s*0.16} fill="#0080FF"/>
+        <rect x={s*0.23} y={s*0.63} width={s*0.16} height={s*0.08} rx={2} fill="white"/>
+        <rect x={s*0.23} y={s*0.74} width={s*0.11} height={s*0.08} rx={2} fill="white"/>
+      </>
+    ),
+  },
+  heroku:       { bg: "#430098", label: "HK" },
+  tailscale:    { bg: "#242424", label: "TS",
+    svg: (s) => (
+      <>
+        <circle cx={s*0.5} cy={s*0.28} r={s*0.1} fill="white"/>
+        <circle cx={s*0.28} cy={s*0.5} r={s*0.1} fill="white" opacity={0.6}/>
+        <circle cx={s*0.72} cy={s*0.5} r={s*0.1} fill="white" opacity={0.6}/>
+        <circle cx={s*0.28} cy={s*0.72} r={s*0.1} fill="white" opacity={0.35}/>
+        <circle cx={s*0.72} cy={s*0.72} r={s*0.1} fill="white" opacity={0.35}/>
+        <circle cx={s*0.5} cy={s*0.72} r={s*0.1} fill="white" opacity={0.35}/>
+      </>
+    ),
+  },
+  bitwarden:    { bg: "#175DDC", label: "BW",
+    svg: (s) => (
+      <path d={`M${s/2} ${s*0.22} L${s*0.78} ${s*0.32} L${s*0.78} ${s*0.58} Q${s*0.78} ${s*0.78} ${s/2} ${s*0.82} Q${s*0.22} ${s*0.78} ${s*0.22} ${s*0.58} L${s*0.22} ${s*0.32} Z`}
+        fill="white"/>
+    ),
+  },
+  lastpass:     { bg: "#CC2028", label: "LP" },
+  asana:        { bg: "#F06A6A", label: "AS",
+    svg: (s) => (
+      <>
+        <circle cx={s/2}      cy={s*0.38} r={s*0.16} fill="white"/>
+        <circle cx={s*0.3}    cy={s*0.62} r={s*0.16} fill="white" opacity={0.75}/>
+        <circle cx={s*0.7}    cy={s*0.62} r={s*0.16} fill="white" opacity={0.75}/>
+      </>
+    ),
+  },
+  monday:       { bg: "#FF3D57", label: "MN" },
+  shortcut:     { bg: "#573BE8", label: "SC" },
+  zoom:         { bg: "#2D8CFF", label: "ZM",
+    svg: (s) => (
+      <>
+        <rect x={s*0.15} y={s*0.32} width={s*0.5} height={s*0.36} rx={s*0.07} fill="white"/>
+        <path d={`M${s*0.68} ${s*0.4} L${s*0.85} ${s*0.3} L${s*0.85} ${s*0.7} L${s*0.68} ${s*0.6} Z`} fill="white"/>
+      </>
+    ),
+  },
+  intercom:     { bg: "#1F8FFF", label: "IC" },
+  detectify:    { bg: "#6B3DF3", label: "DT" },
+  nightfall:    { bg: "#0B1B35", label: "NF" },
+  checkr:       { bg: "#0BBA72", label: "CK" },
+  lattice:      { bg: "#5F2EEA", label: "LA" },
+  trainual:     { bg: "#1B94E0", label: "TN" },
+  greenhouse:   { bg: "#24A47F", label: "GH" },
+  secureframe:  { bg: "#0070F3", label: "SF" },
+  drata:        { bg: "#4B48ED", label: "DR" },
+  opsgenie:     { bg: "#0052CC", label: "OG" },
 };
 
 function LogoBadge({ type, size = 42 }: { type: string; size?: number }) {
@@ -484,6 +552,30 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
           { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password", hint: "Admin → API Settings → API Key" },
         ],
       },
+      {
+        type: "tailscale", label: "Tailscale",
+        description: "Collect device inventory, ACL policies, and user access for zero-trust network access evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "tskey-api-••••••••", type: "password", hint: "Tailscale Admin → Settings → Keys → Generate API Key" },
+          { key: "tailnet", label: "Tailnet", placeholder: "mycompany.com", hint: "Your organization's tailnet name from the admin console" },
+        ],
+      },
+      {
+        type: "bitwarden", label: "Bitwarden",
+        description: "Collect organization members, collection access policies, and MFA enforcement for password management evidence",
+        fields: [
+          { key: "client_id", label: "Client ID", placeholder: "organization.••••••••" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••", type: "password", hint: "Bitwarden Admin → Organization → API Key" },
+        ],
+      },
+      {
+        type: "lastpass", label: "LastPass",
+        description: "Collect team members, shared folder policies, MFA requirements, and security dashboard scores",
+        fields: [
+          { key: "cid", label: "Account Number (CID)", placeholder: "1234567" },
+          { key: "provhash", label: "Provisioning Hash", placeholder: "••••••••••••", type: "password", hint: "Admin Console → Advanced → Enterprise API" },
+        ],
+      },
     ],
   },
   {
@@ -529,6 +621,30 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
           { key: "client_id", label: "Client ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
           { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••", type: "password" },
           { key: "api_endpoint", label: "API Endpoint", placeholder: "https://api.us1.app.wiz.io/graphql" },
+        ],
+      },
+      {
+        type: "azure", label: "Microsoft Azure",
+        description: "Collect resource inventory, RBAC role assignments, Key Vault policies, activity logs, and storage access controls",
+        fields: [
+          { key: "tenant_id", label: "Tenant ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+          { key: "client_id", label: "Client ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••", type: "password" },
+          { key: "subscription_id", label: "Subscription ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+        ],
+      },
+      {
+        type: "digitalocean", label: "DigitalOcean",
+        description: "Collect Droplets, Spaces, Databases, firewall rules, and team member access for infrastructure evidence",
+        fields: [
+          { key: "api_token", label: "Personal Access Token", placeholder: "dop_v1_••••••••", type: "password", hint: "Starts with dop_v1_ — DigitalOcean → API → Generate New Token (read scope)" },
+        ],
+      },
+      {
+        type: "heroku", label: "Heroku",
+        description: "Collect app inventory, collaborator access, config var encryption, and release audit trail",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••-••••-••••-••••-••••••••••••", type: "password", hint: "Heroku Dashboard → Account Settings → API Key" },
         ],
       },
     ],
@@ -607,6 +723,28 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
           { key: "password", label: "Password", placeholder: "••••••••••••", type: "password" },
         ],
       },
+      {
+        type: "asana", label: "Asana",
+        description: "Collect projects, tasks, and team member access for change management and workflow evidence",
+        fields: [
+          { key: "access_token", label: "Personal Access Token", placeholder: "1/••••••••••••", type: "password", hint: "Asana → My Profile → Apps → Manage Developer Apps → New Access Token" },
+          { key: "workspace_gid", label: "Workspace GID (optional)", placeholder: "1234567890", hint: "Found in your Asana workspace URL" },
+        ],
+      },
+      {
+        type: "monday", label: "Monday.com",
+        description: "Collect boards, users, and workspace permissions for project governance evidence",
+        fields: [
+          { key: "api_token", label: "API Token", placeholder: "eyJhbGci••••••••", type: "password", hint: "Monday.com → Profile → Administration → API → Copy Personal Token" },
+        ],
+      },
+      {
+        type: "shortcut", label: "Shortcut",
+        description: "Collect stories, epics, member access, and workflow states for change management evidence",
+        fields: [
+          { key: "api_token", label: "API Token", placeholder: "••••••••-••••-••••-••••-••••••••••••", type: "password", hint: "Shortcut → Profile → API Tokens → Generate Token" },
+        ],
+      },
     ],
   },
   {
@@ -635,6 +773,22 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
           { key: "subdomain", label: "Subdomain", placeholder: "mycompany", hint: "The part before .zendesk.com" },
           { key: "email", label: "Admin Email", placeholder: "admin@mycompany.com" },
           { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password", hint: "Admin → Apps & Integrations → APIs → Zendesk API" },
+        ],
+      },
+      {
+        type: "zoom", label: "Zoom",
+        description: "Collect meeting security settings, user roles, and recording retention policies for communication evidence",
+        fields: [
+          { key: "account_id", label: "Account ID", placeholder: "xxxxxxxxxxxxxxxxxxxxxxxx" },
+          { key: "client_id", label: "Client ID", placeholder: "xxxxxxxxxxxxxxxxxxxxxxxx" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••", type: "password", hint: "Zoom Marketplace → Build App → Server-to-Server OAuth" },
+        ],
+      },
+      {
+        type: "intercom", label: "Intercom",
+        description: "Collect workspace members, data access controls, and security settings for customer data handling evidence",
+        fields: [
+          { key: "access_token", label: "Access Token", placeholder: "dG9r••••••••", type: "password", hint: "Intercom → Settings → Developers → Your Apps → Access Token" },
         ],
       },
     ],
@@ -754,6 +908,27 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
           { key: "secret_key", label: "Secret Key", placeholder: "••••••••••••", type: "password" },
         ],
       },
+      {
+        type: "detectify", label: "Detectify",
+        description: "Pull web application vulnerability findings, OWASP scan results, and remediation status for CC7.1 evidence",
+        fields: [
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••••••••••••••••••••••", type: "password", hint: "Detectify → Team Settings → API Tokens → Create Token" },
+        ],
+      },
+      {
+        type: "nightfall", label: "Nightfall AI",
+        description: "Collect DLP policy scan results, sensitive data findings, and violation counts for data classification evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password", hint: "Nightfall Console → Settings → API Keys" },
+        ],
+      },
+      {
+        type: "opsgenie", label: "Opsgenie",
+        description: "Collect on-call schedules, alert policies, and incident escalation chains for availability evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••-••••-••••-••••-••••••••••••", type: "password", hint: "Opsgenie → Settings → API key management" },
+        ],
+      },
     ],
   },
   {
@@ -809,24 +984,88 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
           { key: "api_url", label: "API URL", placeholder: "https://qualysapi.qualys.com", hint: "Platform-specific — check your Qualys subscription portal" },
         ],
       },
+      {
+        type: "checkr", label: "Checkr",
+        description: "Collect background check completion records for new hires as HR security evidence for CC1.4",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password", hint: "Checkr Dashboard → Account → Developer → API Keys" },
+        ],
+      },
+      {
+        type: "lattice", label: "Lattice",
+        description: "Collect security training completion, performance reviews, and employee lifecycle records for people controls",
+        fields: [
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password", hint: "Lattice → Admin → Integrations → API Access" },
+        ],
+      },
+      {
+        type: "trainual", label: "Trainual",
+        description: "Collect security policy acknowledgements, training completion rates, and onboarding records for CC1.2 evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password", hint: "Trainual → Settings → Integrations → API Key" },
+        ],
+      },
+      {
+        type: "greenhouse", label: "Greenhouse",
+        description: "Collect offer letters, onboarding steps, and new hire records for HR control evidence",
+        fields: [
+          { key: "api_key", label: "Harvest API Key", placeholder: "••••••••••••", type: "password", hint: "Greenhouse → Configure → Dev Center → API Credential Management" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "CI/CD & DevOps",
+    integrations: [
+      {
+        type: "jenkins", label: "Jenkins",
+        description: "Collect build history, job configurations, and plugin inventory for CI/CD pipeline evidence",
+        fields: [
+          { key: "url", label: "Jenkins URL", placeholder: "https://jenkins.mycompany.com" },
+          { key: "username", label: "Username", placeholder: "admin" },
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password", hint: "Jenkins → Your username → Configure → API Token → Add new Token" },
+        ],
+      },
+      {
+        type: "azure_devops", label: "Azure DevOps",
+        description: "Collect pipeline runs, branch policies, work items, and repository access for change management evidence",
+        fields: [
+          { key: "org", label: "Organization", placeholder: "mycompany", hint: "The org name in your Azure DevOps URL" },
+          { key: "pat", label: "Personal Access Token", placeholder: "••••••••••••", type: "password", hint: "User Settings → Personal Access Tokens → New Token (Read scopes for Build, Code, Work Items)" },
+        ],
+      },
+      {
+        type: "argocd", label: "Argo CD",
+        description: "Sync GitOps deployment history, RBAC policies, application health status, and sync records",
+        fields: [
+          { key: "server_url", label: "Server URL", placeholder: "https://argocd.mycompany.com" },
+          { key: "token", label: "API Token", placeholder: "eyJhbGci••••••••", type: "password", hint: "Argo CD → Settings → Accounts → Generate Token (read-only account recommended)" },
+        ],
+      },
+      {
+        type: "elastic", label: "Elastic Security",
+        description: "Collect SIEM detection rules, alert history, log retention policies, and security signal inventory",
+        fields: [
+          { key: "cloud_id", label: "Cloud ID", placeholder: "my-deployment:••••••••", hint: "Found in Elastic Cloud → Deployment → Overview" },
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••:••••••••••••", type: "password", hint: "Kibana → Stack Management → API Keys → Create API Key (read permissions)" },
+        ],
+      },
     ],
   },
   {
     title: "Coming Soon",
     integrations: [
-      { type: "workday",      label: "Workday",            comingSoon: true, description: "Sync employee records, org chart, and lifecycle events for HR compliance evidence", fields: [] },
-      { type: "gusto",        label: "Gusto",              comingSoon: true, description: "Collect payroll runs, employee onboarding, and benefits enrollment records", fields: [] },
-      { type: "azure_devops", label: "Azure DevOps",       comingSoon: true, description: "Pull pipeline runs, branch policies, and work item audit trails for change management", fields: [] },
-      { type: "jenkins",      label: "Jenkins",            comingSoon: true, description: "Collect build history, job configurations, and plugin audit for CI/CD evidence", fields: [] },
-      { type: "argocd",       label: "Argo CD",            comingSoon: true, description: "Sync GitOps deployment history, RBAC policies, and app health status", fields: [] },
-      { type: "elastic",      label: "Elastic Security",   comingSoon: true, description: "Collect SIEM alerts, detection rules, and log retention policies for CC7.2 evidence", fields: [] },
-      { type: "dynatrace",    label: "Dynatrace",          comingSoon: true, description: "Pull availability monitoring, SLO compliance, and alert configurations", fields: [] },
-      { type: "sumo_logic",   label: "Sumo Logic",         comingSoon: true, description: "Collect log retention settings, access controls, and audit events", fields: [] },
-      { type: "lacework",     label: "Lacework",           comingSoon: true, description: "Pull cloud security posture findings, anomaly detections, and compliance benchmarks", fields: [] },
-      { type: "carbon_black", label: "Carbon Black",       comingSoon: true, description: "Collect endpoint sensor deployment, policy enforcement, and threat detections", fields: [] },
-      { type: "rapid7",       label: "Rapid7",             comingSoon: true, description: "Pull vulnerability scan results, asset risk scores, and remediation tracking", fields: [] },
-      { type: "prisma_cloud", label: "Prisma Cloud",       comingSoon: true, description: "Collect CSPM findings, compliance benchmarks, and misconfiguration alerts", fields: [] },
-      { type: "freshdesk",    label: "Freshdesk",          comingSoon: true, description: "Collect support agents, SLA configurations, and ticket workflow policies", fields: [] },
+      { type: "workday",      label: "Workday",        comingSoon: true, description: "Sync employee records, org chart, and lifecycle events for HR compliance evidence", fields: [] },
+      { type: "gusto",        label: "Gusto",          comingSoon: true, description: "Collect payroll runs, employee onboarding, and benefits enrollment records", fields: [] },
+      { type: "dynatrace",    label: "Dynatrace",      comingSoon: true, description: "Pull availability monitoring, SLO compliance, and alert configurations", fields: [] },
+      { type: "sumo_logic",   label: "Sumo Logic",     comingSoon: true, description: "Collect log retention settings, access controls, and audit events", fields: [] },
+      { type: "lacework",     label: "Lacework",       comingSoon: true, description: "Pull cloud security posture findings, anomaly detections, and compliance benchmarks", fields: [] },
+      { type: "carbon_black", label: "Carbon Black",   comingSoon: true, description: "Collect endpoint sensor deployment, policy enforcement, and threat detections", fields: [] },
+      { type: "rapid7",       label: "Rapid7",         comingSoon: true, description: "Pull vulnerability scan results, asset risk scores, and remediation tracking", fields: [] },
+      { type: "prisma_cloud", label: "Prisma Cloud",   comingSoon: true, description: "Collect CSPM findings, compliance benchmarks, and misconfiguration alerts", fields: [] },
+      { type: "freshdesk",    label: "Freshdesk",      comingSoon: true, description: "Collect support agents, SLA configurations, and ticket workflow policies", fields: [] },
+      { type: "secureframe",  label: "Secureframe",    comingSoon: true, description: "Import existing compliance posture and evidence library for cross-platform migration", fields: [] },
+      { type: "drata",        label: "Drata",          comingSoon: true, description: "Import existing controls and evidence library for cross-platform migration", fields: [] },
     ],
   },
 ];
