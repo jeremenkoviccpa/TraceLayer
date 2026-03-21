@@ -7,7 +7,7 @@ and produce a structured diff of control changes.
 import json
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import datetime
 
 import httpx
 

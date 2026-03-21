@@ -10,7 +10,6 @@ fires an immediate Slack / Teams / email alert.
 import logging
 import uuid
 from datetime import datetime, timezone
-from typing import Optional
 
 import httpx
 from sqlalchemy import select
