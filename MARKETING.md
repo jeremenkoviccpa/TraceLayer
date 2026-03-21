@@ -1,501 +1,830 @@
-# TraceLayer — Organic Launch Plan
-
-> Last updated: March 2026. Internal use only.
+# TraceLayer — Marketing & Launch Document
 
 ---
 
-## Signup Projections
+## Table of Contents
 
-Honest estimates based on comparable B2B SaaS launches. Compliance is a high-intent niche — visitors convert better than consumer apps, but the audience is smaller.
+1. [What is TraceLayer](#1-what-is-tracelayer)
+2. [The Problem We Solve](#2-the-problem-we-solve)
 
-| Scenario | Product Hunt | Hacker News | Reddit | LinkedIn | X/Twitter | Directories | **Week 1 Total** |
-|---|---|---|---|---|---|---|---|
-| Conservative | 80–120 | 50–100 | 30–60 | 20–40 | 15–30 | 20–40 | **215–390** |
-| Realistic | 150–250 | 100–200 | 60–120 | 40–80 | 30–60 | 40–80 | **420–790** |
-| Optimistic | 300–500 | 200–400 | 100–200 | 80–160 | 60–120 | 60–120 | **800–1,500** |
-
-**Free → Paid conversion at 30 days:** 3–8% for B2B SaaS with a free tier.
-
-| Scenario | Signups | Paid conversions (30d) | MRR added |
-|---|---|---|---|
-| Conservative | 300 | 9–24 | $1,341–$3,576 |
-| Realistic | 600 | 18–48 | $2,682–$7,152 |
-| Optimistic | 1,200 | 36–96 | $5,364–$14,304 |
-
-The biggest variable: HN front page. A single good Show HN can double all other channels combined.
+3. [What TraceLayer Offers](#3-what-tracelayer-offers)
+4. [Pricing](#4-pricing)
+5. [Partner Program](#5-partner-program)
+6. [Who We Serve](#6-who-we-serve)
+7. [Ideal Customer Profile (ICP)](#7-ideal-customer-profile-icp)
+8. [Competitive Landscape](#8-competitive-landscape)
+9. [Key Differentiators](#9-key-differentiators)
+10. [Messaging & Positioning](#10-messaging--positioning)
+11. [Launch Channels & Strategy](#11-launch-channels--strategy)
+12. [Launch Checklist](#12-launch-checklist)
+13. [Sample Copy](#13-sample-copy)
 
 ---
 
-## Pre-Launch Checklist (T-14 to T-1)
+## 1. What is TraceLayer
 
-### Assets to create (must have before launch day)
+**TraceLayer** is a continuous compliance automation platform for startups and growing engineering teams. It connects to the tools companies already use — AWS, GitHub, Okta, Slack, Google Workspace, and 14 others — and automatically collects the security evidence required for SOC 2, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, and NIST CSF audits.
 
-- [ ] **Hero GIF** (30 sec) — screen recording: connect GitHub integration → compliance score appears → click AI Audit Package → PDF downloads. This single asset does more than any copy.
-- [ ] **3–5 gallery screenshots** — use a browser mockup frame (Shots.so or Screely). Show: dashboard with live score, integrations grid, AI audit package PDF, Trust Center public page.
-- [ ] **Comparison image** — simple table: TraceLayer $149/mo vs Vanta $1,250/mo vs Drata $833/mo. Plain design, no logos needed.
-- [ ] **Product Hunt thumbnail** — 240×240px logo, clean on white/very light background.
-- [ ] **Demo video** (optional but high impact) — 2–3 min Loom. Founder on camera for first 20 seconds explaining the problem, then screen share showing the product.
-- [ ] **Founder origin story** (written, 200 words) — why you built this. Be specific: what deal did you lose? What did the consultant quote you? This goes everywhere.
-- [ ] **Social proof** — 2–3 quotes from beta users, friends who used it, or early signups. Even "got my compliance score in 8 minutes" from someone you know is enough.
+Instead of spending weeks gathering screenshots, spreadsheets, and access logs before an audit, TraceLayer collects this evidence continuously, scores your compliance posture in real time, and gives you a formatted audit package on demand.
 
-### Platform setup (must do before launch day)
+**In one sentence:** TraceLayer turns compliance from a quarterly fire drill into a always-on background process.
 
-- [ ] **Product Hunt Coming Soon page** — post it 2 weeks before launch to collect followers. Followers get notified on launch day = free upvotes.
-- [ ] **BetaList submission** — submit at betalist.com 2–4 weeks before launch. They publish new products weekly, sends ~50–200 early signups before your PH launch.
-- [ ] **Betapage submission** — similar to BetaList, takes 1–2 weeks to appear.
-- [ ] **AlternativeTo profile** — list TraceLayer as alternative to Vanta, Drata, Secureframe, Sprinto. People searching "[competitor] alternative" will find you.
-- [ ] **SaaSHub listing** — free B2B SaaS directory with decent SEO.
-- [ ] **Crunchbase profile** — creates credibility + shows up in Google searches.
-- [ ] **Google Search Console** — verify tracelayer.it.com, submit sitemap.
-- [ ] **G2 profile** — even with 0 reviews it shows up in searches. Ask 2–3 early users to leave reviews before launch.
-- [ ] **LinkedIn company page** — needed for ads later, good to have now for credibility.
-- [ ] **X account** — post 2–3 times in the 2 weeks before launch to build presence.
-
-### Supporter list (most important pre-launch task)
-
-Identify **30–50 people** who will upvote on Product Hunt and comment within the first 2 hours of launch. First-hour velocity determines where you rank for the day.
-
-Who to ask:
-- Friends and family who have any interest in startups or tech
-- Former colleagues and classmates
-- Beta users (even people who only signed up once)
-- Startup community connections (Twitter, LinkedIn, Slack)
-- Other founders you know
-
-Prepare a message to send at 00:01 PST on launch day (template below in Copy section).
+**URL:** https://tracelayer.it.com
+**App:** https://app.tracelayer.it.com
 
 ---
 
-## Launch Day Sequence
+## 2. The Problem We Solve
 
-Launch on a **Tuesday or Wednesday** at exactly **00:01 am PST** (Pacific time). Product Hunt resets daily at midnight PST — the earlier you go live, the more hours you have to accumulate votes.
+### The old way is broken
 
-### Hour 0:00 — Go live
+Getting SOC 2 certified today typically looks like this:
 
-- Publish on Product Hunt
-- Send supporter message to your list (WhatsApp, DM, email — whatever is fastest for each person)
-- Post your launch tweet thread on X
-- Post on LinkedIn
+- Hire a consultant for $20,000–$60,000
+- Spend 6–12 months gathering evidence manually
+- Export logs, take screenshots, write policies from scratch
+- Pay an auditor $15,000–$40,000 for the actual audit
+- Repeat every year
 
-### Hour 0:30 — First comment
+For most startups, this process is triggered by a single enterprise prospect asking "do you have SOC 2?" and blocking the deal until you do. The irony: compliance exists to protect customers, but the process of proving compliance often protects no one — it's theater.
 
-Post your founder comment on your own PH listing immediately after going live. This is not optional — it dramatically increases engagement. See copy below.
+### The specific pain points
 
-### Hour 2:00 — Reddit
+| Pain | Who feels it |
+|------|-------------|
+| "We lost a $200K deal because we don't have SOC 2" | Founder / Sales |
+| "I spend 2 weeks every quarter pulling access logs" | DevOps / SecEng |
+| "I have no idea what our actual security posture is" | CTO / CISO |
+| "Our compliance consultant charges $300/hr and still needs us to do the legwork" | COO |
+| "We have 12 clients and track their compliance in spreadsheets" | Compliance agency |
 
-Post to r/startups and r/SaaS. Do NOT mention your PH launch in the Reddit post — subreddits ban self-promotion. The posts need to look like founder stories, not ads.
-
-### Hour 4:00 — Hacker News
-
-Submit the Show HN post. HN is most active from 9am–2pm US Eastern. If you launch at midnight PST, submit to HN at 4am PST (7am Eastern) to catch the morning traffic.
-
-### Hour 6:00 — Engage everywhere
-
-Spend the full morning responding to every comment on every platform. Reply within minutes if possible. Engagement on your own post signals quality to PH's algorithm.
-
-### Hour 8:00 — Second Reddit post
-
-Post to r/devops or r/netsec with a different angle (more technical, less startup-focused).
-
-### End of day — Follow-up
-
-Email everyone who signed up that day. Personal email from founder, not automated. Tell them you launched today and ask what brought them to sign up.
+TraceLayer eliminates every one of these.
 
 ---
 
-## Platform 1: Product Hunt
+## 3. What TraceLayer Offers
 
-### Goal
-Top 5 Product of the Day. Realistic: top 10. Top 3 requires 400+ upvotes which requires a large pre-existing audience or a viral angle.
+### Core platform
 
-### Listing details
+#### Automated Evidence Collection
+TraceLayer connects to your existing tools and collects compliance evidence automatically every 24 hours — no agents, no scripts, no manual exports. Every record is timestamped and stored for the full observation period required by auditors.
 
-**Name:** TraceLayer
+**What it collects:**
+- IAM users, roles, MFA status, access keys (AWS, Azure AD, Okta, Google Workspace)
+- Repository settings, branch protection, secret scanning (GitHub, GitLab)
+- Incident and alerting policies (PagerDuty, Datadog, Sentry)
+- Employee training, HR records (Rippling, BambooHR)
+- Ticketing and change management (Jira, Linear)
+- Communication and security policies (Slack, Teams, Notion)
+- Payment security controls (Stripe)
 
-**Tagline** (pick one, max 60 chars):
-- `Stop losing deals to missing SOC 2` — 35 chars ← recommended
-- `SOC 2 compliance without the $20k bill` — 39 chars
-- `Audit-ready in days, not months` — 31 chars
+**Supported integrations (89+):** AWS · GitHub · Slack · Google Workspace · Okta · Azure AD · Auth0 · Ping Identity · Zscaler · Tailscale · Bitwarden · JumpCloud · Duo · Jira · GitLab · GCP · Azure · DigitalOcean · Heroku · Render · Fly.io · Netlify · Oracle Cloud · Linear · Datadog · PagerDuty · Sentry · Grafana · Graylog · Splunk · Microsoft Sentinel · Opsgenie · Better Uptime · CrowdStrike · SentinelOne · Snyk · Wiz · Veracode · Aqua Security · StackHawk · Bugcrowd · HackerOne · Jamf · Kandji · Kolide · Kubernetes · CircleCI · Qualys · BambooHR · Rippling · Greenhouse · HiBob · Personio · Deel · Remote · Lattice · Checkr · Trainual · Asana · Monday.com · Shortcut · ClickUp · Trello · Zoom · Intercom · Zendesk · Microsoft Teams · Notion · Confluence · ServiceNow · Stripe · Vercel · Terraform Cloud · Cloudflare · 1Password · Vault · Jenkins · Azure DevOps · Argo CD · Elastic · Doppler · Snowflake · Databricks · Bitbucket · New Relic · Tenable · Stripe
 
-**Description:**
-> Getting SOC 2 certified requires 12 months of continuous evidence collection. Most startups either don't start until a deal is blocked, or pay $15,000–$25,000/year for tools like Vanta and Drata.
->
-> TraceLayer connects to your existing tools — AWS, GitHub, Okta, Slack, Google Workspace, and 30+ more — and collects compliance evidence every 24 hours automatically. You get a live compliance score, see exactly what's missing, and can generate a complete AI audit package in one click.
->
-> **Free plan:** SOC 2 framework, 3 integrations, real evidence collection — not a trial.
-> **Growth plan:** $149/mo. All 7 frameworks (SOC 2, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, NIST CSF), unlimited integrations, AI Audit Package Builder, Trust Center, Questionnaire Autofill.
->
-> We also have a partner program for compliance consultants and vCISOs: manage all your clients from one login at $99/client one-time.
+#### 7 Compliance Frameworks
+- **SOC 2** — Trust Service Criteria (Security, Availability, Confidentiality, Privacy)
+- **ISO 27001** — 2022 Edition, 93 Annex A controls
+- **HIPAA** — Administrative, physical, and technical safeguards
+- **GDPR** — EU data protection regulation
+- **PCI DSS** — v4.0, for companies handling card data
+- **CCPA** — California Consumer Privacy Act
+- **NIST CSF** — Framework 2.0
 
-**Topics:** SaaS, Security, Compliance, Developer Tools, Productivity
+#### Real-Time Compliance Score
+Every control is scored continuously across three dimensions:
+- **Coverage (70%)** — which evidence types are present
+- **Recency (20%)** — how fresh the evidence is
+- **Volume (10%)** — how many records exist
 
-**Links:** tracelayer.it.com
+Scores update up to hourly. You can see exactly which controls are passing, which are failing, and what evidence is missing.
 
-### First comment (post immediately after going live)
+#### Readiness Timeline
+Shows your exact readiness percentage and a week-by-week estimate to audit-ready. Breaks down automated vs. manual compliance contributions and identifies the specific gaps blocking you.
 
-> Hey Product Hunt 👋
->
-> I built TraceLayer because I watched a $200K enterprise deal get killed by the SOC 2 question. The consultant quoted $45,000. The compliance tools were $15,000–$25,000/year. We were a 12-person startup and couldn't afford either.
->
-> So I spent 8 months building an alternative that actually fits early-stage budgets.
->
-> Here's what it does differently:
-> **1. Continuous collection** — evidence every 24 hours automatically, not a manual scan you run before an audit
-> **2. Real free plan** — connect 3 integrations, see your SOC 2 score, no credit card, no time limit
-> **3. Price** — $149/mo vs $15,000/year for Vanta. That's 100x cheaper.
-> **4. Full lifecycle** — risk register, policy templates, training tracker, vendor risk, access reviews, AI audit package — not just evidence collection
->
-> Happy to answer any questions. If you've ever been on the wrong end of the SOC 2 question in an enterprise sales call, this was built for you.
+#### Risk Register
+Log risks with likelihood × impact scoring. Assign owners, track treatment status (open / mitigated / accepted), and generate CC3.2 evidence automatically.
 
-### What to prepare in gallery (in this order)
-1. Hero GIF (the "wow" moment — score appearing after first integration)
-2. Dashboard with live compliance score
-3. Integrations grid
-4. AI Audit Package PDF
-5. Trust Center public page
+#### Policy Templates
+Pre-written, auditor-approved policy templates for every framework. Covers incident response, business continuity, vendor risk management, access control, acceptable use, data classification, and more. Customize and adopt in one click.
 
----
+#### Training Tracker
+Assign security awareness training to employees by email. Track completion status, flag overdue assignments, and automatically generate CC1.4 evidence. Supports annual recurrence.
 
-## Platform 2: Hacker News
+#### Vendor Due Diligence
+Track all third-party vendors with risk levels, certification status (SOC 2, ISO 27001, HIPAA), review dates, contact info, and uploaded assessment reports. Satisfies CC9.2 out of the box.
 
-### Goal
-Front page of Show HN. Realistic: 50–150 points. Viral: 300+ points.
+#### Access Review Workflows
+Run formal quarterly access reviews with documented reviewer sign-off, users reviewed count, access changes made, and findings. Produces audit-ready CC6.3 evidence.
 
-### Why HN is your biggest opportunity
+#### Pen Test Tracker
+Log penetration tests with vendor, scope, dates, finding counts by severity, and remediation notes. Upload reports and track remediation status.
 
-HN has the highest concentration of startup CTOs and technical founders of any platform. The price comparison ($149/mo vs $15K/yr) is exactly the kind of angle that performs well there. Engineers hate overpriced enterprise software.
+#### Audit Package Builder (AI-powered)
+Generate a complete PDF audit package with 11 sections: executive summary, company overview, evidence summary, control analysis, risk assessment, policy index, integration inventory, training status, vendor risk summary, pen test history, and a narrative analysis written by AI (Groq). One click, ready to hand to an auditor.
 
-### Timing
-Submit between **7am–10am US Eastern time** on a weekday (not Monday). This is when HN traffic is highest and front-page competition is lowest relative to views.
+#### Trust Center
+A public-facing compliance page you can share with prospects and customers. Shows your live compliance posture, active frameworks, integrations, and policies. Configurable: choose what to show or hide. Each company gets a unique URL (e.g., `tracelayer.it.com/trust/your-company`).
 
-### Title
-`Show HN: TraceLayer – SOC 2 compliance automation for $149/mo instead of $15K/yr`
+#### Auditor Access (Audit Sessions)
+Create time-limited, read-only access links for auditors. No account needed for the auditor — they get a scoped view of your evidence and scores for the duration of the audit window.
 
-(Do not add emojis. Do not use "we". Use present tense.)
+#### Questionnaire Autofill
+Auto-answer security questionnaires (SIG Lite, CAIQ, VSA) using your existing compliance data. Eliminates the hours spent filling out vendor security questionnaires for every enterprise prospect.
 
-### Body text (optional for Show HN, but write one anyway)
+#### Audit Log
+Full immutable audit trail of every action taken in the platform — who changed what, when, from which IP. Required by most frameworks for platform integrity.
 
-> I got tired of the compliance software pricing model: $10,000–$25,000/year for tools that are clearly built for enterprises with a full security team, sold to 12-person startups because SOC 2 became a sales requirement.
->
-> TraceLayer connects to AWS, GitHub, Okta, Slack, and 30+ other tools and collects compliance evidence automatically every 24 hours. You get a live SOC 2/ISO 27001/HIPAA/GDPR score, a risk register, policy templates, vendor tracking, training management, and a one-click AI audit package.
->
-> Free plan with real evidence collection (not a trial). Growth is $149/mo.
->
-> Happy to get feedback, especially from anyone who has been through a SOC 2 audit.
+#### Document Management
+Upload and attach supporting documents to any resource — pen tests, vendor contracts, certifications, insurance certificates, board resolutions.
 
-### What to expect and how to respond
+#### Team Management
+Invite team members with role-based access (admin / member). Full team visibility into compliance posture.
 
-If you hit the front page, you will get:
-- Skeptical comments about the price ("how is this sustainable?") — answer honestly
-- Technical questions about how evidence collection works — answer specifically
-- People who've been burned by Vanta/Drata — these become customers
-- Someone who says this is just a checkbox compliance exercise — engage, don't dismiss
-
-Respond to every comment within the first 2 hours. After that, HN posts decay fast.
+#### Notification Alerts
+Configurable alerts for: overdue training assignments, overdue access reviews, vendors needing review, stale evidence. Weekly digest via email. Slack webhook integration.
 
 ---
 
-## Platform 3: Reddit
+## 4. Pricing
 
-Reddit requires a completely different approach. Any post that reads like marketing gets downvoted and removed. The only things that work: genuine founder stories, problem discussions, and technical posts that happen to mention your product.
+### Free Plan — $0/month, no credit card
+- SOC 2 framework
+- Up to 3 integrations
+- Up to 3 team members
+- JSON reports
+- Risk Register, Policy Templates, Training Tracker, Vendor Hub, Access Reviews
+- Trust Center (basic)
 
-### r/startups (4.2M members)
+**Best for:** Early-stage startups just starting their compliance journey.
 
-**Post angle:** Founder story. What happened, not what you built.
+### Growth Plan — $149/month
+Everything in Free, plus:
+- All 7 frameworks (ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, NIST CSF)
+- Unlimited integrations
+- Unlimited team members
+- PDF reports
+- AI Audit Package Builder
+- Full Trust Center (custom headline, show/hide controls)
+- Questionnaire Autofill
+- Audit Sessions
+- Priority support
 
-**Title options:**
-- `We lost a $200K enterprise deal because we didn't have SOC 2. Here's what we learned.`
-- `Spent 3 months looking into SOC 2 compliance for our startup. Here's the honest breakdown of costs.`
-- `SOC 2 pricing breakdown: what consultants, tools, and auditors actually cost in 2026`
+**Best for:** Startups actively pursuing certification or managing multiple frameworks.
 
-**Strategy:** Write a genuinely useful post about the SOC 2 process — timelines, costs, what's actually required. The post provides real value. Mention TraceLayer once at the end as "the tool we built to solve this ourselves." Do not link to pricing or a CTA. Just the URL.
+**Annual pricing:** Contact us — typically 2 months free.
 
-**Best time to post:** Tuesday–Thursday, 10am–2pm US Eastern.
+### Pricing context
+- Vanta: ~$15,000–$25,000/year
+- Drata: ~$10,000–$20,000/year
+- Secureframe: ~$12,000–$20,000/year
+- **TraceLayer: $1,788/year (Growth)**
 
-**Expected:** 100–400 upvotes if the story resonates, 5,000–30,000 views, 30–80 signups.
-
----
-
-### r/SaaS (280K members)
-
-**Post angle:** Building in public / "what I built and how it's going"
-
-**Title options:**
-- `Built a compliance tool for 8 months. Just launched. Here's what it does and the honest numbers.`
-- `Launched my SOC 2 compliance SaaS today. $0 to first user in 4 hours. AMA.`
-
-**Strategy:** r/SaaS is more tolerant of self-promotion than r/startups, especially if you share real numbers. Post on launch day and share everything: signups, what worked, what didn't. Update the post throughout the day.
-
-**Expected:** 50–200 upvotes, 15–50 signups.
-
----
-
-### r/devops (640K members)
-
-**Post angle:** Technical. What does automated evidence collection actually look like?
-
-**Title options:**
-- `We automated our SOC 2 evidence collection from GitHub, AWS, and Okta — here's what the data actually looks like`
-- `How to get 12 months of continuous SOC 2 evidence without running a single manual export`
-
-**Strategy:** Lead with technical details. How does the integration work? What data is pulled from AWS vs GitHub vs Okta? What format does the evidence take? Technical founders care about implementation, not marketing.
-
-**Expected:** 50–150 upvotes, 15–40 signups.
+TraceLayer is 6–10x cheaper than direct competitors with comparable feature coverage.
 
 ---
 
-### r/netsec (560K members)
+## 5. Partner Program
 
-**Post angle:** Security posture visibility, not compliance theater.
+### For compliance consultants, vCISOs, and agencies
 
-**Title options:**
-- `What your SOC 2 score actually measures: breakdown of coverage, recency, and volume scoring`
-- `Continuous compliance vs. point-in-time audits — the fundamental problem with how most startups approach SOC 2`
+Partners get a single TraceLayer account from which they manage compliance for multiple client companies. Each client workspace costs **$99 one-time** — no monthly fee per client.
 
-**Strategy:** This audience hates compliance theater and will push back hard if they think you're just helping companies check boxes. Lead with "what real security posture looks like" and position TraceLayer as a visibility tool, not a checkbox tool.
+**How it works:**
+1. Register as a Partner (free)
+2. Onboard a client for $99 — a dedicated compliance workspace is instantly provisioned
+3. Manage the client's full compliance program from your partner dashboard
+4. Share the client's Trust Center link with their prospects and auditors
+5. Switch between client workspaces in one click
 
-**Expected:** 30–100 upvotes, 10–30 signups.
+**Partner benefits:**
+- One login, unlimited clients
+- Full compliance toolset for every client (all frameworks, all features)
+- Dedicated Trust Center per client
+- White-label-friendly (Trust Center uses client's company name)
+- Low client acquisition cost — $99 vs. $10K+/year competitor tools
 
----
+**Best for:** vCISOs, compliance consultants, cybersecurity agencies, managed security service providers (MSSPs), fractional security teams.
 
-### Subreddits to NOT post in
-- r/entrepreneur — full of spam, low engagement quality
-- r/smallbusiness — wrong audience
-- r/cybersecurity — strict no-promotion rules, will get removed
-
----
-
-## Platform 4: X / Twitter
-
-### Goal
-Get the launch thread seen by startup CTOs and YC founders. Realistic without a big following: 2,000–10,000 impressions. With one retweet from a known account: 10,000–100,000.
-
-### Launch thread
-
-**Tweet 1 (hook):**
-> Spent $0 on compliance tools. Still got SOC 2 ready.
->
-> Here's how we built TraceLayer to replace the $15K/year Vanta bill: 🧵
-
-**Tweet 2 (problem):**
-> Every B2B startup gets this email eventually:
->
-> "We love the product. Legal needs your SOC 2 before we can proceed."
->
-> The deal stops. Then you find out SOC 2 takes 6–12 months and $40K+.
-
-**Tweet 3 (pain point):**
-> The options:
-> - Hire consultant: $30K–$60K
-> - Buy Vanta: $15K–$25K/year
-> - Do it manually: 2 months of engineering time + legal fees
->
-> None of these are built for a 15-person startup.
-
-**Tweet 4 (solution):**
-> So we built TraceLayer.
->
-> It connects to AWS, GitHub, Okta, Slack and 30+ tools.
-> Collects evidence every 24 hours. Automatically.
->
-> You get a live compliance score — SOC 2, ISO 27001, HIPAA, GDPR — and know exactly what's missing.
-
-**Tweet 5 (features):**
-> What's included:
-> → Live compliance score across 7 frameworks
-> → Policy templates (adopt in one click)
-> → Risk register, vendor hub, training tracker
-> → Access reviews with documented sign-off
-> → AI audit package — full PDF in one click
-> → Trust Center (public compliance page for your customers)
-
-**Tweet 6 (price):**
-> Pricing:
->
-> Free plan: SOC 2, 3 integrations, real evidence collection. No trial limit.
->
-> Growth: $149/mo. All 7 frameworks, unlimited integrations, AI features.
->
-> Vanta: $1,250+/mo.
-
-**Tweet 7 (CTA):**
-> Launching today on Product Hunt.
->
-> If you've ever lost an enterprise deal over SOC 2 — this is for you.
->
-> Try free → tracelayer.it.com
-> PH link → [product hunt link]
-
-### Who to tag / engage with
-
-- Reply to threads where CTOs complain about compliance
-- Engage with YC batch announcements (potential customers launching B2B products)
-- Reply to threads about enterprise sales, security questionnaires, audit prep
-- Look for "SOC 2" and "compliance" in search — engage meaningfully before promoting
-
-### Accounts to try to get a retweet from (DM the day before launch)
-- YC (@ycombinator) — unlikely but worth trying
-- Popular security/compliance accounts
-- Other founders who have publicly complained about Vanta pricing
+**Partner login:** https://tracelayer.it.com/partner-login
+**Become a partner:** https://tracelayer.it.com/register (select "Partner / Agency")
 
 ---
 
-## Platform 5: LinkedIn
+## 6. Who We Serve
 
-### Goal
-Reach startup decision-makers who aren't on HN or Reddit. LinkedIn has the highest concentration of CTOs, CISOs, and founders in a professional context.
+### Primary: B2B SaaS Startups (Series A and below)
 
-### Post 1 (founder story — post at launch)
+The most common trigger: a potential enterprise customer asks for SOC 2. The startup has no certification, no compliance program, and is told the deal is blocked until they do. They need to get to compliance fast, without hiring a full-time security team.
 
+**Industries:** SaaS, dev tools, fintech, healthtech, HR tech, edtech, data platforms, AI companies.
+
+### Secondary: Growth-Stage Startups (Series A–C)
+
+Companies that already have SOC 2 but are now being asked for ISO 27001 (European customers), HIPAA (healthcare buyers), or GDPR (EU expansion). They need to extend their compliance program without proportionally scaling the team.
+
+### Tertiary: Compliance Agencies & vCISOs (Partner Program)
+
+Consultants who manage security and compliance for 5–30 client companies. Currently using a combination of spreadsheets, client-specific accounts on expensive tools, and manual work. TraceLayer's partner program gives them a purpose-built multi-client management layer at $99/client.
+
+### Also serves:
+- Healthcare startups needing HIPAA before selling to hospitals or payers
+- Fintech startups needing PCI DSS before going live with card processing
+- Companies in EU markets where GDPR accountability is a sales requirement
+- Any company that gets security questionnaires from enterprise prospects
+
+---
+
+## 7. Ideal Customer Profile (ICP)
+
+### ICP #1 — "The Compliance-Blocked Startup"
+
+| Attribute | Detail |
+|-----------|--------|
+| **Company size** | 5–50 employees |
+| **Funding stage** | Pre-seed to Series A |
+| **Industry** | B2B SaaS |
+| **Tech stack** | AWS or GCP, GitHub, Slack, Google Workspace |
+| **Trigger event** | Enterprise prospect requires SOC 2 to proceed |
+| **Decision maker** | CTO or Founder |
+| **Budget** | $1,500–$5,000/year for compliance tooling |
+| **Current state** | No compliance program. Maybe a "security policy" in Notion. |
+| **Pain** | "We're losing deals because we don't have SOC 2" |
+| **Desired outcome** | SOC 2 Type I within 3 months, Type II within 12 months |
+
+**How TraceLayer helps:** Connect 3–5 integrations, score reaches 60–70% in week 1, gaps identified, policies adopted, training assigned. Ready to hand to an auditor within 30–60 days.
+
+---
+
+### ICP #2 — "The Growing Multi-Framework Company"
+
+| Attribute | Detail |
+|-----------|--------|
+| **Company size** | 50–250 employees |
+| **Funding stage** | Series A–B |
+| **Industry** | SaaS, fintech, healthtech |
+| **Tech stack** | AWS + multi-cloud, GitHub/GitLab, Okta, Jira |
+| **Trigger event** | New market entry (EU → GDPR, healthcare → HIPAA), enterprise RFP requiring ISO 27001 |
+| **Decision maker** | CTO, CISO, or Head of Security |
+| **Budget** | $5,000–$20,000/year for compliance tooling |
+| **Current state** | Has SOC 2, manually tracks other frameworks in spreadsheets |
+| **Pain** | "Managing compliance across multiple frameworks takes too much engineer time" |
+| **Desired outcome** | Unified compliance dashboard, automated evidence across all frameworks, one audit package |
+
+**How TraceLayer helps:** Growth plan covers all 7 frameworks from a single integration setup. Evidence collected once, applied to every applicable control. AI audit package replaces weeks of report preparation.
+
+---
+
+### ICP #3 — "The Compliance Consultant / vCISO"
+
+| Attribute | Detail |
+|-----------|--------|
+| **Role** | Fractional CISO, compliance consultant, cybersecurity agency |
+| **Client count** | 5–30 active clients |
+| **Current tools** | Per-client accounts on Vanta/Drata ($10K+/client/yr), spreadsheets, GRC tools |
+| **Pain** | "Each client needs a separate expensive tool subscription. My margin disappears." |
+| **Desired outcome** | Manage all clients from one login, low per-client cost, shareable deliverables (Trust Center) |
+
+**How TraceLayer helps:** Partner program. $99/client one-time. Full compliance toolset. Switch between clients in one click. Trust Center link to share with each client's customers and auditors.
+
+---
+
+## 8. Competitive Landscape
+
+| Product | Starting Price | Notable weakness |
+|---------|---------------|-----------------|
+| **Vanta** | ~$15,000/year | Expensive for early-stage; overkill for sub-50 person companies |
+| **Drata** | ~$10,000/year | Complex implementation; pricing not transparent |
+| **Secureframe** | ~$12,000/year | Limited frameworks on lower tiers; slow UI |
+| **Tugboat Logic** | ~$8,000/year | Acquired by OneTrust; pricing unpredictable |
+| **Sprinto** | ~$6,000/year | India-focused; limited US auditor integrations |
+| **Scytale** | ~$5,000/year | Smaller integration library |
+| **Strike Graph** | ~$5,000/year | Less automated; more consultant-led |
+| **TraceLayer** | **$0–$1,788/year** | **New — smaller brand recognition** |
+
+### Where TraceLayer wins
+
+- **Price**: 6–10x cheaper than Vanta and Drata. Most competitors are priced out of the early-stage market.
+- **Speed**: Connects in minutes, not weeks. No implementation calls, no professional services.
+- **Partner program**: No competitor has a purpose-built multi-client partner program at $99/client.
+- **Free plan**: Genuine free tier with real evidence collection — not a trial. Competitors charge from day one.
+
+### Where TraceLayer is still building
+
+- Brand recognition vs. established players
+- Auditor integrations (in-app audit firm connections)
+- Advanced GRC features (vendor questionnaire sending, continuous pen test scheduling)
+- Enterprise SSO / SCIM provisioning
+
+---
+
+## 9. Key Differentiators
+
+### 1. Genuinely free to start
+Most compliance tools cost $500–$1,500/month from day one. TraceLayer's free plan includes real evidence collection for SOC 2 with up to 3 integrations — enough to start a compliance program today.
+
+### 2. Up and running in 5 minutes
+No implementation calls. No professional services. No 30-day onboarding. Connect your first integration, get your first compliance score, in under 5 minutes.
+
+### 3. Continuous, not periodic
+Legacy compliance tools collect evidence when you trigger a scan. TraceLayer collects every 24 hours automatically. This is what "continuous compliance" actually means.
+
+### 4. One platform for 7 frameworks
+Evidence collected from a single integration automatically populates every applicable control across all 7 frameworks. No separate setup per framework.
+
+### 5. Built for the full compliance lifecycle
+From first evidence collection (automated) through policy adoption (templates), training assignment, risk management, vendor due diligence, readiness scoring, and all the way to audit package generation and auditor access links — the entire workflow lives in one tool.
+
+### 6. Partner program no competitor has
+A purpose-built multi-client management layer for compliance consultants and agencies at $99/client. No competitor offers this at this price point.
+
+### 7. AI-powered audit package
+One-click PDF with 11 sections including an AI-written narrative analysis. Replaces the most time-consuming part of audit preparation.
+
+---
+
+## 10. Messaging & Positioning
+
+### Tagline options
+- **"Audit-ready in minutes, not months."** ← Primary
+- "Compliance runs itself. You focus on product."
+- "Stop gathering evidence. Start proving security."
+- "The compliance stack for startups that move fast."
+- "SOC 2 shouldn't cost $50K."
+
+### Primary value proposition
+TraceLayer continuously collects compliance evidence from your existing tools and keeps your SOC 2, ISO 27001, HIPAA, and GDPR posture visible in real time — so when an enterprise asks "are you compliant?", the answer is always ready.
+
+### Elevator pitch (30 seconds)
+"Every startup going upmarket hits the same wall: an enterprise customer wants SOC 2 and your deal is blocked for six months while you scramble to prove you're secure. TraceLayer connects to AWS, GitHub, Okta, and your other tools and automatically collects all the evidence your auditor needs — continuously, not just before the audit. You get a live compliance score, policy templates, a risk register, and a formatted audit package on demand. SOC 2 in 30 days, not 6 months, for $149 a month instead of $15,000 a year."
+
+### By persona
+
+**For the Founder/CEO:**
+> "Close more enterprise deals. Get SOC 2 without the consultant fees."
+
+**For the CTO/Head of Engineering:**
+> "Compliance that runs itself. No more quarterly evidence sprints or manual log exports."
+
+**For the CISO/Security Lead:**
+> "Full visibility into your compliance posture across 7 frameworks. One dashboard. Continuous."
+
+**For the Compliance Consultant:**
+> "Manage all your clients' compliance from one login. $99 per client, full toolset, Trust Center included."
+
+### Objection handling
+
+| Objection | Response |
+|-----------|----------|
+| "We're too small to need this" | "If you're selling to businesses, your first enterprise customer will ask for SOC 2. It's easier to have it than to scramble when asked." |
+| "We'll do it ourselves with spreadsheets" | "SOC 2 requires 12 months of continuous evidence for Type II. Spreadsheets fail at the observation period requirement — auditors want timestamped, automated records." |
+| "We'll use Vanta/Drata" | "TraceLayer is 10x cheaper with comparable coverage. Start free, see your score in 5 minutes before you commit to anything." |
+| "We don't have time" | "5 minutes to connect your first integration. Then it runs automatically. You check it before your audit." |
+| "We'll hire a consultant" | "Consultants still need you to run the software. TraceLayer is the software — consultants use it too (see our partner program)." |
+
+---
+
+## 11. Launch Channels & Strategy
+
+### Phase 1 — Organic / Zero-Cost (Now)
+
+#### Product Hunt
+- Launch on Product Hunt as "TraceLayer — Continuous compliance automation for startups"
+- Target: Top 5 Product of the Day
+- Prep: 50+ hunters lined up, hunter with 1,000+ followers, launch on a Tuesday or Wednesday
+- Key asset: Demo GIF showing integration connection → score in real time
+
+#### Hacker News (Show HN)
+- Post: "Show HN: TraceLayer — I built SOC 2 compliance automation that costs $149/mo instead of $15K/yr"
+- Target: Front page, 100+ points
+- Key angle: The price comparison and "built it because I couldn't afford Vanta" narrative
+
+#### Reddit
+- r/startups, r/SaaS, r/devops, r/netsec, r/sysadmin
+- Angle: "How we got SOC 2 ready in 30 days without a consultant"
+- No direct pitching — provide value first, mention TraceLayer naturally
+
+#### LinkedIn
+- Target: Founders, CTOs, CISOs, DevOps leads at 10–100 person startups
+- Content types: "5 things auditors actually check for SOC 2", "The $50K compliance tax on startups", data posts on compliance timelines
+- Personal brand of founder: weekly posts on the compliance space
+
+#### Twitter/X
+- Target: YC founders, startup CTOs, security community
+- Hashtags: #SOC2 #startups #compliance #infosec #CISO
+- Engage in threads about enterprise sales, SOC 2 horror stories
+
+#### Cold email
+- Target list: Startups Series A and below in SaaS that don't have SOC 2 trust page
+- Signal: Companies adding "enterprise" page to their website, posting job listings for "security engineer" or "compliance"
+- Message: "Saw you're scaling to enterprise — most CTOs we talk to say SOC 2 is the first blocker. Built something that helps."
+
+### Phase 2 — Community & Content
+
+#### Founder communities
+- YC Alumni network (if applicable)
+- Indie Hackers — post build log
+- SaaS founders Slack communities
+- DevOps/SecEng Slack communities (#security, #compliance channels)
+
+#### Content marketing
+- Blog posts: "SOC 2 checklist for startups", "HIPAA requirements explained", "ISO 27001 vs SOC 2 — which one first?"
+- SEO targets: "SOC 2 compliance software", "affordable SOC 2 tool", "Vanta alternative", "Drata alternative"
+- The "Vanta alternative" / "Drata alternative" search terms have high intent and significant search volume
+
+#### Partner channel
+- Reach out to vCISOs and compliance consultants directly on LinkedIn
+- Offer: free demo + first client onboarding free
+- Ask: referrals and co-marketing
+- Target lists: freelance CISOs on Toptal, Security Scorecard partner directory, ISACA member directory
+
+#### Auditor partnerships
+- Contact SOC 2 audit firms (smaller boutique firms that work with startups)
+- Offer: co-sell arrangement where auditors recommend TraceLayer to clients
+- Many auditors lose business when clients can't afford compliance prep — TraceLayer fills that gap
+
+### Phase 3 — Paid Acquisition (Post Revenue)
+
+#### Google Ads
+- Keywords: "SOC 2 compliance software", "compliance automation", "HIPAA compliance tool", "[competitor] alternative"
+- Landing pages tailored per keyword
+
+#### LinkedIn Ads
+- Target: Title = CTO / CISO / Head of Security / Founder, Company size = 10–200, Industry = Software/Internet
+- Format: Thought leadership content → retargeting with free trial CTA
+
+### Key metrics to track
+- Sign-ups per channel
+- Activation rate (% who connect first integration within 24h of signup)
+- Week 1 retention
+- Trial → paid conversion
+- Partner account sign-ups
+- NPS at 30 days
+
+---
+
+## 12. Launch Checklist
+
+### Product
+- [x] Free plan live with real evidence collection
+- [x] Growth plan ($149/mo) with LemonSqueezy billing
+- [x] All 7 frameworks implemented
+- [x] 89+ integrations working
+- [x] Trust Center live
+- [x] AI Audit Package Builder
+- [x] Partner program (multi-client dashboard)
+- [x] Onboarding flow polished (first integration friction < 2 minutes)
+- [x] Email sequences: welcome, activation nudge (Day 1, Day 3, Day 7)
+- [x] In-app tooltips and empty states with clear CTAs
+- [x] Mobile experience reviewed
+
+### Marketing assets
+- [ ] Product demo video (2–3 minutes showing full flow)
+- [ ] Demo GIF for Product Hunt / Twitter (30 seconds, shows wow moment)
+- [ ] Landing page screenshots for all major sections
+- [ ] Comparison table vs. Vanta / Drata (factual, accurate)
+- [ ] Social proof: 2–3 beta user quotes (even from friends/early users)
+- [ ] Press kit (logo, screenshots, founder bio, product description)
+
+### SEO / Content
+- [ ] "SOC 2 checklist" blog post live before launch
+- [ ] Metadata on all public pages (title, description, OG image)
+- [ ] sitemap.xml and robots.txt
+- [ ] Google Search Console set up
+- [ ] Analytics (Plausible or PostHog) installed
+
+### Legal / Trust
+- [x] Privacy Policy live (/privacy)
+- [x] Terms of Service live (/terms)
+- [x] Cookie consent implemented
+- [x] Data processing agreement (DPA) template ready for enterprise
+- [x] Security page / Trust Center for TraceLayer itself
+
+### Operations
+- [x] Support email set up (support@tracelayer.it.com)
+- [x] Intercom or Crisp chat widget installed
+- [x] Error monitoring (Sentry) confirmed working in production
+- [x] Uptime monitoring (Better Uptime, UptimeRobot)
+- [x] Status page (statuspage.io or similar)
+- [x] Backup and recovery process documented
+
+### Partner channel
+- [x] Partner registration live
+- [x] Partner login page live
+- [x] $99/client checkout flow (LemonSqueezy or direct provisioning)
+- [x] Partner section on landing page
+- [x] Partner onboarding email sequence
+- [x] Partner directory / showcase (future)
+
+---
+
+## 13. Sample Copy
+
+### Product Hunt tagline
+> Continuous compliance automation that costs $149/mo instead of $15K/year
+
+### Product Hunt description
+> TraceLayer connects to your existing tools — AWS, GitHub, Okta, Slack, and 14 more — and automatically collects compliance evidence every day. You get a live SOC 2 / ISO 27001 / HIPAA score, policy templates, risk register, training tracker, vendor risk hub, and a one-click AI audit package. The free plan is real, not a trial. Growth is $149/mo (vs $15K/year for Vanta). We also have a partner program for compliance consultants at $99/client.
+
+### Cold email subject lines
+- "SOC 2 without the $50K consultant"
+- "Compliance question for [Company]"
+- "How [similar company] got SOC 2 ready in 30 days"
+- "The enterprise deal blocker"
+
+### Cold email body (version 1)
+> Hi [Name],
+>
+> Most B2B startups hit the same wall when they start selling to enterprise: the prospect loves the product, then legal sends over a security questionnaire and asks for SOC 2. Deal pauses for 6 months.
+>
+> We built TraceLayer to eliminate that wall. It connects to AWS, GitHub, Okta, and your other tools and automatically collects everything an auditor needs — continuously, not just before the audit. Live compliance score, policy templates, risk register, and a formatted audit package on demand.
+>
+> Free to try, $149/mo on Growth. Most teams get their first score in under 10 minutes.
+>
+> Worth a look? Happy to show you what a SOC 2 readiness score looks like for a company your size.
+>
+> — [Name]
+> tracelayer.it.com
+
+### LinkedIn post (founder angle)
 > I tried to get SOC 2 for my startup.
 >
-> The consultant quoted $45,000.
-> The software was $15,000/year.
-> The process was 6–12 months of screenshots and spreadsheets.
+> The consultant quoted $45,000. The tool was $15,000/year.
+> The process was 6 months of screenshots, spreadsheets, and "observation periods."
 >
-> We were 12 people. We couldn't afford any of it.
+> So I built TraceLayer.
 >
-> So I spent 8 months building an alternative.
+> It connects to AWS, GitHub, Okta, and Slack and collects compliance evidence automatically — every day, not just before an audit.
 >
-> TraceLayer connects to AWS, GitHub, Okta, Slack and 30+ tools and collects compliance evidence automatically — every 24 hours, not just before an audit.
+> Free plan. $149/mo for Growth (all 7 frameworks, AI audit package, Trust Center).
 >
-> Free plan (real evidence collection, not a trial). Growth plan: $149/mo.
+> If you're a startup that's ever lost a deal because you didn't have SOC 2, this is for you.
 >
-> If you've ever lost an enterprise deal because you didn't have SOC 2, this was built for you.
->
-> Launched today: tracelayer.it.com
+> tracelayer.it.com
 
-**Format tips:** No link in the body (LinkedIn suppresses linked posts). Put the URL in the first comment. Write in short punchy lines — white space gets more engagement.
-
-### Post 2 (problem-first, post 3 days after launch)
-
-> Here's what actually happens when a startup "gets SOC 2":
+### Tweet thread (launch thread)
+> 🧵 I built TraceLayer — compliance automation that costs $149/mo instead of $15K/year. Here's why and what it does:
 >
-> Month 1: Panic because a prospect asked for it
-> Month 2: Hire consultant for $30K
-> Month 3–6: Manual evidence gathering, screenshot exports
-> Month 7: Send auditor everything
-> Month 8: Get Type I report
-> Month 9–20: Collect another year of evidence for Type II
-> Month 21: Actually have SOC 2 Type II
+> 1/ The problem: every B2B startup eventually gets this email: "We love the product, but legal needs your SOC 2 before we can proceed." And then 6 months of pain begins.
 >
-> We built TraceLayer to compress this into 30 days for evidence readiness.
+> 2/ Current solutions cost $10K–$25K/year. They're built for companies with a full security team. Most early-stage startups can't afford them, so they either skip compliance or hire a consultant for $50K.
 >
-> What's your SOC 2 story?
-
-(This post invites comments which increases reach. Add link in comment.)
-
-### Who to connect with before launch
-- CTOs and VPs of Engineering at Seed/Series A B2B SaaS companies
-- Compliance consultants and vCISOs
-- SOC 2 auditors (they recommend tools to clients)
-- YC founders from recent batches
+> 3/ TraceLayer connects to AWS, GitHub, Okta, Slack, and 14 other tools. It collects compliance evidence every 24 hours automatically. You see a live score. You know exactly what's missing.
+>
+> 4/ Features: Live compliance score across 7 frameworks. Policy templates. Risk register. Training tracker. Vendor hub. AI audit package in one click. Trust Center for sharing with customers.
+>
+> 5/ Pricing: $0 to start (SOC 2, 3 integrations, real evidence collection). $149/mo for Growth (all 7 frameworks, unlimited integrations, AI features).
+>
+> 6/ Also built a partner program for compliance consultants: manage all your clients from one login, $99/client one-time, full toolset per client.
+>
+> Try it free → tracelayer.it.com
 
 ---
 
-## Platform 6: Indie Hackers
-
-Indie Hackers has a dedicated audience of SaaS founders who actively support each other's launches and share real numbers.
-
-### What to post
-
-A "milestone" post on launch day, then a detailed "how I built this" post one week after launch with real signup numbers.
-
-**Launch day post title:**
-> Just launched TraceLayer — SOC 2 compliance automation at 1/10th the Vanta price. Here are the early numbers.
-
-Update it every few hours during launch day with signup counts. IH loves transparency.
-
-**One week later:**
-> Week 1 after launching TraceLayer: [X] signups, [Y] activated, [Z] paid. What worked and what didn't.
-
-This second post often gets more engagement than the launch post and brings a second wave of signups.
-
----
-
-## Platform 7: Free Directories and Listings
-
-Submit to all of these. Most take under 10 minutes. Collectively they generate 40–100 signups over the weeks after launch from SEO traffic.
-
-| Directory | URL | Notes |
-|---|---|---|
-| Product Hunt | producthunt.com | Main launch |
-| Hacker News | news.ycombinator.com | Show HN |
-| BetaList | betalist.com | Submit 2–4 weeks early |
-| Betapage | betapage.co | Similar to BetaList |
-| AlternativeTo | alternativeto.net | List as alt to Vanta, Drata, Secureframe |
-| SaaSHub | saashub.com | B2B SaaS directory |
-| G2 | g2.com | Start collecting reviews immediately |
-| Capterra | capterra.com | Free listing, good SEO |
-| GetApp | getapp.com | Same parent as Capterra |
-| Crunchbase | crunchbase.com | Company profile |
-| Futurepedia | futurepedia.io | AI tools directory (AI audit package angle) |
-| There's An AI For That | theresanaiforthat.com | Same angle |
-| Startupresources.io | startupresources.io | Startup tool directory |
-| Devhunt | devhunt.org | Developer tools |
-| Pitchwall | pitchwall.co | Startup profiles |
-| F6S | f6s.com | Startup community |
-
----
-
-## Platform 8: Community Slack / Discord
-
-These are slower-burn but produce high-quality signups because the audience is pre-qualified.
-
-### Where to post (pick channels carefully, no spam)
-
-| Community | Channel to target | Angle |
-|---|---|---|
-| YC Alumni Slack | #tools, #startups | "Built this for the SOC 2 problem" |
-| Indie Hackers Discord | #show-your-product | Founder story |
-| SaaStr community | #tools | Price comparison |
-| DevOps Slack communities | #security | Technical angle |
-| CISO Slack communities | #tools-resources | Vendor angle |
-| Founder Slack groups | general | Origin story |
-
-**Rule:** Only post in communities where you are genuinely active, or where self-promotion is explicitly allowed. Never mass-post.
-
----
-
-## What is Missing Before Launch
-
-Based on the current state of the product and marketing assets:
-
-### Must fix before launch
-- [ ] **Paddle brand color** — set to `#0f766e` in Paddle dashboard → Checkout → Customization. Currently shows Vanta-style green. Looks off.
-- [ ] **Remove debug logging** from `backend/api/v1/billing.py` (the PADDLE DEBUG lines). These expose key fragments in logs.
-- [ ] **Hero GIF** — the single most important asset. Does not exist yet.
-- [ ] **Gallery screenshots** — need browser-framed versions, not raw screenshots.
-- [ ] **Google Search Console** — not verified yet. Submit sitemap now so pages index before launch.
-
-### Strong to have before launch
-- [ ] **Founder story written** (200 words, specific, honest) — goes in PH comment, HN post, LinkedIn, everywhere.
-- [ ] **G2 profile** with at least 2–3 reviews — even beta user reviews. Buyers check G2 before signing up.
-- [ ] **BetaList submission** — needs 2–4 weeks lead time. Submit immediately.
-- [ ] **PH Coming Soon page** — submit today to collect followers.
-- [ ] **AlternativeTo profile** — these pages rank in Google for "[competitor] alternative" searches.
-- [ ] **Demo video** (2–3 min Loom) — not required but significantly increases PH engagement.
-
-### Can do after launch
-- [ ] Blog post: "SOC 2 checklist for startups" — SEO
-- [ ] G2/Capterra category management
-- [ ] Partner outreach to vCISOs
-
----
-
-## Copy: Supporter Message (send at 00:01 PST on launch day)
-
-> Hey [Name] — I launched TraceLayer on Product Hunt today, the compliance tool I've been building for the past 8 months.
->
-> Would mean a lot if you could upvote it: [product hunt link]
->
-> Takes 30 seconds. You don't need a Product Hunt account — you can sign in with Google.
->
-> Thanks 🙏
-
-Send via WhatsApp or iMessage for people you know personally. DM on LinkedIn/X for professional contacts. Do NOT send group messages — Product Hunt detects coordinated upvotes from the same IP ranges and penalizes listings.
-
----
-
-*TraceLayer — tracelayer.it.com*
+*Last updated: March 2026*
 *Contact: hello@tracelayer.it.com*
+
+
+  Tuesday March 24 — TraceLayer Launch Plan
+
+  ---
+  Wed Mar 18 — Technical Hardening (today)
+
+  Code:
+  - Fix GitHub personal accounts (I can do this now)
+  - Add error.tsx global boundary
+  - Add Sentry to backend
+  - Merge fix/welcome-email-and-stub-ux PR on GitHub
+
+  You:
+  - Add RESEND_API_KEY to Railway env vars
+  - Verify tracelayer.it.com sender domain in Resend dashboard
+  - Add NEXT_PUBLIC_POSTHOG_KEY to Vercel env vars
+
+  ---
+  Thu Mar 19 — Test & Assets
+
+  You:
+  - Do a full end-to-end test as a brand new user (incognito, fresh account, connect GitHub, see evidence appear)
+  - Record a 60–90 sec Loom demo: sign up → connect GitHub → evidence appears → compliance score moves
+  - Take 3–5 good screenshots for Product Hunt
+  - Write Product Hunt tagline (e.g. "SOC 2 compliance on autopilot — connect your stack, evidence collects itself")
+  - Check Paddle verification status
+
+  ---
+  Fri Mar 20 — Copy & Listings
+
+  You:
+  - Draft Product Hunt listing (save as draft — don't publish yet)
+  - Write a 3-tweet launch thread
+  - Write a LinkedIn post (2–3 paragraphs, personal story angle: "I built this because...")
+  - Write a short Hacker News Show HN post
+  - Prepare a Reddit post for r/startups and r/SaaS
+
+  ---
+  Sat Mar 21 — Soft Launch Buffer
+
+  - Share the live URL with 2–3 friends or founder peers — get real accounts created
+  - Fix anything they report
+  - Verify Paddle is working (if verified by now, do a test purchase end to end)
+  - Stage all social posts in a doc, ready to copy-paste Tuesday morning
+
+  ---
+  Sun Mar 22 — Rest + Final Check
+
+  - One final full walkthrough of the app
+  - Check Railway deployment is healthy
+  - Make sure Crisp chat is live and you'll be responsive on launch day
+
+  ---
+  Mon Mar 23 — Launch Prep
+
+  - Schedule Product Hunt listing to go live at 12:01 AM PST Tuesday (Product Hunt resets at midnight PST — the earlier you're live, the more votes you collect all day)
+  - Reach out to anyone who might upvote — founders, friends, past colleagues. Don't ask for upvotes directly (PH penalizes this) — say "I'm launching Tuesday, would love your feedback"
+  - Line up a hunter if you can (a well-known PH user who "hunts" you = more exposure)
+
+  ---
+  Tue Mar 24 — Launch Day
+
+  ┌──────────┬───────────────────────────────────────────┐
+  │   Time   │                  Action                   │
+  ├──────────┼───────────────────────────────────────────┤
+  │ 12:01 AM │ Product Hunt goes live                    │
+  ├──────────┼───────────────────────────────────────────┤
+  │ 8:00 AM  │ Post Show HN on Hacker News               │
+  ├──────────┼───────────────────────────────────────────┤
+  │ 8:15 AM  │ Post LinkedIn                             │
+  ├──────────┼───────────────────────────────────────────┤
+  │ 8:30 AM  │ Post Twitter thread                       │
+  ├──────────┼───────────────────────────────────────────┤
+  │ 9:00 AM  │ Post r/startups, r/SaaS, r/devops         │
+  ├──────────┼───────────────────────────────────────────┤
+  │ All day  │ Respond to every comment — PH, HN, Reddit │
+  ├──────────┼───────────────────────────────────────────┤
+  │ All day  │ Watch Railway logs + Crisp for issues     │
+  ├──────────┼───────────────────────────────────────────┤
+  │ All day  │ DM anyone who upvotes and say thank you   │
+  └──────────┴───────────────────────────────────────────┘
+
+  ---
+  Launch Channels
+
+  Highest impact:
+  - Product Hunt (primary — drives signups for SaaS tools)
+  - Hacker News Show HN (technical audience, perfect fit)
+  - LinkedIn (compliance buyers are on LinkedIn)
+
+  Supporting:
+  - Twitter/X thread
+  - r/startups, r/SaaS, r/devops, r/netsec
+  - IndieHackers
+  - Any founder Slack communities you're in
+
+  ---
+  Launch Day Message (template)
+
+  ▎ "We just launched TraceLayer — SOC 2 & compliance automation for startups. Connect GitHub, AWS, Slack and more — evidence collects automatically, your compliance score updates in
+  real time. No more spreadsheets, no more manual audits. Free to start. [link]"
+
+
+ The core problem                                                                                                                                                                                        
+                                                                                                                                                                                                          
+  Regulations update infrequently but unpredictably — and when they do, the delta matters a lot:                                                                                                          
+  - PCI DSS 3.2.1 → 4.0: 64 new requirements, 51 removed                                                                                                                                                  
+  - ISO 27001:2013 → 2022: 11 new controls, control count restructured from 114 → 93                                                                                                                      
+  - NIST CSF 1.1 → 2.0: New "Govern" function added entirely                        
+                                                                                                                                                                                                          
+  Clients can't be on stale frameworks without knowing it. But full automation is risky — a bad parse of a new regulation could silently miscategorize evidence.                                          
+                                                                                                                                                                                                          
+  The right architecture                                                                                                                                                                                  
+                                                                                                                                                                                                          
+  Three layers working together:                                                                                                                                                                          
+                                                            
+  1. Source monitoring (automated)                                                                                                                                                                        
+                                                            
+  A weekly job per framework that:                                                                                                                                                                        
+  - Fetches the official source (AICPA, PCI SSC, NIST, ISO, HHS sites)
+  - Computes a content hash / checks version numbers                                                                                                                                                      
+  - On change detected → creates an internal "framework update pending" alert
+                                                                                                                                                                                                          
+  frameworks/                                                                                                                                                                                             
+    soc2/                                                                                                                                                                                                 
+      source_url: https://www.aicpa.org/...                                                                                                                                                               
+      last_hash: abc123                                                                                                                                                                                   
+      current_version: "2022"                                                                                                                                                                             
+    pci_dss/                                                                                                                                                                                              
+      source_url: https://www.pcisecuritystandards.org/...                                                                                                                                                
+      current_version: "4.0"                                                                                                                                                                              
+                                                            
+  2. Versioned framework database                                                                                                                                                                         
+                                                            
+  Each framework stored with full version history. Controls reference a framework version, not "the framework":                                                                                           
+  
+  frameworks: { id, name, version, published_at, deprecated_at }                                                                                                                                          
+  controls:   { id, framework_id, control_id, title, description, evidence_requirements[] }                                                                                                               
+  control_mappings: { from_control_id, to_control_id, relationship }  # cross-version + cross-framework                                                                                                   
+                                                                                                                                                                                                          
+  When v2 comes out, you don't overwrite v1 — you add v2 and map controls between them. Clients using v1 keep working; they get a migration prompt.                                                       
+                                                                                                                                                                                                          
+  3. AI-assisted ingestion + human approval                                                                                                                                                               
+                                                            
+  When a change is detected:                                                                                                                                                                              
+  1. Feed the new PDF/HTML to Claude with a structured extraction prompt
+  2. Claude outputs a diff: new controls, removed controls, changed requirements, new evidence mappings                                                                                                   
+  3. That lands in an internal admin review UI — someone eyeballs it before publish                    
+  4. On approval → new framework version goes live, clients notified                                                                                                                                      
+                                                                                                                                                                                                          
+  Why human review, not full automation? Because if a misparse quietly removes a control, a client could sail through an audit thinking they're covered when they're not. That's a lawsuit. The AI does   
+  the 90% of work; a human does the quality gate.                                                                                                                                                         
+                                                                                                                                                                                                          
+  What the client sees                                                                                                                                                                                    
+                                                            
+  - Framework page shows version badge: "SOC 2 — TSC 2022"                                                                                                                                                
+  - When a new version publishes: banner "SOC 2 TSC 2023 is available — here's what changed for you (3 new controls to cover, 1 removed)"
+  - Controls with "deprecated in v2023" labeling, not silent deletion                                                                                                                                     
+  - Evidence collected under old controls automatically remapped where the mapping is clear                                                                                                               
+                                                                                                                                                                                                          
+  What to build first                                                                                                                                                                                     
+                                                                                                                                                                                                          
+  In priority order:                                                                                                                                                                                      
+                                                            
+  1. Versioned controls schema — the DB change that makes everything else possible. Controls need framework_version and deprecated_at. Without this you can't version anything safely.                    
+  2. Framework manifest file per regulation — a YAML in the repo with source_url, current_version, last_checked. The monitoring job is just a cron that reads this and does an HTTP fetch + hash.
+  3. Admin alert on change — email/Slack to you when hash changes. Literally a Slack webhook. No UI needed yet.                                                                                           
+  4. The AI extraction prompt — a well-structured Claude prompt that takes a regulation document and outputs { added_controls, removed_controls, changed_controls } in JSON. This is the hardest part to  
+  get right and worth investing in.                                                                                                                                                                       
+  5. Client migration UX — the "new version available" banner + changelog is what clients actually experience.                                                                                            
+                                                                                                                                                                                                          
+  ---                                                       
+  Want me to start with the versioned controls schema change (that's the foundational DB migration) or the monitoring service first?                                                                      
+                                                                                                                                                                                                          
+✻ Sautéed for 48s        The core problem                                                                                                                                                                                        
+                                                                                                                                                                                                          
+  Regulations update infrequently but unpredictably — and when they do, the delta matters a lot:                                                                                                          
+  - PCI DSS 3.2.1 → 4.0: 64 new requirements, 51 removed                                                                                                                                                  
+  - ISO 27001:2013 → 2022: 11 new controls, control count restructured from 114 → 93                                                                                                                      
+  - NIST CSF 1.1 → 2.0: New "Govern" function added entirely                        
+                                                                                                                                                                                                          
+  Clients can't be on stale frameworks without knowing it. But full automation is risky — a bad parse of a new regulation could silently miscategorize evidence.                                          
+                                                                                                                                                                                                          
+  The right architecture                                                                                                                                                                                  
+                                                                                                                                                                                                          
+  Three layers working together:                                                                                                                                                                          
+                                                            
+  1. Source monitoring (automated)                                                                                                                                                                        
+                                                            
+  A weekly job per framework that:                                                                                                                                                                        
+  - Fetches the official source (AICPA, PCI SSC, NIST, ISO, HHS sites)
+  - Computes a content hash / checks version numbers                                                                                                                                                      
+  - On change detected → creates an internal "framework update pending" alert
+                                                                                                                                                                                                          
+  frameworks/                                                                                                                                                                                             
+    soc2/                                                                                                                                                                                                 
+      source_url: https://www.aicpa.org/...                                                                                                                                                               
+      last_hash: abc123                                                                                                                                                                                   
+      current_version: "2022"                                                                                                                                                                             
+    pci_dss/                                                                                                                                                                                              
+      source_url: https://www.pcisecuritystandards.org/...                                                                                                                                                
+      current_version: "4.0"                                                                                                                                                                              
+                                                            
+  2. Versioned framework database                                                                                                                                                                         
+                                                            
+  Each framework stored with full version history. Controls reference a framework version, not "the framework":                                                                                           
+  
+  frameworks: { id, name, version, published_at, deprecated_at }                                                                                                                                          
+  controls:   { id, framework_id, control_id, title, description, evidence_requirements[] }                                                                                                               
+  control_mappings: { from_control_id, to_control_id, relationship }  # cross-version + cross-framework                                                                                                   
+                                                                                                                                                                                                          
+  When v2 comes out, you don't overwrite v1 — you add v2 and map controls between them. Clients using v1 keep working; they get a migration prompt.                                                       
+                                                                                                                                                                                                          
+  3. AI-assisted ingestion + human approval                                                                                                                                                               
+                                                            
+  When a change is detected:                                                                                                                                                                              
+  1. Feed the new PDF/HTML to Claude with a structured extraction prompt
+  2. Claude outputs a diff: new controls, removed controls, changed requirements, new evidence mappings                                                                                                   
+  3. That lands in an internal admin review UI — someone eyeballs it before publish                    
+  4. On approval → new framework version goes live, clients notified                                                                                                                                      
+                                                                                                                                                                                                          
+  Why human review, not full automation? Because if a misparse quietly removes a control, a client could sail through an audit thinking they're covered when they're not. That's a lawsuit. The AI does   
+  the 90% of work; a human does the quality gate.                                                                                                                                                         
+                                                                                                                                                                                                          
+  What the client sees                                                                                                                                                                                    
+                                                            
+  - Framework page shows version badge: "SOC 2 — TSC 2022"                                                                                                                                                
+  - When a new version publishes: banner "SOC 2 TSC 2023 is available — here's what changed for you (3 new controls to cover, 1 removed)"
+  - Controls with "deprecated in v2023" labeling, not silent deletion                                                                                                                                     
+  - Evidence collected under old controls automatically remapped where the mapping is clear                                                                                                               
+                                                                                                                                                                                                          
+  What to build first                                                                                                                                                                                     
+                                                                                                                                                                                                          
+  In priority order:                                                                                                                                                                                      
+                                                            
+  1. Versioned controls schema — the DB change that makes everything else possible. Controls need framework_version and deprecated_at. Without this you can't version anything safely.                    
+  2. Framework manifest file per regulation — a YAML in the repo with source_url, current_version, last_checked. The monitoring job is just a cron that reads this and does an HTTP fetch + hash.
+  3. Admin alert on change — email/Slack to you when hash changes. Literally a Slack webhook. No UI needed yet.                                                                                           
+  4. The AI extraction prompt — a well-structured Claude prompt that takes a regulation document and outputs { added_controls, removed_controls, changed_controls } in JSON. This is the hardest part to  
+  get right and worth investing in.                                                                                                                                                                       
+  5. Client migration UX — the "new version available" banner + changelog is what clients actually experience.                                                                                            
+                                                                                                                                                                                                          
+  ---                                                       
+  Want me to start with the versioned controls schema change (that's the foundational DB migration) or the monitoring service first?                                                                      
+                                                                                                                                                                                                          
+✻ Sautéed for 48s       
