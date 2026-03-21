@@ -79,7 +79,7 @@ def _btn(url: str, label: str, color: str = _BRAND) -> str:
     )
 
 
-def _send(to: str, subject: str, html: str) -> None:
+def _send(to: str, subject: str, html: str, text: str = "") -> None:
     if not settings.resend_api_key:
         logger.info("EMAIL (no RESEND_API_KEY) to=%s subject=%s", to, subject)
         return
@@ -87,13 +87,17 @@ def _send(to: str, subject: str, html: str) -> None:
     import resend
 
     resend.api_key = settings.resend_api_key
+    payload: dict = {
+        "from": settings.email_from,
+        "reply_to": "support@tracelayer.it.com",
+        "to": [to],
+        "subject": subject,
+        "html": html,
+    }
+    if text:
+        payload["text"] = text
     try:
-        result = resend.Emails.send({
-            "from": settings.email_from,
-            "to": [to],
-            "subject": subject,
-            "html": html,
-        })
+        result = resend.Emails.send(payload)
         logger.info("EMAIL sent: to=%s subject=%s id=%s", to, subject, result)
     except Exception:
         logger.exception("EMAIL failed: to=%s subject=%s from=%s", to, subject, settings.email_from)
@@ -327,7 +331,14 @@ def send_verification_email(to: str, verify_url: str) -> None:
         If you didn't create a TraceLayer account, you can safely ignore this email.
       </p>
     """
-    _send(to, subject, _layout(body))
+    text = (
+        f"Verify your TraceLayer email address\n\n"
+        f"Click the link below to verify your email and activate your account.\n"
+        f"This link expires in 24 hours.\n\n"
+        f"{verify_url}\n\n"
+        f"If you didn't create a TraceLayer account, you can safely ignore this email."
+    )
+    _send(to, subject, _layout(body), text)
 
 
 def send_password_reset_email(to: str, reset_url: str) -> None:
@@ -343,7 +354,13 @@ def send_password_reset_email(to: str, reset_url: str) -> None:
         If you didn't request this, you can safely ignore this email. Your password will not change.
       </p>
     """
-    _send(to, subject, _layout(body))
+    text = (
+        f"Reset your TraceLayer password\n\n"
+        f"We received a request to reset your password. Click the link below — it expires in 1 hour.\n\n"
+        f"{reset_url}\n\n"
+        f"If you didn't request this, you can safely ignore this email. Your password will not change."
+    )
+    _send(to, subject, _layout(body), text)
 
 
 def send_password_changed_email(to: str) -> None:
