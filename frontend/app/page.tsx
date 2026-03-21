@@ -1362,9 +1362,9 @@ export default function LandingPage() {
           </div>
 
           {/* Flow visualization */}
-          <div className="flex items-stretch justify-center gap-2 md:gap-3 flex-wrap md:flex-nowrap mb-10" data-animate>
+          <div className="flex flex-col md:flex-row items-stretch justify-center gap-0 md:gap-3 mb-10" data-animate>
             {/* Data */}
-            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 md:p-5 flex-1 min-w-[130px] max-w-[180px]">
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 md:p-5 w-full md:flex-1 md:max-w-[180px]">
               <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-3">Data</p>
               {["Email address", "Health records", "Payment info", "Device ID", "Location data"].map((d) => (
                 <div key={d} className="flex items-center gap-2 mb-2">
@@ -1373,11 +1373,12 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <div className="flex items-center justify-center shrink-0">
-              <ArrowRight className="w-4 h-4 text-gray-300" />
+            <div className="flex items-center justify-center shrink-0 py-1 md:py-0">
+              <ArrowRight className="hidden md:block w-4 h-4 text-gray-300" />
+              <ChevronDown className="block md:hidden w-4 h-4 text-gray-300" />
             </div>
             {/* Tools */}
-            <div className="bg-[color:var(--accent)]/5 border border-[color:var(--accent)]/10 rounded-2xl p-4 md:p-5 flex-1 min-w-[130px] max-w-[180px]">
+            <div className="bg-[color:var(--accent)]/5 border border-[color:var(--accent)]/10 rounded-2xl p-4 md:p-5 w-full md:flex-1 md:max-w-[180px]">
               <p className="text-[10px] font-bold text-[var(--accent)] uppercase tracking-widest mb-3">Tools</p>
               {["Salesforce", "Segment", "Stripe", "Google Analytics", "HubSpot"].map((t) => (
                 <div key={t} className="flex items-center gap-2 mb-2">
@@ -1388,11 +1389,12 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <div className="flex items-center justify-center shrink-0">
-              <ArrowRight className="w-4 h-4 text-gray-300" />
+            <div className="flex items-center justify-center shrink-0 py-1 md:py-0">
+              <ArrowRight className="hidden md:block w-4 h-4 text-gray-300" />
+              <ChevronDown className="block md:hidden w-4 h-4 text-gray-300" />
             </div>
             {/* Region */}
-            <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 md:p-5 flex-1 min-w-[120px] max-w-[165px]">
+            <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 md:p-5 w-full md:flex-1 md:max-w-[165px]">
               <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-3">Region</p>
               {[["United States", "🇺🇸"], ["European Union", "🇪🇺"], ["Global", "🌐"]].map(([r, flag]) => (
                 <div key={r} className="flex items-center gap-1.5 mb-2.5">
@@ -1401,11 +1403,12 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <div className="flex items-center justify-center shrink-0">
-              <ArrowRight className="w-4 h-4 text-gray-300" />
+            <div className="flex items-center justify-center shrink-0 py-1 md:py-0">
+              <ArrowRight className="hidden md:block w-4 h-4 text-gray-300" />
+              <ChevronDown className="block md:hidden w-4 h-4 text-gray-300" />
             </div>
             {/* Risk */}
-            <div className="bg-red-50 border border-red-100 rounded-2xl p-4 md:p-5 flex-1 min-w-[110px] max-w-[150px]">
+            <div className="bg-red-50 border border-red-100 rounded-2xl p-4 md:p-5 w-full md:flex-1 md:max-w-[150px]">
               <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-3">Risk</p>
               {[
                 { label: "Critical", cls: "bg-red-100 text-red-700 border-red-200" },
@@ -1416,11 +1419,12 @@ export default function LandingPage() {
                 <div key={label} className={`text-[11px] font-semibold px-2 py-0.5 rounded-md mb-1.5 border inline-block ${cls}`}>{label}</div>
               ))}
             </div>
-            <div className="flex items-center justify-center shrink-0">
-              <ArrowRight className="w-4 h-4 text-gray-300" />
+            <div className="flex items-center justify-center shrink-0 py-1 md:py-0">
+              <ArrowRight className="hidden md:block w-4 h-4 text-gray-300" />
+              <ChevronDown className="block md:hidden w-4 h-4 text-gray-300" />
             </div>
             {/* Regulations */}
-            <div className="bg-purple-50 border border-purple-100 rounded-2xl p-4 md:p-5 flex-1 min-w-[110px] max-w-[150px]">
+            <div className="bg-purple-50 border border-purple-100 rounded-2xl p-4 md:p-5 w-full md:flex-1 md:max-w-[150px]">
               <p className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mb-3">Regulations</p>
               {["GDPR", "CCPA", "HIPAA", "PCI DSS"].map((r) => (
                 <div key={r} className="flex items-center gap-1.5 mb-2">
