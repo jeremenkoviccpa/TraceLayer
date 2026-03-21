@@ -960,9 +960,9 @@ export default function LandingPage() {
           </div>
 
           <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[64px] font-extrabold leading-[1.1] mb-6 tracking-tight">
-            Your AI compliance team,<br />
+            Stop chasing compliance.<br />
             <span className="bg-gradient-to-r from-[var(--accent)] via-emerald-500 to-teal-400 bg-clip-text text-transparent">
-              always on.
+              Let it run itself.
             </span>
           </h1>
 
