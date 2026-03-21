@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic_settings import BaseSettings
 
 
@@ -16,7 +14,7 @@ class Settings(BaseSettings):
     storage_endpoint: str = ""
     storage_access_key: str = ""
     storage_secret_key: str = ""
-    cors_origins: List[str] = ["http://localhost:3000"]
+    cors_origins: str = "http://localhost:3000"
     app_frontend_url: str = "http://localhost:3000"
     resend_api_key: str = ""
     email_from: str = "TraceLayer <hello@tracelayer.it.com>"
@@ -35,10 +33,22 @@ class Settings(BaseSettings):
     # Observability
     sentry_dsn: str = ""
     # Internal accounts that bypass billing checks (comma-separated emails in env)
-    internal_admins: List[str] = []
+    # Stored as plain string, split on use — avoids pydantic JSON-parsing of List[str]
+    internal_admins_raw: str = ""
+
+    @property
+    def internal_admins(self) -> list[str]:
+        return [e.strip() for e in self.internal_admins_raw.split(",") if e.strip()]
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
 
     class Config:
         env_file = ".env"
+        env_prefix = ""
+        # Map INTERNAL_ADMINS env var → internal_admins_raw field
+        fields = {"internal_admins_raw": {"env": "INTERNAL_ADMINS"}}
 
 
 settings = Settings()
