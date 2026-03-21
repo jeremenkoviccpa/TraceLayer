@@ -108,3 +108,19 @@ def schedule_activation_nudges() -> None:
         misfire_grace_time=3600,
     )
     logger.info("Scheduled activation nudge emails (10:00 UTC)")
+
+
+def schedule_risk_detection() -> None:
+    """Schedule nightly automated risk detection at 02:00 UTC."""
+    from services.risk_detector import run_risk_detection_all_companies
+
+    scheduler.add_job(
+        run_risk_detection_all_companies,
+        "cron",
+        hour=2,
+        minute=0,
+        id="auto_risk_detection",
+        replace_existing=True,
+        misfire_grace_time=3600,
+    )
+    logger.info("Scheduled auto risk detection (02:00 UTC)")

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Member, Risk } from "@/lib/types";
-import { AlertTriangle, Plus, Trash2, X, ChevronDown, ChevronUp } from "lucide-react";
+import { AlertTriangle, Plus, Trash2, X, ChevronDown, ChevronUp, Sparkles, RefreshCw } from "lucide-react";
 import { DocumentUpload } from "@/components/document-upload";
 
 const CATEGORIES = ["Access Control", "Data Protection", "Availability", "Change Management", "Logging & Monitoring", "Incident Response", "Vendor Management", "Physical Security", "General"];
@@ -75,6 +75,8 @@ export default function RisksPage() {
   const [sortCol, setSortCol]     = useState<"risk_level" | "status" | "category">("risk_level");
   const [sortAsc, setSortAsc]     = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [detecting, setDetecting] = useState(false);
+  const [detectMsg, setDetectMsg] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([api.getRisks(), api.getMembers()])
@@ -104,6 +106,22 @@ export default function RisksPage() {
   const handleDelete = async (id: string) => {
     await api.deleteRisk(id).catch(() => {});
     setRisks((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const handleDetect = async () => {
+    setDetecting(true);
+    setDetectMsg(null);
+    try {
+      const result = await api.runRiskDetection();
+      const fresh = await api.getRisks();
+      setRisks(fresh);
+      setDetectMsg(result.created > 0 ? `${result.created} new risk${result.created > 1 ? "s" : ""} detected` : "No new risks found");
+    } catch {
+      setDetectMsg("Detection failed");
+    } finally {
+      setDetecting(false);
+      setTimeout(() => setDetectMsg(null), 4000);
+    }
   };
 
   const toggleSort = (col: typeof sortCol) => {
@@ -184,8 +202,23 @@ export default function RisksPage() {
             </div>
           </div>
 
-          {/* Right: action button */}
-          <div className="flex shrink-0 items-start">
+          {/* Right: action buttons */}
+          <div className="flex shrink-0 items-start gap-2">
+            {detectMsg && (
+              <span className="self-center text-xs font-medium text-slate-300">{detectMsg}</span>
+            )}
+            <button
+              onClick={handleDetect}
+              disabled={detecting}
+              className="flex items-center gap-2 rounded-xl bg-white/10 border border-white/20 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-white/20 active:scale-95 disabled:opacity-50"
+            >
+              {detecting ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+              Auto-detect
+            </button>
             <button
               onClick={openCreate}
               className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition-all hover:bg-brand-500 hover:shadow-brand-500/30 active:scale-95"
@@ -257,7 +290,15 @@ export default function RisksPage() {
                     <div className="flex items-stretch gap-3">
                       <div className={`w-1 shrink-0 self-stretch rounded-r-full ${LEVEL_BAR[r.risk_level]}`} />
                       <div className="min-w-0 pl-1">
-                        <p className="font-medium leading-snug text-gray-800">{r.title}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium leading-snug text-gray-800">{r.title}</p>
+                          {r.auto_detected && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-600 border border-violet-100">
+                              <Sparkles className="h-2.5 w-2.5" />
+                              Auto
+                            </span>
+                          )}
+                        </div>
                         {r.description && (
                           <p className="mt-0.5 line-clamp-1 text-xs text-gray-400">{r.description}</p>
                         )}

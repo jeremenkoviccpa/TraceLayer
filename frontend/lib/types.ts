@@ -203,6 +203,8 @@ export interface Risk {
   owner_user_id: string | null;
   owner_name: string | null;
   notes: string | null;
+  auto_detected: boolean;
+  detection_key: string | null;
   risk_level: "critical" | "high" | "medium" | "low";
   created_at: string;
   updated_at: string;

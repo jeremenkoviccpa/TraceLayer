@@ -32,6 +32,8 @@ def _to_response(risk: Risk, owner_map: dict[uuid.UUID, str]) -> RiskResponse:
         owner_user_id=str(owner_id) if owner_id else None,
         owner_name=owner_name,
         notes=risk.notes,
+        auto_detected=risk.auto_detected,
+        detection_key=risk.detection_key,
         created_at=risk.created_at,
         updated_at=risk.updated_at,
     )
@@ -174,3 +176,17 @@ async def delete_risk(
 
     await db.delete(risk)
     await db.commit()
+
+
+@router.post("/detect", status_code=200)
+async def trigger_risk_detection(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Manually trigger automated risk detection for the current company (admin only)."""
+    if current_user.role not in ("admin", "owner"):
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    from services.risk_detector import run_risk_detection_for_company
+    created = await run_risk_detection_for_company(db, current_user.company_id)
+    return {"created": created}

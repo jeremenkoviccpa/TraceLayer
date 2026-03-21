@@ -52,6 +52,8 @@ class RiskResponse(BaseModel):
     owner_user_id: Optional[str]
     owner_name: Optional[str] = None
     notes: Optional[str]
+    auto_detected: bool = False
+    detection_key: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     risk_level: str = ""

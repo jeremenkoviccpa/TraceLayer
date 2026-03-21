@@ -416,6 +416,10 @@ class ApiClient {
     return this.request("DELETE", `/risks/${id}`);
   }
 
+  async runRiskDetection(): Promise<{ created: number }> {
+    return this.request<{ created: number }>("POST", "/risks/detect");
+  }
+
   // ── Policies ──────────────────────────────────────────────────────────────
 
   async getPolicies(): Promise<Policy[]> {
