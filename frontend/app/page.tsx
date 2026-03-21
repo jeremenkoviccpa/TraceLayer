@@ -470,10 +470,10 @@ const INTEGRATION_LOGOS = [
 // ── Static data ───────────────────────────────────────────────────────────────
 
 const STATS = [
-  { value: "43+",  label: "Native integrations"    },
-  { value: "7",    label: "Compliance frameworks"   },
-  { value: "30+",  label: "Compliance modules"      },
-  { value: "100%", label: "Automated evidence"      },
+  { value: "89+",  label: "Native integrations"     },
+  { value: "7",    label: "Compliance frameworks"    },
+  { value: "3",    label: "AI engines built-in"      },
+  { value: "100%", label: "Automated evidence"       },
 ];
 
 const FRAMEWORKS = [
@@ -488,14 +488,29 @@ const FRAMEWORKS = [
 
 const FEATURES = [
   {
-    icon: Plug,
-    title: "43+ native integrations",
-    desc: "Connect AWS, GitHub, Okta, GitLab, Datadog, CrowdStrike, SentinelOne, Snyk, Wiz, Jamf, Kandji, JumpCloud, Kubernetes, Bitbucket, Zendesk, CircleCI, Qualys, and 26 more — in minutes. No agents. No code.",
+    icon: Zap,
+    title: "AI compliance drift detection",
+    desc: "After every evidence collection, AI compares control statuses against your baseline. The moment something degrades — a user loses MFA, a bucket goes public — your team gets an instant Slack or Teams alert with exactly what broke.",
   },
   {
-    icon: Zap,
-    title: "Automated evidence collection",
-    desc: "Evidence runs every 24 hours without you lifting a finger — IAM users, audit logs, repositories, access policies, SaaS activity, and more.",
+    icon: ClipboardList,
+    title: "AI questionnaire autofill",
+    desc: "Paste any vendor security questionnaire — AI drafts answers grounded in 17 live data sources: your real integrations, policies, risks, vendors, incidents, RoPA, and more. Cut questionnaire time from days to minutes.",
+  },
+  {
+    icon: BookOpen,
+    title: "AI audit narrative generator",
+    desc: "Generate a complete audit package with an AI-written narrative — covering your security posture, control coverage, and evidence quality — tailored to the specific framework you're being audited on.",
+  },
+  {
+    icon: RefreshCw,
+    title: "AI framework version monitor",
+    desc: "TraceLayer monitors official regulation sources weekly. When SOC 2, ISO 27001, HIPAA, or any framework updates, AI extracts the changed controls and queues them for your review — so you're never caught off guard.",
+  },
+  {
+    icon: Plug,
+    title: "89+ native integrations",
+    desc: "Connect AWS, GitHub, Okta, GitLab, Datadog, CrowdStrike, Snowflake, Databricks, Auth0, Zscaler, Grafana, SentinelOne, Snyk, Wiz, Jamf, and 74 more — in minutes. No agents. No code.",
   },
   {
     icon: Target,
@@ -528,11 +543,6 @@ const FEATURES = [
     desc: "Track vendors with risk tiers and SOC 2/ISO/HIPAA cert status. Maintain a live asset inventory with classification, environment, and ownership.",
   },
   {
-    icon: ClipboardList,
-    title: "AI Questionnaire Autofill",
-    desc: "Paste any vendor security questionnaire — AI drafts answers grounded in 17 live data sources: your real integrations, policies, risks, vendors, incidents, RoPA, and more.",
-  },
-  {
     icon: UserCheck,
     title: "Access Reviews & BCP",
     desc: "Formal quarterly access reviews with sign-off and findings. BCP/DR plans with RTO/RPO targets and test history — audit-ready on demand.",
@@ -545,7 +555,7 @@ const FEATURES = [
   {
     icon: Database,
     title: "API keys for CI/CD",
-    desc: "Generate API keys to push compliance evidence directly from your CI/CD pipelines — test results, deployment records, and security scans land in your evidence library automatically.",
+    desc: "Push compliance evidence directly from your CI/CD pipelines — test results, deployment records, and security scans land in your evidence library automatically.",
   },
   {
     icon: null,
@@ -558,17 +568,17 @@ const HOW_IT_WORKS = [
   {
     step: "01",
     title: "Connect your tools",
-    desc: "Link your cloud infrastructure and SaaS apps in under 5 minutes using API keys or service accounts. 43+ integrations, no OAuth dance.",
+    desc: "Link your cloud infrastructure and SaaS apps in under 5 minutes using API keys or service accounts. 89+ integrations, no OAuth dance.",
   },
   {
     step: "02",
-    title: "Evidence collected automatically",
-    desc: "TraceLayer pulls IAM users, audit logs, repositories, and access policies every 24 hours and maps them to all 7 compliance frameworks simultaneously.",
+    title: "AI monitors everything",
+    desc: "Three AI engines run continuously: evidence collector pulls data every 24h, drift detector fires the moment a control changes status, and framework monitor tracks regulation updates at the source.",
   },
   {
     step: "03",
-    title: "Score, report, repeat",
-    desc: "See your readiness score update in real time. Generate a formatted PDF report for your auditor whenever you need it — organized, timestamped, and mapped to controls.",
+    title: "Score, report, audit",
+    desc: "Live readiness score updates after every collection. Generate an AI-written audit narrative and formatted PDF on demand — share a read-only link directly with your auditor.",
   },
 ];
 
@@ -594,12 +604,12 @@ const TESTIMONIALS = [
 ];
 
 const PAIN_POINTS = [
-  { before: "Spreadsheets tracking evidence manually",         after: "Automated collection every 24 hours across 43+ integrations" },
-  { before: "No idea how close you are to audit-ready",        after: "Live readiness score with week-by-week estimate"       },
-  { before: "Vendor security questionnaires take days",        after: "AI autofill drafts all answers in seconds from your real data" },
-  { before: "GDPR compliance managed in spreadsheets",         after: "RoPA, breach register, SARs, and SoA in one place"    },
-  { before: "Incident and vulnerability tracking in Slack",    after: "Dedicated register linked to controls and evidence"    },
-  { before: "Consultants charging $50k+ for the same thing",  after: "Full compliance program self-served at startup cost"   },
+  { before: "Spreadsheets tracking evidence manually",          after: "AI collects evidence every 24h across 89+ integrations" },
+  { before: "No idea a control broke until the audit",          after: "AI drift detection fires within minutes of any degradation" },
+  { before: "Vendor questionnaires take days to fill out",      after: "AI autofills all answers in seconds from your live data"  },
+  { before: "Regulation changes catch you off guard",           after: "AI monitors official sources and flags updates weekly"    },
+  { before: "GDPR compliance managed in spreadsheets",          after: "RoPA, breach register, SARs, and SoA in one place"       },
+  { before: "Consultants charging $50k+ for the same thing",   after: "Full AI compliance program self-served at startup cost"   },
 ];
 
 
@@ -618,7 +628,7 @@ const FAQ = [
   },
   {
     q: "What integrations are supported?",
-    a: "AWS, GitHub, Slack, Google Workspace, Okta, Azure AD, Jira — with active collectors — plus Cloudflare, 1Password, CrowdStrike, Jamf, Vercel, Terraform Cloud, GitLab, GCP, Linear, Datadog, PagerDuty, Sentry, Microsoft Teams, Stripe, Rippling, BambooHR, Notion, JumpCloud, Bitbucket, Zendesk, Kubernetes, CircleCI, Qualys, and more — 43 integrations total, each collecting multiple evidence types.",
+    a: "89+ integrations: AWS, GitHub, Slack, Google Workspace, Okta, Azure AD, Jira, GitLab, GCP, Linear, Datadog, PagerDuty, Sentry, Stripe, Rippling, BambooHR, CrowdStrike, Jamf, SentinelOne, Kandji, Kolide, Snyk, HackerOne, Wiz, Splunk, Duo, Auth0, Doppler, Zscaler, Snowflake, Databricks, Grafana, Kubernetes, CircleCI, and many more — each collecting multiple evidence types automatically.",
   },
   {
     q: "Does TraceLayer cover training and vendor management?",
@@ -643,6 +653,14 @@ const FAQ = [
   {
     q: "How is the compliance score calculated?",
     a: "Each control is scored on three factors: coverage (70% weight — evidence types present), recency (20% — how fresh the evidence is), and volume (10% — number of records). Scores are snapshotted up to once per hour.",
+  },
+  {
+    q: "What AI features does TraceLayer include?",
+    a: "Three AI engines are built in: (1) Compliance Drift Detection — after every evidence collection, AI compares control statuses and fires an immediate Slack/Teams alert on any regression. (2) Questionnaire Autofill — AI answers any security questionnaire using your live integration data, policies, risks, and incidents. (3) Framework Monitor — AI monitors official regulation sources weekly and extracts any control changes for your review.",
+  },
+  {
+    q: "Does the AI write my audit report?",
+    a: "Yes. The AI Audit Package generates a complete PDF with an AI-written narrative section — summarizing your security posture, control coverage gaps, and evidence quality — powered by Groq. The report is formatted and ready to hand to your auditor.",
   },
 ];
 
@@ -938,18 +956,18 @@ export default function LandingPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            SOC 2 · ISO 27001 · HIPAA · GDPR · PCI DSS · CCPA · NIST CSF
+            AI-Powered Compliance · SOC 2 · ISO 27001 · HIPAA · GDPR · PCI DSS
           </div>
 
           <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[64px] font-extrabold leading-[1.1] mb-6 tracking-tight">
-            Stop chasing compliance.<br />
+            Your AI compliance team,<br />
             <span className="bg-gradient-to-r from-[var(--accent)] via-emerald-500 to-teal-400 bg-clip-text text-transparent">
-              Let it run itself.
+              always on.
             </span>
           </h1>
 
           <p data-animate data-delay="200" className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 leading-relaxed">
-            TraceLayer is your complete compliance program — automated evidence collection across 43+ integrations, risk register, incident and vulnerability management, GDPR privacy suite, policy templates, training tracker, vendor management, and a live readiness score. Everything in one platform.
+            TraceLayer is your AI-powered compliance platform — three built-in AI engines handle evidence collection across 89+ integrations, detect compliance drift the moment it happens, answer enterprise security questionnaires automatically, and monitor regulatory changes before they catch you off guard.
           </p>
 
           <div data-animate data-delay="300" className="flex items-center justify-center gap-3 flex-wrap mb-5">
@@ -1086,6 +1104,87 @@ export default function LandingPage() {
               <p className="text-xs text-[var(--muted)] font-semibold">{s.label}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ── AI Engines ────────────────────────────────────────────────────────── */}
+      <section className="py-20 bg-gradient-to-b from-slate-900 to-slate-800 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(#0f766e18_1px,transparent_1px)] [background-size:32px_32px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-[radial-gradient(circle,rgba(15,118,110,0.25),transparent_70%)] pointer-events-none" />
+        <div className="max-w-6xl mx-auto px-6 relative">
+          <div className="text-center mb-14" data-animate>
+            <div className="inline-flex items-center gap-2 bg-teal-900/40 text-teal-400 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4 border border-teal-700/30">
+              <span className="relative flex h-2 w-2 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500" />
+              </span>
+              Three AI engines, always running
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">
+              AI that works while you sleep
+            </h2>
+            <p className="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
+              TraceLayer doesn't just collect evidence — it thinks about it. Three AI engines run continuously so you're never surprised by a compliance failure.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-5">
+            {[
+              {
+                number: "01",
+                color: "from-teal-500 to-emerald-500",
+                bg: "bg-teal-900/20 border-teal-700/20",
+                title: "Drift Detection",
+                subtitle: "Fires within minutes",
+                desc: "After every evidence collection, AI compares each control's status to its last known baseline. The moment something degrades — MFA disabled, a bucket goes public, an integration breaks — your Slack or Teams channel gets an immediate alert with the exact control, framework, and what triggered it.",
+                bullets: ["Compares every control after each sync", "Instant Slack + Teams alerts", "Tracks regressions and recoveries"],
+              },
+              {
+                number: "02",
+                color: "from-violet-500 to-purple-500",
+                bg: "bg-violet-900/20 border-violet-700/20",
+                title: "Questionnaire AI",
+                subtitle: "Days → minutes",
+                desc: "Paste any enterprise security questionnaire. AI reads your live evidence — 89+ integrations, policies, risks, incidents, vendors, RoPA — and drafts every answer grounded in your actual security posture. You review and send. No generic boilerplate.",
+                bullets: ["Reads 17+ live data sources", "Grounded in your real evidence", "Exports in the customer's format"],
+              },
+              {
+                number: "03",
+                color: "from-amber-500 to-orange-500",
+                bg: "bg-amber-900/20 border-amber-700/20",
+                title: "Framework Monitor",
+                subtitle: "Weekly, automated",
+                desc: "AI monitors official sources for SOC 2, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, and NIST CSF every week. When a framework updates, AI extracts the changed controls, summarizes what changed, and queues a review — so you're always on the latest version.",
+                bullets: ["Monitors 7 regulatory sources", "AI-extracts control changes", "Human review before applying"],
+              },
+            ].map((engine) => (
+              <div
+                key={engine.number}
+                data-animate
+                className={`rounded-2xl border p-6 ${engine.bg} flex flex-col gap-4`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className={`text-3xl font-black bg-gradient-to-r ${engine.color} bg-clip-text text-transparent leading-none`}>
+                    {engine.number}
+                  </div>
+                  <span className="text-[10px] font-semibold text-slate-400 bg-slate-800/60 px-2 py-1 rounded-full border border-slate-700/40">
+                    {engine.subtitle}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white mb-2">{engine.title}</h3>
+                  <p className="text-sm text-slate-400 leading-relaxed">{engine.desc}</p>
+                </div>
+                <ul className="space-y-1.5 mt-auto">
+                  {engine.bullets.map((b) => (
+                    <li key={b} className="flex items-center gap-2 text-xs text-slate-300">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
