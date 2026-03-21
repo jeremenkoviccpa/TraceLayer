@@ -77,20 +77,23 @@ export default function VulnerabilitiesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2.5">
-            <Bug className="w-6 h-6 text-orange-500" /> Vulnerability Management
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">Track CVEs, patch status, and remediation</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <Bug className="w-5 h-5 text-orange-500 shrink-0" />
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-900 leading-tight truncate">Vulnerability Management</h1>
+            <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">Track CVEs, patch status, and remediation</p>
+          </div>
         </div>
-        <button onClick={openCreate} className="btn-primary gap-2">
-          <Plus className="w-4 h-4" /> Add Vulnerability
+        <button onClick={openCreate} className="btn-primary gap-1.5 !px-3 !py-2 text-xs shrink-0">
+          <Plus className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Add Vulnerability</span>
+          <span className="sm:hidden">Add</span>
         </button>
       </div>
 
       {/* Severity stats */}
-      <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+      <div className="grid grid-cols-5 gap-3">
         {SEVERITIES.map(sev => (
           <div key={sev} className="bg-white rounded-xl border border-gray-100 p-3 text-center">
             <p className={`text-xl font-bold ${counts[sev] > 0 ? SEV_STYLES[sev].split(" ")[1] : "text-gray-300"}`}>{counts[sev]}</p>
