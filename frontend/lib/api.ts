@@ -1,4 +1,4 @@
-import type { AccessReview, ApiKey, AppNotification, Asset, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Document, DownloadResponse, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SoaItem, SubjectRequest, TrainingRecord, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
+import type { AccessReview, ApiKey, AppNotification, Asset, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Document, DownloadResponse, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TrainingRecord, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -826,6 +826,12 @@ class ApiClient {
   async getApiKeys(): Promise<ApiKey[]> { return this.request("GET", "/api-keys"); }
   async createApiKey(name: string): Promise<{ key: ApiKey; raw_key: string }> { return this.request("POST", "/api-keys", { name }); }
   async revokeApiKey(id: string): Promise<void> { return this.request("DELETE", `/api-keys/${id}`); }
+
+  // ── Super-Admin ───────────────────────────────────────────────────────────
+  async superAdminListCompanies(): Promise<SuperAdminCompany[]> { return this.request("GET", "/super-admin/companies"); }
+  async superAdminPatchCompany(id: string, data: { plan?: string; is_partner_account?: boolean }): Promise<SuperAdminCompany> { return this.request("PATCH", `/super-admin/companies/${id}`, data); }
+  async superAdminListUsers(companyId: string): Promise<SuperAdminUser[]> { return this.request("GET", `/super-admin/companies/${companyId}/users`); }
+  async superAdminPatchUser(companyId: string, userId: string, data: { role?: string }): Promise<SuperAdminUser> { return this.request("PATCH", `/super-admin/companies/${companyId}/users/${userId}`, data); }
 
   // ── Evidence Export ───────────────────────────────────────────────────────
   async exportEvidenceCsv(params?: { control?: string; integration?: string }): Promise<void> {

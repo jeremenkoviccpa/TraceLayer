@@ -621,6 +621,26 @@ export interface SubjectRequest {
   regulation: string;
 }
 
+export interface SuperAdminCompany {
+  id: string;
+  name: string;
+  plan: string;
+  subscription_status: string | null;
+  is_partner_account: boolean;
+  created_at: string;
+  user_count: number;
+  admin_emails: string[];
+}
+
+export interface SuperAdminUser {
+  id: string;
+  email: string;
+  full_name: string | null;
+  role: string;
+  email_verified: boolean;
+  created_at: string;
+}
+
 export interface ManagementReview {
   id: string;
   review_date: string;

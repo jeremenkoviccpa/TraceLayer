@@ -45,6 +45,7 @@ import {
   ClipboardCheck,
   BadgeCheck,
   Archive,
+  ShieldHalf,
 } from "lucide-react";
 import type { AppNotification } from "@/lib/types";
 import { usePlan } from "@/hooks/usePlan";
@@ -386,6 +387,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               );
             })}
           </div>
+
+          {/* Super-admin link — only visible to internal admins */}
+          {user && (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS ?? "").split(",").map(e => e.trim()).filter(Boolean).includes(user.email) && (
+            <div className={`mt-4 pt-4 border-t border-gray-100 ${collapsed ? "px-2" : "px-3"}`}>
+              <div className="relative group/item">
+                <Link
+                  href="/superadmin"
+                  className={`flex items-center rounded-xl text-sm font-medium transition-all duration-150
+                    ${collapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 py-2"}
+                    ${pathname === "/superadmin"
+                      ? "bg-purple-600 text-white shadow-sm"
+                      : "text-purple-500 hover:bg-purple-50 hover:text-purple-700"
+                    }`}
+                >
+                  <ShieldHalf className={`w-4 h-4 shrink-0 ${pathname === "/superadmin" ? "text-white" : "text-purple-400"}`} />
+                  {!collapsed && <span>Super Admin</span>}
+                </Link>
+                {collapsed && (
+                  <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-3 z-50 opacity-0 group-hover/item:opacity-100 transition-opacity duration-150">
+                    <div className="bg-gray-900 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+                      Super Admin
+                      <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900" />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </nav>
 
         {/* Free plan upgrade CTA — shown only when sidebar is expanded */}
