@@ -195,51 +195,53 @@ export default function TrainingPage() {
       {/* Dark hero card */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 mb-6">
         {/* Row 1: icon + title + action */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-brand-500/20 flex items-center justify-center shrink-0">
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-brand-500/20 flex items-center justify-center shrink-0">
               <GraduationCap className="w-5 h-5 text-brand-400" />
             </div>
-            <div>
-              <h1 className="text-lg font-bold text-white leading-tight">Training Tracker</h1>
-              <p className="text-sm text-slate-400 mt-0.5">Track security awareness training for SOC 2 CC1.4 compliance.</p>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg font-bold text-white leading-tight truncate">Training Tracker</h1>
+              <p className="text-xs sm:text-sm text-slate-400 mt-0.5 hidden sm:block">Track security awareness training for SOC 2 CC1.4 compliance.</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {detectMsg && <span className="text-xs text-slate-300">{detectMsg}</span>}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {detectMsg && <span className="text-xs text-slate-300 hidden sm:inline">{detectMsg}</span>}
             <button
               onClick={handleDetect}
               disabled={detecting}
-              className="flex items-center gap-2 bg-white/10 border border-white/20 hover:bg-white/20 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 bg-white/10 border border-white/20 hover:bg-white/20 text-white font-semibold px-3 py-2 rounded-xl text-xs transition-colors disabled:opacity-50"
             >
-              {detecting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              Auto-detect
+              {detecting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+              <span className="hidden sm:inline">Auto-detect</span>
             </button>
             <button
               onClick={() => setShowModal(true)}
-              className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors"
+              className="flex items-center gap-1.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold px-3 py-2 rounded-xl text-xs transition-colors"
             >
-              <Plus className="w-4 h-4" /> Assign training
+              <Plus className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Assign training</span>
+              <span className="sm:hidden">Assign</span>
             </button>
           </div>
         </div>
 
         {/* Row 2: stats grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+        <div className="grid grid-cols-4 gap-2 sm:gap-4">
           <div>
-            <p className={`text-3xl font-bold ${pct >= 80 ? "text-brand-400" : pct >= 50 ? "text-amber-400" : "text-red-400"}`}>{pct}%</p>
-            <p className="text-xs text-slate-400 mt-1">Completion rate</p>
+            <p className={`text-2xl sm:text-3xl font-bold ${pct >= 80 ? "text-brand-400" : pct >= 50 ? "text-amber-400" : "text-red-400"}`}>{pct}%</p>
+            <p className="text-xs text-slate-400 mt-1">Completion</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-brand-400">{completed}</p>
-            <p className="text-xs text-slate-400 mt-1">Completed</p>
+            <p className="text-2xl sm:text-3xl font-bold text-brand-400">{completed}</p>
+            <p className="text-xs text-slate-400 mt-1">Done</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-brand-400">{pending}</p>
+            <p className="text-2xl sm:text-3xl font-bold text-brand-400">{pending}</p>
             <p className="text-xs text-slate-400 mt-1">Pending</p>
           </div>
           <div>
-            <p className={`text-3xl font-bold ${overdue > 0 ? "text-red-400" : "text-brand-400"}`}>{overdue}</p>
+            <p className={`text-2xl sm:text-3xl font-bold ${overdue > 0 ? "text-red-400" : "text-brand-400"}`}>{overdue}</p>
             <p className="text-xs text-slate-400 mt-1">Overdue</p>
           </div>
         </div>

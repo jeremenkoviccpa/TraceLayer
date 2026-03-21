@@ -475,38 +475,39 @@ export default function DataFlowsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-8 h-8 rounded-xl bg-brand-100 flex items-center justify-center">
-              <Workflow className="w-4 h-4 text-brand-600" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-900">Data Flow Map</h1>
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-brand-100 flex items-center justify-center shrink-0">
+            <Workflow className="w-4 h-4 text-brand-600" />
           </div>
-          <p className="text-sm text-gray-500">Auto-mapped from your connected integrations. Visualize what data flows where, and which regulations apply.</p>
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight truncate">Data Flow Map</h1>
+            <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">Auto-mapped from your connected integrations. Visualize what data flows where, and which regulations apply.</p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={exportCsv}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
           >
-            <Download className="w-4 h-4" />
-            Export CSV
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Export CSV</span>
           </button>
           <button
             onClick={handleScan}
             disabled={scanning}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
-            <RefreshCw className={`w-4 h-4 ${scanning ? "animate-spin" : ""}`} />
-            {scanning ? "Scanning…" : "Re-scan"}
+            <RefreshCw className={`w-3.5 h-3.5 ${scanning ? "animate-spin" : ""}`} />
+            <span className="hidden sm:inline">{scanning ? "Scanning…" : "Re-scan"}</span>
           </button>
           <button
             onClick={() => { setEditFlow(null); setShowModal(true); }}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors font-medium"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors font-medium"
           >
-            <Plus className="w-4 h-4" />
-            Add Flow
+            <Plus className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Add Flow</span>
+            <span className="sm:hidden">Add</span>
           </button>
         </div>
       </div>
@@ -566,7 +567,7 @@ export default function DataFlowsPage() {
           placeholder="Search tool or data type…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 w-52"
+          className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 w-full sm:w-52"
         />
         <select
           value={filterRisk}

@@ -94,36 +94,38 @@ export default function DataBreachesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2.5">
-            <ShieldX className="w-6 h-6 text-red-500" />
-            Data Breach Register
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">GDPR Art. 33-34 · HIPAA breach tracking</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <ShieldX className="w-5 h-5 text-red-500 shrink-0" />
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-900 leading-tight truncate">Data Breach Register</h1>
+            <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">GDPR Art. 33-34 · HIPAA breach tracking</p>
+          </div>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-brand-700 transition-colors">
-          <Plus className="w-4 h-4" /> Log Breach
+        <button onClick={openCreate} className="flex items-center gap-1.5 bg-brand-600 text-white text-xs font-semibold px-3 py-2 rounded-xl hover:bg-brand-700 transition-colors shrink-0">
+          <Plus className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Log Breach</span>
+          <span className="sm:hidden">Log</span>
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 text-center">
-          <p className="text-2xl font-bold text-gray-900">{breaches.length}</p>
-          <p className="text-xs text-gray-500 mt-1">Total</p>
+      <div className="grid grid-cols-4 gap-2 sm:gap-4">
+        <div className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-4 text-center">
+          <p className="text-xl sm:text-2xl font-bold text-gray-900">{breaches.length}</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Total</p>
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 text-center">
-          <p className="text-2xl font-bold text-amber-600">{investigating}</p>
-          <p className="text-xs text-gray-500 mt-1">Investigating</p>
+        <div className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-4 text-center">
+          <p className="text-xl sm:text-2xl font-bold text-amber-600">{investigating}</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Active</p>
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 text-center">
-          <p className="text-2xl font-bold text-red-600">{notifRequired}</p>
-          <p className="text-xs text-gray-500 mt-1">Notification Required</p>
+        <div className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-4 text-center">
+          <p className="text-xl sm:text-2xl font-bold text-red-600">{notifRequired}</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Notify</p>
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 text-center">
-          <p className="text-2xl font-bold text-emerald-600">{resolved}</p>
-          <p className="text-xs text-gray-500 mt-1">Resolved</p>
+        <div className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-4 text-center">
+          <p className="text-xl sm:text-2xl font-bold text-emerald-600">{resolved}</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Resolved</p>
         </div>
       </div>
 

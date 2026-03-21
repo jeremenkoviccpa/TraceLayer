@@ -148,12 +148,12 @@ export default function SoaPage() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2.5">
-          <BookCheck className="w-6 h-6 text-brand-600" />
-          Statement of Applicability
-        </h1>
-        <p className="text-sm text-gray-500 mt-1">ISO 27001:2022 · 93 Annex A Controls</p>
+      <div className="flex items-center gap-2.5 min-w-0">
+        <BookCheck className="w-5 h-5 text-brand-600 shrink-0" />
+        <div className="min-w-0">
+          <h1 className="text-lg sm:text-2xl font-bold text-gray-900 leading-tight truncate">Statement of Applicability</h1>
+          <p className="text-xs sm:text-sm text-gray-500">ISO 27001:2022 · 93 Annex A Controls</p>
+        </div>
       </div>
 
       {/* Stats */}
