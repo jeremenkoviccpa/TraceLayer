@@ -256,104 +256,124 @@ export default function RisksPage() {
           </button>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-card">
-          <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[640px]">
-            <thead className="border-b border-gray-100 bg-gray-50/80">
-              <tr>
-                <th className="py-3 pl-5 pr-4 text-left text-xs font-semibold text-gray-500">Risk</th>
-                <th
-                  className="hidden cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-500 transition-colors hover:text-gray-800 sm:table-cell"
-                  onClick={() => toggleSort("category")}
-                >
-                  Category <SortIcon col="category" />
-                </th>
-                <th
-                  className="cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-500 transition-colors hover:text-gray-800"
-                  onClick={() => toggleSort("risk_level")}
-                >
-                  Level <SortIcon col="risk_level" />
-                </th>
-                <th
-                  className="hidden cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-500 transition-colors hover:text-gray-800 md:table-cell"
-                  onClick={() => toggleSort("status")}
-                >
-                  Status <SortIcon col="status" />
-                </th>
-                <th className="hidden px-4 py-3 text-left text-xs font-semibold text-gray-500 lg:table-cell">Owner</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {sorted.map((r) => (
-                <tr
-                  key={r.id}
-                  className="group cursor-pointer transition-colors hover:bg-gray-50/60"
-                  onClick={() => openEdit(r)}
-                >
-                  {/* Colored level bar + title */}
-                  <td className="py-3.5 pl-0 pr-4">
-                    <div className="flex items-stretch gap-3">
-                      <div className={`w-1 shrink-0 self-stretch rounded-r-full ${LEVEL_BAR[r.risk_level]}`} />
-                      <div className="min-w-0 pl-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium leading-snug text-gray-800">{r.title}</p>
-                          {r.auto_detected && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-600 border border-violet-100">
-                              <Sparkles className="h-2.5 w-2.5" />
-                              Auto
-                            </span>
-                          )}
-                        </div>
-                        {r.description && (
-                          <p className="mt-0.5 line-clamp-1 text-xs text-gray-400">{r.description}</p>
+        <div className="rounded-2xl border border-gray-100 bg-white shadow-card overflow-hidden">
+
+          {/* ── Mobile card list (< sm) ── */}
+          <div className="sm:hidden divide-y divide-gray-100">
+            {sorted.map((r) => (
+              <div
+                key={r.id}
+                className="flex items-stretch gap-0 cursor-pointer hover:bg-gray-50/60 transition-colors"
+                onClick={() => openEdit(r)}
+              >
+                {/* colored bar */}
+                <div className={`w-1 shrink-0 ${LEVEL_BAR[r.risk_level]}`} />
+                <div className="flex-1 min-w-0 px-4 py-3.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
+                        <p className="text-sm font-semibold text-gray-800 leading-snug">{r.title}</p>
+                        {r.auto_detected && (
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-violet-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-600 border border-violet-100 shrink-0">
+                            <Sparkles className="h-2 w-2" />Auto
+                          </span>
                         )}
                       </div>
-                    </div>
-                  </td>
-                  <td className="hidden px-4 py-3.5 sm:table-cell">
-                    <span className="text-xs text-gray-500">{r.category}</span>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span
-                      className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${LEVEL_STYLES[r.risk_level]}`}
-                    >
-                      {r.risk_level}
-                    </span>
-                  </td>
-                  <td className="hidden px-4 py-3.5 md:table-cell">
-                    <span
-                      className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${STATUS_STYLES[r.status]}`}
-                    >
-                      {r.status}
-                    </span>
-                  </td>
-                  <td className="hidden px-4 py-3.5 lg:table-cell">
-                    <span className="text-xs text-gray-400">{r.owner_name ?? "Unassigned"}</span>
-                  </td>
-                  <td
-                    className="px-4 py-3.5 text-right"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {deletingId === r.id ? (
-                      <div className="flex items-center gap-1 justify-end">
-                        <button onClick={() => setDeletingId(null)} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg">Cancel</button>
-                        <button onClick={() => { handleDelete(r.id); setDeletingId(null); }} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2 py-1 rounded-lg">Delete</button>
+                      {r.description && (
+                        <p className="text-xs text-gray-400 line-clamp-1">{r.description}</p>
+                      )}
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${LEVEL_STYLES[r.risk_level]}`}>
+                          {r.risk_level}
+                        </span>
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${STATUS_STYLES[r.status]}`}>
+                          {r.status}
+                        </span>
+                        <span className="text-[10px] text-gray-400">{r.category}</span>
                       </div>
-                    ) : (
-                      <button
-                        onClick={() => setDeletingId(r.id)}
-                        className="rounded-lg p-1.5 text-gray-300 transition-colors hover:bg-red-50 hover:text-red-500"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </div>
+                    <div onClick={(e) => e.stopPropagation()} className="shrink-0">
+                      {deletingId === r.id ? (
+                        <div className="flex flex-col items-end gap-1">
+                          <button onClick={() => setDeletingId(null)} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg">Cancel</button>
+                          <button onClick={() => { handleDelete(r.id); setDeletingId(null); }} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2 py-1 rounded-lg">Delete</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setDeletingId(r.id)} className="rounded-lg p-1.5 text-gray-300 hover:bg-red-50 hover:text-red-500 transition-colors">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
+
+          {/* ── Desktop table (sm+) ── */}
+          <div className="hidden sm:block overflow-x-auto">
+            <table className="w-full text-sm min-w-[640px]">
+              <thead className="border-b border-gray-100 bg-gray-50/80">
+                <tr>
+                  <th className="py-3 pl-5 pr-4 text-left text-xs font-semibold text-gray-500">Risk</th>
+                  <th className="hidden cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-500 hover:text-gray-800 sm:table-cell" onClick={() => toggleSort("category")}>
+                    Category <SortIcon col="category" />
+                  </th>
+                  <th className="cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-500 hover:text-gray-800" onClick={() => toggleSort("risk_level")}>
+                    Level <SortIcon col="risk_level" />
+                  </th>
+                  <th className="hidden cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-500 hover:text-gray-800 md:table-cell" onClick={() => toggleSort("status")}>
+                    Status <SortIcon col="status" />
+                  </th>
+                  <th className="hidden px-4 py-3 text-left text-xs font-semibold text-gray-500 lg:table-cell">Owner</th>
+                  <th className="px-4 py-3" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {sorted.map((r) => (
+                  <tr key={r.id} className="group cursor-pointer transition-colors hover:bg-gray-50/60" onClick={() => openEdit(r)}>
+                    <td className="py-3.5 pl-0 pr-4">
+                      <div className="flex items-stretch gap-3">
+                        <div className={`w-1 shrink-0 self-stretch rounded-r-full ${LEVEL_BAR[r.risk_level]}`} />
+                        <div className="min-w-0 pl-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium leading-snug text-gray-800">{r.title}</p>
+                            {r.auto_detected && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-600 border border-violet-100">
+                                <Sparkles className="h-2.5 w-2.5" />Auto
+                              </span>
+                            )}
+                          </div>
+                          {r.description && <p className="mt-0.5 line-clamp-1 text-xs text-gray-400">{r.description}</p>}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="hidden px-4 py-3.5 sm:table-cell"><span className="text-xs text-gray-500">{r.category}</span></td>
+                    <td className="px-4 py-3.5">
+                      <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${LEVEL_STYLES[r.risk_level]}`}>{r.risk_level}</span>
+                    </td>
+                    <td className="hidden px-4 py-3.5 md:table-cell">
+                      <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${STATUS_STYLES[r.status]}`}>{r.status}</span>
+                    </td>
+                    <td className="hidden px-4 py-3.5 lg:table-cell"><span className="text-xs text-gray-400">{r.owner_name ?? "Unassigned"}</span></td>
+                    <td className="px-4 py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
+                      {deletingId === r.id ? (
+                        <div className="flex items-center gap-1 justify-end">
+                          <button onClick={() => setDeletingId(null)} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg">Cancel</button>
+                          <button onClick={() => { handleDelete(r.id); setDeletingId(null); }} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-2 py-1 rounded-lg">Delete</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setDeletingId(r.id)} className="rounded-lg p-1.5 text-gray-300 hover:bg-red-50 hover:text-red-500 transition-colors">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
         </div>
       )}
 
