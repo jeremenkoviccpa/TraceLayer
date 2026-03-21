@@ -112,36 +112,38 @@ export default function SubjectRequestsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2.5">
-            <UserSearch className="w-6 h-6 text-brand-600" />
-            Subject Access Requests
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">GDPR Art. 15-22 · CCPA consumer rights</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <UserSearch className="w-5 h-5 text-brand-600 shrink-0" />
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-900 leading-tight truncate">Subject Access Requests</h1>
+            <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">GDPR Art. 15-22 · CCPA consumer rights</p>
+          </div>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-brand-700 transition-colors">
-          <Plus className="w-4 h-4" /> New Request
+        <button onClick={openCreate} className="flex items-center gap-1.5 bg-brand-600 text-white text-xs font-semibold px-3 py-2 rounded-xl hover:bg-brand-700 transition-colors shrink-0">
+          <Plus className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">New Request</span>
+          <span className="sm:hidden">New</span>
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 text-center">
-          <p className="text-2xl font-bold text-gray-900">{requests.length}</p>
-          <p className="text-xs text-gray-500 mt-1">Total</p>
+      <div className="grid grid-cols-4 gap-2 sm:gap-4">
+        <div className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-4 text-center">
+          <p className="text-xl sm:text-2xl font-bold text-gray-900">{requests.length}</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Total</p>
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 text-center">
-          <p className="text-2xl font-bold text-amber-600">{pending}</p>
-          <p className="text-xs text-gray-500 mt-1">Pending</p>
+        <div className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-4 text-center">
+          <p className="text-xl sm:text-2xl font-bold text-amber-600">{pending}</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Pending</p>
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 text-center">
-          <p className="text-2xl font-bold text-red-600">{overdue}</p>
-          <p className="text-xs text-gray-500 mt-1">Overdue</p>
+        <div className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-4 text-center">
+          <p className="text-xl sm:text-2xl font-bold text-red-600">{overdue}</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Overdue</p>
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 text-center">
-          <p className="text-2xl font-bold text-emerald-600">{completed}</p>
-          <p className="text-xs text-gray-500 mt-1">Completed</p>
+        <div className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-4 text-center">
+          <p className="text-xl sm:text-2xl font-bold text-emerald-600">{completed}</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Done</p>
         </div>
       </div>
 
@@ -153,53 +155,85 @@ export default function SubjectRequestsPage() {
           <button onClick={openCreate} className="mt-4 text-sm font-semibold text-brand-600 hover:text-brand-700">Log first request →</button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wider">
-                <th className="px-4 py-3 text-left">Requester</th>
-                <th className="px-4 py-3 text-left w-32">Type</th>
-                <th className="px-4 py-3 text-left w-24">Regulation</th>
-                <th className="px-4 py-3 text-left w-28">Received</th>
-                <th className="px-4 py-3 text-left w-36">Due Date</th>
-                <th className="px-4 py-3 text-left w-28">Status</th>
-                <th className="px-4 py-3 text-right w-24">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {requests.map((r) => {
-                const overdueMark = isOverdue(r);
-                return (
-                  <tr key={r.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-gray-900">{r.requester_name}</p>
-                      {r.requester_email && <p className="text-xs text-gray-400">{r.requester_email}</p>}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${TYPE_STYLES[r.request_type] ?? "bg-gray-100 text-gray-500"}`}>{r.request_type}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium uppercase ${REG_STYLES[r.regulation] ?? "bg-gray-100 text-gray-500"}`}>{r.regulation}</span>
-                    </td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{fmt(r.received_at)}</td>
-                    <td className="px-4 py-3 text-xs">
-                      <span className={overdueMark ? "text-red-600 font-semibold" : "text-gray-500"}>{sla30(r)}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[r.status] ?? "bg-gray-100 text-gray-500"}`}>{r.status.replace("_", " ")}</span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => openEdit(r)} className="text-xs text-brand-600 hover:text-brand-700 font-medium px-2 py-1 rounded-lg hover:bg-brand-50 transition-colors">Edit</button>
-                        <button onClick={() => handleDelete(r.id)} className="text-gray-400 hover:text-red-500 p-1 rounded-lg hover:bg-red-50 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+        <>
+          {/* Mobile cards */}
+          <div className="sm:hidden space-y-2">
+            {requests.map((r) => {
+              const overdueMark = isOverdue(r);
+              return (
+                <div key={r.id} className="bg-white rounded-2xl border border-gray-100 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-gray-900 truncate">{r.requester_name}</p>
+                      {r.requester_email && <p className="text-xs text-gray-400 truncate">{r.requester_email}</p>}
+                      <div className="flex items-center gap-1.5 flex-wrap mt-2">
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${TYPE_STYLES[r.request_type] ?? "bg-gray-100 text-gray-500"}`}>{r.request_type}</span>
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium uppercase ${REG_STYLES[r.regulation] ?? "bg-gray-100 text-gray-500"}`}>{r.regulation}</span>
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[r.status] ?? "bg-gray-100 text-gray-500"}`}>{r.status.replace("_", " ")}</span>
                       </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      <p className={`text-xs mt-1.5 ${overdueMark ? "text-red-600 font-semibold" : "text-gray-400"}`}>
+                        Due: {sla30(r)}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button onClick={() => openEdit(r)} className="text-xs text-brand-600 font-medium px-2 py-1 rounded-lg hover:bg-brand-50">Edit</button>
+                      <button onClick={() => handleDelete(r.id)} className="text-gray-400 hover:text-red-500 p-1 rounded-lg hover:bg-red-50"><Trash2 className="w-3.5 h-3.5" /></button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden sm:block bg-white rounded-2xl border border-gray-100 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left">Requester</th>
+                  <th className="px-4 py-3 text-left w-32">Type</th>
+                  <th className="px-4 py-3 text-left w-24">Regulation</th>
+                  <th className="px-4 py-3 text-left w-28">Received</th>
+                  <th className="px-4 py-3 text-left w-36">Due Date</th>
+                  <th className="px-4 py-3 text-left w-28">Status</th>
+                  <th className="px-4 py-3 text-right w-24">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {requests.map((r) => {
+                  const overdueMark = isOverdue(r);
+                  return (
+                    <tr key={r.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-3">
+                        <p className="font-medium text-gray-900">{r.requester_name}</p>
+                        {r.requester_email && <p className="text-xs text-gray-400">{r.requester_email}</p>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${TYPE_STYLES[r.request_type] ?? "bg-gray-100 text-gray-500"}`}>{r.request_type}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium uppercase ${REG_STYLES[r.regulation] ?? "bg-gray-100 text-gray-500"}`}>{r.regulation}</span>
+                      </td>
+                      <td className="px-4 py-3 text-gray-500 text-xs">{fmt(r.received_at)}</td>
+                      <td className="px-4 py-3 text-xs">
+                        <span className={overdueMark ? "text-red-600 font-semibold" : "text-gray-500"}>{sla30(r)}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[r.status] ?? "bg-gray-100 text-gray-500"}`}>{r.status.replace("_", " ")}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button onClick={() => openEdit(r)} className="text-xs text-brand-600 hover:text-brand-700 font-medium px-2 py-1 rounded-lg hover:bg-brand-50 transition-colors">Edit</button>
+                          <button onClick={() => handleDelete(r.id)} className="text-gray-400 hover:text-red-500 p-1 rounded-lg hover:bg-red-50 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {/* Modal */}
