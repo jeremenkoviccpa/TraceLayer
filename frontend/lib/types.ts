@@ -665,6 +665,39 @@ export type DriftEvent = {
   detected_at: string;
 };
 
+export interface AiAgentEvent {
+  id: string;
+  company_id: string;
+  agent_name: string;
+  agent_type: string;
+  action_type: string;
+  target_tool: string;
+  target_url: string | null;
+  data_categories: string[];
+  input_summary: string | null;
+  output_summary: string | null;
+  session_id: string | null;
+  chain_depth: number;
+  parent_event_id: string | null;
+  risk_level: string;
+  risk_flags: string[];
+  status: string;
+  duration_ms: number | null;
+  is_flagged: boolean;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface AiAgentSession {
+  session_id: string;
+  events: AiAgentEvent[];
+  max_chain_depth: number;
+  max_risk_level: string;
+  total_events: number;
+}
+
 export interface DataFlow {
   id: string;
   company_id: string;

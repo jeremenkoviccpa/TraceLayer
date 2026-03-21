@@ -48,6 +48,7 @@ import {
   ShieldHalf,
   Workflow,
   Compass,
+  Bot,
 } from "lucide-react";
 import type { AppNotification } from "@/lib/types";
 import { usePlan } from "@/hooks/usePlan";
@@ -122,6 +123,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/questionnaire", label: "AI Questionnaire", icon: ClipboardList },
       { href: "/audit-package", label: "AI Audit Package", icon: Sparkles      },
+      { href: "/ai-agents",     label: "AI Agent Monitor", icon: Bot            },
     ],
   },
   {

@@ -860,6 +860,29 @@ class ApiClient {
     URL.revokeObjectURL(url);
   }
 
+  // ── AI Agent Events ───────────────────────────────────────────────────────
+
+  async getAiAgentEvents(params?: { risk_level?: string; agent_type?: string; flagged_only?: boolean }): Promise<import("./types").AiAgentEvent[]> {
+    const qs = params ? "?" + new URLSearchParams(Object.entries(params).filter(([, v]) => v !== undefined).map(([k, v]) => [k, String(v)])).toString() : "";
+    return this.request("GET", `/ai-agent-events${qs}`);
+  }
+
+  async getAiAgentSessions(): Promise<import("./types").AiAgentSession[]> {
+    return this.request("GET", "/ai-agent-events/sessions");
+  }
+
+  async createAiAgentEvent(body: Partial<import("./types").AiAgentEvent>): Promise<import("./types").AiAgentEvent> {
+    return this.request("POST", "/ai-agent-events", body);
+  }
+
+  async updateAiAgentEvent(id: string, body: { is_flagged?: boolean; notes?: string; reviewed_by?: string }): Promise<import("./types").AiAgentEvent> {
+    return this.request("PATCH", `/ai-agent-events/${id}`, body);
+  }
+
+  async deleteAiAgentEvent(id: string): Promise<void> {
+    return this.request("DELETE", `/ai-agent-events/${id}`);
+  }
+
   // ── Data Flows ────────────────────────────────────────────────────────────
 
   async getDataFlows(): Promise<import("./types").DataFlow[]> {
