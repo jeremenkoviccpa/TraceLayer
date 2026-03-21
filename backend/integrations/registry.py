@@ -48,6 +48,35 @@ _REGISTRY: dict[str, str] = {
     "kubernetes":        "integrations.kubernetes.adapter.KubernetesIntegration",
     "circleci":          "integrations.circleci.adapter.CircleCIIntegration",
     "qualys":            "integrations.qualys.adapter.QualysIntegration",
+    # ── Identity & Access ─────────────────────────────────────────────────────
+    "tailscale":         "integrations.tailscale.adapter.TailscaleIntegration",
+    "bitwarden":         "integrations.bitwarden.adapter.BitwardenIntegration",
+    "lastpass":          "integrations.lastpass.adapter.LastPassIntegration",
+    # ── Cloud Infrastructure ──────────────────────────────────────────────────
+    "azure":             "integrations.azure.adapter.AzureIntegration",
+    "digitalocean":      "integrations.digitalocean.adapter.DigitalOceanIntegration",
+    "heroku":            "integrations.heroku.adapter.HerokuIntegration",
+    # ── Project Management ────────────────────────────────────────────────────
+    "asana":             "integrations.asana.adapter.AsanaIntegration",
+    "monday":            "integrations.monday.adapter.MondayIntegration",
+    "shortcut":          "integrations.shortcut.adapter.ShortcutIntegration",
+    # ── Communication ─────────────────────────────────────────────────────────
+    "zoom":              "integrations.zoom.adapter.ZoomIntegration",
+    "intercom":          "integrations.intercom.adapter.IntercomIntegration",
+    # ── Monitoring & Security ─────────────────────────────────────────────────
+    "detectify":         "integrations.detectify.adapter.DetectifyIntegration",
+    "nightfall":         "integrations.nightfall.adapter.NightfallIntegration",
+    "opsgenie":          "integrations.opsgenie.adapter.OpsgenieIntegration",
+    # ── HR & People ───────────────────────────────────────────────────────────
+    "checkr":            "integrations.checkr.adapter.CheckrIntegration",
+    "lattice":           "integrations.lattice.adapter.LatticeIntegration",
+    "trainual":          "integrations.trainual.adapter.TrainualIntegration",
+    "greenhouse":        "integrations.greenhouse.adapter.GreenhouseIntegration",
+    # ── CI/CD & DevOps ────────────────────────────────────────────────────────
+    "jenkins":           "integrations.jenkins.adapter.JenkinsIntegration",
+    "azure_devops":      "integrations.azure_devops.adapter.AzureDevOpsIntegration",
+    "argocd":            "integrations.argocd.adapter.ArgoCDIntegration",
+    "elastic":           "integrations.elastic.adapter.ElasticIntegration",
 }
 
 
