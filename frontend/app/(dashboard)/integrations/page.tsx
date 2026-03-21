@@ -490,6 +490,82 @@ const LOGO_CONFIG: Record<string, LogoCfg> = {
   snowflake:    { bg: "#29B5E8", label: "SF2" },
   databricks:   { bg: "#E8252A", label: "DB" },
   betteruptime: { bg: "#16C784", label: "BU" },
+  // ── New batch ──────────────────────────────────────────────────────────────
+  harvest: {
+    bg: "#FA4D00", label: "HV",
+    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.38}>H</text>,
+  },
+  webex: {
+    bg: "#00B140", label: "WX",
+    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.29}>WX</text>,
+  },
+  metomic: {
+    bg: "#6941C6", label: "MT",
+    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.29}>MT</text>,
+  },
+  okta_verify: {
+    bg: "#007DC1", label: "OV",
+    svg: (s) => (
+      <>
+        <circle cx={s/2} cy={s/2} r={s*0.25} stroke="white" strokeWidth={s*0.08} fill="none"/>
+        <circle cx={s/2} cy={s/2} r={s*0.08} fill="white"/>
+        <text x={s*0.75} y={s*0.3} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.2}>✓</text>
+      </>
+    ),
+  },
+  microsoft_authenticator: {
+    bg: "#0078D4", label: "MA",
+    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.29}>MA</text>,
+  },
+  google_authenticator: {
+    bg: "#FFFFFF", label: "GA",
+    svg: (s) => (
+      <>
+        <rect width={s} height={s} rx={Math.round(s*0.25)} fill="white" stroke="#E5E7EB" strokeWidth="1.5"/>
+        <circle cx={s/2} cy={s/2} r={s*0.28} fill="none" stroke="#4285F4" strokeWidth={s*0.1}/>
+        <path d={`M${s*0.5} ${s*0.22} L${s*0.5} ${s*0.5} L${s*0.72} ${s*0.5}`} stroke="#EA4335" strokeWidth={s*0.08} strokeLinecap="round" fill="none"/>
+      </>
+    ),
+  },
+  knowbe4: {
+    bg: "#E8282B", label: "KB4",
+    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.24}>KB4</text>,
+  },
+  "360learning": {
+    bg: "#FF6B35", label: "360",
+    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.26}>360</text>,
+  },
+  lever: {
+    bg: "#4C5FD5", label: "LV",
+    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.29}>LV</text>,
+  },
+  hackerrank: {
+    bg: "#2EC866", label: "HR",
+    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.29}>HR</text>,
+  },
+  leetcode: {
+    bg: "#FFA116", label: "LC",
+    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.29}>LC</text>,
+  },
+  icloud: {
+    bg: "#1C7ED6", label: "iC",
+    svg: (s) => (
+      <>
+        <path d={`M${s*0.25} ${s*0.62} Q${s*0.22} ${s*0.45} ${s*0.38} ${s*0.4} Q${s*0.38} ${s*0.28} ${s*0.5} ${s*0.28} Q${s*0.62} ${s*0.28} ${s*0.65} ${s*0.38} Q${s*0.82} ${s*0.38} ${s*0.82} ${s*0.55} Q${s*0.82} ${s*0.68} ${s*0.68} ${s*0.68} L${s*0.32} ${s*0.68} Q${s*0.18} ${s*0.68} ${s*0.25} ${s*0.62} Z`}
+          fill="white" opacity="0.9"/>
+      </>
+    ),
+  },
+  google_analytics: {
+    bg: "#E37400", label: "GA",
+    svg: (s) => (
+      <>
+        <rect x={s*0.22} y={s*0.5} width={s*0.16} height={s*0.28} rx={s*0.04} fill="white"/>
+        <rect x={s*0.42} y={s*0.35} width={s*0.16} height={s*0.43} rx={s*0.04} fill="white" opacity="0.85"/>
+        <rect x={s*0.62} y={s*0.2} width={s*0.16} height={s*0.58} rx={s*0.04} fill="white" opacity="0.7"/>
+      </>
+    ),
+  },
 };
 
 function LogoBadge({ type, size = 42 }: { type: string; size?: number }) {
@@ -1261,6 +1337,138 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
     ],
   },
   {
+    title: "MFA & Authentication",
+    integrations: [
+      {
+        type: "okta_verify", label: "Okta Verify",
+        description: "Collect MFA factor enrollments, authenticator policies, and device assurance — dedicated Okta Verify evidence for CC6.1",
+        fields: [
+          { key: "domain", label: "Okta Domain", placeholder: "mycompany.okta.com" },
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password" },
+        ],
+      },
+      {
+        type: "microsoft_authenticator", label: "Microsoft Authenticator",
+        description: "Collect MFA registration details, authentication method policies, and conditional access rules from Entra ID",
+        fields: [
+          { key: "tenant_id", label: "Tenant ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+          { key: "client_id", label: "Client ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••", type: "password" },
+        ],
+      },
+      {
+        type: "google_authenticator", label: "Google Authenticator",
+        description: "Collect per-user 2-Step Verification enrollment status and org-wide 2SV enforcement policy via Google Admin SDK",
+        fields: [
+          { key: "admin_email", label: "Admin Email", placeholder: "admin@yourcompany.com" },
+          { key: "service_account_json", label: "Service Account JSON", placeholder: '{"type":"service_account",...}', type: "textarea" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Security Awareness Training",
+    integrations: [
+      {
+        type: "knowbe4", label: "KnowBe4",
+        description: "Collect user risk scores, security training campaign completions, and phishing simulation results",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password", hint: "KnowBe4 Account → API → Reporting API" },
+        ],
+      },
+      {
+        type: "360learning", label: "360Learning",
+        description: "Collect learner registrations, training program completions, and compliance course progress",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password" },
+          { key: "company_id", label: "Company ID", placeholder: "your-company-id", hint: "Found in your 360Learning admin portal → Integrations" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "HR & Recruiting",
+    integrations: [
+      {
+        type: "lever", label: "Lever",
+        description: "Collect job postings, candidate pipeline, and recruiter access — evidence for background screening and HR security controls",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••-••••-••••-••••-••••••••••••", type: "password", hint: "Lever Settings → Integrations → API Credentials" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Technical Assessments",
+    integrations: [
+      {
+        type: "hackerrank", label: "HackerRank",
+        description: "Collect candidate assessments, test results, and hiring pipeline evidence for pre-employment screening controls",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password", hint: "HackerRank Work → Settings → API Keys" },
+        ],
+      },
+      {
+        type: "leetcode", label: "LeetCode",
+        description: "Collect technical assessments, candidate evaluation records, and screening results from LeetCode Business",
+        fields: [
+          { key: "session_cookie", label: "LEETCODE_SESSION Cookie", placeholder: "eyJ••••••••", type: "password", hint: "Copy LEETCODE_SESSION from your browser cookies after logging into leetcode.com" },
+          { key: "csrf_token", label: "CSRF Token", placeholder: "••••••••••••", type: "password", hint: "Copy csrftoken cookie value from browser" },
+          { key: "org_slug", label: "Organization Slug (optional)", placeholder: "mycompany" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Time Tracking",
+    integrations: [
+      {
+        type: "harvest", label: "Harvest",
+        description: "Collect time entries, project records, and team member access — evidence for resource tracking and change management",
+        fields: [
+          { key: "access_token", label: "Access Token", placeholder: "••••••••••••", type: "password", hint: "Harvest → My Profile → Developers → Create New Personal Access Token" },
+          { key: "account_id", label: "Account ID", placeholder: "12345678", hint: "Found on the same Developers page next to your access token" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Communication & Meetings",
+    integrations: [
+      {
+        type: "webex", label: "Cisco Webex",
+        description: "Collect user roster, space configurations, and meeting policies for communication security evidence",
+        fields: [
+          { key: "access_token", label: "Access Token", placeholder: "••••••••••••", type: "password", hint: "developer.webex.com → My Webex Apps → Bot or Integration token" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Data Security",
+    integrations: [
+      {
+        type: "metomic", label: "Metomic",
+        description: "Collect data classification policies, PII detection rules, and sensitive data risk configurations for GDPR/HIPAA evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password", hint: "Metomic Dashboard → Settings → API" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Device Management",
+    integrations: [
+      {
+        type: "icloud", label: "iCloud / Apple Business Manager",
+        description: "Collect managed device inventory, MDM enrollment status, and Apple Business Manager device assignments",
+        fields: [
+          { key: "server_token", label: "Server Token", placeholder: "••••••••••••", type: "password", hint: "Apple Business Manager → Preferences → MDM Server → Download Server Token" },
+        ],
+      },
+    ],
+  },
+  {
     title: "Data & Analytics",
     integrations: [
       {
@@ -1278,6 +1486,14 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         fields: [
           { key: "host", label: "Workspace URL", placeholder: "adb-1234567890.1.azuredatabricks.net", hint: "The hostname of your Databricks workspace (without https://)" },
           { key: "token", label: "Personal Access Token", placeholder: "dapi••••••••", type: "password", hint: "Databricks → User Settings → Access Tokens → Generate New Token" },
+        ],
+      },
+      {
+        type: "google_analytics", label: "Google Analytics",
+        description: "Collect web traffic metrics, availability data, and property configurations for GA4 properties as service availability evidence",
+        fields: [
+          { key: "service_account_json", label: "Service Account JSON", placeholder: '{"type":"service_account",...}', type: "textarea" },
+          { key: "property_id", label: "GA4 Property ID", placeholder: "123456789", hint: "Google Analytics → Admin → Property → Property details → Property ID" },
         ],
       },
     ],
@@ -1669,6 +1885,124 @@ const SETUP_GUIDES: Record<string, SetupGuide> = {
       "Go to Users → Add User — create an API-only user with Reader role",
       "Your API URL is platform-specific: US1 = qualysapi.qualys.com, EU1 = qualysapi.eu.qualys.com",
       "Check help.qualys.com → Get Started → Qualys Platform URLs for your region",
+    ],
+  },
+  harvest: {
+    url: "https://id.getharvest.com/developers",
+    steps: [
+      "Log in to Harvest → click your avatar (top right) → My Profile",
+      "Scroll to Developers → Create New Personal Access Token",
+      "Copy the Access Token (shown once) and note the Account ID below it",
+    ],
+  },
+  webex: {
+    url: "https://developer.webex.com/my-apps",
+    steps: [
+      "Go to developer.webex.com → My Webex Apps",
+      "Create a Bot or use your personal access token",
+      "For orgs: create an Integration with scopes: spark:people_read, spark:rooms_read",
+      "Authorize the integration and copy the access token",
+    ],
+  },
+  metomic: {
+    url: "https://app.metomic.io",
+    steps: [
+      "Log in to the Metomic dashboard",
+      "Go to Settings → API → Generate new API key",
+      "Copy the API key — it is shown only once",
+    ],
+  },
+  okta_verify: {
+    steps: [
+      "Log in to your Okta Admin Console",
+      "Security → API → Tokens → Create Token (name it 'TraceLayer MFA')",
+      "Copy the token value — it is shown only once",
+      "Your domain is the subdomain in your Okta URL (e.g. mycompany.okta.com)",
+      "Requires permission: Read authenticators, Read policies",
+    ],
+  },
+  microsoft_authenticator: {
+    url: "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade",
+    steps: [
+      "Azure Portal → Entra ID → App registrations → New registration",
+      "Certificates & secrets → New client secret → copy the value",
+      "API permissions → Add Microsoft Graph permissions:",
+      "  UserAuthenticationMethod.Read.All, Policy.Read.All, Reports.Read.All",
+      "Grant admin consent → copy Tenant ID and Client ID from app overview",
+    ],
+  },
+  google_authenticator: {
+    url: "https://console.cloud.google.com/iam-admin/serviceaccounts",
+    steps: [
+      "Enable the Admin SDK API in Google Cloud Console",
+      "IAM & Admin → Service Accounts → Create service account → download JSON key",
+      "In Google Workspace Admin → Security → API controls → Domain-wide delegation",
+      "Add the service account Client ID with scope: admin.directory.user.readonly",
+      "Paste the JSON key and enter an admin email that has read access to the directory",
+    ],
+  },
+  knowbe4: {
+    url: "https://training.knowbe4.com/account/info",
+    steps: [
+      "Log in to KnowBe4 → Account Settings → Account Info",
+      "Scroll to API section → Reporting API → Generate API Key",
+      "Copy the API key",
+      "Note: Reporting API requires Pro or higher subscription",
+    ],
+  },
+  "360learning": {
+    url: "https://app.360learning.com",
+    steps: [
+      "Log in to 360Learning as an admin",
+      "Go to Integration Hub → API → Generate API key",
+      "Copy the API key and find your Company ID in the URL or Account Settings",
+    ],
+  },
+  lever: {
+    url: "https://hire.lever.co/settings/integrations",
+    steps: [
+      "Log in to Lever as a Super Admin",
+      "Settings → Integrations → API Credentials",
+      "Generate a new API key with Read-only permissions",
+      "Copy the API key",
+    ],
+  },
+  hackerrank: {
+    url: "https://www.hackerrank.com/work/settings/api_keys",
+    steps: [
+      "Log in to HackerRank Work as an admin",
+      "Settings → API Keys → Create new API Key",
+      "Copy the key (shown once)",
+    ],
+  },
+  leetcode: {
+    url: "https://leetcode.com/accounts/login/",
+    steps: [
+      "Log in to your LeetCode Business account at leetcode.com",
+      "Open browser DevTools → Application → Cookies → leetcode.com",
+      "Copy the LEETCODE_SESSION cookie value",
+      "Copy the csrftoken cookie value",
+      "Optional: enter your organization slug for filtering",
+    ],
+  },
+  icloud: {
+    url: "https://business.apple.com",
+    steps: [
+      "Log in to Apple Business Manager as an Administrator",
+      "Settings → Preferences → MDM Servers → your MDM server",
+      "Click 'Download Server Token' (.p7m file) — this is your server token",
+      "Upload the .p7m contents as the Server Token field",
+      "Token expires annually — renew before expiry",
+    ],
+  },
+  google_analytics: {
+    url: "https://console.cloud.google.com/iam-admin/serviceaccounts",
+    steps: [
+      "Enable the Google Analytics Data API and Admin API in Google Cloud Console",
+      "IAM & Admin → Service Accounts → Create service account → download JSON key",
+      "In Google Analytics → Admin → Property → Property Access Management",
+      "Add the service account email with Viewer role",
+      "Copy your GA4 Property ID from Admin → Property details",
     ],
   },
 };

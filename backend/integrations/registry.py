@@ -106,6 +106,27 @@ _REGISTRY: dict[str, str] = {
     # ── Data & Analytics ──────────────────────────────────────────────────────
     "snowflake":         "integrations.snowflake.adapter.SnowflakeIntegration",
     "databricks":        "integrations.databricks.adapter.DatabricksIntegration",
+    "google_analytics":  "integrations.google_analytics.adapter.GoogleAnalyticsIntegration",
+    # ── Time Tracking ─────────────────────────────────────────────────────────
+    "harvest":           "integrations.harvest.adapter.HarvestIntegration",
+    # ── Communication & Meetings ──────────────────────────────────────────────
+    "webex":             "integrations.webex.adapter.WebExIntegration",
+    # ── Data Security ─────────────────────────────────────────────────────────
+    "metomic":           "integrations.metomic.adapter.MetomicIntegration",
+    # ── MFA & Authentication ──────────────────────────────────────────────────
+    "okta_verify":               "integrations.okta_verify.adapter.OktaVerifyIntegration",
+    "microsoft_authenticator":   "integrations.microsoft_authenticator.adapter.MicrosoftAuthenticatorIntegration",
+    "google_authenticator":      "integrations.google_authenticator.adapter.GoogleAuthenticatorIntegration",
+    # ── Security Awareness Training ────────────────────────────────────────────
+    "knowbe4":           "integrations.knowbe4.adapter.KnowBe4Integration",
+    "360learning":       "integrations.learning_360.adapter.Learning360Integration",
+    # ── HR & Recruiting ───────────────────────────────────────────────────────
+    "lever":             "integrations.lever.adapter.LeverIntegration",
+    # ── Technical Assessments ─────────────────────────────────────────────────
+    "hackerrank":        "integrations.hackerrank.adapter.HackerRankIntegration",
+    "leetcode":          "integrations.leetcode.adapter.LeetCodeIntegration",
+    # ── Device Management ─────────────────────────────────────────────────────
+    "icloud":            "integrations.icloud.adapter.ICloudIntegration",
 }
 
 
