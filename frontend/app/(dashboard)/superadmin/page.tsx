@@ -403,6 +403,7 @@ export default function SuperAdminPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
