@@ -774,20 +774,24 @@ async def seed():
         collected = NOW - timedelta(hours=1)
         added = []
         for itype, creds in ALL_INTEGRATIONS:
-            existing = await db.execute(
+            existing_result = await db.execute(
                 select(Integration).where(
                     Integration.company_id == cid,
                     Integration.integration_type == itype,
                 )
             )
-            if existing.scalar_one_or_none():
-                continue
-            db.add(Integration(
-                id=uuid.uuid4(), company_id=cid,
-                integration_type=itype, credentials_enc=_enc(creds),
-                status="active", last_collected_at=collected,
-            ))
-            added.append(itype)
+            existing_row = existing_result.scalar_one_or_none()
+            if existing_row:
+                # Reset to active so it gets rescheduled on startup (may have gone to "error")
+                existing_row.status = "active"
+                existing_row.last_error = None
+            else:
+                db.add(Integration(
+                    id=uuid.uuid4(), company_id=cid,
+                    integration_type=itype, credentials_enc=_enc(creds),
+                    status="active", last_collected_at=collected,
+                ))
+                added.append(itype)
         await db.flush()
         print(f"✓ Integrations: {len(added)} added, {len(ALL_INTEGRATIONS)-len(added)} already existed")
 

@@ -52,10 +52,11 @@ async def connect(
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
-    # Schedule recurring collection after successful connect
+    # Schedule recurring collection — run_now fires first collection in 30s
     schedule_integration(
         str(current_user.company_id),
         body.integration_type,
+        run_now=True,
     )
 
     await log_action(

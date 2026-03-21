@@ -76,11 +76,19 @@ async def _reschedule_active_integrations() -> None:
 
     try:
         async with AsyncSessionLocal() as db:
-            result = await db.execute(select(Integration).where(Integration.status == "active"))
+            # Reschedule both "active" and "error" — errored integrations should still be retried
+            result = await db.execute(
+                select(Integration).where(Integration.status.in_(["active", "error"]))
+            )
             integrations_list = result.scalars().all()
             for i in integrations_list:
-                schedule_integration(str(i.company_id), i.integration_type)
-            logger.info("Rescheduled %d active integration(s) on startup", len(integrations_list))
+                # Errored integrations get run_now so they retry shortly after startup
+                schedule_integration(
+                    str(i.company_id),
+                    i.integration_type,
+                    run_now=(i.status == "error"),
+                )
+            logger.info("Rescheduled %d integration(s) on startup", len(integrations_list))
     except Exception as exc:
         logger.warning("Could not reschedule integrations on startup: %s", exc)
 

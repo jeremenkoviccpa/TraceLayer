@@ -14,18 +14,24 @@ def schedule_integration(
     company_id: str,
     integration_type: str,
     interval_hours: int = 24,
+    run_now: bool = False,
 ) -> None:
+    from datetime import datetime, timezone, timedelta
     job_id = f"collect_{company_id}_{integration_type}"
-    scheduler.add_job(
-        run_collector_job,
-        "interval",
+    # run_now=True: fire 30s after scheduling (used on connect or startup retry)
+    next_run = datetime.now(timezone.utc) + timedelta(seconds=30) if run_now else None
+    kwargs: dict = dict(
+        trigger="interval",
         hours=interval_hours,
         args=[company_id, integration_type],
         id=job_id,
         replace_existing=True,
-        misfire_grace_time=3600,  # allow up to 1h late if server was down
+        misfire_grace_time=3600,
     )
-    logger.info("Scheduled collection: %s every %dh", job_id, interval_hours)
+    if next_run:
+        kwargs["next_run_time"] = next_run
+    scheduler.add_job(run_collector_job, **kwargs)
+    logger.info("Scheduled collection: %s every %dh%s", job_id, interval_hours, " (immediate)" if run_now else "")
 
 
 def unschedule_integration(company_id: str, integration_type: str) -> None:
