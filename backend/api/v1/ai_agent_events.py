@@ -130,12 +130,7 @@ async def ingest_event(
     db: AsyncSession = Depends(get_db),
 ):
     """Ingest endpoint for AI agents to self-report actions. Authenticated by API key in Authorization header."""
-    import hashlib
-    from fastapi import Request
-    from fastapi.security.utils import get_authorization_scheme_param
-    import starlette.requests
-
-    # We can't use Depends here without a Request — handled manually
+    # Use /ingest-key?key=<raw_api_key> instead — this stub exists for discoverability.
     raise HTTPException(status_code=501, detail="Use POST /v1/ai-agent-events/ingest-key")
 
 
