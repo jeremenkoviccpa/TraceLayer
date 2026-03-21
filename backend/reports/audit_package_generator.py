@@ -342,9 +342,9 @@ def _risk_heatmap(risks: list[dict], W: float, st: dict) -> Table:
                 if len(in_cell) > 1:
                     names += f" +{len(in_cell)-1}"
                 text_color = RED_DARK if zone in ("Critical", "High") else AMBER_DARK
-                cell_p = Paragraph(names, ParagraphStyle(f"hmc_{l}_{j}", fontName="Helvetica-Bold", fontSize=6, textColor=text_color, alignment=TA_CENTER))
+                cell_p = Paragraph(names, ParagraphStyle(f"hmc_{lh}_{j}", fontName="Helvetica-Bold", fontSize=6, textColor=text_color, alignment=TA_CENTER))
             else:
-                cell_p = Paragraph(zone, ParagraphStyle(f"hme_{l}_{j}", fontName="Helvetica", fontSize=6, textColor=GRAY_500, alignment=TA_CENTER))
+                cell_p = Paragraph(zone, ParagraphStyle(f"hme_{lh}_{j}", fontName="Helvetica", fontSize=6, textColor=GRAY_500, alignment=TA_CENTER))
             row.append(cell_p)
             style_cmds.append(("BACKGROUND", (j, row_i), (j, row_i), colors.HexColor(bg_hex)))
         rows.append(row)
