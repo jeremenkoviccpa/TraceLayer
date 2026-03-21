@@ -67,7 +67,7 @@ const CHECKLIST_COLORS: Record<string, { tab: string; badge: string; check: stri
 
 function ComplianceChecklist({ connectedTypes }: { connectedTypes: string[] }) {
   const [framework, setFramework] = useState("soc2");
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const cl = CHECKLISTS[framework];
   const colors = CHECKLIST_COLORS[cl.color];
 
@@ -1551,9 +1551,6 @@ export default function IntegrationsPage() {
         </div>
       )}
 
-      {/* Compliance checklist */}
-      <ComplianceChecklist connectedTypes={integrations.map((i) => i.integration_type)} />
-
       {/* Search */}
       <div className="relative mb-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"/>
@@ -1589,6 +1586,11 @@ export default function IntegrationsPage() {
             <p className="text-sm">No integrations match &ldquo;{search}&rdquo;</p>
           </div>
         )}
+      </div>
+
+      {/* Compliance checklist — collapsed by default, at the bottom */}
+      <div className="mt-10">
+        <ComplianceChecklist connectedTypes={integrations.map((i) => i.integration_type)} />
       </div>
     </div>
   );
