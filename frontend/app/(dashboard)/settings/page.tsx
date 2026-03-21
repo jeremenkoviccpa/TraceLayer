@@ -452,10 +452,11 @@ export default function SettingsPage() {
     if (!apiKeyName.trim()) return;
     setApiKeyCreating(true);
     try {
-      const { key, raw_key } = await api.createApiKey(apiKeyName.trim());
-      setApiKeys((prev) => [key, ...prev]);
+      const data = await api.createApiKey(apiKeyName.trim());
+      const newKey: ApiKey = { id: data.id, name: data.name, key_prefix: data.key_prefix, created_at: data.created_at, last_used_at: null };
+      setApiKeys((prev) => [newKey, ...prev]);
       setApiKeyName("");
-      setNewRawKey(raw_key);
+      setNewRawKey(data.raw_key);
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : "Failed to create API key", "error");
     } finally {
@@ -1652,7 +1653,7 @@ export default function SettingsPage() {
                 <div key={k.id} className="flex items-center justify-between gap-3 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-gray-800 truncate">{k.name}</p>
-                    <p className="text-xs text-gray-400 font-mono mt-0.5">{k.prefix}****</p>
+                    <p className="text-xs text-gray-400 font-mono mt-0.5">{k.key_prefix}****</p>
                     <p className="text-xs text-gray-400 mt-0.5">
                       Created {new Date(k.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                       {" · "}

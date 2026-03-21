@@ -828,7 +828,7 @@ class ApiClient {
 
   // ── API Keys ──────────────────────────────────────────────────────────────
   async getApiKeys(): Promise<ApiKey[]> { return this.request("GET", "/api-keys"); }
-  async createApiKey(name: string): Promise<{ key: ApiKey; raw_key: string }> { return this.request("POST", "/api-keys", { name }); }
+  async createApiKey(name: string): Promise<{ id: string; name: string; key_prefix: string; raw_key: string; created_at: string }> { return this.request("POST", "/api-keys", { name }); }
   async revokeApiKey(id: string): Promise<void> { return this.request("DELETE", `/api-keys/${id}`); }
 
   // ── Super-Admin ───────────────────────────────────────────────────────────
