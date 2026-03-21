@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     backend_url: str = "http://localhost:8000"
     # Observability
     sentry_dsn: str = ""
+    # Internal accounts that bypass billing checks (comma-separated emails in env)
+    internal_admins: List[str] = []
 
     class Config:
         env_file = ".env"

@@ -737,6 +737,10 @@ class ApiClient {
     return json as Evidence;
   }
 
+  async deleteEvidenceBulk(ids: string[]): Promise<void> {
+    return this.request("DELETE", "/evidence/bulk", { ids });
+  }
+
   // ── Partner ────────────────────────────────────────────────────────────────
 
   async getPartnerClients(): Promise<PartnerClient[]> {

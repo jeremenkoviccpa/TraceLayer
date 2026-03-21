@@ -1130,9 +1130,34 @@ export default function IntegrationsPage() {
 
   const handleCollect = async (type: string) => {
     setCollecting(type);
-    try { await api.triggerCollect(type); showToast(`Sync started for ${type}`); }
-    catch (err: unknown) { showToast(err instanceof Error ? err.message : "Failed to start sync"); }
-    finally { setCollecting(null); }
+    const before = integrations.find((i) => i.integration_type === type)?.last_collected_at;
+    try {
+      await api.triggerCollect(type);
+      // Poll every 3s for up to 30s waiting for last_collected_at to update
+      await new Promise<void>((resolve) => {
+        let polls = 0;
+        const timer = setInterval(async () => {
+          polls++;
+          try {
+            const updated = await api.getIntegrations();
+            const current = updated.find((i) => i.integration_type === type);
+            if (current?.last_collected_at !== before || polls >= 10) {
+              clearInterval(timer);
+              setIntegrations(updated);
+              showToast(polls >= 10 ? `Sync running in background` : `${type} synced successfully`);
+              resolve();
+            }
+          } catch {
+            clearInterval(timer);
+            resolve();
+          }
+        }, 3000);
+      });
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Failed to start sync");
+    } finally {
+      setCollecting(null);
+    }
   };
 
   const handleDisconnect = async (type: string) => {

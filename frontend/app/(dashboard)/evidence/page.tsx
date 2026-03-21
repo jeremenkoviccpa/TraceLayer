@@ -12,6 +12,7 @@ import {
   Database,
   RefreshCw,
   Plug,
+  Trash2,
 } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 
@@ -43,43 +44,49 @@ function IntegrationBadge({ name }: { name: string }) {
   );
 }
 
-function EvidenceRow({ evidence }: { evidence: Evidence }) {
+function EvidenceRow({ evidence, selected, onToggle }: {
+  evidence: Evidence;
+  selected: boolean;
+  onToggle: (id: string) => void;
+}) {
   const [expanded, setExpanded] = useState(false);
 
   return (
     <>
-      <tr
-        className="hover:bg-gray-50/80 cursor-pointer transition-colors duration-100"
-        onClick={() => setExpanded((v) => !v)}
-      >
-        <td className="px-5 py-3.5 text-sm">
+      <tr className={`hover:bg-gray-50/80 transition-colors duration-100 ${selected ? "bg-cyan-50/40" : ""}`}>
+        <td className="pl-4 pr-1 py-3.5">
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={() => onToggle(evidence.id)}
+            onClick={(e) => e.stopPropagation()}
+            className="rounded border-gray-300 text-cyan-500 focus:ring-cyan-400/50 cursor-pointer"
+          />
+        </td>
+        <td className="px-4 py-3.5 text-sm cursor-pointer" onClick={() => setExpanded((v) => !v)}>
           <IntegrationBadge name={evidence.integration} />
         </td>
-        <td className="px-5 py-3.5 text-sm font-medium text-gray-800 capitalize">
+        <td className="px-4 py-3.5 text-sm font-medium text-gray-800 capitalize cursor-pointer" onClick={() => setExpanded((v) => !v)}>
           {evidence.control.replace(/_/g, " ")}
         </td>
-        <td className="px-5 py-3.5 text-sm text-gray-500">{evidence.evidence_type}</td>
-        <td className="px-5 py-3.5 text-sm text-gray-400 max-w-xs truncate font-mono text-xs">
+        <td className="px-4 py-3.5 text-sm text-gray-500 cursor-pointer" onClick={() => setExpanded((v) => !v)}>{evidence.evidence_type}</td>
+        <td className="px-4 py-3.5 text-sm text-gray-400 max-w-xs truncate font-mono text-xs cursor-pointer" onClick={() => setExpanded((v) => !v)}>
           {evidence.source_id}
         </td>
-        <td className="px-5 py-3.5 text-sm text-gray-400">
+        <td className="px-4 py-3.5 text-sm text-gray-400 cursor-pointer" onClick={() => setExpanded((v) => !v)}>
           {new Date(evidence.timestamp).toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
             year: "numeric",
           })}
         </td>
-        <td className="px-5 py-3.5 text-gray-300">
-          {expanded ? (
-            <ChevronUp className="w-4 h-4 text-cyan-500" />
-          ) : (
-            <ChevronDown className="w-4 h-4" />
-          )}
+        <td className="px-4 py-3.5 text-gray-300 cursor-pointer" onClick={() => setExpanded((v) => !v)}>
+          {expanded ? <ChevronUp className="w-4 h-4 text-cyan-500" /> : <ChevronDown className="w-4 h-4" />}
         </td>
       </tr>
       {expanded && (
         <tr>
-          <td colSpan={6} className="px-5 pb-4 bg-slate-50/60">
+          <td colSpan={7} className="px-5 pb-4 bg-slate-50/60">
             <div className="border-l-2 border-cyan-400 pl-4 mt-1">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
                 Raw Evidence Data
@@ -119,6 +126,8 @@ export default function EvidencePage() {
   const [integration, setIntegration] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [deleting, setDeleting] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -134,8 +143,40 @@ export default function EvidencePage() {
       .finally(() => setLoading(false));
   };
 
+  const toggleSelect = (id: string) => setSelected((prev) => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
+
+  const toggleSelectAll = () => {
+    if (!data) return;
+    const pageIds = data.items.map((e) => e.id);
+    const allSelected = pageIds.every((id) => selected.has(id));
+    setSelected((prev) => {
+      const next = new Set(prev);
+      pageIds.forEach((id) => allSelected ? next.delete(id) : next.add(id));
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    if (!selected.size || !confirm(`Delete ${selected.size} evidence record(s)? This cannot be undone.`)) return;
+    setDeleting(true);
+    try {
+      await api.deleteEvidenceBulk([...selected]);
+      setSelected(new Set());
+      load();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   useEffect(() => {
     setPage(1);
+    setSelected(new Set());
   }, [control, integration]);
 
   useEffect(() => {
@@ -260,11 +301,23 @@ export default function EvidencePage() {
             ))}
           </select>
 
-          {data && (
-            <span className="ml-auto text-sm text-gray-400 self-center">
-              {data.total.toLocaleString()} records
-            </span>
-          )}
+          <div className="ml-auto flex items-center gap-3">
+            {selected.size > 0 && (
+              <button
+                onClick={handleBulkDelete}
+                disabled={deleting}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors disabled:opacity-50"
+              >
+                <Trash2 className="w-3.5 h-3.5"/>
+                {deleting ? "Deleting…" : `Delete ${selected.size}`}
+              </button>
+            )}
+            {data && (
+              <span className="text-sm text-gray-400">
+                {data.total.toLocaleString()} records
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Content */}
@@ -295,27 +348,35 @@ export default function EvidencePage() {
               <table className="w-full min-w-[540px]">
                 <thead>
                   <tr className="border-b border-gray-100">
-                    <th className="px-5 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    <th className="pl-4 pr-1 py-3">
+                      <input
+                        type="checkbox"
+                        checked={data.items.length > 0 && data.items.every((e) => selected.has(e.id))}
+                        onChange={toggleSelectAll}
+                        className="rounded border-gray-300 text-cyan-500 focus:ring-cyan-400/50 cursor-pointer"
+                      />
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
                       Integration
                     </th>
-                    <th className="px-5 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
                       Control
                     </th>
-                    <th className="px-5 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
                       Type
                     </th>
-                    <th className="px-5 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
                       Source ID
                     </th>
-                    <th className="px-5 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
                       Date
                     </th>
-                    <th className="px-5 py-3" />
+                    <th className="px-4 py-3" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {data.items.map((e) => (
-                    <EvidenceRow key={e.id} evidence={e} />
+                    <EvidenceRow key={e.id} evidence={e} selected={selected.has(e.id)} onToggle={toggleSelect} />
                   ))}
                 </tbody>
               </table>

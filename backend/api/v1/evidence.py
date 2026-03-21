@@ -6,6 +6,8 @@ from typing import Optional
 
 import httpx
 from fastapi import APIRouter, Depends, Form, HTTPException, Query, UploadFile
+from pydantic import BaseModel
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
@@ -105,3 +107,25 @@ async def upload_evidence_file(
     await db.commit()
     await db.refresh(evidence)
     return evidence
+
+
+class BulkDeleteRequest(BaseModel):
+    ids: list[uuid.UUID]
+
+
+@router.delete("/bulk", status_code=204)
+async def delete_evidence_bulk(
+    body: BulkDeleteRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete multiple evidence records by ID. Only deletes records owned by the caller's company."""
+    if not body.ids:
+        return
+    await db.execute(
+        delete(Evidence).where(
+            Evidence.id.in_(body.ids),
+            Evidence.company_id == current_user.company_id,
+        )
+    )
+    await db.commit()

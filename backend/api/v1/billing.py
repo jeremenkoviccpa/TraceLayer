@@ -26,17 +26,8 @@ async def create_checkout(
     db: AsyncSession = Depends(get_db),
 ):
     """Return a hosted Paddle checkout URL for upgrading to Growth."""
-    import os
-    from core.config import settings as _s
-    logger.info("PADDLE DEBUG key=%s price=%s sandbox=%s | RAW_KEY=%s RAW_PRICE=%s",
-                _s.paddle_sk[:12] if _s.paddle_sk else "EMPTY",
-                _s.paddle_growth_price_id or "EMPTY",
-                _s.paddle_sandbox,
-                os.environ.get("PADDLE_SK", "NOT_IN_ENV")[:12],
-                os.environ.get("PADDLE_GROWTH_PRICE_ID", "NOT_IN_ENV"))
     try:
         url = await create_checkout_url(current_user.company_id, current_user.email)
-        logger.info("PADDLE CHECKOUT URL: %s", url)
     except ValueError as exc:
         logger.error("PADDLE CONFIG ERROR: %s", exc)
         raise HTTPException(status_code=503, detail=str(exc))
@@ -56,9 +47,8 @@ async def get_subscription(
     company = result.scalar_one_or_none()
     if not company:
         raise HTTPException(status_code=404, detail="Company not found")
-    # Internal accounts always get Growth (frontend also short-circuits for these emails)
-    INTERNAL_ADMINS = {"admin@tracelayer.it.com", "jeremenkovic23@gmail.com"}
-    effective_plan = "growth" if current_user.email in INTERNAL_ADMINS else company.plan
+    from core.config import settings
+    effective_plan = "growth" if current_user.email in settings.internal_admins else company.plan
     return {
         "plan": effective_plan,
         "subscription_status": company.subscription_status,

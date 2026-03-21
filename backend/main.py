@@ -99,9 +99,15 @@ async def _seed_demo_data() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Config: frontend_url=%s backend_url=%s", settings.app_frontend_url, settings.backend_url)
-    logger.info("Config: paddle_sk=%s growth_price=%s",
-                bool(settings.paddle_sk), settings.paddle_growth_price_id)
+    logger.info("Config: env=%s frontend_url=%s", settings.app_env, settings.app_frontend_url)
+    if settings.app_env == "production":
+        missing = [v for v, k in [
+            ("PADDLE_SK", settings.paddle_sk),
+            ("PADDLE_GROWTH_PRICE_ID", settings.paddle_growth_price_id),
+            ("PADDLE_WEBHOOK_SECRET", settings.paddle_webhook_secret),
+        ] if not k]
+        if missing:
+            raise RuntimeError(f"Missing required production config: {', '.join(missing)}")
     await _run_migrations()
     await _seed_demo_data()
     await _reschedule_active_integrations()
@@ -118,7 +124,15 @@ async def lifespan(app: FastAPI):
     await stop_scheduler()
 
 
-app = FastAPI(title="TraceLayer API", version="1.0.0", lifespan=lifespan)
+_is_prod = settings.app_env == "production"
+app = FastAPI(
+    title="TraceLayer API",
+    version="1.0.0",
+    lifespan=lifespan,
+    docs_url=None if _is_prod else "/docs",
+    redoc_url=None if _is_prod else "/redoc",
+    openapi_url=None if _is_prod else "/openapi.json",
+)
 
 # Rate limiting
 app.state.limiter = limiter
