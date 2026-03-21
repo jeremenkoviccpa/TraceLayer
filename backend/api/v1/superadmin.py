@@ -242,33 +242,28 @@ async def delete_company(
     )
     await db.commit()
 
-    # Delete in FK-safe order:
-    # 1. Tokens/sessions that reference users (must go before users)
-    await db.execute(text("""
-        DELETE FROM email_verification_tokens
-        WHERE user_id IN (SELECT id FROM users WHERE company_id = :cid)
-    """), {"cid": company_id})
-    await db.execute(text("""
-        DELETE FROM password_reset_tokens
-        WHERE user_id IN (SELECT id FROM users WHERE company_id = :cid)
-    """), {"cid": company_id})
-    await db.execute(text("""
-        DELETE FROM refresh_tokens
-        WHERE user_id IN (SELECT id FROM users WHERE company_id = :cid)
-    """), {"cid": company_id})
-    # 2. All company-scoped tables (in any order — they only FK to companies/users)
-    for tbl in [
-        "access_reviews", "api_keys", "assets", "audit_logs", "audit_sessions",
-        "background_checks", "bcp_records", "compliance_score_snapshots",
-        "data_breaches", "documents", "evidence", "incidents", "integrations",
-        "invitations", "management_reviews", "manual_controls", "notifications",
-        "offboardings", "partner_client_payments", "pen_tests", "policies",
-        "reports", "risks", "ropa_records", "soa_items", "sso_configs",
-        "subject_requests", "training_records", "trust_pages", "vendors",
-        "vulnerabilities",
-    ]:
+    # Discover all tables that have a company_id column (avoids hardcoded names)
+    tbl_result = await db.execute(text("""
+        SELECT table_name FROM information_schema.columns
+        WHERE column_name = 'company_id'
+          AND table_schema = 'public'
+          AND table_name NOT IN ('companies', 'users')
+        ORDER BY table_name
+    """))
+    child_tables = [row[0] for row in tbl_result.fetchall()]
+
+    # 1. Delete all company-scoped child records
+    for tbl in child_tables:
         await db.execute(text(f"DELETE FROM {tbl} WHERE company_id = :cid"), {"cid": company_id})  # noqa: S608
-    # 3. Users, then the company itself
+
+    # 2. Delete tokens/sessions that FK to users (must go before users)
+    for token_tbl in ("email_verification_tokens", "password_reset_tokens", "refresh_tokens"):
+        await db.execute(text(f"""
+            DELETE FROM {token_tbl}
+            WHERE user_id IN (SELECT id FROM users WHERE company_id = :cid)
+        """), {"cid": company_id})  # noqa: S608
+
+    # 3. Users, then the company
     await db.execute(text("DELETE FROM users WHERE company_id = :cid"), {"cid": company_id})
     await db.execute(text("DELETE FROM companies WHERE id = :cid"), {"cid": company_id})
     await db.commit()
