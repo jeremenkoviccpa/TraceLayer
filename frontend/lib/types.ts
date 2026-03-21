@@ -411,6 +411,8 @@ export interface Incident {
   lessons_learned: string | null;
   reporter_user_id: string | null;
   reporter_name: string | null;
+  auto_detected: boolean;
+  detection_key: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -613,6 +613,10 @@ class ApiClient {
     return this.request("DELETE", `/incidents/${id}`);
   }
 
+  async runIncidentDetection(): Promise<{ created: number }> {
+    return this.request<{ created: number }>("POST", "/incidents/detect");
+  }
+
   // ── Assets ────────────────────────────────────────────────────────────────
 
   async getAssets(): Promise<Asset[]> {

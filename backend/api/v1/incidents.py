@@ -34,6 +34,8 @@ def _to_response(incident: Incident, reporter_map: dict) -> IncidentResponse:
         lessons_learned=incident.lessons_learned,
         reporter_user_id=str(reporter_id) if reporter_id else None,
         reporter_name=reporter_name,
+        auto_detected=incident.auto_detected,
+        detection_key=incident.detection_key,
         created_at=incident.created_at,
         updated_at=incident.updated_at,
     )
@@ -152,6 +154,20 @@ async def update_incident(
             reporter_map[row.id] = row.full_name or row.email
 
     return _to_response(incident, reporter_map)
+
+
+@router.post("/detect", status_code=200)
+async def trigger_incident_detection(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Auto-create incident records from pen test findings and long-running critical vulns (admin only)."""
+    if current_user.role not in ("admin", "owner"):
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    from services.auto_detector import run_incident_detection_for_company
+    created = await run_incident_detection_for_company(db, current_user.company_id)
+    return {"created": created}
 
 
 @router.delete("/{incident_id}", status_code=204)

@@ -44,5 +44,7 @@ class IncidentResponse(BaseModel):
     lessons_learned: Optional[str]
     reporter_user_id: Optional[str]
     reporter_name: Optional[str]
+    auto_detected: bool = False
+    detection_key: Optional[str] = None
     created_at: datetime
     updated_at: datetime

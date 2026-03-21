@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Incident } from "@/lib/types";
-import { Siren, Plus, Trash2, X, ChevronDown } from "lucide-react";
+import { Siren, Plus, Trash2, X, ChevronDown, Sparkles, RefreshCw } from "lucide-react";
 
 const SEVERITIES = ["critical", "high", "medium", "low"] as const;
 const STATUSES = ["open", "investigating", "resolved", "closed"] as const;
@@ -35,6 +35,8 @@ export default function IncidentsPage() {
   const [form, setForm]           = useState<Partial<Incident>>(EMPTY);
   const [saving, setSaving]       = useState(false);
   const [expanded, setExpanded]   = useState<string | null>(null);
+  const [detecting, setDetecting] = useState(false);
+  const [detectMsg, setDetectMsg] = useState<string | null>(null);
 
   useEffect(() => {
     api.getIncidents().then(setIncidents).finally(() => setLoading(false));
@@ -65,6 +67,22 @@ export default function IncidentsPage() {
     setIncidents(prev => prev.filter(i => i.id !== id));
   };
 
+  const handleDetect = async () => {
+    setDetecting(true);
+    setDetectMsg(null);
+    try {
+      const result = await api.runIncidentDetection();
+      const fresh = await api.getIncidents();
+      setIncidents(fresh);
+      setDetectMsg(result.created > 0 ? `${result.created} incident${result.created > 1 ? "s" : ""} detected` : "No new incidents found");
+    } catch {
+      setDetectMsg("Detection failed");
+    } finally {
+      setDetecting(false);
+      setTimeout(() => setDetectMsg(null), 4000);
+    }
+  };
+
   const open = incidents.filter(i => i.status === "open" || i.status === "investigating");
   const closed = incidents.filter(i => i.status === "resolved" || i.status === "closed");
 
@@ -77,9 +95,20 @@ export default function IncidentsPage() {
           </h1>
           <p className="text-sm text-gray-500 mt-1">Track and manage security incidents</p>
         </div>
-        <button onClick={openCreate} className="btn-primary gap-2">
-          <Plus className="w-4 h-4" /> New Incident
-        </button>
+        <div className="flex items-center gap-2">
+          {detectMsg && <span className="text-xs text-gray-500">{detectMsg}</span>}
+          <button
+            onClick={handleDetect}
+            disabled={detecting}
+            className="btn-secondary gap-2 disabled:opacity-50"
+          >
+            {detecting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            Auto-detect
+          </button>
+          <button onClick={openCreate} className="btn-primary gap-2">
+            <Plus className="w-4 h-4" /> New Incident
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -216,6 +245,11 @@ function IncidentCard({ incident, expanded, onToggle, onEdit, onDelete }: {
               {incident.status.replace("_", " ")}
             </span>
             <span className="text-sm font-medium text-gray-900 truncate">{incident.title}</span>
+            {incident.auto_detected && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-600 border border-violet-100 shrink-0">
+                <Sparkles className="h-2.5 w-2.5" />Auto
+              </span>
+            )}
           </div>
           {incident.detected_at && (
             <p className="text-xs text-gray-400 mt-0.5">Detected {new Date(incident.detected_at).toLocaleDateString()}</p>
