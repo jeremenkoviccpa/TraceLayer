@@ -1375,8 +1375,41 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch max-w-3xl mx-auto">
 
+            {/* Free */}
+            <div data-animate data-delay="100" className="bg-[var(--card)] border border-black/5 rounded-2xl p-7 shadow-[0_4px_20px_rgba(15,23,42,0.05)] flex flex-col">
+              <p className="text-sm font-bold text-[var(--muted)] mb-1">Free</p>
+              <div className="flex items-baseline gap-1 mb-1.5">
+                <span className="text-4xl font-black text-[var(--ink)]">$0</span>
+                <span className="text-sm text-[var(--muted)]">/mo</span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-500 text-[10px] font-semibold px-2.5 py-1 rounded-full mb-3 border border-gray-200 w-fit">
+                No credit card required
+              </div>
+              <p className="text-xs mb-6 leading-relaxed text-[var(--muted)]">Everything you need to get your compliance program started — SOC 2, risk, policies, and automated evidence.</p>
+              <div className="space-y-2.5 mb-7 flex-1">
+                {[
+                  "SOC 2 framework",
+                  "Up to 3 integrations",
+                  "Up to 3 team members",
+                  "Automated evidence collection",
+                  "Risk register & vendor hub",
+                  "Policy templates & training",
+                  "JSON reports",
+                  "Background & offboarding checks",
+                ].map((f) => (
+                  <div key={f} className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[var(--accent)]" />
+                    <span className="text-xs leading-snug text-[var(--ink)]">{f}</span>
+                  </div>
+                ))}
+              </div>
+              <Link href="/register" className="block text-center text-sm font-semibold py-2.5 rounded-xl transition-colors bg-[color:var(--ink)]/6 hover:bg-[color:var(--ink)]/10 text-[var(--ink)]">
+                Get started free
+              </Link>
+            </div>
+
             {/* Growth */}
-            <div data-animate data-delay="100" className="relative bg-slate-900 border border-slate-800 rounded-2xl p-7 shadow-[0_24px_60px_rgba(15,23,42,0.3)] flex flex-col">
+            <div data-animate data-delay="200" className="relative bg-slate-900 border border-slate-800 rounded-2xl p-7 shadow-[0_24px_60px_rgba(15,23,42,0.3)] flex flex-col">
               {/* Shimmer overlay */}
               <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/4 to-transparent -translate-x-full animate-shimmer" />
@@ -1436,84 +1469,6 @@ export default function LandingPage() {
               <p className="text-center text-[10px] text-white/25 mt-2">Cancel anytime · No contracts</p>
             </div>
 
-            {/* Enterprise */}
-            <div data-animate data-delay="200" className="bg-[var(--card)] border border-black/5 rounded-2xl p-7 shadow-[0_4px_20px_rgba(15,23,42,0.05)] flex flex-col">
-              <p className="text-sm font-bold text-[var(--muted)] mb-1">Enterprise</p>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-4xl font-black text-[var(--ink)]">Custom</span>
-              </div>
-              <p className="text-xs mb-6 leading-relaxed text-[var(--muted)]">For larger orgs with advanced compliance needs, dedicated security teams, and enterprise requirements.</p>
-              <div className="space-y-2.5 mb-7 flex-1">
-                {[
-                  "Everything in Growth",
-                  "Custom integrations",
-                  "SSO / SAML",
-                  "Dedicated CSM",
-                  "SLA guarantee",
-                  "Custom audit reports",
-                ].map((f) => (
-                  <div key={f} className="flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[var(--accent)]" />
-                    <span className="text-xs leading-snug text-[var(--ink)]">{f}</span>
-                  </div>
-                ))}
-              </div>
-              <Link href="/register" className="block text-center text-sm font-semibold py-2.5 rounded-xl transition-colors bg-[color:var(--ink)]/6 hover:bg-[color:var(--ink)]/10 text-[var(--ink)]">
-                Contact sales
-              </Link>
-            </div>
-          </div>
-
-          {/* Free plan note */}
-          <div data-animate data-delay="300" className="mt-8 text-center">
-            <p className="text-sm text-[var(--muted)]">
-              Looking for a free plan?{" "}
-              <Link href="/register" className="text-[var(--accent)] font-semibold hover:underline">
-                Sign up free
-              </Link>
-              {" "}— no credit card needed. Includes SOC 2, automated evidence collection, risk register, policies, training, vendors &amp; more.
-            </p>
-          </div>
-
-          {/* Feature comparison */}
-          <div className="mt-10 max-w-2xl mx-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 font-semibold text-gray-700">Feature</th>
-                  <th className="text-center py-3 font-semibold text-gray-500 w-28">Free</th>
-                  <th className="text-center py-3 font-semibold text-[var(--accent)] w-28">Growth</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {[
-                  ["SOC 2 framework", true, true],
-                  ["ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, NIST", false, true],
-                  ["Integrations", "Up to 3", "Unlimited"],
-                  ["Team members", "Up to 3", "Unlimited"],
-                  ["Automated evidence collection", true, true],
-                  ["Risk register & vendor hub", true, true],
-                  ["Policy templates & training", true, true],
-                  ["JSON reports", true, true],
-                  ["PDF audit reports", false, true],
-                  ["AI compliance advisor", false, true],
-                  ["Trust Center (public page)", false, true],
-                  ["AI Audit Package builder", false, true],
-                  ["Priority support", false, true],
-                  ["SOC 2 Type II evidence window", false, true],
-                ].map(([feature, free, growth]) => (
-                  <tr key={String(feature)} className="hover:bg-gray-50/50">
-                    <td className="py-2.5 text-gray-700">{feature}</td>
-                    <td className="py-2.5 text-center text-gray-400">
-                      {free === true ? <CheckCircle2 className="w-4 h-4 text-emerald-500 mx-auto"/> : free === false ? <span className="text-gray-300">—</span> : <span className="text-xs font-medium text-gray-500">{free}</span>}
-                    </td>
-                    <td className="py-2.5 text-center">
-                      {growth === true ? <CheckCircle2 className="w-4 h-4 text-emerald-500 mx-auto"/> : growth === false ? <span className="text-gray-300">—</span> : <span className="text-xs font-medium text-[var(--accent)]">{growth}</span>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
 
         </div>
