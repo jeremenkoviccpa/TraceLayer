@@ -12,7 +12,9 @@ const TOUR_KEY = "tl_tour_done";
 export default function AppTour() {
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (localStorage.getItem(TOUR_KEY) === "1") return;
+    const forceTour = sessionStorage.getItem("tl_show_tour") === "1";
+    if (!forceTour && localStorage.getItem(TOUR_KEY) === "1") return;
+    sessionStorage.removeItem("tl_show_tour");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let driverObj: any;

@@ -276,6 +276,7 @@ export default function OnboardingPage() {
     try {
       await api.completeOnboarding();
       sessionStorage.setItem("onboarding_done", "true");
+      sessionStorage.setItem("tl_show_tour", "1");
     } catch {
       // non-fatal
     }
