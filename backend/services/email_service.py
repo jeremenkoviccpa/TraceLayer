@@ -549,60 +549,74 @@ def send_weekly_compliance_report(
     # ------------------------------------------------------------------ helpers
     def _score_color(score: int) -> str:
         if score >= 80:
-            return "#10b981"
+            return "#0f766e"   # brand teal
         if score >= 50:
-            return "#f59e0b"
-        return "#ef4444"
+            return "#d97706"   # amber-600
+        return "#dc2626"       # red-600
 
-    def _status_dot_color(status: str) -> str:
-        return {
-            "passing": "#10b981",
-            "warning": "#f59e0b",
-            "failing": "#ef4444",
-        }.get(status, "#94a3b8")
+    def _score_bg(score: int) -> str:
+        if score >= 80:
+            return "#f0fdfa"
+        if score >= 50:
+            return "#fffbeb"
+        return "#fef2f2"
 
-    def _status_label(status: str) -> str:
-        return {
-            "passing": "Passing",
-            "warning": "Warning",
-            "failing": "Failing",
-            "no_evidence": "No Evidence",
-        }.get(status, status.replace("_", " ").title())
+    def _score_bar_bg(score: int) -> str:
+        if score >= 80:
+            return "#ccfbf1"
+        if score >= 50:
+            return "#fde68a"
+        return "#fecaca"
+
+    def _status_pill(status: str) -> str:
+        cfg = {
+            "passing":    ("background:#dcfce7;color:#166534;", "Passing"),
+            "warning":    ("background:#fef9c3;color:#92400e;", "Warning"),
+            "failing":    ("background:#fee2e2;color:#991b1b;", "Failing"),
+            "no_evidence":("background:#f1f5f9;color:#475569;", "No evidence"),
+        }
+        style, label = cfg.get(status, ("background:#f1f5f9;color:#475569;", status.replace("_", " ").title()))
+        return (
+            f'<span style="display:inline-block;{style}font-family:Arial,Helvetica,sans-serif;'
+            f'font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;'
+            f'border-radius:6px;padding:2px 8px;white-space:nowrap;">{label}</span>'
+        )
+
+    def _action_accent(idx: int) -> str:
+        colors = ["#0f766e", "#0d9488", "#0891b2"]
+        return colors[(idx - 1) % len(colors)]
 
     # ------------------------------------------------------------------ framework scorecard columns
-    def _card_colors(score: int):
-        if score >= 80:
-            return "#f0fdf4", "#d1fae5"
-        if score >= 50:
-            return "#fffbeb", "#fde68a"
-        return "#fef2f2", "#fecaca"
-
     num_fw = len(framework_scores)
     scorecard_cells = ""
     for fw in framework_scores:
         score = fw["score"]
         color = _score_color(score)
-        bg, border = _card_colors(score)
+        bg = _score_bg(score)
+        bar_bg = _score_bar_bg(score)
         pct = min(score, 100)
         scorecard_cells += (
-            '<td class="scorecard-cell" style="width:{w}%;padding:6px 5px;vertical-align:top;">'.format(w=round(100 / max(num_fw, 1)))
-            + '<div style="background:{bg};border:1.5px solid {bd};border-radius:12px;padding:18px 12px 14px;text-align:center;">'.format(bg=bg, bd=border)
-            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;'
-            + 'letter-spacing:0.08em;text-transform:uppercase;color:#64748b;margin-bottom:10px;">'
+            '<td class="scorecard-cell" style="width:{w}%;padding:4px 5px;vertical-align:top;">'.format(
+                w=round(100 / max(num_fw, 1))
+            )
+            + '<div style="background:{bg};border-radius:14px;padding:20px 14px 16px;text-align:center;">'.format(bg=bg)
+            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;'
+            + 'letter-spacing:0.1em;text-transform:uppercase;color:#64748b;margin-bottom:12px;">'
             + fw["label"]
             + "</div>"
-            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:40px;font-weight:800;'
-            + 'line-height:1;color:{color};margin-bottom:4px;">{score}</div>'.format(color=color, score=score)
-            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#94a3b8;margin-bottom:12px;">/ 100</div>'
-            + '<div style="background:#e2e8f0;border-radius:99px;height:6px;width:100%;overflow:hidden;">'
-            + '<div style="background:{c};border-radius:99px;height:6px;width:{p}%;"></div>'.format(c=color, p=pct)
+            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:44px;font-weight:800;'
+            + 'line-height:1;color:{color};letter-spacing:-2px;margin-bottom:2px;">{score}</div>'.format(color=color, score=score)
+            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#94a3b8;'
+            + 'margin-bottom:14px;font-weight:600;">/ 100</div>'
+            + '<div style="background:{bar};border-radius:99px;height:5px;width:100%%;overflow:hidden;">'.format(bar=bar_bg)
+            + '<div style="background:{c};border-radius:99px;height:5px;width:{p}%%;"></div>'.format(c=color, p=pct)
             + "</div></div>"
             + "</td>"
         )
 
     # Pad to 3 columns if fewer frameworks passed
     while num_fw < 3:
-        scorecard_cells += '<td class="scorecard-cell" style="width:33%;padding:6px 5px;"></td>'
+        scorecard_cells += '<td class="scorecard-cell" style="width:33%;padding:4px 5px;"></td>'
         num_fw += 1
 
     # ------------------------------------------------------------------ deduplicated controls across frameworks
@@ -615,25 +629,27 @@ def send_weekly_compliance_report(
                 seen_names.add(name)
                 all_controls.append(ctrl)
 
+    # Sort: failing first, then warning, then passing
+    status_order = {"failing": 0, "no_evidence": 1, "warning": 2, "passing": 3}
+    all_controls.sort(key=lambda c: (status_order.get(c.get("status", ""), 4), -c.get("score", 0)))
+
     controls_rows = ""
     for ctrl in all_controls:
         name = ctrl.get("name", "Unknown Control")
         score = ctrl.get("score", 0)
         status = ctrl.get("status", "no_evidence")
         missing = ctrl.get("missing_types", [])
-        dot_color = _status_dot_color(status)
-        status_lbl = _status_label(status)
+        pill = _status_pill(status)
         score_color = _score_color(score)
 
-        # Missing type pills
-        pills_html = ""
-        if missing:
-            pills_html = (
-                '<div style="margin-top:5px;">'
+        missing_pills = ""
+        if missing and status != "passing":
+            missing_pills = (
+                '<div style="margin-top:6px;">'
                 + "".join(
-                    '<span style="display:inline-block;background:#fef2f2;border:1px solid #fecaca;'
-                    'color:#b91c1c;font-family:Arial,Helvetica,sans-serif;font-size:10px;'
-                    'font-weight:600;border-radius:4px;padding:1px 6px;margin:2px 2px 0 0;'
+                    '<span style="display:inline-block;background:#f8fafc;border:1px solid #e2e8f0;'
+                    'color:#64748b;font-family:Arial,Helvetica,sans-serif;font-size:10px;'
+                    'font-weight:600;border-radius:4px;padding:1px 7px;margin:2px 3px 0 0;'
                     'white-space:nowrap;">{}</span>'.format(m.replace("_", " "))
                     for m in missing
                 )
@@ -642,23 +658,19 @@ def send_weekly_compliance_report(
 
         controls_rows += (
             '<tr>'
-            + '<td style="padding:10px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;width:20px;">'
-            + ('<div style="width:10px;height:10px;border-radius:50%;background:{dot};margin-top:3px;'
-            + 'mso-border-radius:50%;display:inline-block;"></div>').format(dot=dot_color)
-            + '</td>'
-            + '<td style="padding:10px 8px 10px 10px;border-bottom:1px solid #f1f5f9;vertical-align:top;">'
-            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;color:#1e293b;">'
+            + '<td style="padding:12px 0;border-bottom:1px solid #f1f5f9;vertical-align:middle;'
+            + 'font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;color:#1e293b;">'
             + name
-            + '</div>'
-            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#64748b;margin-top:2px;">'
-            + status_lbl
-            + '</div>'
-            + pills_html
+            + missing_pills
             + '</td>'
-            + '<td style="padding:10px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;text-align:right;'
-            + 'white-space:nowrap;width:56px;">'
-            + ('<span style="font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:{sc};">'
-            + '{s}%').format(sc=score_color, s=score)
+            + '<td style="padding:12px 0 12px 12px;border-bottom:1px solid #f1f5f9;vertical-align:middle;'
+            + 'text-align:center;white-space:nowrap;width:90px;">'
+            + pill
+            + '</td>'
+            + '<td style="padding:12px 0;border-bottom:1px solid #f1f5f9;vertical-align:middle;'
+            + 'text-align:right;white-space:nowrap;width:52px;">'
+            + '<span style="font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:{sc};">'.format(sc=score_color)
+            + '{s}%'.format(s=score)
             + '</span>'
             + '</td>'
             + '</tr>'
@@ -666,48 +678,93 @@ def send_weekly_compliance_report(
 
     if not controls_rows:
         controls_rows = (
-            '<tr><td colspan="3" style="padding:16px 0;font-family:Arial,Helvetica,sans-serif;'
-            'font-size:14px;color:#94a3b8;text-align:center;">No controls found.</td></tr>'
+            '<tr><td colspan="3" style="padding:20px 0;font-family:Arial,Helvetica,sans-serif;'
+            'font-size:14px;color:#94a3b8;text-align:center;">No controls found yet. Connect your first integration.</td></tr>'
         )
 
     # ------------------------------------------------------------------ top action items (non-passing, max 3)
-    non_passing = [c for c in all_controls if c.get("status") != "passing"]
-    # Sort by score ascending so most critical come first
+    non_passing = [c for c in all_controls if c.get("status") not in ("passing",)]
     non_passing.sort(key=lambda c: c.get("score", 0))
     action_items_html = ""
     for idx, ctrl in enumerate(non_passing[:3], start=1):
         name = ctrl.get("name", "Unknown Control")
         missing = ctrl.get("missing_types", [])
+        accent = _action_accent(idx)
         if missing:
             missing_str = ", ".join(m.replace("_", " ") for m in missing)
-            detail = "Connect an integration that provides: " + missing_str
+            detail = f"Connect an integration that provides: {missing_str}"
         else:
             detail = "Review and update evidence for this control."
 
         action_items_html += (
-            '<tr>'
-            + '<td style="padding:10px 0;vertical-align:top;width:28px;">'
-            + '<div style="width:24px;height:24px;border-radius:50%;background:#0f766e;'
+            # Accent bar cell + content cell inside a wrapper table
+            '<tr><td style="padding:0 0 10px 0;">'
+            + '<table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"'
+            + ' style="background:#f8fafc;border-radius:10px;overflow:hidden;">'
+            + '<tr>'
+            # Left accent bar (faked as a narrow cell with background)
+            + '<td style="width:4px;background:{accent};font-size:0;line-height:0;">&nbsp;</td>'.format(accent=accent)
+            + '<td style="padding:14px 16px;vertical-align:top;">'
+            + '<table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"><tr>'
+            + '<td style="vertical-align:top;width:28px;">'
+            + '<div style="width:24px;height:24px;border-radius:50%;background:{accent};'.format(accent=accent)
             + 'display:inline-block;text-align:center;line-height:24px;'
-            + 'font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;color:#ffffff;">'
+            + 'font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:800;color:#ffffff;">'
             + str(idx)
             + '</div>'
             + '</td>'
-            + '<td style="padding:10px 0 10px 12px;vertical-align:top;">'
-            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#1e293b;">'
+            + '<td style="padding-left:12px;vertical-align:top;">'
+            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#0f172a;margin-bottom:3px;">'
             + name
             + '</div>'
-            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#475569;margin-top:3px;">'
+            + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#64748b;line-height:1.5;">'
             + detail
             + '</div>'
             + '</td>'
-            + '</tr>'
+            + '</tr></table>'
+            + '</td>'
+            + '</tr></table>'
+            + '</td></tr>'
         )
 
     if not action_items_html:
         action_items_html = (
-            '<tr><td colspan="2" style="padding:12px 0;font-family:Arial,Helvetica,sans-serif;'
-            'font-size:14px;color:#10b981;font-weight:600;">All controls are passing. Great work!</td></tr>'
+            '<tr><td style="padding:16px 20px;background:#f0fdfa;border-radius:10px;'
+            'font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#0f766e;">'
+            '&#10003;&nbsp; All controls are passing — great work!</td></tr>'
+        )
+
+    # ------------------------------------------------------------------ alert banner (if issues exist)
+    issue_count = len(non_passing)
+    if issue_count > 0:
+        alert_banner = (
+            '<table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"'
+            ' style="margin-bottom:24px;">'
+            '<tr>'
+            '<td style="background:#fff7ed;border-radius:10px;padding:12px 18px;">'
+            '<table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"><tr>'
+            '<td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#c2410c;">'
+            '&#9888;&nbsp; {n} control{s} need{sp} attention this week'.format(
+                n=issue_count,
+                s="s" if issue_count != 1 else "",
+                sp="" if issue_count != 1 else "s",
+            )
+            + '</td>'
+            + '<td style="text-align:right;white-space:nowrap;">'
+            + '<a href="{url}/compliance" style="font-family:Arial,Helvetica,sans-serif;font-size:12px;'
+            'font-weight:700;color:#0f766e;text-decoration:none;">Fix now &rarr;</a>'.format(url=frontend_url)
+            + '</td>'
+            + '</tr></table>'
+            + '</td></tr></table>'
+        )
+    else:
+        alert_banner = (
+            '<table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"'
+            ' style="margin-bottom:24px;">'
+            '<tr><td style="background:#f0fdfa;border-radius:10px;padding:12px 18px;'
+            'font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#0f766e;">'
+            '&#10003;&nbsp; Everything is passing — you\'re audit-ready!'
+            '</td></tr></table>'
         )
 
     # ------------------------------------------------------------------ assemble HTML
@@ -723,162 +780,156 @@ def send_weekly_compliance_report(
   <title>Weekly Compliance Briefing</title>
   <style type="text/css">
     @media screen and (max-width:600px) {{
-      .email-wrapper {{ padding:16px 8px 0 8px !important; }}
+      .email-wrapper {{ padding:12px 8px 0 8px !important; }}
       .email-container {{ width:100%% !important; max-width:100%% !important; }}
-      .header-cell {{ padding:24px 20px 20px 20px !important; }}
-      .body-cell {{ padding:20px 16px !important; }}
-      .scorecard-cell {{ display:block !important; width:100%% !important; padding:5px 0 !important; box-sizing:border-box !important; }}
-      .cta-table {{ width:100%% !important; }}
-      .cta-td {{ width:100%% !important; display:block !important; }}
-      .cta-link {{ display:block !important; text-align:center !important; padding:16px 20px !important; width:100%% !important; box-sizing:border-box !important; }}
-      .footer-cell {{ padding:20px 12px 24px 12px !important; }}
+      .header-cell {{ padding:28px 20px 24px 20px !important; }}
+      .body-cell {{ padding:20px 16px 24px 16px !important; }}
+      .scorecard-cell {{ display:block !important; width:100%% !important; padding:4px 0 !important; box-sizing:border-box !important; }}
+      .cta-link {{ display:block !important; text-align:center !important; width:100%% !important; box-sizing:border-box !important; padding:16px 20px !important; }}
     }}
   </style>
 </head>
-<body style="margin:0;padding:0;background-color:#f7f1e8;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+<body style="margin:0;padding:0;background-color:#f1f5f9;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
   <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
-         style="background-color:#f7f1e8;min-width:100%%;">
+         style="background-color:#f1f5f9;min-width:100%%;">
     <tr>
-      <td class="email-wrapper" align="center" style="padding:32px 16px 0 16px;">
+      <td class="email-wrapper" align="center" style="padding:36px 16px 0 16px;">
 
         <!-- WORDMARK -->
         <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0"
                style="max-width:600px;width:100%%;">
           <tr>
-            <td align="center" style="padding-bottom:20px;">
-              <div style="font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:800;
+            <td align="left" style="padding-bottom:16px;">
+              <div style="font-family:Arial,Helvetica,sans-serif;font-size:20px;font-weight:800;
                           letter-spacing:-0.5px;color:#0f766e;">TraceLayer</div>
-              <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#94a3b8;
-                          margin-top:3px;letter-spacing:0.04em;">Continuous Compliance Evidence</div>
             </td>
           </tr>
         </table>
 
         <!-- MAIN CARD -->
         <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0"
-               style="max-width:600px;width:100%%;background:#ffffff;border-radius:16px;
-                      mso-border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);
-                      border-collapse:separate;">
-          <tr>
-            <td style="border-radius:16px;mso-border-radius:16px;overflow:hidden;">
+               style="max-width:600px;width:100%%;background:#ffffff;border-radius:18px;
+                      mso-border-radius:18px;overflow:hidden;">
 
-              <!-- GRADIENT HEADER -->
-              <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
+          <!-- DARK GRADIENT HEADER -->
+          <tr>
+            <td class="header-cell"
+                style="background:#0d9488;background:linear-gradient(135deg,#134e4a 0%%,#0d9488 60%%,#0891b2 100%%);
+                       padding:36px 36px 32px 36px;">
+              <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;
+                          letter-spacing:0.15em;text-transform:uppercase;color:#5eead4;
+                          margin-bottom:10px;">Weekly Compliance Briefing</div>
+              <div style="font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:800;
+                          color:#ffffff;line-height:1.15;margin-bottom:8px;letter-spacing:-0.5px;">
+                {company_name}
+              </div>
+              <div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#99f6e4;font-weight:500;">
+                {week_label}
+              </div>
+            </td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td class="body-cell" style="padding:28px 32px 32px 32px;">
+
+              <!-- ALERT BANNER -->
+              {alert_banner}
+
+              <!-- SECTION LABEL: FRAMEWORK SCORES -->
+              <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;
+                          letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;
+                          margin-bottom:12px;">Framework Scores</div>
+
+              <!-- SCORECARDS -->
+              <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
+                     style="border-collapse:collapse;margin-bottom:28px;">
                 <tr>
-                  <td class="header-cell" style="background:#0d9488;
-                             background:linear-gradient(135deg,#0d9488 0%%,#134e4a 100%%);
-                             padding:32px 36px 28px 36px;border-radius:16px 16px 0 0;
-                             mso-border-radius:16px 16px 0 0;">
-                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;
-                                letter-spacing:0.12em;text-transform:uppercase;color:#99f6e4;
-                                margin-bottom:8px;">Weekly Compliance Briefing</div>
-                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:26px;font-weight:800;
-                                color:#ffffff;line-height:1.2;margin-bottom:6px;">{company_name}</div>
-                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#99f6e4;">
-                      {week_label}
-                    </div>
-                  </td>
+                  {scorecard_cells}
                 </tr>
               </table>
 
-              <!-- BODY -->
+              <!-- DIVIDER -->
+              <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
+                     style="margin-bottom:24px;">
+                <tr><td style="border-top:1px solid #e2e8f0;font-size:0;line-height:0;">&nbsp;</td></tr>
+              </table>
+
+              <!-- SECTION LABEL: PRIORITY ACTIONS -->
+              <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;
+                          letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;
+                          margin-bottom:12px;">Priority Actions</div>
+              <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
+                     style="margin-bottom:28px;">
+                {action_items_html}
+              </table>
+
+              <!-- DIVIDER -->
+              <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
+                     style="margin-bottom:24px;">
+                <tr><td style="border-top:1px solid #e2e8f0;font-size:0;line-height:0;">&nbsp;</td></tr>
+              </table>
+
+              <!-- SECTION LABEL: CONTROL STATUS -->
+              <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;
+                          letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;
+                          margin-bottom:4px;">Control Status</div>
+              <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
+                     style="margin-bottom:32px;">
+                {controls_rows}
+              </table>
+
+              <!-- CTA BUTTON -->
               <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td class="body-cell" style="padding:28px 32px;">
-
-                    <!-- FRAMEWORK SCORES LABEL -->
-                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;
-                                letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;
-                                margin-bottom:14px;">Framework Scores</div>
-
-                    <!-- SCORECARDS — stacks to 1-col on mobile -->
-                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
-                           style="border-collapse:collapse;margin-bottom:28px;">
-                      <tr>
-                        {scorecard_cells}
-                      </tr>
-                    </table>
-
-                    <!-- DIVIDER -->
-                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
-                           style="margin-bottom:20px;">
-                      <tr><td style="border-top:1px solid #e2e8f0;font-size:0;line-height:0;">&nbsp;</td></tr>
-                    </table>
-
-                    <!-- CONTROL STATUS -->
-                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;
-                                letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;
-                                margin-bottom:4px;">Control Status</div>
-                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
-                           style="margin-bottom:28px;">
-                      {controls_rows}
-                    </table>
-
-                    <!-- DIVIDER -->
-                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
-                           style="margin-bottom:20px;">
-                      <tr><td style="border-top:1px solid #e2e8f0;font-size:0;line-height:0;">&nbsp;</td></tr>
-                    </table>
-
-                    <!-- ACTION ITEMS -->
-                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;
-                                letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;
-                                margin-bottom:4px;">Priority Action Items</div>
-                    <div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#64748b;
-                                margin-bottom:14px;">Top controls requiring attention this week.</div>
-                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" border="0"
-                           style="margin-bottom:28px;">
-                      {action_items_html}
-                    </table>
-
-                    <!-- CTA BUTTON -->
-                    <table class="cta-table" role="presentation" cellpadding="0" cellspacing="0" border="0"
-                           style="margin:0 auto 4px auto;">
-                      <tr>
-                        <td class="cta-td" align="center"
-                            style="border-radius:10px;mso-border-radius:10px;background:#0f766e;">
-                          <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml"
-                            href="{frontend_url}/compliance"
-                            style="height:50px;v-text-anchor:middle;width:240px;"
-                            arcsize="16%%" stroke="f" fillcolor="#0f766e">
-                            <w:anchorlock/>
-                            <center style="color:#ffffff;font-family:Arial,Helvetica,sans-serif;
-                                           font-size:15px;font-weight:700;">
-                              View full dashboard &rarr;
-                            </center>
-                          </v:roundrect><![endif]-->
-                          <!--[if !mso]><!-->
-                          <a class="cta-link" href="{frontend_url}/compliance"
-                             style="display:inline-block;background:#0f766e;color:#ffffff;
-                                    text-decoration:none;font-family:Arial,Helvetica,sans-serif;
-                                    font-size:15px;font-weight:700;padding:14px 36px;
-                                    border-radius:10px;mso-border-radius:10px;
-                                    letter-spacing:0.01em;">
-                            View full dashboard &rarr;
-                          </a>
-                          <!--<![endif]-->
-                        </td>
-                      </tr>
-                    </table>
-
+                  <td align="center">
+                    <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml"
+                      href="{frontend_url}/compliance"
+                      style="height:50px;v-text-anchor:middle;width:260px;"
+                      arcsize="16%%" stroke="f" fillcolor="#0f766e">
+                      <w:anchorlock/>
+                      <center style="color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;">
+                        View full dashboard &rarr;
+                      </center>
+                    </v:roundrect><![endif]-->
+                    <!--[if !mso]><!-->
+                    <a class="cta-link" href="{frontend_url}/compliance"
+                       style="display:inline-block;background:#0f766e;color:#ffffff;
+                              text-decoration:none;font-family:Arial,Helvetica,sans-serif;
+                              font-size:15px;font-weight:700;padding:15px 40px;
+                              border-radius:10px;mso-border-radius:10px;letter-spacing:0.01em;">
+                      View full dashboard &rarr;
+                    </a>
+                    <!--<![endif]-->
                   </td>
                 </tr>
               </table>
 
             </td>
           </tr>
+
+          <!-- CARD FOOTER STRIP -->
+          <tr>
+            <td style="background:#f8fafc;padding:16px 32px;border-top:1px solid #f1f5f9;">
+              <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#94a3b8;
+                          line-height:1.6;text-align:center;">
+                Sent to admins of <strong style="color:#64748b;">{company_name}</strong> on TraceLayer
+                &nbsp;&middot;&nbsp;
+                <a href="mailto:support@tracelayer.it.com"
+                   style="color:#94a3b8;text-decoration:underline;">support@tracelayer.it.com</a>
+              </div>
+            </td>
+          </tr>
+
         </table>
 
-        <!-- FOOTER -->
+        <!-- OUTER FOOTER -->
         <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0"
                style="max-width:600px;width:100%%;">
           <tr>
-            <td class="footer-cell" align="center" style="padding:20px 16px 28px 16px;">
-              <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#94a3b8;
-                          line-height:1.6;">
-                You&rsquo;re receiving this because you&rsquo;re an admin at
-                <strong style="color:#64748b;">{company_name}</strong> on TraceLayer.
-                &nbsp;&middot;&nbsp;
+            <td align="center" style="padding:20px 16px 36px 16px;">
+              <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#94a3b8;">
+                &copy; 2025 TraceLayer &nbsp;&middot;&nbsp;
                 <a href="#" style="color:#94a3b8;text-decoration:underline;">Unsubscribe</a>
               </div>
             </td>
@@ -892,13 +943,29 @@ def send_weekly_compliance_report(
 </html>""".format(
         company_name=company_name,
         week_label=week_label,
+        alert_banner=alert_banner,
         scorecard_cells=scorecard_cells,
-        controls_rows=controls_rows,
         action_items_html=action_items_html,
+        controls_rows=controls_rows,
         frontend_url=frontend_url,
     )
 
-    _send(to, subject, html)
+    # Plain-text version
+    text_lines = [
+        f"WEEKLY COMPLIANCE BRIEFING — {company_name}",
+        f"{week_label}",
+        "",
+    ]
+    for fw in framework_scores:
+        text_lines.append(f"{fw['label']}: {fw['score']}/100")
+    if non_passing:
+        text_lines += ["", f"{issue_count} control(s) need attention:"]
+        for idx, ctrl in enumerate(non_passing[:3], 1):
+            text_lines.append(f"  {idx}. {ctrl.get('name', 'Unknown Control')}")
+    text_lines += ["", f"View dashboard: {frontend_url}/compliance", ""]
+    text = "\n".join(text_lines)
+
+    _send(to, subject, html, text)
 
 
 def send_control_owner_reminder(
