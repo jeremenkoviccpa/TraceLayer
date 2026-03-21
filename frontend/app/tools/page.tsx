@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Zap, Shield, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Zap, Shield, CheckCircle2, TrendingDown } from "lucide-react";
 import { ComplianceQuiz } from "@/components/compliance-quiz";
 import { GapScanner } from "@/components/gap-scanner";
 
@@ -12,6 +12,7 @@ const TOOLS = [
   {
     id: "readiness",
     anchor: "#readiness",
+    href: null,
     badge: "Automation",
     icon: Zap,
     iconBg: "bg-violet-50 border-violet-100",
@@ -25,6 +26,7 @@ const TOOLS = [
   {
     id: "gap-scanner",
     anchor: "#gap-scanner",
+    href: null,
     badge: "Audit Risk",
     icon: Shield,
     iconBg: "bg-teal-50 border-teal-100",
@@ -34,6 +36,20 @@ const TOOLS = [
     tagline: "10 controls · 2 minutes",
     desc: "Walk through 10 critical SOC 2 controls and see exactly which gaps would be flagged in a real audit — with the exact language your auditor would use.",
     pills: ["Real audit criteria", "Per-control breakdown", "No signup"],
+  },
+  {
+    id: "revenue-impact",
+    anchor: null,
+    href: "/tools/revenue-impact",
+    badge: "Revenue",
+    icon: TrendingDown,
+    iconBg: "bg-orange-50 border-orange-100",
+    iconColor: "text-orange-500",
+    badgeBg: "bg-orange-100 text-orange-700",
+    name: "Revenue Impact Calculator",
+    tagline: "3 questions · 2 minutes",
+    desc: "See the exact dollar value of deals you're losing, fines you're exposed to, and staff time you're burning because of non-compliance. With a clear ROI if you fix it.",
+    pills: ["Personalised to your ARR", "Pipeline analysis", "No signup"],
   },
 ];
 
@@ -97,12 +113,19 @@ export default function ToolsPage() {
       </section>
 
       {/* Tool cards */}
-      <section className="max-w-4xl mx-auto px-6 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <section className="max-w-5xl mx-auto px-6 pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {TOOLS.map((tool) => {
             const Icon = tool.icon;
+            const isRevenue = tool.id === "revenue-impact";
             return (
-              <div key={tool.id} className="bg-white rounded-2xl border border-black/5 shadow-[0_8px_30px_rgba(15,23,42,0.07)] p-6 flex flex-col">
+              <div key={tool.id} className={`bg-white rounded-2xl border shadow-[0_8px_30px_rgba(15,23,42,0.07)] p-6 flex flex-col ${isRevenue ? "border-orange-100 ring-1 ring-orange-100" : "border-black/5"}`}>
+                {isRevenue && (
+                  <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-orange-600 bg-orange-50 border border-orange-100 px-2.5 py-1 rounded-full self-start mb-3">
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                    Most popular
+                  </div>
+                )}
                 <div className="flex items-start gap-4 mb-4">
                   <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 ${tool.iconBg}`}>
                     <Icon className={`w-6 h-6 ${tool.iconColor}`} />
@@ -123,12 +146,21 @@ export default function ToolsPage() {
                     </span>
                   ))}
                 </div>
-                <a
-                  href={tool.anchor}
-                  className="inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm"
-                >
-                  Try it now <ArrowRight className="w-4 h-4" />
-                </a>
+                {tool.href ? (
+                  <Link
+                    href={tool.href}
+                    className={`inline-flex items-center justify-center gap-2 font-semibold py-2.5 rounded-xl transition-colors text-sm ${isRevenue ? "bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white shadow-md shadow-orange-500/20" : "bg-gray-900 hover:bg-gray-800 text-white"}`}
+                  >
+                    Calculate my risk <ArrowRight className="w-4 h-4" />
+                  </Link>
+                ) : (
+                  <a
+                    href={tool.anchor!}
+                    className="inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm"
+                  >
+                    Try it now <ArrowRight className="w-4 h-4" />
+                  </a>
+                )}
               </div>
             );
           })}
