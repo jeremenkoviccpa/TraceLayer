@@ -5,9 +5,160 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { openPaddleCheckout } from "@/lib/paddle";
 import type { BillingInfo, Integration } from "@/lib/types";
-import { CheckCircle2, AlertCircle, Clock, RefreshCw, Trash2, Plus, X, Zap, Lock, Search, BookOpen, ExternalLink } from "lucide-react";
+import { CheckCircle2, AlertCircle, Clock, RefreshCw, Trash2, Plus, X, Zap, Lock, Search, BookOpen, ExternalLink, ChevronDown, ChevronUp, Shield } from "lucide-react";
 
 const FREE_LIMIT = 3;
+
+// ── Compliance checklists ──────────────────────────────────────────────────────
+type ChecklistArea = { area: string; control: string; integrations: string[]; note: string };
+type Checklist = { label: string; color: string; areas: ChecklistArea[] };
+
+const CHECKLISTS: Record<string, Checklist> = {
+  soc2: {
+    label: "SOC 2", color: "blue",
+    areas: [
+      { area: "Identity & Access",     control: "CC6.1–CC6.3", integrations: ["okta","google_workspace","azure_ad","1password"],    note: "Prove MFA is enforced and access is reviewed" },
+      { area: "Endpoint Security",     control: "CC6.8",        integrations: ["jamf","kandji","kolide"],                           note: "Device encryption, MDM enrollment, patch status" },
+      { area: "Source Control",        control: "CC8.1",        integrations: ["github","gitlab","bitbucket"],                      note: "Branch protection, code reviews, no direct pushes to main" },
+      { area: "Vulnerability Mgmt",   control: "CC7.1",        integrations: ["snyk","tenable","crowdstrike","sentinelone"],        note: "Continuous scanning and remediation tracking" },
+      { area: "Monitoring & Alerting", control: "CC7.2",        integrations: ["datadog","new_relic","pagerduty","sentry"],         note: "Alert policies and incident response records" },
+      { area: "Cloud Infrastructure",  control: "CC6.6",        integrations: ["aws","google_cloud","cloudflare","wiz"],            note: "IAM policies, audit logs, network security" },
+      { area: "HR & People",           control: "CC1.4",        integrations: ["bamboohr","rippling"],                             note: "Security training, offboarding, org chart" },
+      { area: "Change Management",     control: "CC8.1",        integrations: ["jira","linear","servicenow"],                      note: "Change tickets and approval workflows" },
+    ],
+  },
+  iso27001: {
+    label: "ISO 27001", color: "emerald",
+    areas: [
+      { area: "Access Control",        control: "A.9",  integrations: ["okta","google_workspace","azure_ad","aws"],     note: "Identity management and least-privilege access" },
+      { area: "Cryptography",          control: "A.10", integrations: ["aws","google_cloud","vault"],                   note: "Encryption at rest and in transit" },
+      { area: "Operations Security",   control: "A.12", integrations: ["datadog","cloudflare","pagerduty","sentry"],    note: "Monitoring, logging, and capacity management" },
+      { area: "Secure Development",    control: "A.14", integrations: ["github","gitlab","snyk"],                       note: "Secure SDLC and vulnerability scanning" },
+      { area: "Supplier Relationships",control: "A.15", integrations: ["jira","servicenow"],                           note: "Third-party access and change control" },
+      { area: "HR Security",           control: "A.7",  integrations: ["bamboohr","rippling"],                         note: "Security training and lifecycle management" },
+    ],
+  },
+  gdpr: {
+    label: "GDPR", color: "purple",
+    areas: [
+      { area: "Security of Processing", control: "Art. 32", integrations: ["aws","google_cloud","cloudflare"],         note: "Encryption and access controls for personal data" },
+      { area: "Privacy by Design",      control: "Art. 25", integrations: ["github","gitlab","snyk"],                  note: "Privacy built into development practices" },
+      { area: "Data Breach Detection",  control: "Art. 33", integrations: ["datadog","sentry","crowdstrike"],           note: "Detect and report breaches within 72 hours" },
+      { area: "Workforce Controls",     control: "Art. 29", integrations: ["bamboohr","rippling","okta"],              note: "Staff training and authorised access only" },
+    ],
+  },
+  hipaa: {
+    label: "HIPAA", color: "rose",
+    areas: [
+      { area: "Access Controls",        control: "§164.312(a)", integrations: ["okta","google_workspace","aws"],        note: "Unique user IDs, auto-logoff, encryption" },
+      { area: "Audit Controls",         control: "§164.312(b)", integrations: ["aws","datadog","cloudflare"],           note: "Hardware, software, and network audit logs" },
+      { area: "Risk Management",        control: "§164.308(a)", integrations: ["snyk","tenable","crowdstrike"],         note: "Ongoing vulnerability management and risk analysis" },
+      { area: "Workforce Security",     control: "§164.308(a)", integrations: ["bamboohr","jamf","kandji"],             note: "Training completion and device security" },
+    ],
+  },
+};
+
+const CHECKLIST_COLORS: Record<string, { tab: string; badge: string; check: string; bar: string }> = {
+  blue:    { tab: "bg-blue-600 text-white",    badge: "bg-blue-50 text-blue-700 border-blue-100",    check: "text-blue-500",    bar: "bg-blue-500" },
+  emerald: { tab: "bg-emerald-600 text-white", badge: "bg-emerald-50 text-emerald-700 border-emerald-100", check: "text-emerald-500", bar: "bg-emerald-500" },
+  purple:  { tab: "bg-purple-600 text-white",  badge: "bg-purple-50 text-purple-700 border-purple-100", check: "text-purple-500",  bar: "bg-purple-500" },
+  rose:    { tab: "bg-rose-600 text-white",    badge: "bg-rose-50 text-rose-700 border-rose-100",    check: "text-rose-500",    bar: "bg-rose-500" },
+};
+
+function ComplianceChecklist({ connectedTypes }: { connectedTypes: string[] }) {
+  const [framework, setFramework] = useState("soc2");
+  const [open, setOpen] = useState(true);
+  const cl = CHECKLISTS[framework];
+  const colors = CHECKLIST_COLORS[cl.color];
+
+  const covered = cl.areas.filter((a) => a.integrations.some((t) => connectedTypes.includes(t)));
+  const pct = cl.areas.length ? Math.round((covered.length / cl.areas.length) * 100) : 0;
+
+  return (
+    <div className="bg-white border border-gray-100 shadow-card rounded-2xl mb-6 overflow-hidden">
+      {/* Header */}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-gray-50/60 transition-colors"
+      >
+        <div className="flex items-center gap-2.5">
+          <Shield className="w-4 h-4 text-brand-600 shrink-0" />
+          <span className="text-sm font-semibold text-gray-800">Compliance setup guide</span>
+          <span className="text-xs text-gray-400">— which integrations you need per framework</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold text-gray-500">{covered.length}/{cl.areas.length} areas covered</span>
+          {open ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+        </div>
+      </button>
+
+      {open && (
+        <div className="px-5 pb-5 border-t border-gray-50">
+          {/* Framework tabs */}
+          <div className="flex gap-1.5 mt-4 mb-4 flex-wrap">
+            {Object.entries(CHECKLISTS).map(([key, val]) => (
+              <button
+                key={key}
+                onClick={() => setFramework(key)}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
+                  framework === key
+                    ? CHECKLIST_COLORS[val.color].tab
+                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                }`}
+              >
+                {val.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Progress bar */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-gray-500">{cl.label} coverage</span>
+              <span className="text-xs font-semibold text-gray-700">{pct}%</span>
+            </div>
+            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div className={`h-full rounded-full transition-all duration-500 ${colors.bar}`} style={{ width: `${pct}%` }} />
+            </div>
+          </div>
+
+          {/* Areas */}
+          <div className="space-y-2">
+            {cl.areas.map((area) => {
+              const isCovered = area.integrations.some((t) => connectedTypes.includes(t));
+              const connectedHere = area.integrations.filter((t) => connectedTypes.includes(t));
+              return (
+                <div key={area.area} className={`rounded-xl border px-4 py-3 flex items-start gap-3 ${isCovered ? "bg-gray-50/60 border-gray-100" : "bg-white border-gray-100"}`}>
+                  <div className={`mt-0.5 shrink-0 ${isCovered ? colors.check : "text-gray-300"}`}>
+                    <CheckCircle2 className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`text-xs font-semibold ${isCovered ? "text-gray-700" : "text-gray-600"}`}>{area.area}</span>
+                      <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${colors.badge}`}>{area.control}</span>
+                      {isCovered && <span className="text-[10px] text-emerald-600 font-semibold">✓ covered by {connectedHere.join(", ")}</span>}
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-0.5">{area.note}</p>
+                    {!isCovered && (
+                      <div className="flex gap-1 mt-1.5 flex-wrap">
+                        {area.integrations.slice(0, 4).map((t) => (
+                          <span key={t} className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-medium">{t}</span>
+                        ))}
+                        {area.integrations.length > 4 && (
+                          <span className="text-[10px] text-gray-400">+{area.integrations.length - 4} more</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ── Brand logo badges (inline SVG, no external images) ────────────────────────
 type LogoCfg = { bg: string; label: string; svg?: (s: number) => React.ReactNode };
@@ -1399,6 +1550,9 @@ export default function IntegrationsPage() {
           </button>
         </div>
       )}
+
+      {/* Compliance checklist */}
+      <ComplianceChecklist connectedTypes={integrations.map((i) => i.integration_type)} />
 
       {/* Search */}
       <div className="relative mb-6">
