@@ -461,6 +461,35 @@ const LOGO_CONFIG: Record<string, LogoCfg> = {
   secureframe:  { bg: "#0070F3", label: "SF" },
   drata:        { bg: "#4B48ED", label: "DR" },
   opsgenie:     { bg: "#0052CC", label: "OG" },
+  // ── Second batch ───────────────────────────────────────────────────────────
+  auth0:        { bg: "#EB5424", label: "A0" },
+  doppler:      { bg: "#3C1DCF", label: "DP" },
+  ping_identity:{ bg: "#C8112A", label: "PI" },
+  zscaler:      { bg: "#0076BC", label: "ZS" },
+  render:       { bg: "#46E3B7", label: "RN",
+    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="#1a1a2e" fontFamily="system-ui" fontWeight="800" fontSize={s*0.38}>R</text>,
+  },
+  flyio:        { bg: "#7C3AED", label: "FLY" },
+  netlify:      { bg: "#00C7B7", label: "NL",
+    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.35}>NL</text>,
+  },
+  oracle_cloud: { bg: "#C74634", label: "OCI" },
+  veracode:     { bg: "#009900", label: "VC2" },
+  aquasec:      { bg: "#00ADEF", label: "AQ" },
+  bugcrowd:     { bg: "#F26822", label: "BC" },
+  stackhawk:    { bg: "#FC3165", label: "SH" },
+  hibob:        { bg: "#FF4700", label: "HB" },
+  personio:     { bg: "#FF585D", label: "PE" },
+  deel:         { bg: "#1A56DB", label: "DE" },
+  remote:       { bg: "#4950F6", label: "RE" },
+  clickup:      { bg: "#7B68EE", label: "CU" },
+  trello:       { bg: "#0052CC", label: "TR" },
+  microsoft_sentinel: { bg: "#0078D4", label: "MS" },
+  grafana:      { bg: "#F46800", label: "GF" },
+  graylog:      { bg: "#E74C3C", label: "GL2" },
+  snowflake:    { bg: "#29B5E8", label: "SF2" },
+  databricks:   { bg: "#E8252A", label: "DB" },
+  betteruptime: { bg: "#16C784", label: "BU" },
 };
 
 function LogoBadge({ type, size = 42 }: { type: string; size?: number }) {
@@ -576,6 +605,41 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
           { key: "provhash", label: "Provisioning Hash", placeholder: "••••••••••••", type: "password", hint: "Admin Console → Advanced → Enterprise API" },
         ],
       },
+      {
+        type: "auth0", label: "Auth0",
+        description: "Collect users, applications, connections, and log streams for identity management evidence",
+        fields: [
+          { key: "domain", label: "Auth0 Domain", placeholder: "mycompany.auth0.com" },
+          { key: "client_id", label: "Client ID", placeholder: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••", type: "password", hint: "Auth0 Dashboard → Applications → Machine-to-Machine App → Client Credentials" },
+        ],
+      },
+      {
+        type: "doppler", label: "Doppler",
+        description: "Collect projects, secrets access logs, and team member permissions for secrets management evidence",
+        fields: [
+          { key: "api_token", label: "Service Token", placeholder: "dp.st.••••••••", type: "password", hint: "Starts with dp.st. — Doppler → Project → Access → Service Tokens" },
+        ],
+      },
+      {
+        type: "ping_identity", label: "Ping Identity",
+        description: "Collect users, groups, applications, and password policies for identity governance evidence",
+        fields: [
+          { key: "environment_id", label: "Environment ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+          { key: "client_id", label: "Client ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••", type: "password", hint: "PingOne Admin → Applications → Worker App → Client Credentials" },
+        ],
+      },
+      {
+        type: "zscaler", label: "Zscaler",
+        description: "Collect URL filtering policies, firewall rules, SSL inspection settings, and audit logs for network security evidence",
+        fields: [
+          { key: "cloud", label: "Cloud Name", placeholder: "zsapi.zscaler.net", hint: "e.g. zsapi.zscaler.net — from your Zscaler admin URL" },
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password" },
+          { key: "username", label: "Admin Username", placeholder: "admin@mycompany.com" },
+          { key: "password", label: "Admin Password", placeholder: "••••••••••••", type: "password" },
+        ],
+      },
     ],
   },
   {
@@ -645,6 +709,38 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         description: "Collect app inventory, collaborator access, config var encryption, and release audit trail",
         fields: [
           { key: "api_key", label: "API Key", placeholder: "••••••••-••••-••••-••••-••••••••••••", type: "password", hint: "Heroku Dashboard → Account Settings → API Key" },
+        ],
+      },
+      {
+        type: "render", label: "Render",
+        description: "Collect services, deployment history, and team member access for infrastructure and change management evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "rnd_••••••••", type: "password", hint: "Render Dashboard → Account Settings → API Keys → Create API Key" },
+        ],
+      },
+      {
+        type: "flyio", label: "Fly.io",
+        description: "Collect apps, machines, volumes, and organization member access for infrastructure evidence",
+        fields: [
+          { key: "api_token", label: "Access Token", placeholder: "FlyV1 ••••••••", type: "password", hint: "fly auth token or Fly.io Dashboard → Access Tokens" },
+        ],
+      },
+      {
+        type: "netlify", label: "Netlify",
+        description: "Collect sites, deploys, team members, and access controls for change management and infrastructure evidence",
+        fields: [
+          { key: "api_token", label: "Personal Access Token", placeholder: "••••••••••••", type: "password", hint: "Netlify → User Settings → Applications → Personal Access Tokens" },
+        ],
+      },
+      {
+        type: "oracle_cloud", label: "Oracle Cloud",
+        description: "Collect IAM users, groups, policies, compartments, and audit log events for cloud infrastructure evidence",
+        fields: [
+          { key: "tenancy_ocid", label: "Tenancy OCID", placeholder: "ocid1.tenancy.oc1..aaaa••••••••" },
+          { key: "user_ocid", label: "User OCID", placeholder: "ocid1.user.oc1..aaaa••••••••" },
+          { key: "fingerprint", label: "API Key Fingerprint", placeholder: "xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx" },
+          { key: "private_key", label: "Private Key (PEM)", placeholder: "-----BEGIN RSA PRIVATE KEY-----\n...", type: "textarea", hint: "OCI Console → Identity → Users → API Keys → Add API Key" },
+          { key: "region", label: "Region", placeholder: "us-ashburn-1" },
         ],
       },
     ],
@@ -743,6 +839,21 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         description: "Collect stories, epics, member access, and workflow states for change management evidence",
         fields: [
           { key: "api_token", label: "API Token", placeholder: "••••••••-••••-••••-••••-••••••••••••", type: "password", hint: "Shortcut → Profile → API Tokens → Generate Token" },
+        ],
+      },
+      {
+        type: "clickup", label: "ClickUp",
+        description: "Collect workspaces, spaces, members, and task audit trail for change management and workflow evidence",
+        fields: [
+          { key: "api_token", label: "Personal API Token", placeholder: "pk_••••••••", type: "password", hint: "Starts with pk_ — ClickUp → Profile → Apps → Generate Token" },
+        ],
+      },
+      {
+        type: "trello", label: "Trello",
+        description: "Collect boards, workspace members, and card activity as project governance evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••••••••••••••••••••••" },
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••••••••••••••••••••••", type: "password", hint: "Trello Power-Up Admin → API Key → then authorize token" },
         ],
       },
     ],
@@ -929,6 +1040,73 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
           { key: "api_key", label: "API Key", placeholder: "••••••••-••••-••••-••••-••••••••••••", type: "password", hint: "Opsgenie → Settings → API key management" },
         ],
       },
+      {
+        type: "microsoft_sentinel", label: "Microsoft Sentinel",
+        description: "Collect SIEM incidents, analytics rules, watchlists, and alert history for security monitoring evidence",
+        fields: [
+          { key: "tenant_id", label: "Tenant ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+          { key: "client_id", label: "Client ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••", type: "password" },
+          { key: "subscription_id", label: "Subscription ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+          { key: "resource_group", label: "Resource Group", placeholder: "my-sentinel-rg" },
+          { key: "workspace_name", label: "Workspace Name", placeholder: "my-sentinel-workspace" },
+        ],
+      },
+      {
+        type: "veracode", label: "Veracode",
+        description: "Pull static and dynamic application security scan results as penetration testing and vulnerability management evidence",
+        fields: [
+          { key: "api_id", label: "API ID", placeholder: "••••••••••••••••", hint: "Veracode Platform → API Credentials → Generate API Credentials" },
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••••••••••••••••••••••••••••••••••••••", type: "password" },
+        ],
+      },
+      {
+        type: "aquasec", label: "Aqua Security",
+        description: "Collect container image scan results, runtime policies, and compliance benchmarks for container security evidence",
+        fields: [
+          { key: "server_url", label: "Server URL", placeholder: "https://mycompany.cloud.aquasec.com" },
+          { key: "username", label: "Username", placeholder: "api-user" },
+          { key: "password", label: "Password", placeholder: "••••••••••••", type: "password" },
+        ],
+      },
+      {
+        type: "stackhawk", label: "StackHawk",
+        description: "Pull DAST application scan results and vulnerability findings for continuous security testing evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "hawk.••••••••.••••••••", type: "password", hint: "StackHawk → API Keys → Create API Key" },
+        ],
+      },
+      {
+        type: "bugcrowd", label: "Bugcrowd",
+        description: "Sync bug bounty program reports and remediation timelines as vulnerability disclosure evidence",
+        fields: [
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password", hint: "Bugcrowd → Settings → API Tokens" },
+        ],
+      },
+      {
+        type: "grafana", label: "Grafana",
+        description: "Collect dashboards, alert rules, data sources, and team access for observability and monitoring evidence",
+        fields: [
+          { key: "url", label: "Grafana URL", placeholder: "https://grafana.mycompany.com" },
+          { key: "api_key", label: "Service Account Token", placeholder: "glsa_••••••••", type: "password", hint: "Grafana → Administration → Service Accounts → Add Service Account Token" },
+        ],
+      },
+      {
+        type: "graylog", label: "Graylog",
+        description: "Collect log streams, alert conditions, and user access for log management and SIEM evidence",
+        fields: [
+          { key: "url", label: "Graylog URL", placeholder: "https://graylog.mycompany.com" },
+          { key: "username", label: "Username", placeholder: "admin" },
+          { key: "password", label: "Password", placeholder: "••••••••••••", type: "password" },
+        ],
+      },
+      {
+        type: "betteruptime", label: "Better Uptime",
+        description: "Collect uptime monitors, incident history, and on-call schedules for availability and incident response evidence",
+        fields: [
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password", hint: "Better Stack → Settings → API → Create API Token" },
+        ],
+      },
     ],
   },
   {
@@ -1012,6 +1190,36 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
           { key: "api_key", label: "Harvest API Key", placeholder: "••••••••••••", type: "password", hint: "Greenhouse → Configure → Dev Center → API Credential Management" },
         ],
       },
+      {
+        type: "hibob", label: "HiBob",
+        description: "Collect employee records, org structure, onboarding workflows, and lifecycle events for HR security evidence",
+        fields: [
+          { key: "service_user_id", label: "Service User ID", placeholder: "••••••••••••" },
+          { key: "service_user_token", label: "Service User Token", placeholder: "••••••••••••", type: "password", hint: "HiBob → Settings → Integrations → Service Users → Create Service User" },
+        ],
+      },
+      {
+        type: "personio", label: "Personio",
+        description: "Collect employee profiles, onboarding records, and absence data for people operations evidence",
+        fields: [
+          { key: "client_id", label: "Client ID", placeholder: "••••••••••••" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••", type: "password", hint: "Personio → Settings → Integrations → API Credentials" },
+        ],
+      },
+      {
+        type: "deel", label: "Deel",
+        description: "Collect contractor and employee contracts, offboarding records, and compliance documentation",
+        fields: [
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password", hint: "Deel → Developer → API Tokens → Create Token" },
+        ],
+      },
+      {
+        type: "remote", label: "Remote",
+        description: "Collect global employment records, contractor agreements, and offboarding workflows for HR compliance evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password", hint: "Remote → Settings → Integrations → API Access" },
+        ],
+      },
     ],
   },
   {
@@ -1048,6 +1256,28 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         fields: [
           { key: "cloud_id", label: "Cloud ID", placeholder: "my-deployment:••••••••", hint: "Found in Elastic Cloud → Deployment → Overview" },
           { key: "api_key", label: "API Key", placeholder: "••••••••••••:••••••••••••", type: "password", hint: "Kibana → Stack Management → API Keys → Create API Key (read permissions)" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Data & Analytics",
+    integrations: [
+      {
+        type: "snowflake", label: "Snowflake",
+        description: "Collect user accounts, roles, databases, and warehouse configurations for data access control evidence",
+        fields: [
+          { key: "account", label: "Account Identifier", placeholder: "xy12345.us-east-1", hint: "Found in Snowflake URL: <account>.snowflakecomputing.com" },
+          { key: "username", label: "Username", placeholder: "svc_tracelayer" },
+          { key: "password", label: "Password", placeholder: "••••••••••••", type: "password" },
+        ],
+      },
+      {
+        type: "databricks", label: "Databricks",
+        description: "Collect clusters, users, groups, jobs, and secrets scope configuration for data platform security evidence",
+        fields: [
+          { key: "host", label: "Workspace URL", placeholder: "adb-1234567890.1.azuredatabricks.net", hint: "The hostname of your Databricks workspace (without https://)" },
+          { key: "token", label: "Personal Access Token", placeholder: "dapi••••••••", type: "password", hint: "Databricks → User Settings → Access Tokens → Generate New Token" },
         ],
       },
     ],

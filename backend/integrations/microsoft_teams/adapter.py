@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Microsoft Teams integration adapter via Microsoft Graph API.
 

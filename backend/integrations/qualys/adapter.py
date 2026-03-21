@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Qualys integration via Qualys API v2 (FOD/VM APIs).
 

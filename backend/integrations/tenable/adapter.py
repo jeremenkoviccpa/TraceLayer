@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Tenable.io integration via Tenable REST API.
 
@@ -97,3 +99,23 @@ class TenableIntegration(IntegrationAdapter):
                     ))
 
         return evidence
+
+    def normalize(self, raw_data=None, **kwargs):
+        """Satisfies abstract interface; also works as single-item builder."""
+        if raw_data is not None:
+            return raw_data
+        from datetime import datetime, timezone
+        rt = kwargs.get("resource_type", "unknown")
+        control_map = {
+            "scan": "vulnerability_management",
+            "agent": "infrastructure_security",
+            "user": "access_control",
+        }
+        return {
+            "integration": "tenable",
+            "control": control_map.get(rt, "vulnerability_management"),
+            "evidence_type": f"tenable_{rt}",
+            "source_id": kwargs.get("resource_id", ""),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "data": kwargs.get("data", {}),
+        }
