@@ -80,7 +80,7 @@ async def list_api_keys(
     """List all API keys for the company (raw key is never returned)."""
     result = await db.execute(
         select(ApiKey)
-        .where(ApiKey.company_id == current_user.company_id)
+        .where(ApiKey.company_id == current_user.company_id, ApiKey.revoked == False)  # noqa: E712
         .order_by(ApiKey.created_at.desc())
     )
     keys = result.scalars().all()
