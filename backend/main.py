@@ -14,7 +14,7 @@ from api.v1.admin.framework_updates import router as framework_updates_router
 from collectors.scheduler import schedule_integration
 from collectors.scheduler import start as start_scheduler
 from collectors.scheduler import stop as stop_scheduler
-from collectors.scheduler import schedule_weekly_reports, schedule_daily_alerts, schedule_activation_nudges, schedule_partner_nudges, schedule_risk_detection, schedule_auto_detection, schedule_detection_digest, schedule_control_owner_reminders, schedule_framework_monitor
+from collectors.scheduler import schedule_weekly_reports, schedule_daily_alerts, schedule_activation_nudges, schedule_partner_nudges, schedule_risk_detection, schedule_auto_detection, schedule_detection_digest, schedule_control_owner_reminders, schedule_framework_monitor, schedule_daily_snapshots
 from core.config import settings
 from core.database import AsyncSessionLocal
 from core.limiter import limiter
@@ -131,6 +131,7 @@ async def lifespan(app: FastAPI):
     schedule_detection_digest()
     schedule_control_owner_reminders()
     schedule_framework_monitor()
+    schedule_daily_snapshots()
     yield
     await stop_scheduler()
 

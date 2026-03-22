@@ -21,7 +21,7 @@ from schemas.compliance import (
     UpdateManualControlRequest,
 )
 from services.ai_service import generate_compliance_summary
-from services.compliance_service import get_compliance_score, get_evidence_activity, get_score_history
+from services.compliance_service import get_compliance_score, get_compliance_score_at, get_evidence_activity, get_score_history
 
 logger = logging.getLogger(__name__)
 
@@ -158,6 +158,44 @@ async def score_history(
     db: AsyncSession = Depends(get_db),
 ):
     return await get_score_history(current_user.company_id, framework, days, db)
+
+
+@router.get("/time-machine")
+async def time_machine_score(
+    date: str = Query(..., description="ISO date YYYY-MM-DD — must be in the past"),
+    framework: str = Query("soc2"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Return the compliance score as it was on `date`.
+    Uses evidence.created_at to reconstruct the historical state, so results
+    are accurate as long as evidence records are never hard-deleted.
+    """
+    try:
+        target = datetime.fromisoformat(date)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
+
+    if target.tzinfo is None:
+        target = target.replace(tzinfo=timezone.utc)
+
+    # End of the target day (23:59:59 UTC)
+    as_of = target.replace(hour=23, minute=59, second=59, microsecond=0)
+
+    if as_of >= datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Date must be in the past.")
+
+    historical = await get_compliance_score_at(current_user.company_id, framework, db, as_of)
+    today_data = await get_compliance_score(current_user.company_id, framework, db)
+
+    return {
+        "as_of": date,
+        "framework": framework,
+        "historical": historical,
+        "today_score": today_data["overall_score"],
+        "delta": historical["overall_score"] - today_data["overall_score"],
+    }
 
 
 @router.get("/evidence-activity", response_model=list[EvidenceActivityPoint])

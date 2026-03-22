@@ -166,6 +166,14 @@ export interface ScoreHistoryPoint {
   ts: string;
 }
 
+export interface TimeMachineResult {
+  as_of: string;
+  framework: string;
+  historical: ComplianceScore;
+  today_score: number;
+  delta: number; // historical - today (negative = you were worse then)
+}
+
 export interface EvidenceActivityPoint {
   day: string;
   count: number;

@@ -8,12 +8,12 @@ import {
 import { api } from "@/lib/api";
 import type {
   AuditLog, ComplianceScore, DriftEvent, EvidenceActivityPoint,
-  Integration, ScoreHistoryPoint, ReadinessData,
+  Integration, ScoreHistoryPoint, ReadinessData, TimeMachineResult,
 } from "@/lib/types";
 import Link from "next/link";
 import { Tooltip } from "@/components/ui/tooltip";
 import {
-  ShieldCheck, Plug, AlertCircle, CheckCircle2, Clock,
+  ShieldCheck, Plug, AlertCircle, CheckCircle2, Clock, History,
   TrendingUp, Activity, AlertTriangle, ArrowRight, X,
   PartyPopper, Database, Target, GraduationCap, Building2,
   UserCheck, ShieldAlert, BookOpen, ClipboardList, Zap,
@@ -385,6 +385,10 @@ export default function DashboardPage() {
   const [integrationsExpanded, setIntegrationsExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [scoreLoading, setScoreLoading] = useState(false);
+  const [tmDate, setTmDate] = useState<string | null>(null);
+  const [tmData, setTmData] = useState<TimeMachineResult | null>(null);
+  const [tmLoading, setTmLoading] = useState(false);
+  const [tmPickerOpen, setTmPickerOpen] = useState(false);
   const [onboardingStatus, setOnboardingStatus] = useState<{
     has_integration: boolean; has_evidence: boolean; has_vendor: boolean;
     has_member: boolean; has_training: boolean; has_report: boolean; has_risk: boolean;
@@ -450,6 +454,27 @@ export default function DashboardPage() {
     finally { setScoreLoading(false); }
   };
 
+  const handleTimeMachine = async (date: string) => {
+    setTmPickerOpen(false);
+    setTmDate(date);
+    setTmLoading(true);
+    try {
+      const result = await api.timeMachine(date, framework);
+      setTmData(result);
+    } catch {
+      setTmData(null);
+      setTmDate(null);
+    } finally {
+      setTmLoading(false);
+    }
+  };
+
+  const exitTimeMachine = () => {
+    setTmDate(null);
+    setTmData(null);
+    setTmPickerOpen(false);
+  };
+
   if (loading) {
     return (
       <div className="animate-fade-in space-y-5">
@@ -485,6 +510,12 @@ export default function DashboardPage() {
   const failingControls = compliance?.controls.filter((c) => c.status === "failing" || c.status === "warning") ?? [];
   const score = compliance?.overall_score ?? 0;
 
+  // Time machine: override display values when viewing a historical date
+  const activeCompliance: ComplianceScore | null = tmData ? tmData.historical : compliance;
+  const activeScore = activeCompliance?.overall_score ?? 0;
+  const activePassingControls = activeCompliance?.controls.filter((c) => c.status === "passing").length ?? 0;
+  const activeFailingControls = activeCompliance?.controls.filter((c) => c.status === "failing" || c.status === "warning") ?? [];
+
   const historyData = scoreHistory.map((p) => ({ date: fmtDay(p.ts), score: p.score }));
   // Trim leading zeros so the trend starts where evidence actually begins
   const firstMeaningfulIdx = historyData.findIndex((d) => d.score > 0);
@@ -512,6 +543,40 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {/* Time Machine picker */}
+          <div className="relative">
+            <button
+              onClick={() => setTmPickerOpen((p) => !p)}
+              title="Time Machine — view compliance at a past date"
+              className={`flex items-center gap-2 text-sm font-semibold border px-3 sm:px-3.5 py-2 rounded-xl transition-all ${
+                tmData
+                  ? "bg-violet-600 border-violet-600 text-white hover:bg-violet-700"
+                  : "text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              <History className="w-4 h-4" />
+              <span className="hidden sm:inline">{tmData ? "Time Machine" : "Time Machine"}</span>
+            </button>
+            {tmPickerOpen && (
+              <div className="absolute top-full mt-2 right-0 z-30 bg-white border border-gray-200 rounded-2xl shadow-2xl p-4 w-64">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">View compliance as of</p>
+                <input
+                  type="date"
+                  max={new Date(Date.now() - 86_400_000).toISOString().split("T")[0]}
+                  min="2020-01-01"
+                  defaultValue={tmDate ?? ""}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  onChange={(e) => e.target.value && handleTimeMachine(e.target.value)}
+                />
+                <p className="text-[11px] text-gray-400 mt-2">Score is recomputed from evidence that existed on that date.</p>
+                {tmData && (
+                  <button onClick={exitTimeMachine} className="mt-3 w-full text-xs font-semibold text-red-500 hover:text-red-700 py-1.5 border border-red-100 rounded-xl hover:bg-red-50 transition-colors">
+                    Exit time machine
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
           <Link href="/reports"
             className="flex items-center gap-2 text-sm font-semibold text-gray-600 border border-gray-200 hover:border-gray-300 px-3 sm:px-3.5 py-2 rounded-xl hover:bg-gray-50 transition-all">
             <FileText className="w-4 h-4" /> <span className="hidden sm:inline">Report</span>
@@ -525,6 +590,45 @@ export default function DashboardPage() {
 
       {/* ── Getting started ── */}
       <GettingStarted status={onboardingStatus} />
+
+      {/* ── Time Machine banner ── */}
+      {(tmData || tmLoading) && (
+        <div className={`flex items-center gap-3 rounded-2xl px-4 py-3 border transition-all ${
+          tmLoading
+            ? "bg-violet-50 border-violet-100"
+            : "bg-gradient-to-r from-violet-900 to-violet-800 border-violet-700/40"
+        }`}>
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${tmLoading ? "bg-violet-100" : "bg-white/10"}`}>
+            {tmLoading
+              ? <Clock className="w-4 h-4 text-violet-500 animate-spin" />
+              : <History className="w-4 h-4 text-violet-200" />}
+          </div>
+          {tmLoading ? (
+            <p className="text-sm font-medium text-violet-600 flex-1">Loading historical data…</p>
+          ) : tmData && (
+            <>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-white">
+                  Viewing compliance as of{" "}
+                  {new Date(tmDate! + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                </p>
+                <p className="text-xs text-violet-300 mt-0.5">
+                  Score was <span className="font-bold text-white">{tmData.historical.overall_score}%</span>
+                  {tmData.delta !== 0 && (
+                    <span className={tmData.delta < 0 ? " text-emerald-300" : " text-red-300"}>
+                      {" "}· {tmData.delta < 0 ? `${tmData.delta}pts` : `+${tmData.delta}pts`} vs today ({tmData.today_score}%)
+                    </span>
+                  )}
+                  {tmData.delta === 0 && <span className="text-violet-300"> · same as today</span>}
+                </p>
+              </div>
+              <button onClick={exitTimeMachine} className="shrink-0 text-violet-300 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10">
+                <X className="w-4 h-4" />
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       {/* ── Hero row: Score card + mini stats ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -540,17 +644,24 @@ export default function DashboardPage() {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-brand-500/15 rounded-full blur-3xl pointer-events-none" />
           <div className="relative min-w-0 overflow-y-hidden">
             <div className="flex items-center gap-3 sm:gap-6">
-              <ScoreRing score={scoreLoading ? score : score} />
+              <ScoreRing score={activeScore} />
               <div className="flex-1 min-w-0">
                 <div className="flex flex-col gap-0.5 mb-1">
-                  <span className="text-xs sm:text-sm font-semibold text-white/60">Compliance score</span>
-                  {trend !== null && (
+                  <span className="text-xs sm:text-sm font-semibold text-white/60">
+                    {tmData ? "Compliance score then" : "Compliance score"}
+                  </span>
+                  {!tmData && trend !== null && (
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full w-fit ${trend >= 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
                       {trend >= 0 ? "+" : ""}{trend}% vs prev
                     </span>
                   )}
+                  {tmData && (
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full w-fit ${tmData.delta <= 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+                      {tmData.delta <= 0 ? "" : "+"}{tmData.delta}pts vs today
+                    </span>
+                  )}
                 </div>
-                <p className="text-3xl sm:text-4xl font-black text-white mb-3">{score}<span className="text-xl text-white/30">%</span></p>
+                <p className="text-3xl sm:text-4xl font-black text-white mb-3">{activeScore}<span className="text-xl text-white/30">%</span></p>
 
                 {/* Framework tabs — desktop: scrollable pill row; mobile: active chip + swipe dots */}
                 <div className="hidden sm:block overflow-x-auto no-scrollbar">
@@ -634,21 +745,21 @@ export default function DashboardPage() {
           {/* Mini donut rings */}
           <div className="relative mt-5 pt-4 border-t border-white/10 grid grid-cols-3 gap-2">
             <MiniRing
-              value={passingControls}
-              max={compliance?.controls.length ?? 1}
+              value={activePassingControls}
+              max={activeCompliance?.controls.length ?? 1}
               color="#10b981"
               label="Passing"
-              sub={`of ${compliance?.controls.length ?? 0}`}
+              sub={`of ${activeCompliance?.controls.length ?? 0}`}
             />
             <MiniRing
-              value={failingControls.length}
-              max={compliance?.controls.length ?? 1}
-              color={failingControls.length > 0 ? "#f87171" : "rgba(255,255,255,0.15)"}
+              value={activeFailingControls.length}
+              max={activeCompliance?.controls.length ?? 1}
+              color={activeFailingControls.length > 0 ? "#f87171" : "rgba(255,255,255,0.15)"}
               label="Failing"
-              sub={failingControls.length === 0 ? "none" : "need attention"}
+              sub={activeFailingControls.length === 0 ? "none" : "need attention"}
             />
             <MiniRing
-              value={score}
+              value={activeScore}
               max={100}
               color="#818cf8"
               label="Score"
@@ -678,7 +789,7 @@ export default function DashboardPage() {
           <MiniStat
             icon={Activity}
             label="Controls monitored"
-            value={compliance?.controls.length ?? 0}
+            value={activeCompliance?.controls.length ?? 0}
             sub={`${FRAMEWORKS.find(f => f.value === framework)?.label ?? framework} framework`}
             color="brand"
             tooltip="Number of compliance controls being tracked for this framework"
@@ -686,9 +797,9 @@ export default function DashboardPage() {
           <MiniStat
             icon={AlertTriangle}
             label="Action items"
-            value={failingControls.length}
-            sub={failingControls.length > 0 ? "controls need attention" : "All controls passing"}
-            color={failingControls.length > 0 ? "amber" : "green"}
+            value={activeFailingControls.length}
+            sub={activeFailingControls.length > 0 ? "controls need attention" : "All controls passing"}
+            color={activeFailingControls.length > 0 ? "amber" : "green"}
             tooltip="Controls that are failing or missing evidence and need your attention"
           />
         </div>
@@ -799,21 +910,25 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Control breakdown ── */}
-      {compliance && compliance.controls.length > 0 && (
+      {activeCompliance && activeCompliance.controls.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-brand-50 flex items-center justify-center">
-                <ShieldCheck className="w-3.5 h-3.5 text-brand-600" />
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${tmData ? "bg-violet-50" : "bg-brand-50"}`}>
+                {tmData ? <History className="w-3.5 h-3.5 text-violet-600" /> : <ShieldCheck className="w-3.5 h-3.5 text-brand-600" />}
               </div>
-              <span className="text-sm font-semibold text-gray-800">Control breakdown</span>
+              <span className="text-sm font-semibold text-gray-800">
+                Control breakdown{tmData ? ` · ${new Date(tmDate! + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : ""}
+              </span>
             </div>
-            <Link href="/compliance" className="flex items-center gap-1 text-xs text-brand-600 hover:text-brand-700 font-semibold transition-colors">
-              Full view <ArrowRight className="w-3 h-3" />
-            </Link>
+            {!tmData && (
+              <Link href="/compliance" className="flex items-center gap-1 text-xs text-brand-600 hover:text-brand-700 font-semibold transition-colors">
+                Full view <ArrowRight className="w-3 h-3" />
+              </Link>
+            )}
           </div>
           <div className="space-y-4">
-            {compliance.controls.map((c) => (
+            {activeCompliance.controls.map((c) => (
               <Link key={c.category} href="/compliance" className="block group">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 min-w-0">

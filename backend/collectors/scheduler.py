@@ -181,6 +181,23 @@ def schedule_control_owner_reminders() -> None:
     logger.info("Scheduled control owner reminders (Mon 09:30 UTC)")
 
 
+def schedule_daily_snapshots() -> None:
+    """Nightly snapshot of compliance scores for all companies at 01:00 UTC.
+    Ensures dense historical data for the Time Machine feature."""
+    from services.compliance_service import take_daily_snapshots_all_companies
+
+    scheduler.add_job(
+        take_daily_snapshots_all_companies,
+        "cron",
+        hour=1,
+        minute=0,
+        id="daily_compliance_snapshots",
+        replace_existing=True,
+        misfire_grace_time=3600,
+    )
+    logger.info("Scheduled daily compliance snapshots (01:00 UTC)")
+
+
 def schedule_framework_monitor() -> None:
     """Weekly check of all framework source manifests for updates (Mon 09:00 UTC)."""
     from jobs.framework_monitor_job import run_framework_monitor
