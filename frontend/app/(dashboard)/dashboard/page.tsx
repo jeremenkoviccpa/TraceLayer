@@ -293,20 +293,26 @@ const STATUS_COLOR: Record<string, string> = {
 function DriftFeed({ events }: { events: DriftEvent[] }) {
   if (events.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5 h-full flex flex-col">
+        <div className="flex items-center gap-2 mb-5">
+          <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-gray-900">Compliance Drift</h3>
-            <p className="text-[11px] text-gray-400">Control status changes</p>
           </div>
+          <span className="ml-auto text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">All stable</span>
         </div>
-        <div className="flex flex-col items-center justify-center py-6 gap-2">
-          <ShieldCheck className="w-8 h-8 text-emerald-500" />
-          <p className="text-sm font-medium text-gray-700">All controls stable</p>
-          <p className="text-xs text-gray-400">No status changes detected</p>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3 py-4 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 flex items-center justify-center">
+              <ShieldCheck className="w-7 h-7 text-emerald-500" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-800">No drift detected</p>
+              <p className="text-xs text-gray-400 mt-1">All control statuses are stable — no regressions in the last 30 days.</p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -316,16 +322,14 @@ function DriftFeed({ events }: { events: DriftEvent[] }) {
     <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center">
-            <Activity className="w-4 h-4 text-red-500" />
+          <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
+            <Activity className="w-3.5 h-3.5 text-red-500" />
           </div>
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900">Compliance Drift</h3>
-            <p className="text-[11px] text-gray-400">{events.length} recent change{events.length !== 1 ? "s" : ""}</p>
-          </div>
+          <h3 className="text-sm font-semibold text-gray-900">Compliance Drift</h3>
+          <span className="text-[10px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-md">{events.length} change{events.length !== 1 ? "s" : ""}</span>
         </div>
         {events.some(e => e.is_regression) && (
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-600">
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-50 border border-red-100 text-red-600">
             {events.filter(e => e.is_regression).length} regression{events.filter(e => e.is_regression).length !== 1 ? "s" : ""}
           </span>
         )}
@@ -709,9 +713,9 @@ export default function DashboardPage() {
             )}
           </div>
           <p className="text-[11px] text-gray-400 mb-4 ml-9">Last 30 days · {FRAMEWORKS.find(f => f.value === framework)?.label}</p>
-          {trimmedHistory.length > 1 ? (
+          {historyData.length > 1 ? (
             <ResponsiveContainer width="100%" height={160}>
-              <AreaChart data={trimmedHistory} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+              <AreaChart data={historyData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#0f766e" stopOpacity={0.18} />
@@ -719,7 +723,8 @@ export default function DashboardPage() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="2 4" stroke="#f1f5f9" vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false}
+                  interval={Math.max(0, Math.floor(historyData.length / 6) - 1)} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} tickCount={5} />
                 <RechartsTooltip content={<ChartTooltip unit="pts" />} cursor={{ stroke: "#e2e8f0", strokeWidth: 1 }} />
                 {score > 0 && (
@@ -889,79 +894,96 @@ export default function DashboardPage() {
       {/* ── Recent activity + Recent reports ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        {/* Recent activity */}
+        {/* Recent activity — timeline style */}
         <div className="md:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-brand-500" />
+              <div className="w-7 h-7 rounded-lg bg-sky-50 flex items-center justify-center">
+                <Clock className="w-3.5 h-3.5 text-sky-600" />
+              </div>
               <span className="text-sm font-semibold text-gray-800">Recent activity</span>
             </div>
-            <Link href="/audit" className="text-xs text-brand-600 font-semibold hover:text-brand-700 transition-colors">View all →</Link>
+            <Link href="/audit" className="flex items-center gap-0.5 text-xs text-brand-600 font-semibold hover:text-brand-700 transition-colors">
+              View all <ArrowRight className="w-3 h-3" />
+            </Link>
           </div>
           {recentActivity.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-6 gap-2 text-center">
-              <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center">
-                <Clock className="w-5 h-5 text-gray-300" />
+            <div className="flex flex-col items-center justify-center py-8 gap-3 text-center">
+              <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center">
+                <Clock className="w-5 h-5 text-gray-200" />
               </div>
-              <p className="text-xs text-gray-400">No activity logged yet.</p>
+              <p className="text-sm text-gray-400">No activity logged yet</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {recentActivity.map((entry) => (
-                <div key={entry.id} className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
-                    <ActivityIcon action={entry.action} />
+            <div className="relative">
+              <div className="absolute left-[13px] top-2 bottom-2 w-px bg-gradient-to-b from-gray-200 via-gray-100 to-transparent pointer-events-none" />
+              <div className="space-y-0.5">
+                {recentActivity.map((entry) => (
+                  <div key={entry.id} className="flex items-start gap-3 group rounded-xl hover:bg-gray-50/80 px-2 py-2.5 -mx-2 transition-colors cursor-default">
+                    <div className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0 z-10 shadow-sm group-hover:border-brand-200 group-hover:shadow-none transition-all">
+                      <ActivityIcon action={entry.action} />
+                    </div>
+                    <div className="min-w-0 flex-1 pt-0.5">
+                      <p className="text-xs font-semibold text-gray-800 truncate">{entry.action_label}</p>
+                      <p className="text-[10px] text-gray-400 truncate mt-0.5">{entry.user_email ?? "System"}</p>
+                    </div>
+                    <span className="text-[10px] text-gray-400 shrink-0 pt-1 tabular-nums">{timeAgo(entry.created_at)}</span>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-gray-700 truncate">{entry.action_label}</p>
-                    <p className="text-[10px] text-gray-400 truncate">{entry.user_email ?? "System"}</p>
-                  </div>
-                  <span className="text-[10px] text-gray-400 shrink-0 whitespace-nowrap">{timeAgo(entry.created_at)}</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>
 
         {/* Recent reports */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-brand-500" />
-              <span className="text-sm font-semibold text-gray-800">Recent reports</span>
+              <div className="w-7 h-7 rounded-lg bg-brand-50 flex items-center justify-center">
+                <FileText className="w-3.5 h-3.5 text-brand-600" />
+              </div>
+              <span className="text-sm font-semibold text-gray-800">Reports</span>
             </div>
-            <Link href="/reports" className="text-xs text-brand-600 font-semibold hover:text-brand-700 transition-colors">All →</Link>
+            <Link href="/reports" className="flex items-center gap-0.5 text-xs text-brand-600 font-semibold hover:text-brand-700 transition-colors">
+              All <ArrowRight className="w-3 h-3" />
+            </Link>
           </div>
           {reports.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-6 gap-2.5 text-center">
-              <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-gray-300" />
+            <div className="flex flex-col items-center justify-center py-8 gap-3 text-center">
+              <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-gray-200" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-600 mb-0.5">No reports yet</p>
-                <p className="text-[11px] text-gray-400 leading-relaxed">Generate your first compliance report.</p>
+                <p className="text-sm font-medium text-gray-600">No reports yet</p>
+                <p className="text-[11px] text-gray-400 mt-0.5">Generate your first compliance report</p>
               </div>
-              <Link href="/reports" className="btn-primary text-xs px-4 py-1.5">Generate report</Link>
+              <Link href="/reports" className="text-xs font-semibold text-brand-600 border border-brand-200 hover:bg-brand-50 px-4 py-1.5 rounded-xl transition-colors">
+                Generate report
+              </Link>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-1.5">
               {reports.slice(0, 4).map((r) => (
-                <div key={r.id} className="flex items-start gap-2.5">
-                  <div className="w-7 h-7 rounded-xl bg-brand-50 flex items-center justify-center shrink-0 mt-0.5">
+                <div key={r.id} className="group flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+                  <div className="w-8 h-8 rounded-xl bg-brand-50 flex items-center justify-center shrink-0">
                     <FileText className="w-3.5 h-3.5 text-brand-500" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-gray-700 truncate capitalize">
+                    <p className="text-xs font-semibold text-gray-800 truncate capitalize">
                       {r.report_type.replace(/_/g, " ")} — {r.framework.toUpperCase()}
                     </p>
-                    <p className="text-[10px] text-gray-400">
-                      {r.generated_at ? new Date(r.generated_at).toLocaleDateString() : "Processing…"}
-                    </p>
+                    {r.generated_at ? (
+                      <p className="text-[10px] text-gray-400 mt-0.5">{new Date(r.generated_at).toLocaleDateString()}</p>
+                    ) : (
+                      <p className="text-[10px] text-amber-600 font-medium mt-0.5 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse inline-block" /> Processing…
+                      </p>
+                    )}
                   </div>
                   {r.file_url && (
                     <a href={r.file_url} target="_blank" rel="noopener noreferrer"
-                      className="text-[10px] font-semibold text-brand-600 hover:text-brand-700 shrink-0 mt-1">
-                      ↓
+                      className="w-7 h-7 rounded-lg bg-brand-50 hover:bg-brand-100 flex items-center justify-center transition-colors shrink-0" title="Download">
+                      <span className="text-brand-600 text-sm font-bold leading-none">↓</span>
                     </a>
                   )}
                 </div>
@@ -971,131 +993,147 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Compliance Drift ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <DriftFeed events={driftEvents} />
-      </div>
-
-      {/* ── Bottom row: Quick links + Integrations + Action items ── */}
+      {/* ── Status row: Drift (2/3) + Action Items (1/3) ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-        {/* Quick links */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
-          <p className="text-sm font-semibold text-gray-800 mb-4">Platform</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {QUICK_LINKS.map(({ href, label, icon: Icon, bg, fg }) => (
-              <Link
-                key={href}
-                href={href}
-                className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl hover:bg-gray-50 transition-colors group text-center"
-              >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${bg}`}>
-                  <Icon className={`w-4 h-4 ${fg}`} />
-                </div>
-                <span className="text-[10px] font-semibold text-gray-500 group-hover:text-gray-700 leading-tight">{label}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Integrations */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Plug className="w-4 h-4 text-brand-500" />
-              <span className="text-sm font-semibold text-gray-800">Integrations</span>
-            </div>
-            <Link href="/integrations" className="text-xs text-brand-600 font-semibold hover:text-brand-700">Manage</Link>
-          </div>
-          {integrations.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-5 gap-2.5 text-center">
-              <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center">
-                <Plug className="w-5 h-5 text-gray-300" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-gray-600 mb-0.5">No integrations yet</p>
-                <p className="text-[11px] text-gray-400 leading-relaxed">Connect a tool to start collecting compliance evidence automatically.</p>
-              </div>
-              <Link href="/integrations" className="btn-primary text-xs px-4 py-1.5">
-                Connect first tool
-              </Link>
-            </div>
-          ) : (() => {
-            const LIMIT = 5;
-            const visible = integrationsExpanded ? integrations : integrations.slice(0, LIMIT);
-            const hidden = integrations.length - LIMIT;
-            return (
-              <div className="space-y-3">
-                {visible.map((i) => {
-                  const staleHours = i.last_collected_at
-                    ? (Date.now() - new Date(i.last_collected_at).getTime()) / 36e5
-                    : Infinity;
-                  return (
-                    <div key={i.id} className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className={`w-2 h-2 rounded-full shrink-0 ${i.status === "active" ? "bg-emerald-500" : i.status === "error" ? "bg-red-500" : "bg-gray-300"}`} />
-                        <div className="min-w-0">
-                          <p className="text-xs font-semibold text-gray-700 capitalize truncate">{i.integration_type.replace(/_/g, " ")}</p>
-                          <p className={`text-[10px] ${i.status === "active" ? "text-emerald-600" : i.status === "error" ? "text-red-500" : "text-gray-400"}`}>{i.status}</p>
-                        </div>
-                        {staleHours > 48 && <AlertTriangle className="w-3 h-3 text-amber-400 shrink-0" />}
-                      </div>
-                      {staleBadge(i.last_collected_at)}
-                    </div>
-                  );
-                })}
-                {hidden > 0 && (
-                  <button
-                    onClick={() => setIntegrationsExpanded((v) => !v)}
-                    className="w-full text-xs font-semibold text-brand-600 hover:text-brand-700 transition-colors pt-1 text-left"
-                  >
-                    {integrationsExpanded ? "Show less ↑" : `+${hidden} more ↓`}
-                  </button>
-                )}
-              </div>
-            );
-          })()}
+        <div className="md:col-span-2">
+          <DriftFeed events={driftEvents} />
         </div>
 
         {/* Action items */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle className="w-4 h-4 text-amber-500" />
-            <span className="text-sm font-semibold text-gray-800">Action items</span>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${failingControls.length > 0 ? "bg-amber-50" : "bg-emerald-50"}`}>
+                <AlertTriangle className={`w-3.5 h-3.5 ${failingControls.length > 0 ? "text-amber-500" : "text-emerald-500"}`} />
+              </div>
+              <span className="text-sm font-semibold text-gray-800">Action items</span>
+            </div>
             {failingControls.length > 0 && (
-              <span className="ml-auto text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">{failingControls.length}</span>
+              <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full">
+                {failingControls.length}
+              </span>
             )}
           </div>
           {failingControls.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-6 gap-2 text-center">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+            <div className="flex flex-col gap-3 py-2">
+              <div className="flex items-center gap-2.5 p-3 bg-emerald-50 border border-emerald-100 rounded-xl">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <p className="text-xs font-semibold text-emerald-700">All controls passing</p>
               </div>
-              <p className="text-xs text-gray-400">All controls passing — great work.</p>
+              <p className="text-[11px] text-gray-400 text-center leading-relaxed px-2">
+                No issues detected. Keep collecting evidence daily to maintain your score.
+              </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-1.5">
               {failingControls.slice(0, 5).map((c) => (
-                <Link key={c.category} href="/compliance" className="flex items-start gap-2.5 group">
-                  <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${c.status === "failing" ? "bg-red-400" : "bg-amber-400"}`} />
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold text-gray-700 group-hover:text-brand-600 transition-colors truncate">{c.name}</p>
+                <Link key={c.category} href="/compliance" className="flex items-start gap-2.5 group p-2.5 rounded-xl hover:bg-gray-50 transition-colors -mx-0.5">
+                  <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${c.status === "failing" ? "bg-red-400" : "bg-amber-400"}`} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-gray-800 group-hover:text-brand-600 transition-colors truncate">{c.name}</p>
                     {c.missing_types.length > 0 && (
                       <p className="text-[10px] text-gray-400 mt-0.5 truncate">
                         Missing: {c.missing_types.slice(0, 2).join(", ")}{c.missing_types.length > 2 ? ` +${c.missing_types.length - 2}` : ""}
                       </p>
                     )}
                   </div>
-                  <ChevronRight className="w-3 h-3 text-gray-200 group-hover:text-brand-400 shrink-0 mt-0.5 transition-colors" />
+                  <ChevronRight className="w-3 h-3 text-gray-300 group-hover:text-brand-400 shrink-0 mt-1 transition-colors" />
                 </Link>
               ))}
               {failingControls.length > 5 && (
-                <Link href="/compliance" className="text-xs text-brand-600 font-semibold hover:underline">
+                <Link href="/compliance" className="block text-xs text-center text-brand-600 font-semibold hover:text-brand-700 pt-1">
                   +{failingControls.length - 5} more →
                 </Link>
               )}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* ── Bottom row: Integrations (2/3) + Platform (1/3) ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        {/* Integrations — 2/3 with 2-col compact grid */}
+        <div className="md:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-brand-50 flex items-center justify-center">
+                <Plug className="w-3.5 h-3.5 text-brand-600" />
+              </div>
+              <span className="text-sm font-semibold text-gray-800">Integrations</span>
+              {integrations.length > 0 && (
+                <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-md">{integrations.length}</span>
+              )}
+            </div>
+            <Link href="/integrations" className="flex items-center gap-0.5 text-xs text-brand-600 font-semibold hover:text-brand-700 transition-colors">
+              Manage <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+          {integrations.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 gap-3 text-center">
+              <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center">
+                <Plug className="w-5 h-5 text-gray-200" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">No integrations yet</p>
+                <p className="text-xs text-gray-400 mt-0.5">Connect your first tool to start collecting evidence</p>
+              </div>
+              <Link href="/integrations" className="text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white px-4 py-1.5 rounded-xl transition-colors">
+                Connect a tool
+              </Link>
+            </div>
+          ) : (() => {
+            const LIMIT = 10;
+            const visible = integrationsExpanded ? integrations : integrations.slice(0, LIMIT);
+            const hidden = integrations.length - LIMIT;
+            return (
+              <>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {visible.map((i) => {
+                    const staleHours = i.last_collected_at
+                      ? (Date.now() - new Date(i.last_collected_at).getTime()) / 36e5
+                      : Infinity;
+                    return (
+                      <div key={i.id} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50/80 hover:bg-gray-100/60 transition-colors">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${i.status === "active" ? "bg-emerald-500" : i.status === "error" ? "bg-red-500" : "bg-gray-300"}`} />
+                        <p className="text-xs font-medium text-gray-700 truncate flex-1 capitalize">{i.integration_type.replace(/_/g, " ")}</p>
+                        {staleHours > 48 && <AlertTriangle className="w-3 h-3 text-amber-400 shrink-0" />}
+                        {i.last_collected_at && (
+                          <span className="text-[10px] text-gray-400 shrink-0 tabular-nums">
+                            {new Date(i.last_collected_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {hidden > 0 && (
+                  <button
+                    onClick={() => setIntegrationsExpanded((v) => !v)}
+                    className="w-full mt-3 text-xs font-semibold text-brand-600 hover:text-brand-700 transition-colors py-2 border border-dashed border-brand-200 rounded-xl hover:bg-brand-50"
+                  >
+                    {integrationsExpanded ? "Show less ↑" : `+${hidden} more integrations`}
+                  </button>
+                )}
+              </>
+            );
+          })()}
+        </div>
+
+        {/* Platform quick links — 1/3 */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
+          <p className="text-sm font-semibold text-gray-800 mb-4">Platform</p>
+          <div className="grid grid-cols-3 gap-1.5">
+            {QUICK_LINKS.map(({ href, label, icon: Icon, bg, fg }) => (
+              <Link key={href} href={href}
+                className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl hover:bg-gray-50 transition-colors group text-center">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${bg} group-hover:scale-105 transition-transform`}>
+                  <Icon className={`w-4 h-4 ${fg}`} />
+                </div>
+                <span className="text-[10px] font-semibold text-gray-500 group-hover:text-gray-700 leading-tight">{label}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>
