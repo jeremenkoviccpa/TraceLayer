@@ -1641,9 +1641,9 @@ export default function LandingPage() {
           {/* Bottom stat bar */}
           <div className="bg-white/4 border border-white/8 rounded-2xl p-5 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/8 text-center">
             {[
-              { stat: "78%", label: "of enterprise buyers require SOC 2 before signing" },
-              { stat: "6 mo", label: "average deal delay when compliance docs are missing" },
               { stat: "$4.35M", label: "average cost of a data breach (IBM Security, 2024)" },
+              { stat: "9 mo", label: "average time to SOC 2 done manually, without automation" },
+              { stat: "3×", label: "more enterprise deals closed by SOC 2 certified startups" },
             ].map(({ stat, label }) => (
               <div key={stat} className="py-4 sm:py-2 sm:px-6 first:pt-0 last:pb-0 sm:first:pt-2 sm:last:pb-2">
                 <p className="text-2xl font-extrabold text-rose-400 mb-1">{stat}</p>
