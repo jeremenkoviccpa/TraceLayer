@@ -1083,131 +1083,177 @@ export default function LandingPage() {
           </div>
 
           {/* Dashboard preview */}
-          <div className="max-w-3xl mx-auto">
-            <div className="bg-white rounded-2xl border border-black/8 shadow-[0_24px_80px_rgba(15,23,42,0.12)] overflow-hidden">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-[#f3ede3] rounded-2xl border border-black/8 shadow-[0_24px_80px_rgba(15,23,42,0.12)] overflow-hidden">
 
               {/* Browser chrome */}
-              <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-gray-100 bg-gray-50/80">
+              <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-black/8 bg-[#f3ede3]">
                 <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
                 <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
                 <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                 <div className="flex-1 mx-4">
-                  <div className="bg-white border border-gray-200 rounded-md px-3 py-1 text-[11px] text-gray-400 font-mono hidden sm:block max-w-[220px] mx-auto text-center">
+                  <div className="bg-white/80 border border-black/10 rounded-md px-3 py-1 text-[11px] text-gray-400 font-mono hidden sm:block max-w-[240px] mx-auto text-center">
                     app.tracelayer.it.com/dashboard
                   </div>
                 </div>
               </div>
 
-              {/* Score hero card — dark */}
-              <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 sm:p-5">
-                <div className="flex items-center gap-4 sm:gap-6">
-                  {/* Score ring */}
-                  <div className="relative shrink-0 w-20 h-20">
-                    <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-                      <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
-                      <circle cx="40" cy="40" r="32" fill="none" stroke="#10b981" strokeWidth="8"
-                        strokeDasharray={`${2 * Math.PI * 32}`}
-                        strokeDashoffset={`${2 * Math.PI * 32 * (1 - 0.94)}`}
-                        strokeLinecap="round" />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-xl font-black text-white leading-none">94</span>
-                      <span className="text-[9px] text-white/40 font-semibold">/100</span>
-                    </div>
+              {/* Dashboard body */}
+              <div className="p-3 space-y-2">
+
+                {/* Page header */}
+                <div className="flex items-center justify-between px-1">
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">Dashboard</p>
+                    <p className="text-[10px] text-gray-400">Sunday, March 22</p>
                   </div>
-                  {/* Score info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[11px] text-white/50 font-semibold mb-0.5">Compliance score</p>
-                    <p className="text-3xl font-black text-white mb-2">94<span className="text-lg text-white/30">%</span></p>
-                    {/* Framework tabs */}
-                    <div className="flex gap-1 flex-wrap">
-                      {["SOC 2","ISO 27001","HIPAA","GDPR","PCI DSS","CCPA","NIST CSF"].map((fw, i) => (
-                        <span key={fw} className={`text-[10px] font-semibold px-2 py-1 rounded-lg whitespace-nowrap ${
-                          i === 0 ? "bg-white text-slate-900" : "text-white/40 bg-white/8"
-                        }`}>{fw}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] bg-white border border-gray-200 px-2.5 py-1 rounded-lg text-gray-600 font-medium">Report</span>
+                    <span className="text-[10px] bg-teal-600 text-white px-2.5 py-1 rounded-lg font-semibold">View compliance</span>
+                  </div>
+                </div>
+
+                {/* Hero row: dark score card (2/3) + mini stats (1/3) */}
+                <div className="grid grid-cols-3 gap-2">
+
+                  {/* Dark score card */}
+                  <div className="col-span-2 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl p-3 overflow-hidden relative">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-20 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
+                    {/* Top: ring + score + tabs */}
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="relative shrink-0 w-14 h-14">
+                        <svg className="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
+                          <circle cx="28" cy="28" r="22" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="6"/>
+                          <circle cx="28" cy="28" r="22" fill="none" stroke="#10b981" strokeWidth="6"
+                            strokeDasharray={`${2*Math.PI*22}`} strokeDashoffset={`${2*Math.PI*22*0.06}`} strokeLinecap="round"/>
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                          <span className="text-sm font-black text-white leading-none">94</span>
+                          <span className="text-[8px] text-white/40">/100</span>
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] text-white/50 mb-0.5">Compliance score</p>
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span className="text-2xl font-black text-white leading-none">94<span className="text-sm text-white/30">%</span></span>
+                          <span className="text-[9px] font-bold bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full">+0% vs prev</span>
+                        </div>
+                        <div className="flex gap-1 flex-wrap">
+                          {["SOC 2","ISO 27001","HIPAA","GDPR","PCI DSS","CCPA","NIST CSF"].map((fw,i) => (
+                            <span key={fw} className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-md whitespace-nowrap ${i===0?"bg-white text-slate-900":"text-white/40"}`}>{fw}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    {/* Bottom: 3 stat circles */}
+                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/10">
+                      {[
+                        { label:"PASSING", sub:"of 3", value:"3", color:"#10b981", stroke:"#10b981" },
+                        { label:"FAILING",  sub:"none",  value:"0", color:"rgba(255,255,255,0.2)", stroke:"rgba(255,255,255,0.12)" },
+                        { label:"SCORE",   sub:"out of 100", value:"94", color:"#818cf8", stroke:"#818cf8" },
+                      ].map((s) => (
+                        <div key={s.label} className="flex flex-col items-center gap-1">
+                          <div className="relative w-10 h-10">
+                            <svg className="w-10 h-10 -rotate-90" viewBox="0 0 40 40">
+                              <circle cx="20" cy="20" r="15" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4"/>
+                              <circle cx="20" cy="20" r="15" fill="none" stroke={s.stroke} strokeWidth="4"
+                                strokeDasharray={`${2*Math.PI*15}`} strokeDashoffset={`${2*Math.PI*15*(1-(s.label==="SCORE"?0.94:s.label==="PASSING"?0.3:0))}`} strokeLinecap="round"/>
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-xs font-black" style={{color:s.color}}>{s.value}</span>
+                            </div>
+                          </div>
+                          <p className="text-[8px] font-bold text-white/40 uppercase tracking-wide">{s.label}</p>
+                          <p className="text-[8px] text-white/20">{s.sub}</p>
+                        </div>
                       ))}
                     </div>
                   </div>
-                  {/* Quick stats */}
-                  <div className="hidden sm:flex flex-col gap-2 shrink-0 text-right">
+
+                  {/* Mini stats column */}
+                  <div className="space-y-1.5">
                     {[
-                      { label: "Passing", value: "3", color: "text-emerald-400" },
-                      { label: "Failing", value: "0", color: "text-white/30" },
+                      { value:"211",   label:"Evidence records",   sub:"across all integrations", color:"text-gray-900" },
+                      { value:"38",    label:"Active integrations", sub:"of 38 connected",         color:"text-teal-600" },
+                      { value:"3",     label:"Controls monitored",  sub:"SOC 2 framework",         color:"text-gray-900" },
+                      { value:"0",     label:"Action items",        sub:"All controls passing",    color:"text-gray-900" },
                     ].map((s) => (
-                      <div key={s.label}>
-                        <p className={`text-lg font-black ${s.color}`}>{s.value}</p>
-                        <p className="text-[9px] text-white/30 uppercase tracking-wider">{s.label}</p>
+                      <div key={s.label} className="bg-white rounded-xl border border-gray-100 px-3 py-2">
+                        <p className={`text-base font-black ${s.color} leading-none mb-0.5`}>{s.value}</p>
+                        <p className="text-[10px] font-medium text-gray-600">{s.label}</p>
+                        <p className="text-[9px] text-gray-400">{s.sub}</p>
                       </div>
                     ))}
                   </div>
                 </div>
-              </div>
 
-              {/* Score trend + mini stats row */}
-              <div className="grid sm:grid-cols-3 gap-0 border-b border-gray-100">
-                {/* Trend chart */}
-                <div className="sm:col-span-2 p-4 border-b sm:border-b-0 sm:border-r border-gray-100">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-semibold text-gray-700">Score trend</span>
-                    <span className="text-[11px] font-bold text-emerald-600">↑0pts</span>
+                {/* Charts row: score trend + evidence activity */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-white rounded-xl border border-gray-100 p-3">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-[11px] font-semibold text-gray-800">Score trend</span>
+                      <span className="text-[10px] font-bold text-emerald-600">↑0pts</span>
+                    </div>
+                    <p className="text-[9px] text-gray-400 mb-2">Last 30 days · SOC 2</p>
+                    <svg viewBox="0 0 200 50" className="w-full h-10">
+                      <defs>
+                        <linearGradient id="lp-sg" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#10b981" stopOpacity="0.25"/>
+                          <stop offset="100%" stopColor="#10b981" stopOpacity="0"/>
+                        </linearGradient>
+                      </defs>
+                      <line x1="0" y1="6" x2="200" y2="6" stroke="#e5e7eb" strokeWidth="0.8" strokeDasharray="3,2"/>
+                      <path d="M0,46 L80,46 L100,42 L120,38 L150,8 L175,6 L200,6 L200,50 L0,50Z" fill="url(#lp-sg)"/>
+                      <path d="M0,46 L80,46 L100,42 L120,38 L150,8 L175,6 L200,6" fill="none" stroke="#10b981" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </div>
-                  <p className="text-[10px] text-gray-400 mb-3">Last 30 days · SOC 2</p>
-                  <svg viewBox="0 0 280 60" className="w-full h-12">
-                    <defs>
-                      <linearGradient id="lp-grad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.3"/>
-                        <stop offset="100%" stopColor="#10b981" stopOpacity="0"/>
-                      </linearGradient>
-                    </defs>
-                    <path d="M0,55 L60,55 L70,50 L80,52 L90,48 L160,45 L200,10 L240,8 L280,8 L280,60 L0,60Z" fill="url(#lp-grad)"/>
-                    <path d="M0,55 L60,55 L70,50 L80,52 L90,48 L160,45 L200,10 L240,8 L280,8" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <line x1="0" y1="8" x2="280" y2="8" stroke="rgba(0,0,0,0.06)" strokeWidth="1" strokeDasharray="4,3"/>
-                  </svg>
+                  <div className="bg-white rounded-xl border border-gray-100 p-3">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-[11px] font-semibold text-gray-800">Evidence activity</span>
+                      <span className="text-[10px] text-gray-400">211 records</span>
+                    </div>
+                    <p className="text-[9px] text-gray-400 mb-2">Last 14 days · per day</p>
+                    <svg viewBox="0 0 200 50" className="w-full h-10">
+                      {[
+                        [10,48],[30,48],[50,48],[70,48],[90,46],[110,44],[130,42],[150,20],[170,6],[190,6]
+                      ].map(([x,y],i) => (
+                        <rect key={i} x={x-8} y={y} width="14" height={50-y}
+                          fill={i===9?"#0f766e":"#e5e7eb"} rx="2"/>
+                      ))}
+                    </svg>
+                  </div>
                 </div>
-                {/* Mini stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-1 gap-px bg-gray-100 sm:bg-transparent">
+
+                {/* Control breakdown */}
+                <div className="bg-white rounded-xl border border-gray-100 p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-semibold text-gray-800">Control breakdown</span>
+                    <span className="text-[10px] text-teal-600 font-semibold">Full view →</span>
+                  </div>
                   {[
-                    { label: "Evidence records", value: "3,241", sub: "across all integrations" },
-                    { label: "Active integrations", value: "38",    sub: "connected" },
-                  ].map((s) => (
-                    <div key={s.label} className="bg-white p-3 sm:border-b border-gray-100 last:border-0">
-                      <p className="text-[10px] text-gray-400 mb-1">{s.label}</p>
-                      <p className="text-base font-black text-gray-900">{s.value}</p>
-                      <p className="text-[10px] text-gray-400">{s.sub}</p>
+                    { name:"Access Control",       status:"Passing", score:95,  records:75  },
+                    { name:"Logging & Monitoring",  status:"Passing", score:100, records:211 },
+                    { name:"Change Management",     status:"Passing", score:83,  records:38  },
+                  ].map((c) => (
+                    <div key={c.name} className="mb-2 last:mb-0">
+                      <div className="flex items-center justify-between text-[10px] mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-700">{c.name}</span>
+                          <span className="text-emerald-600 font-semibold">{c.status}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-400">
+                          <span>{c.records} records</span>
+                          <span className="font-bold text-gray-800">{c.score}%</span>
+                        </div>
+                      </div>
+                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-emerald-500 rounded-full" style={{width:`${c.score}%`}}/>
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
 
-              {/* Control breakdown */}
-              <div className="p-4 bg-gray-50/40">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[11px] font-semibold text-gray-700">Control breakdown</span>
-                  <span className="text-[10px] text-teal-600 font-semibold">Full view →</span>
-                </div>
-                {[
-                  { name: "Access Control",      status: "Passing", score: 95,  records: 75  },
-                  { name: "Logging & Monitoring", status: "Passing", score: 100, records: 211 },
-                  { name: "Change Management",    status: "Passing", score: 83,  records: 38  },
-                ].map((c) => (
-                  <div key={c.name} className="mb-2.5 last:mb-0">
-                    <div className="flex items-center justify-between text-[11px] mb-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-700 font-medium">{c.name}</span>
-                        <span className="text-emerald-600 font-semibold">{c.status}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-400">
-                        <span>{c.records} records</span>
-                        <span className="font-bold text-gray-700">{c.score}%</span>
-                      </div>
-                    </div>
-                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${c.score}%` }} />
-                    </div>
-                  </div>
-                ))}
               </div>
-
             </div>
 
             {/* Live sync pill */}
