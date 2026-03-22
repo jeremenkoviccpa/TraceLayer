@@ -1031,9 +1031,9 @@ export default function LandingPage() {
         <div className="absolute top-60 right-[5%] w-8 h-8 rounded-full bg-orange-300/20 blur-lg pointer-events-none animate-float-delay" />
         <div className="absolute bottom-20 right-[22%] w-14 h-14 rounded-full bg-brand-400/15 blur-xl pointer-events-none animate-float" />
 
-        <div className="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center relative">
+        <div className="max-w-6xl mx-auto px-6 pt-12 pb-8 text-center relative">
           {/* Announcement badge */}
-          <div data-animate className="inline-flex items-center gap-2 bg-white/85 text-[var(--accent)] text-xs font-semibold px-3.5 py-1.5 rounded-full mb-6 border border-black/5 shadow-sm">
+          <div data-animate className="inline-flex items-center gap-2 bg-white/85 text-[var(--accent)] text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4 border border-black/5 shadow-sm">
             <span className="relative flex h-2 w-2 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -1041,18 +1041,18 @@ export default function LandingPage() {
             New: Integration Simulation · Compliance Stack Scorer · AI Audit Package
           </div>
 
-          <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[64px] font-extrabold leading-[1.1] mb-6 tracking-tight">
+          <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[56px] font-extrabold leading-[1.1] mb-4 tracking-tight">
             Stop chasing compliance.<br />
             <span className="bg-gradient-to-r from-[var(--accent)] via-emerald-500 to-teal-400 bg-clip-text text-transparent">
               Let it run itself.
             </span>
           </h1>
 
-          <p data-animate data-delay="200" className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 leading-relaxed">
+          <p data-animate data-delay="200" className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-6 leading-relaxed">
             Connect your tools once — evidence collects itself, alerts fire the moment something breaks, and your audit report is one click away.
           </p>
 
-          <div data-animate data-delay="300" className="flex items-center justify-center gap-3 flex-wrap mb-5">
+          <div data-animate data-delay="300" className="flex items-center justify-center gap-3 flex-wrap mb-4">
             <Link
               href="/register"
               className="relative inline-flex items-center gap-2 bg-[var(--accent)] hover:bg-[var(--accent-strong)] text-white font-semibold px-7 py-3.5 rounded-xl transition-colors text-sm overflow-hidden group shadow-[0_0_28px_rgba(15,118,110,0.35)] hover:shadow-[0_0_36px_rgba(15,118,110,0.55)]"
@@ -1067,7 +1067,7 @@ export default function LandingPage() {
           </div>
 
           {/* Trust strip */}
-          <div className="flex items-center justify-center flex-wrap gap-x-6 gap-y-1.5 text-xs text-[var(--muted)] mb-12">
+          <div className="flex items-center justify-center flex-wrap gap-x-6 gap-y-1.5 text-xs text-[var(--muted)] mb-8">
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
               Free forever — no credit card
