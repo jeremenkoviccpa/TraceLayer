@@ -1045,21 +1045,6 @@ export default function LandingPage() {
             New: Data Flow Mapping · AI Audit Package · 100+ Integrations
           </div>
 
-          {/* ICP eyebrow */}
-          <div data-animate data-delay="80" className="flex items-center justify-center gap-2 mb-5 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold px-3 py-1 rounded-full">
-              <Building2 className="w-3 h-3" /> SaaS startups
-            </span>
-            <span className="text-gray-300 text-xs">·</span>
-            <span className="inline-flex items-center gap-1.5 bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold px-3 py-1 rounded-full">
-              <TrendingUp className="w-3 h-3" /> Seed to Series C
-            </span>
-            <span className="text-gray-300 text-xs">·</span>
-            <span className="inline-flex items-center gap-1.5 bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold px-3 py-1 rounded-full">
-              <Target className="w-3 h-3" /> CTOs closing enterprise deals
-            </span>
-          </div>
-
           <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[64px] font-extrabold leading-[1.1] mb-6 tracking-tight">
             Stop chasing compliance.<br />
             <span className="bg-gradient-to-r from-[var(--accent)] via-emerald-500 to-teal-400 bg-clip-text text-transparent">
