@@ -1049,7 +1049,7 @@ export default function LandingPage() {
           </h1>
 
           <p data-animate data-delay="200" className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 leading-relaxed">
-            Connect your tools once and TraceLayer takes it from there — collecting evidence around the clock, catching the moment something breaks, and writing your audit report when you need it. So you can focus on building, not on compliance busywork.
+            Connect your tools once — evidence collects itself, alerts fire the moment something breaks, and your audit report is one click away.
           </p>
 
           <div data-animate data-delay="300" className="flex items-center justify-center gap-3 flex-wrap mb-5">
