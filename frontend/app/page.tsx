@@ -1084,7 +1084,7 @@ export default function LandingPage() {
 
           {/* Dashboard preview */}
           <div className="max-w-4xl mx-auto">
-            <div className="bg-[#f3ede3] rounded-2xl border border-black/8 shadow-[0_24px_80px_rgba(15,23,42,0.12)] overflow-hidden">
+            <div className="bg-[#f3ede3] rounded-2xl border border-black/8 shadow-[0_24px_80px_rgba(15,23,42,0.12)] overflow-hidden relative max-h-[460px] sm:max-h-[520px]">
 
               {/* Browser chrome */}
               <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-black/8 bg-[#f3ede3]">
@@ -1254,6 +1254,9 @@ export default function LandingPage() {
                 </div>
 
               </div>
+
+              {/* Bottom fade */}
+              <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#f3ede3] to-transparent pointer-events-none" />
             </div>
 
             {/* Live sync pill */}
