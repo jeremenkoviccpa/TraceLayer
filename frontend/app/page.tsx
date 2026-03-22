@@ -595,8 +595,8 @@ const FEATURES = [
   },
   {
     icon: Plug,
-    title: "100+ native integrations",
-    desc: "Connect AWS, GitHub, Okta, Salesforce, Segment, HubSpot, Datadog, CrowdStrike, Snyk, Wiz, KnowBe4, Anthropic, OpenAI, and 87 more — in minutes. No agents. No code.",
+    title: "100+ native integrations · simulate before you connect",
+    desc: "Connect AWS, GitHub, Okta, Datadog, Snyk, and 95 more in minutes — no agents, no code. Before connecting anything, use the built-in simulation mode to see exactly what each integration adds to your score.",
   },
   {
     icon: Target,
@@ -654,7 +654,7 @@ const HOW_IT_WORKS = [
   {
     step: "01",
     title: "Connect your tools",
-    desc: "Paste an API key for your first integration and evidence starts flowing immediately. No agents, no code, no week-long setup. Most teams are collecting evidence within 5 minutes.",
+    desc: "Paste an API key for your first integration and evidence starts flowing immediately. No agents, no code, no week-long setup. Most teams are collecting evidence within 5 minutes. Not sure which tools to connect? Simulate your stack first — see your projected score before touching a single credential.",
   },
   {
     step: "02",
@@ -1038,7 +1038,7 @@ export default function LandingPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            New: Data Flow Mapping · AI Audit Package · 100+ Integrations
+            New: Integration Simulation · Compliance Stack Scorer · AI Audit Package
           </div>
 
           <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[64px] font-extrabold leading-[1.1] mb-6 tracking-tight">
@@ -1173,6 +1173,19 @@ export default function LandingPage() {
           Integrates with the tools you already use
         </p>
         <MarqueeRow />
+      </section>
+
+      {/* ── Free tools nudge ─────────────────────────────────────────────────── */}
+      <section className="bg-[var(--bg)] py-5 border-b border-black/5">
+        <div className="max-w-4xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-xs text-[var(--muted)]">
+            <span className="font-semibold text-[var(--ink)]">Not sure where to start?</span>{" "}
+            Four free tools — no account needed. Know your risk before spending a dollar.
+          </p>
+          <Link href="/tools" className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent)] hover:underline">
+            Explore free tools <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </section>
 
       {/* ── Stats ─────────────────────────────────────────────────────────────── */}

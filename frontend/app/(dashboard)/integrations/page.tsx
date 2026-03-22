@@ -2731,7 +2731,10 @@ export default function IntegrationsPage() {
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Integrations</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Connect your tools to automatically collect compliance evidence.</p>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Connect your tools to automatically collect compliance evidence.{" "}
+            <span className="text-gray-400">Hit <span className="font-medium text-brand-600">Simulate</span> on any card to preview score impact before connecting.</span>
+          </p>
         </div>
         {integrations.length > 0 && (
           <span className="text-sm text-gray-400 mt-1">
