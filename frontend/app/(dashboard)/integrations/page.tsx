@@ -2605,9 +2605,9 @@ function IntegrationCard({ def, connected, canConnect, collecting, onConnect, on
           </>
         ) : !canConnect ? (
           <>
-            <button onClick={onSimulate} title="Preview impact"
-              className="p-2 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-colors">
-              <Eye className="w-4 h-4"/>
+            <button onClick={onSimulate}
+              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-100 rounded-xl transition-colors">
+              <Eye className="w-3.5 h-3.5"/> Preview
             </button>
             <button onClick={onUpgrade} className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold rounded-xl transition-colors">
               <Lock className="w-3.5 h-3.5"/> Upgrade
@@ -2615,9 +2615,9 @@ function IntegrationCard({ def, connected, canConnect, collecting, onConnect, on
           </>
         ) : (
           <>
-            <button onClick={onSimulate} title="Preview impact"
-              className="p-2 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-colors">
-              <Eye className="w-4 h-4"/>
+            <button onClick={onSimulate}
+              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-100 rounded-xl transition-colors">
+              <Eye className="w-3.5 h-3.5"/> Preview
             </button>
             <button onClick={onConnect} className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-xl transition-colors">
               <Plus className="w-3.5 h-3.5"/> Connect
