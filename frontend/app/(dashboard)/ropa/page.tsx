@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { RopaRecord } from "@/lib/types";
-import { Database, Plus, Trash2, X } from "lucide-react";
+import { Database, Plus, Trash2, X, Sparkles, RefreshCw } from "lucide-react";
+import { toast } from "@/lib/toast";
 
 const ROLES = ["controller", "processor", "joint_controller"] as const;
 const ROLE_STYLES: Record<string, string> = {
@@ -40,6 +41,7 @@ export default function RopaPage() {
   const [editing, setEditing]     = useState<RopaRecord | null>(null);
   const [form, setForm]           = useState<Partial<RopaRecord>>(EMPTY);
   const [saving, setSaving]       = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     api.getRopaRecords().then(setRecords).finally(() => setLoading(false));
@@ -69,6 +71,19 @@ export default function RopaPage() {
     setRecords((prev) => prev.filter((r) => r.id !== id));
   };
 
+  const handleGenerateFromFlows = async () => {
+    setGenerating(true);
+    try {
+      const { created, skipped } = await api.generateRopaFromFlows();
+      if (created > 0) {
+        const fresh = await api.getRopaRecords();
+        setRecords(fresh);
+      }
+      toast(created > 0 ? `Generated ${created} record${created !== 1 ? "s" : ""} from Data Flows` : "No new records to generate");
+    } catch { toast("Failed to generate RoPA records", "error"); }
+    finally { setGenerating(false); }
+  };
+
   const field = (key: keyof RopaRecord) => ({
     value: (form[key] as string) ?? "",
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
@@ -94,12 +109,22 @@ export default function RopaPage() {
           </h1>
           <p className="text-sm text-gray-500 mt-1">GDPR Art. 30 · Data processing register</p>
         </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-2 bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-brand-700 transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Add Record
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleGenerateFromFlows}
+            disabled={generating}
+            className="flex items-center gap-1.5 btn-secondary !px-3 !py-2 text-xs disabled:opacity-50"
+          >
+            {generating ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">Generate from Data Flows</span>
+          </button>
+          <button
+            onClick={openCreate}
+            className="flex items-center gap-2 bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-brand-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" /> Add Record
+          </button>
+        </div>
       </div>
 
       {/* Table */}

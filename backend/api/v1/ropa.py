@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
 from core.deps import get_current_user
+from models.data_flow import DataFlow
 from models.ropa_record import RopaRecord
 from models.user import User
 from schemas.ropa_record import RopaRecordCreate, RopaRecordResponse, RopaRecordUpdate
@@ -68,6 +69,56 @@ async def update_ropa_record(
     await db.commit()
     await db.refresh(record)
     return record
+
+
+@router.post("/generate", status_code=200)
+async def generate_ropa_from_data_flows(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Generate RoPA records from the Data Flow Map. Each tool+data_type pair becomes one processing activity."""
+    flows_result = await db.execute(
+        select(DataFlow).where(DataFlow.company_id == current_user.company_id)
+    )
+    flows = flows_result.scalars().all()
+
+    existing_result = await db.execute(
+        select(RopaRecord.name).where(RopaRecord.company_id == current_user.company_id)
+    )
+    existing_names = {row[0].lower() for row in existing_result.all()}
+
+    created = 0
+    skipped = 0
+
+    for flow in flows:
+        name = f"{flow.tool_label} — {flow.data_type.replace('_', ' ').title()}"
+        if name.lower() in existing_names:
+            skipped += 1
+            continue
+
+        regs = ", ".join(flow.regulations) if flow.regulations else "N/A"
+        cross_border_note = "Yes — cross-border transfer detected. SCCs or BCRs may be required." if flow.is_cross_border else "No"
+
+        record = RopaRecord(
+            company_id=current_user.company_id,
+            name=name,
+            role="controller",
+            purpose=flow.purpose or f"Processing of {flow.data_type.replace('_', ' ')} via {flow.tool_label}",
+            legal_basis=flow.legal_basis or "legitimate_interests",
+            data_categories=flow.data_category,
+            data_subjects="End users, customers, and employees as applicable",
+            recipients=flow.tool_label,
+            third_country_transfers=cross_border_note,
+            retention_period="As defined in data retention policy",
+            security_measures=f"Access controlled and audited via {flow.tool_label}. Risk level: {flow.risk_level}.",
+            notes=f"Auto-generated from Data Flow Map. Applicable regulations: {regs}.",
+        )
+        db.add(record)
+        existing_names.add(name.lower())
+        created += 1
+
+    await db.commit()
+    return {"created": created, "skipped": skipped}
 
 
 @router.delete("/{record_id}", status_code=204)

@@ -4,9 +4,48 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
 from core.deps import get_current_user
+from models.integration import Integration
 from models.user import User
 from models.soa_item import SoaItem
 from schemas.soa_item import SoaItemResponse, SoaItemUpdate
+
+# Map integration types → ISO 27001:2022 Annex A controls they provide evidence for
+_INTEGRATION_SOA_MAP: dict[str, list[str]] = {
+    "aws":              ["5.15", "5.17", "5.18", "5.23", "5.28", "8.15", "8.16", "8.20", "8.9"],
+    "azure":            ["5.15", "5.17", "5.18", "5.23", "5.28", "8.15", "8.16", "8.20"],
+    "gcp":              ["5.15", "5.17", "5.18", "5.23", "5.28", "8.15", "8.16"],
+    "digitalocean":     ["5.23", "8.20"],
+    "heroku":           ["5.23"],
+    "render":           ["5.23"],
+    "vercel":           ["5.23"],
+    "okta":             ["5.15", "5.16", "5.17", "5.18", "8.2", "8.5"],
+    "azure_ad":         ["5.15", "5.16", "5.17", "5.18", "8.2", "8.5"],
+    "google_workspace": ["5.14", "5.15", "5.16", "5.17", "5.18"],
+    "github":           ["5.18", "8.4", "8.25", "8.26", "8.27", "8.28", "8.32"],
+    "gitlab":           ["5.18", "8.4", "8.25", "8.26", "8.27", "8.28", "8.32"],
+    "bitbucket":        ["5.18", "8.4", "8.25", "8.26", "8.32"],
+    "jira":             ["5.8", "8.4"],
+    "asana":            ["5.8"],
+    "slack":            ["5.14"],
+    "snyk":             ["8.8", "8.26", "8.28", "8.29"],
+    "wiz":              ["8.8", "8.20"],
+    "qualys":           ["8.8"],
+    "tenable":          ["8.8"],
+    "datadog":          ["5.28", "8.15", "8.16"],
+    "pagerduty":        ["8.15", "8.16"],
+    "new_relic":        ["8.15", "8.16"],
+    "splunk":           ["5.28", "8.15"],
+    "elastic":          ["5.28", "8.15"],
+    "knowbe4":          ["6.3"],
+    "360learning":      ["6.3"],
+    "bamboohr":         ["6.1", "6.2"],
+    "greenhouse":       ["6.1"],
+    "checkr":           ["6.1"],
+    "intercom":         ["5.14"],
+    "zendesk":          ["5.14"],
+    "twilio":           ["5.14"],
+    "sendgrid":         ["5.14"],
+}
 
 router = APIRouter(prefix="/soa", tags=["soa"])
 
@@ -151,6 +190,54 @@ async def initialize_soa(
         .order_by(SoaItem.annex_ref)
     )
     return result.scalars().all()
+
+
+@router.post("/auto-progress", status_code=200)
+async def auto_progress_soa(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Mark SOA controls as in_progress based on active integrations. Never downgrades implemented controls."""
+    # Ensure SOA is initialized first
+    existing_result = await db.execute(
+        select(SoaItem).where(SoaItem.company_id == current_user.company_id)
+    )
+    items = existing_result.scalars().all()
+    if not items:
+        for ref, theme, title in ISO27001_CONTROLS:
+            db.add(SoaItem(company_id=current_user.company_id, annex_ref=ref, annex_theme=theme, title=title))
+        await db.commit()
+        existing_result = await db.execute(
+            select(SoaItem).where(SoaItem.company_id == current_user.company_id)
+        )
+        items = existing_result.scalars().all()
+
+    integrations_result = await db.execute(
+        select(Integration.integration_type).where(
+            Integration.company_id == current_user.company_id,
+            Integration.status == "active",
+        )
+    )
+    active_types = {row[0] for row in integrations_result.all()}
+
+    # Collect all control refs that should be marked in_progress
+    refs_to_advance: set[str] = set()
+    for integration_type in active_types:
+        for ref in _INTEGRATION_SOA_MAP.get(integration_type, []):
+            refs_to_advance.add(ref)
+
+    items_by_ref = {item.annex_ref: item for item in items}
+    updated = 0
+    for ref in refs_to_advance:
+        item = items_by_ref.get(ref)
+        if item and item.implementation_status == "not_started":
+            item.implementation_status = "in_progress"
+            updated += 1
+
+    if updated:
+        await db.commit()
+
+    return {"updated": updated, "integrations_scanned": len(active_types)}
 
 
 @router.patch("/{item_id}", response_model=SoaItemResponse)

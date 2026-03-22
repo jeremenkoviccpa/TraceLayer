@@ -3,7 +3,7 @@
 import { Fragment, useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Vendor } from "@/lib/types";
-import { Building2, Plus, Trash2, X, CheckCircle2, Circle, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
+import { Building2, Plus, Trash2, X, CheckCircle2, Circle, ExternalLink, ChevronDown, ChevronUp, Sparkles, RefreshCw } from "lucide-react";
 import { DocumentUpload } from "@/components/document-upload";
 import { toast } from "@/lib/toast";
 
@@ -131,6 +131,7 @@ export default function VendorsPage() {
   const [editing, setEditing] = useState<Vendor | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [populating, setPopulating] = useState(false);
 
   useEffect(() => {
     api.getVendors().then(setVendors).catch(() => {}).finally(() => setLoading(false));
@@ -162,6 +163,19 @@ export default function VendorsPage() {
     } catch { toast("Failed to delete vendor", "error"); }
   };
 
+  const handleAutoPopulate = async () => {
+    setPopulating(true);
+    try {
+      const { created, skipped } = await api.autoPopulateVendors();
+      if (created > 0) {
+        const fresh = await api.getVendors();
+        setVendors(fresh);
+      }
+      toast(created > 0 ? `Added ${created} vendor${created !== 1 ? "s" : ""} from integrations` : "No new vendors to add");
+    } catch { toast("Failed to auto-populate vendors", "error"); }
+    finally { setPopulating(false); }
+  };
+
   const highRisk = vendors.filter((v) => v.risk_level === "high" || v.risk_level === "critical").length;
   const certified = vendors.filter((v) => v.soc2_certified || v.iso27001_certified).length;
   const needsReview = vendors.filter((v) => !v.review_date).length;
@@ -182,12 +196,22 @@ export default function VendorsPage() {
               <p className="text-sm text-slate-400 mt-0.5">Track third-party vendors, their certifications, and risk levels.</p>
             </div>
           </div>
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors shrink-0"
-          >
-            <Plus className="w-4 h-4" /> Add vendor
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleAutoPopulate}
+              disabled={populating}
+              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white font-semibold !px-3 !py-2 px-3 py-2 rounded-xl text-xs transition-colors disabled:opacity-50"
+            >
+              {populating ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+              <span className="hidden sm:inline">Auto-populate</span>
+            </button>
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors"
+            >
+              <Plus className="w-4 h-4" /> Add vendor
+            </button>
+          </div>
         </div>
 
         {/* Row 2: stats grid */}

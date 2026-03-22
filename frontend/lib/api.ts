@@ -519,6 +519,10 @@ class ApiClient {
     return this.request("DELETE", `/vendors/${id}`);
   }
 
+  async autoPopulateVendors(): Promise<{ created: number; skipped: number }> {
+    return this.request("POST", "/vendors/auto-populate");
+  }
+
   // ── Access Reviews ────────────────────────────────────────────────────────
 
   async getAccessReviews(): Promise<AccessReview[]> {
@@ -812,6 +816,7 @@ class ApiClient {
   // ── SoA ───────────────────────────────────────────────────────────────────
   async getSoa(): Promise<SoaItem[]> { return this.request("GET", "/soa"); }
   async initializeSoa(): Promise<SoaItem[]> { return this.request("POST", "/soa/initialize"); }
+  async autoProgressSoa(): Promise<{ updated: number; integrations_scanned: number }> { return this.request("POST", "/soa/auto-progress"); }
   async updateSoaItem(id: string, data: Partial<SoaItem>): Promise<SoaItem> { return this.request("PATCH", `/soa/${id}`, data); }
 
   // ── RoPA ──────────────────────────────────────────────────────────────────
@@ -819,6 +824,7 @@ class ApiClient {
   async createRopaRecord(data: Partial<RopaRecord>): Promise<RopaRecord> { return this.request("POST", "/ropa", data); }
   async updateRopaRecord(id: string, data: Partial<RopaRecord>): Promise<RopaRecord> { return this.request("PATCH", `/ropa/${id}`, data); }
   async deleteRopaRecord(id: string): Promise<void> { return this.request("DELETE", `/ropa/${id}`); }
+  async generateRopaFromFlows(): Promise<{ created: number; skipped: number }> { return this.request("POST", "/ropa/generate"); }
 
   // ── Data Breaches ─────────────────────────────────────────────────────────
   async getDataBreaches(): Promise<DataBreach[]> { return this.request("GET", "/data-breaches"); }
@@ -835,6 +841,7 @@ class ApiClient {
   // ── Management Reviews ────────────────────────────────────────────────────
   async getManagementReviews(): Promise<ManagementReview[]> { return this.request("GET", "/management-reviews"); }
   async createManagementReview(data: Partial<ManagementReview>): Promise<ManagementReview> { return this.request("POST", "/management-reviews", data); }
+  async scheduleNextManagementReview(): Promise<ManagementReview> { return this.request<ManagementReview>("POST", "/management-reviews/schedule-next"); }
   async updateManagementReview(id: string, data: Partial<ManagementReview>): Promise<ManagementReview> { return this.request("PATCH", `/management-reviews/${id}`, data); }
   async deleteManagementReview(id: string): Promise<void> { return this.request("DELETE", `/management-reviews/${id}`); }
 

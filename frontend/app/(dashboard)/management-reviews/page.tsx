@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { ManagementReview } from "@/lib/types";
-import { ClipboardCheck, Plus, Trash2, X, ChevronDown, ChevronUp } from "lucide-react";
+import { ClipboardCheck, Plus, Trash2, X, ChevronDown, ChevronUp, CalendarClock, RefreshCw } from "lucide-react";
+import { toast } from "@/lib/toast";
 
 type ActionItem = { item: string; owner: string; due_date: string | null; done: boolean };
 
@@ -36,6 +37,7 @@ export default function ManagementReviewsPage() {
   const [actionItems, setActionItems] = useState<ActionItem[]>([]);
   const [saving, setSaving]       = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [scheduling, setScheduling] = useState(false);
 
   useEffect(() => {
     api.getManagementReviews().then(setReviews).finally(() => setLoading(false));
@@ -95,6 +97,19 @@ export default function ManagementReviewsPage() {
     setActionItems((a) => a.map((item, i) => i === idx ? { ...item, [field]: value } : item));
   };
 
+  const handleScheduleNext = async () => {
+    setScheduling(true);
+    try {
+      const review = await api.scheduleNextManagementReview();
+      setReviews((prev) => [review, ...prev]);
+      toast("Scheduled management review for this quarter");
+    } catch (err: unknown) {
+      const msg = (err as Error)?.message;
+      toast(msg ?? "A review for this quarter already exists", "error");
+    }
+    finally { setScheduling(false); }
+  };
+
   const sf = (key: keyof ManagementReview) => ({
     value: (form[key] as string) ?? "",
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
@@ -120,9 +135,19 @@ export default function ManagementReviewsPage() {
           </h1>
           <p className="text-sm text-gray-500 mt-1">ISO 27001 Clause 9.3 · Annual review records</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-brand-700 transition-colors">
-          <Plus className="w-4 h-4" /> Add Review
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleScheduleNext}
+            disabled={scheduling}
+            className="flex items-center gap-1.5 btn-secondary !px-3 !py-2 text-xs disabled:opacity-50"
+          >
+            {scheduling ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <CalendarClock className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">Schedule this quarter</span>
+          </button>
+          <button onClick={openCreate} className="flex items-center gap-2 bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-brand-700 transition-colors">
+            <Plus className="w-4 h-4" /> Add Review
+          </button>
+        </div>
       </div>
 
       {/* Cards */}

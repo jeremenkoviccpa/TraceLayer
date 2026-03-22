@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { SoaItem } from "@/lib/types";
-import { BookCheck, ChevronDown, ChevronUp, Save, X } from "lucide-react";
+import { BookCheck, ChevronDown, ChevronUp, Save, X, Sparkles, RefreshCw } from "lucide-react";
+import { toast } from "@/lib/toast";
 
 const THEMES = ["All", "Organizational", "People", "Physical", "Technological"] as const;
 const STATUSES = ["not_started", "in_progress", "implemented", "not_applicable"] as const;
@@ -30,6 +31,7 @@ export default function SoaPage() {
   const [expandedId, setExpandedId]   = useState<string | null>(null);
   const [editForm, setEditForm]       = useState<Partial<SoaItem>>({});
   const [saving, setSaving]           = useState(false);
+  const [progressing, setProgressing] = useState(false);
 
   useEffect(() => {
     api.getSoa().then(async (data) => {
@@ -77,6 +79,17 @@ export default function SoaPage() {
   const toggleIncluded = async (item: SoaItem) => {
     const updated = await api.updateSoaItem(item.id, { included: !item.included });
     setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+  };
+
+  const handleAutoProgress = async () => {
+    setProgressing(true);
+    try {
+      const { updated } = await api.autoProgressSoa();
+      const fresh = await api.getSoa();
+      setItems(fresh);
+      toast(updated > 0 ? `Advanced ${updated} control${updated !== 1 ? "s" : ""} to In Progress` : "No controls to advance");
+    } catch { toast("Failed to auto-progress controls", "error"); }
+    finally { setProgressing(false); }
   };
 
   const totalIncluded    = items.filter((i) => i.included).length;
@@ -148,12 +161,22 @@ export default function SoaPage() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center gap-2.5 min-w-0">
-        <BookCheck className="w-5 h-5 text-brand-600 shrink-0" />
-        <div className="min-w-0">
-          <h1 className="text-lg sm:text-2xl font-bold text-gray-900 leading-tight truncate">Statement of Applicability</h1>
-          <p className="text-xs sm:text-sm text-gray-500">ISO 27001:2022 · 93 Annex A Controls</p>
+      <div className="flex items-center justify-between gap-2.5 min-w-0">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <BookCheck className="w-5 h-5 text-brand-600 shrink-0" />
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-900 leading-tight truncate">Statement of Applicability</h1>
+            <p className="text-xs sm:text-sm text-gray-500">ISO 27001:2022 · 93 Annex A Controls</p>
+          </div>
         </div>
+        <button
+          onClick={handleAutoProgress}
+          disabled={progressing}
+          className="flex items-center gap-1.5 btn-secondary !px-3 !py-2 text-xs shrink-0 disabled:opacity-50"
+        >
+          {progressing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+          <span className="hidden sm:inline">Auto-progress</span>
+        </button>
       </div>
 
       {/* Stats */}
