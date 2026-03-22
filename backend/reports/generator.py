@@ -5,6 +5,7 @@ import logging
 from collections import defaultdict
 from io import BytesIO
 from pathlib import Path
+from typing import Optional
 
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT
@@ -1016,7 +1017,7 @@ def save_pdf(report_id: str, pdf_bytes: bytes) -> Path:
     return path
 
 
-def load_pdf(report_id: str) -> bytes | None:
+def load_pdf(report_id: str) -> Optional[bytes]:
     path = REPORTS_DIR / f"{report_id}.pdf"
     if not path.exists():
         return None

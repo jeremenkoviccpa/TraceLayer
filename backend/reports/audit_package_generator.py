@@ -290,6 +290,86 @@ def _no_data(label: str, st: dict) -> Paragraph:
     )
 
 
+def _evidence_artifact_subsection(ev_records: list, evidence_stats: dict, category: str, W: float, st: dict) -> list:
+    """Render sample evidence artifact tables grouped by evidence type, with population/sample labels."""
+    try:
+        from reports.generator import _EV_SCHEMA
+    except ImportError:
+        return []
+
+    if not ev_records:
+        return []
+
+    inner_w = W - 20 * mm  # 10mm L/R padding inside the control card
+
+    # Group by evidence_type
+    by_type: dict = {}
+    for rec in ev_records:
+        et = rec.get("evidence_type", "unknown")
+        by_type.setdefault(et, []).append(rec)
+
+    elements: list = []
+    artifact_label = Paragraph("Evidence Artifacts", st["label"])
+    elements.append(artifact_label)
+    elements.append(Spacer(1, 1 * mm))
+
+    for et, recs in sorted(by_type.items()):
+        schema = _EV_SCHEMA.get(et)
+        if not schema:
+            continue
+
+        headers = list(schema[0::2])
+        keys = list(schema[1::2])
+        population = evidence_stats.get(category, {}).get(et, {}).get("count", len(recs))
+        sample_size = min(6, len(recs))
+        sample_recs = recs[:sample_size]
+        n_cols = min(len(headers), 4)  # cap at 4 columns to avoid overflow
+        headers = headers[:n_cols]
+        keys = keys[:n_cols]
+        col_w = inner_w / n_cols
+
+        label_text = (
+            f"{et.replace('_', ' ').title()} — "
+            f"Population: {population} records · Sample shown: {sample_size}"
+        )
+        elements.append(Paragraph(
+            label_text,
+            ParagraphStyle(f"art_lbl_{et[:12]}", fontName="Helvetica-Bold", fontSize=7, textColor=GRAY_500, leading=11),
+        ))
+
+        tbl_rows = [[Paragraph(h, ParagraphStyle(f"art_th_{et[:6]}_{i}", fontName="Helvetica-Bold", fontSize=7, textColor=TEAL, leading=10)) for i, h in enumerate(headers)]]
+        for rec in sample_recs:
+            data = rec.get("data", {})
+            row_cells = []
+            for key in keys:
+                val = data.get(key, "—")
+                if isinstance(val, bool):
+                    val = "Yes" if val else "No"
+                elif val is None:
+                    val = "—"
+                else:
+                    val = str(val)[:38]
+                row_cells.append(Paragraph(val, ParagraphStyle(f"art_td_{et[:6]}", fontName="Helvetica", fontSize=7, textColor=GRAY_900, leading=10)))
+            tbl_rows.append(row_cells)
+
+        art_tbl = Table(tbl_rows, colWidths=[col_w] * n_cols, repeatRows=1)
+        art_tbl.setStyle(TableStyle([
+            ("BACKGROUND",     (0, 0), (-1, 0), GRAY_100),
+            ("LINEBELOW",      (0, 0), (-1, 0), 0.8, TEAL),
+            ("LINEBELOW",      (0, 1), (-1, -1), 0.2, GRAY_100),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [WHITE, colors.HexColor("#fafafa")]),
+            ("VALIGN",         (0, 0), (-1, -1), "MIDDLE"),
+            ("TOPPADDING",     (0, 0), (-1, -1), 3),
+            ("BOTTOMPADDING",  (0, 0), (-1, -1), 3),
+            ("LEFTPADDING",    (0, 0), (-1, -1), 4),
+            ("RIGHTPADDING",   (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(art_tbl)
+        elements.append(Spacer(1, 2 * mm))
+
+    return elements
+
+
 def _risk_heatmap(risks: list[dict], W: float, st: dict) -> Table:
     _CELL_COLOR = {
         (1,1):"#d1fae5",(1,2):"#d1fae5",(1,3):"#d1fae5",(1,4):"#fef3c7",(1,5):"#fef3c7",
@@ -363,20 +443,22 @@ def _risk_heatmap(risks: list[dict], W: float, st: dict) -> Table:
     return wrapper
 
 
-def _control_test_card(ctrl: dict, ev_list: list, evidence_stats: dict, manual_controls: list, W: float, st: dict) -> list:
+def _control_test_card(ctrl: dict, ev_records: list, evidence_stats: dict, manual_controls: list, W: float, st: dict) -> list:
     """Audit-methodology-style card for one control domain."""
     category = ctrl["category"]
     ctrl_stats = evidence_stats.get(category, {})
 
-    # Build test methodology statement
+    # Build test methodology statement with population/sample documentation
     if ctrl_stats:
         int_names = sorted({i for v in ctrl_stats.values() for i in v["integrations"]})
         et_names  = [et.replace("_", " ") for et in sorted(ctrl_stats.keys())]
         total_recs = sum(v["count"] for v in ctrl_stats.values())
+        sample_shown = min(6 * len(ctrl_stats), total_recs)
         method_text = (
-            f"TraceLayer's automated evidence collection reviewed {total_recs} records "
+            f"TraceLayer's automated evidence collection retrieved {total_recs} records (population) "
             f"from {', '.join(int_names)} during the assessment period. "
-            f"Evidence types analyzed: {', '.join(et_names)}."
+            f"Evidence types analyzed: {', '.join(et_names)}. "
+            f"A representative sample of up to {sample_shown} records per evidence type is documented in the artifacts section below."
         )
         # Check freshest evidence
         freshest_dates = []
@@ -481,6 +563,21 @@ def _control_test_card(ctrl: dict, ev_list: list, evidence_stats: dict, manual_c
             ("RIGHTPADDING",  (0, 0), (-1, -1), 10),
         ]))
         parts.append(ev_container)
+
+        # Evidence artifact tables (sample records from JSONB data)
+        artifact_elements = _evidence_artifact_subsection(ev_records, evidence_stats, category, W, st)
+        if artifact_elements:
+            artifact_rows = [[el] for el in artifact_elements]
+            artifact_container = Table(artifact_rows, colWidths=[W])
+            artifact_container.setStyle(TableStyle([
+                ("BACKGROUND",    (0, 0), (-1, -1), WHITE),
+                ("TOPPADDING",    (0, 0), (-1, -1), 3),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+                ("LEFTPADDING",   (0, 0), (-1, -1), 10),
+                ("RIGHTPADDING",  (0, 0), (-1, -1), 10),
+            ]))
+            parts.append(artifact_container)
+
     elif ctrl["missing_types"]:
         missing_cell = Table([[
             Paragraph(
@@ -524,8 +621,8 @@ def _criteria_test_table(framework: str, control_scores: list, W: float, st: dic
     # Build score lookup by control category
     score_by_cat = {c["category"]: c for c in control_scores}
 
-    headers = ["Criterion", "Name", "Control Domain", "Test Result", "Evidence"]
-    col_widths = [W * 0.10, W * 0.32, W * 0.20, W * 0.16, W * 0.22]
+    headers = ["Criterion", "Name", "Test Procedure", "Test Result", "Evidence"]
+    col_widths = [W * 0.09, W * 0.22, W * 0.38, W * 0.16, W * 0.15]
 
     rows = [[Paragraph(h, st["th"]) for h in headers]]
     for crit in criteria:
@@ -539,11 +636,12 @@ def _criteria_test_table(framework: str, control_scores: list, W: float, st: dic
 
         result_badge = _test_result_badge(status, st)
         ev_text = f"{ev_count} records" if ev_count else "None collected"
+        desc_text = crit.get("desc", crit["control"].replace("_", " ").title())
 
         rows.append([
             Paragraph(crit["id"], ParagraphStyle(f"crit_id_{crit['id']}", fontName="Helvetica-Bold", fontSize=8, textColor=TEAL, leading=12)),
             Paragraph(crit["name"], st["td"]),
-            Paragraph(crit["control"].replace("_", " ").title(), st["small"]),
+            Paragraph(desc_text, st["small"]),
             result_badge,
             Paragraph(ev_text, st["small"]),
         ])
@@ -641,16 +739,17 @@ def render_audit_package_pdf(context: dict) -> bytes:
         ("1",  "Management's Assertion",            "Formal management statement of control responsibility and operating effectiveness"),
         ("2",  "System Description",                "Scope, infrastructure, connected integrations, and assessment period"),
         ("3",  "AI Executive Summary",              "AI-generated compliance posture narrative for board presentation"),
-        ("4",  "Compliance Score & Criteria Tests", "Overall score, control breakdown, and per-criterion pass/fail test results"),
-        ("5",  "Control Test Results",              "Per-control audit methodology, evidence summary, and test conclusions"),
+        ("4",  "Compliance Score & Criteria Tests", "Overall score, control breakdown, and per-criterion pass/fail test results with test procedures"),
+        ("5",  "Control Test Results",              "Per-control audit methodology, population/sample documentation, evidence artifacts, and conclusions"),
         ("6",  "Gap Analysis & Recommendations",    "AI-identified gaps and prioritised remediation actions"),
         ("7",  "Manual Controls",                   "Manually attested compliance controls and their status"),
-        ("8",  "Policy Library",                    "Adopted compliance and security policies"),
+        ("8",  "Policy Library",                    "Adopted compliance and security policies with embedded policy text"),
         ("9",  "Risk Register",                     "Risk heat map and identified risks by likelihood, impact, and status"),
         ("10", "Penetration Testing",               "Security testing history and findings by severity"),
         ("11", "Security Training",                 "Employee security awareness training completion rate"),
         ("12", "Vendor Risk Management",            "Third-party vendor security assessments and certifications"),
         ("13", "Access Reviews",                    "Periodic access control review records"),
+        ("14", "Exception Log & Remediation Tracker", "Formal log of failing and exception-noted controls with remediation status"),
     ]
     for num, title, desc in toc:
         row = Table(
@@ -938,9 +1037,11 @@ def render_audit_package_pdf(context: dict) -> bytes:
 
     evidence_stats = context.get("evidence_stats", {})
     manual_controls = context.get("manual_controls", [])
+    controls_by_category = context.get("controls_by_category", {})
 
     for ctrl in context["control_scores"]:
-        story.extend(_control_test_card(ctrl, [], evidence_stats, manual_controls, W, st))
+        ev_records = controls_by_category.get(ctrl["category"], [])
+        story.extend(_control_test_card(ctrl, ev_records, evidence_stats, manual_controls, W, st))
 
     story.append(PageBreak())
 
@@ -1026,6 +1127,53 @@ def render_audit_package_pdf(context: dict) -> bytes:
             [W * 0.60, W * 0.20, W * 0.20],
             st,
         ))
+
+        # Embed policy content for adopted policies
+        adopted_with_content = [p for p in policies if p["has_content"] and p.get("content")]
+        if adopted_with_content:
+            story.append(Spacer(1, 5 * mm))
+            story.append(Paragraph("Policy Documents", st["h3"]))
+            story.append(Paragraph(
+                "The following policy documents are embedded verbatim from TraceLayer's policy library.",
+                st["small"],
+            ))
+            story.append(Spacer(1, 3 * mm))
+            for p in adopted_with_content:
+                pol_header = Table([[Paragraph(p["name"], ParagraphStyle(
+                    f"ph_{p['slug'][:10]}", fontName="Helvetica-Bold", fontSize=10,
+                    textColor=WHITE, leading=14,
+                ))]], colWidths=[W])
+                pol_header.setStyle(TableStyle([
+                    ("BACKGROUND",    (0, 0), (-1, -1), TEAL),
+                    ("TOPPADDING",    (0, 0), (-1, -1), 8),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                    ("LEFTPADDING",   (0, 0), (-1, -1), 12),
+                    ("RIGHTPADDING",  (0, 0), (-1, -1), 8),
+                ]))
+                content_text = p["content"]
+                if len(content_text) > 1200:
+                    content_text = content_text[:1200] + "\n\n[…truncated for audit summary — full document available in TraceLayer]"
+                pol_body = Table([[Paragraph(content_text.replace("\n", "<br/>"), ParagraphStyle(
+                    f"pb_{p['slug'][:10]}", fontName="Helvetica", fontSize=8,
+                    textColor=GRAY_700, leading=12, spaceAfter=3,
+                ))]], colWidths=[W])
+                pol_body.setStyle(TableStyle([
+                    ("BACKGROUND",    (0, 0), (-1, -1), WHITE),
+                    ("TOPPADDING",    (0, 0), (-1, -1), 8),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+                    ("LEFTPADDING",   (0, 0), (-1, -1), 12),
+                    ("RIGHTPADDING",  (0, 0), (-1, -1), 12),
+                ]))
+                pol_card = Table([[pol_header], [pol_body]], colWidths=[W])
+                pol_card.setStyle(TableStyle([
+                    ("BOX",           (0, 0), (-1, -1), 0.5, TEAL),
+                    ("TOPPADDING",    (0, 0), (-1, -1), 0),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+                    ("LEFTPADDING",   (0, 0), (-1, -1), 0),
+                    ("RIGHTPADDING",  (0, 0), (-1, -1), 0),
+                ]))
+                story.append(KeepTogether([pol_card]))
+                story.append(Spacer(1, 4 * mm))
     else:
         story.append(_no_data("policies", st))
     story.append(PageBreak())
@@ -1231,6 +1379,141 @@ def render_audit_package_pdf(context: dict) -> bytes:
         ))
     else:
         story.append(_no_data("access reviews", st))
+    story.append(PageBreak())
+
+    # ── SECTION 14: EXCEPTION LOG & REMEDIATION TRACKER ───────────────────────
+    _section_header(story, 14, "Exceptions", "Exception Log & Remediation Tracker", st)
+    story.append(Paragraph(
+        "This section documents all controls that received a FAIL or EXCEPTION NOTED test conclusion "
+        "during the assessment period. Each exception includes the affected criteria, the nature of "
+        "the evidence gap, and a recommended remediation path.",
+        st["small"],
+    ))
+    story.append(Spacer(1, 4 * mm))
+
+    try:
+        from reports.generator import FRAMEWORK_CRITERIA
+        crit_by_ctrl: dict[str, list] = {}
+        for crit in FRAMEWORK_CRITERIA.get(context["framework"], []):
+            crit_by_ctrl.setdefault(crit["control"], []).append(crit["id"])
+    except ImportError:
+        crit_by_ctrl = {}
+
+    exception_controls = [c for c in context["control_scores"] if c["status"] in ("failing", "warning")]
+
+    if exception_controls:
+        fail_count  = sum(1 for c in exception_controls if c["status"] == "failing")
+        warn_count  = sum(1 for c in exception_controls if c["status"] == "warning")
+        story.append(_stats_row([
+            _stat_cell(str(len(exception_controls)), "Total Exceptions", AMBER,    W / 3),
+            _stat_cell(str(fail_count),              "Failing Controls", RED,      W / 3),
+            _stat_cell(str(warn_count),              "Exception Noted",  AMBER,    W / 3),
+        ], W / 3, W))
+        story.append(Spacer(1, 5 * mm))
+
+        exc_rows = []
+        for ctrl in exception_controls:
+            category = ctrl["category"]
+            status   = ctrl["status"]
+            s_bg, s_fg = _status_bg_fg(status)
+            missing = ", ".join(ctrl["missing_types"]) if ctrl["missing_types"] else "Insufficient evidence coverage"
+            criteria_ids = ", ".join(crit_by_ctrl.get(category, [])) or "—"
+            conclusion = (
+                "FAIL — Control is not operating effectively. Immediate remediation required."
+                if status == "failing" else
+                "EXCEPTION NOTED — Control is partially operating. Gaps require remediation within assessment period."
+            )
+            exc_rows.append([
+                Paragraph(ctrl["name"], st["td"]),
+                Paragraph(criteria_ids, ParagraphStyle(
+                    f"exc_crit_{category[:8]}", fontName="Helvetica-Bold", fontSize=8, textColor=TEAL, leading=11,
+                )),
+                Paragraph(ctrl["status"].replace("_", " ").title(), ParagraphStyle(
+                    f"exc_st_{category[:8]}", fontName="Helvetica-Bold", fontSize=8, textColor=s_fg, backColor=s_bg, leading=11,
+                )),
+                Paragraph(missing, st["small"]),
+                Paragraph("TBD — assign remediation owner in TraceLayer", st["small"]),
+            ])
+
+        story.append(_data_table(
+            ["Control Domain", "Affected Criteria", "Status", "Evidence Gap / Root Cause", "Remediation Target"],
+            exc_rows,
+            [W * 0.22, W * 0.16, W * 0.13, W * 0.28, W * 0.21],
+            st,
+        ))
+
+        story.append(Spacer(1, 6 * mm))
+        story.append(Paragraph("Exception Detail", st["h3"]))
+        story.append(Spacer(1, 2 * mm))
+
+        for ctrl in exception_controls:
+            category = ctrl["category"]
+            status   = ctrl["status"]
+            s_bg, s_fg = _status_bg_fg(status)
+            criteria_ids = ", ".join(crit_by_ctrl.get(category, [])) or "—"
+            missing = ", ".join(ctrl["missing_types"]) if ctrl["missing_types"] else "evidence coverage"
+
+            badge_text = "FAIL" if status == "failing" else "EXCEPTION NOTED"
+            badge_style = "fail_badge" if status == "failing" else "warn_badge"
+
+            exc_title_row = Table([[
+                Paragraph(ctrl["name"], ParagraphStyle(
+                    f"exc_nm_{category}", fontName="Helvetica-Bold", fontSize=10, textColor=GRAY_900, leading=14,
+                )),
+                Paragraph(badge_text, st[badge_style]),
+            ]], colWidths=[W - 50 * mm, 50 * mm])
+            exc_title_row.setStyle(TableStyle([
+                ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+                ("BACKGROUND",    (0, 0), (-1, -1), s_bg),
+                ("TOPPADDING",    (0, 0), (-1, -1), 8),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                ("LEFTPADDING",   (0, 0), (-1, -1), 10),
+                ("RIGHTPADDING",  (0, 0), (-1, -1), 10),
+            ]))
+
+            detail_lines = [
+                f"<b>Affected Criteria:</b> {criteria_ids}",
+                f"<b>Control Domain:</b> {category.replace('_', ' ').title()}",
+                f"<b>Compliance Score:</b> {ctrl['score']}%  ·  <b>Evidence Collected:</b> {ctrl['evidence_count']} records",
+                f"<b>Missing Evidence Types:</b> {missing}",
+                f"<b>Auditor Conclusion:</b> {'Control failed evidence threshold — no operating effectiveness demonstrated.' if status == 'failing' else 'Control partially operating — exceptions noted in evidence coverage.'}",
+                f"<b>Management Response Required:</b> Assign a remediation owner, define a target completion date, and re-run evidence collection after remediation.",
+            ]
+            detail_body = Table(
+                [[Paragraph(line, ParagraphStyle(f"exc_det_{category[:8]}_{i}", fontName="Helvetica", fontSize=9, textColor=GRAY_700, leading=14))]
+                 for i, line in enumerate(detail_lines)],
+                colWidths=[W],
+            )
+            detail_body.setStyle(TableStyle([
+                ("BACKGROUND",    (0, 0), (-1, -1), WHITE),
+                ("TOPPADDING",    (0, 0), (-1, -1), 4),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                ("LEFTPADDING",   (0, 0), (-1, -1), 12),
+                ("RIGHTPADDING",  (0, 0), (-1, -1), 12),
+            ]))
+
+            exc_card = Table([[exc_title_row], [detail_body]], colWidths=[W])
+            exc_card.setStyle(TableStyle([
+                ("BOX",           (0, 0), (-1, -1), 1, s_fg),
+                ("TOPPADDING",    (0, 0), (-1, -1), 0),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+                ("LEFTPADDING",   (0, 0), (-1, -1), 0),
+                ("RIGHTPADDING",  (0, 0), (-1, -1), 0),
+            ]))
+            story.append(KeepTogether([exc_card]))
+            story.append(Spacer(1, 4 * mm))
+    else:
+        story.append(_stats_row([
+            _stat_cell("0", "Exceptions", GREEN,    W / 3),
+            _stat_cell("0", "Failing",    GREEN,    W / 3),
+            _stat_cell("0", "Noted",      GREEN,    W / 3),
+        ], W / 3, W))
+        story.append(Spacer(1, 4 * mm))
+        story.append(Paragraph(
+            "No exceptions noted. All control domains passed automated evidence testing during the assessment period. "
+            "This is a strong indicator of a mature compliance posture. Continue monitoring to maintain this status.",
+            ParagraphStyle("exc_pass", fontName="Helvetica", fontSize=10, textColor=GREEN_DARK, leading=15),
+        ))
 
     doc.build(story)
     return buf.getvalue()

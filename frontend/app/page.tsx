@@ -1045,6 +1045,21 @@ export default function LandingPage() {
             New: Data Flow Mapping · AI Audit Package · 100+ Integrations
           </div>
 
+          {/* ICP eyebrow */}
+          <div data-animate data-delay="80" className="flex items-center justify-center gap-2 mb-5 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold px-3 py-1 rounded-full">
+              <Building2 className="w-3 h-3" /> SaaS startups
+            </span>
+            <span className="text-gray-300 text-xs">·</span>
+            <span className="inline-flex items-center gap-1.5 bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold px-3 py-1 rounded-full">
+              <TrendingUp className="w-3 h-3" /> Seed to Series C
+            </span>
+            <span className="text-gray-300 text-xs">·</span>
+            <span className="inline-flex items-center gap-1.5 bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold px-3 py-1 rounded-full">
+              <Target className="w-3 h-3" /> CTOs closing enterprise deals
+            </span>
+          </div>
+
           <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[64px] font-extrabold leading-[1.1] mb-6 tracking-tight">
             Stop chasing compliance.<br />
             <span className="bg-gradient-to-r from-[var(--accent)] via-emerald-500 to-teal-400 bg-clip-text text-transparent">
@@ -1053,7 +1068,7 @@ export default function LandingPage() {
           </h1>
 
           <p data-animate data-delay="200" className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 leading-relaxed">
-            TraceLayer is your AI-powered compliance platform — three built-in AI engines handle evidence collection across 100+ integrations, auto-map your data flows to regulations, detect compliance drift the moment it happens, and answer enterprise security questionnaires automatically.
+            The compliance platform built for SaaS startups and scale-ups. TraceLayer automates evidence collection across 100+ integrations, maps your data flows to regulations, detects compliance drift in real time, and answers enterprise security questionnaires — so your CTO can close deals instead of filling spreadsheets.
           </p>
 
           <div data-animate data-delay="300" className="flex items-center justify-center gap-3 flex-wrap mb-5">

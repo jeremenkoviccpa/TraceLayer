@@ -424,6 +424,7 @@ async def generate_audit_package(
                     "name": p.slug.replace("_", " ").replace("-", " ").title(),
                     "slug": p.slug,
                     "has_content": bool(p.content and p.content.strip()),
+                    "content": (p.content or "").strip(),
                     "updated_at": p.updated_at.strftime("%Y-%m-%d") if p.updated_at else "",
                 }
                 for p in data["policies"]
