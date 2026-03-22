@@ -523,6 +523,7 @@ def _control_test_card(ctrl: dict, ev_records: list, evidence_stats: dict, manua
     ]))
 
     parts: list = []
+    artifact_elements: list = []
 
     # Evidence summary table
     if ctrl_stats:
@@ -564,19 +565,8 @@ def _control_test_card(ctrl: dict, ev_records: list, evidence_stats: dict, manua
         ]))
         parts.append(ev_container)
 
-        # Evidence artifact tables (sample records from JSONB data)
+        # Evidence artifact tables — kept outside the card KeepTogether so they can split across pages
         artifact_elements = _evidence_artifact_subsection(ev_records, evidence_stats, category, W, st)
-        if artifact_elements:
-            artifact_rows = [[el] for el in artifact_elements]
-            artifact_container = Table(artifact_rows, colWidths=[W])
-            artifact_container.setStyle(TableStyle([
-                ("BACKGROUND",    (0, 0), (-1, -1), WHITE),
-                ("TOPPADDING",    (0, 0), (-1, -1), 3),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
-                ("LEFTPADDING",   (0, 0), (-1, -1), 10),
-                ("RIGHTPADDING",  (0, 0), (-1, -1), 10),
-            ]))
-            parts.append(artifact_container)
 
     elif ctrl["missing_types"]:
         missing_cell = Table([[
@@ -604,7 +594,12 @@ def _control_test_card(ctrl: dict, ev_records: list, evidence_stats: dict, manua
         ("LEFTPADDING",   (0, 0), (-1, -1), 0),
         ("RIGHTPADDING",  (0, 0), (-1, -1), 0),
     ]))
-    return [KeepTogether([card]), Spacer(1, 5 * mm)]
+    result: list = [KeepTogether([card])]
+    if artifact_elements:
+        result.append(HRFlowable(width=W, color=TEAL_BORDER, thickness=0.5))
+        result.extend(artifact_elements)
+    result.append(Spacer(1, 5 * mm))
+    return result
 
 
 def _criteria_test_table(framework: str, control_scores: list, W: float, st: dict) -> list:
