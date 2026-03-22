@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
-  AreaChart, Area, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
+  AreaChart, Area, BarChart, Bar, LabelList,
+  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine,
 } from "recharts";
 import { api } from "@/lib/api";
 import type {
@@ -268,12 +268,14 @@ function fmtDay(dateStr: string) {
 }
 
 // Custom tooltip
-function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: {value: number}[]; label?: string }) {
+function ChartTooltip({ active, payload, label, unit }: { active?: boolean; payload?: {value: number}[]; label?: string; unit?: string }) {
   if (!active || !payload?.length) return null;
+  const val = payload[0].value;
+  const display = unit ? `${val.toLocaleString()} ${unit}` : val <= 100 ? `${val}pts` : val.toLocaleString();
   return (
-    <div className="bg-slate-900 text-white text-xs px-3 py-2 rounded-xl shadow-lg">
-      <p className="text-white/50 mb-0.5">{label}</p>
-      <p className="font-bold">{payload[0].value}{payload[0].value <= 100 ? "%" : " records"}</p>
+    <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-xl shadow-xl border border-white/10">
+      <p className="text-white/50 text-[10px] mb-0.5">{label}</p>
+      <p className="font-bold text-sm">{display}</p>
     </div>
   );
 }
@@ -480,7 +482,14 @@ export default function DashboardPage() {
   const score = compliance?.overall_score ?? 0;
 
   const historyData = scoreHistory.map((p) => ({ date: fmtDay(p.ts), score: p.score }));
+  // Trim leading zeros so the trend starts where evidence actually begins
+  const firstMeaningfulIdx = historyData.findIndex((d) => d.score > 0);
+  const trimmedHistory = firstMeaningfulIdx > 0
+    ? historyData.slice(Math.max(0, firstMeaningfulIdx - 1))
+    : historyData;
+
   const activityData = evidenceActivity.map((p) => ({ date: fmtDay(p.day), count: p.count }));
+  const totalActivityRecords = activityData.reduce((s, d) => s + d.count, 0);
 
   // Trend: compare last two snapshots
   const trend = historyData.length >= 2
@@ -683,70 +692,102 @@ export default function DashboardPage() {
 
       {/* ── Charts ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
         {/* Score trend */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-brand-500" />
+              <div className="w-7 h-7 rounded-lg bg-brand-50 flex items-center justify-center">
+                <TrendingUp className="w-3.5 h-3.5 text-brand-600" />
+              </div>
               <span className="text-sm font-semibold text-gray-800">Score trend</span>
-              <span className="text-xs text-gray-400">30 days</span>
             </div>
             {trend !== null && (
-              <span className={`text-xs font-bold ${trend >= 0 ? "text-emerald-600" : "text-red-500"}`}>
-                {trend >= 0 ? "↑" : "↓"} {Math.abs(trend)}%
+              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${trend >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"}`}>
+                {trend >= 0 ? "↑" : "↓"}{Math.abs(trend)}pts
               </span>
             )}
           </div>
-          {historyData.length > 1 ? (
-            <ResponsiveContainer width="100%" height={150}>
-              <AreaChart data={historyData} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+          <p className="text-[11px] text-gray-400 mb-4 ml-9">Last 30 days · {FRAMEWORKS.find(f => f.value === framework)?.label}</p>
+          {trimmedHistory.length > 1 ? (
+            <ResponsiveContainer width="100%" height={160}>
+              <AreaChart data={trimmedHistory} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0f766e" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="#0f766e" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#0f766e" stopOpacity={0.18} />
+                    <stop offset="100%" stopColor="#0f766e" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                <RechartsTooltip content={<ChartTooltip />} />
-                <Area type="monotone" dataKey="score" stroke="#0f766e" strokeWidth={2}
-                  fill="url(#scoreGrad)" dot={false} activeDot={{ r: 4, fill: "#0f766e" }} />
+                <CartesianGrid strokeDasharray="2 4" stroke="#f1f5f9" vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} tickCount={5} />
+                <RechartsTooltip content={<ChartTooltip unit="pts" />} cursor={{ stroke: "#e2e8f0", strokeWidth: 1 }} />
+                {score > 0 && (
+                  <ReferenceLine y={score} stroke="#0f766e" strokeDasharray="4 3" strokeWidth={1} strokeOpacity={0.4} />
+                )}
+                <Area type="monotone" dataKey="score" stroke="#0f766e" strokeWidth={2.5}
+                  fill="url(#scoreGrad)" dot={false}
+                  activeDot={{ r: 5, fill: "#0f766e", stroke: "#fff", strokeWidth: 2 }} />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[150px] flex flex-col items-center justify-center text-center gap-2">
-              <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-gray-300" />
+            <div className="h-[160px] flex flex-col items-center justify-center text-center gap-2.5">
+              <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-gray-200" />
               </div>
-              <p className="text-xs text-gray-400">Not enough data yet — check back after a few collection runs.</p>
+              <div>
+                <p className="text-sm font-medium text-gray-600">No trend yet</p>
+                <p className="text-xs text-gray-400 mt-0.5">Check back after a few collection runs</p>
+              </div>
             </div>
           )}
         </div>
 
         {/* Evidence activity */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
-          <div className="flex items-center gap-2 mb-5">
-            <Activity className="w-4 h-4 text-brand-500" />
-            <span className="text-sm font-semibold text-gray-800">Evidence activity</span>
-            <span className="text-xs text-gray-400">14 days</span>
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-brand-50 flex items-center justify-center">
+                <Activity className="w-3.5 h-3.5 text-brand-600" />
+              </div>
+              <span className="text-sm font-semibold text-gray-800">Evidence activity</span>
+            </div>
+            {totalActivityRecords > 0 && (
+              <span className="text-xs font-bold text-gray-700 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
+                {totalActivityRecords.toLocaleString()} records
+              </span>
+            )}
           </div>
+          <p className="text-[11px] text-gray-400 mb-4 ml-9">Last 14 days · records collected per day</p>
           {activityData.length > 0 && activityData.some((d) => d.count > 0) ? (
-            <ResponsiveContainer width="100%" height={150}>
-              <BarChart data={activityData} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} allowDecimals={false} axisLine={false} tickLine={false} />
-                <RechartsTooltip content={<ChartTooltip />} />
-                <Bar dataKey="count" fill="#0f766e" radius={[4, 4, 0, 0]} />
+            <ResponsiveContainer width="100%" height={160}>
+              <BarChart data={activityData} barCategoryGap="40%" margin={{ top: 18, right: 8, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#0f766e" stopOpacity={0.85} />
+                    <stop offset="100%" stopColor="#0f766e" stopOpacity={0.4} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="2 4" stroke="#f1f5f9" vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} allowDecimals={false} axisLine={false} tickLine={false} tickCount={4} />
+                <RechartsTooltip content={<ChartTooltip unit="records" />} cursor={{ fill: "#f8fafc" }} />
+                <Bar dataKey="count" fill="url(#barGrad)" radius={[5, 5, 0, 0]} maxBarSize={40}>
+                  <LabelList dataKey="count" position="top"
+                    formatter={(v: unknown) => (typeof v === "number" && v > 0) ? v.toLocaleString() : ""}
+                    style={{ fontSize: "9px", fill: "#64748b", fontWeight: 700 }} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[150px] flex flex-col items-center justify-center text-center gap-2">
-              <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center">
-                <Activity className="w-5 h-5 text-gray-300" />
+            <div className="h-[160px] flex flex-col items-center justify-center text-center gap-2.5">
+              <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center">
+                <Activity className="w-5 h-5 text-gray-200" />
               </div>
-              <p className="text-xs text-gray-400">No evidence collected yet. Connect an integration to get started.</p>
+              <div>
+                <p className="text-sm font-medium text-gray-600">No evidence yet</p>
+                <p className="text-xs text-gray-400 mt-0.5">Connect an integration to start collecting</p>
+              </div>
             </div>
           )}
         </div>
@@ -757,30 +798,37 @@ export default function DashboardPage() {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-brand-500" />
+              <div className="w-7 h-7 rounded-lg bg-brand-50 flex items-center justify-center">
+                <ShieldCheck className="w-3.5 h-3.5 text-brand-600" />
+              </div>
               <span className="text-sm font-semibold text-gray-800">Control breakdown</span>
             </div>
             <Link href="/compliance" className="flex items-center gap-1 text-xs text-brand-600 hover:text-brand-700 font-semibold transition-colors">
               Full view <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {compliance.controls.map((c) => (
-              <Link key={c.category} href={`/compliance`} className="block group">
-                <div className="flex items-center justify-between mb-1.5">
+              <Link key={c.category} href="/compliance" className="block group">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-xs font-semibold text-gray-700 truncate group-hover:text-brand-600 transition-colors">{c.name}</span>
                     {statusBadge(c.status)}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className={`text-xs font-bold ${c.score >= 80 ? "text-emerald-600" : c.score >= 50 ? "text-amber-600" : "text-red-500"}`}>
+                    {c.evidence_count !== undefined && (
+                      <span className="text-[10px] text-gray-400">{c.evidence_count} records</span>
+                    )}
+                    <span className={`text-xs font-bold tabular-nums ${c.score >= 80 ? "text-emerald-600" : c.score >= 50 ? "text-amber-600" : "text-red-500"}`}>
                       {c.score}%
                     </span>
-                    <ArrowRight className="w-3 h-3 text-gray-200 group-hover:text-brand-400 transition-colors" />
                   </div>
                 </div>
-                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div className={`h-full rounded-full transition-all duration-700 ${scoreBarColor(c.score)}`} style={{ width: `${c.score}%` }} />
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-700 ${scoreBarColor(c.score)}`}
+                    style={{ width: `${c.score}%` }}
+                  />
                 </div>
               </Link>
             ))}
