@@ -1076,7 +1076,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-600">No integrations yet</p>
-                <p className="text-xs text-gray-400 mt-0.5">Connect your first tool to start collecting evidence</p>
+                <p className="text-xs text-gray-400 mt-0.5">Connect your first tool to start collecting evidence — or <Link href="/integrations" className="text-brand-600 hover:underline">simulate a tool first</Link> to preview score impact.</p>
               </div>
               <Link href="/integrations" className="text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white px-4 py-1.5 rounded-xl transition-colors">
                 Connect a tool
