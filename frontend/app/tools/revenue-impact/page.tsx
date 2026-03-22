@@ -13,10 +13,13 @@ import {
 
 type Step = 1 | 2 | 3 | "results";
 
+type Region = "us_ca" | "eu" | "apac" | "other" | "";
+
 interface Inputs {
   arr: number;
   employees: number;
   frameworks: string[];
+  region: Region;
   pipelineDeals: number;
   avgDealSize: number;
   complianceStatus: "none" | "inprogress" | "certified";
@@ -58,6 +61,13 @@ const PIPELINE_OPTIONS = [
   { label: "20+",     value: 25 },
 ];
 
+const REGION_OPTIONS: { id: Region; label: string; flag: string; hint: string }[] = [
+  { id: "us_ca", flag: "🇺🇸", label: "United States / Canada", hint: "SOC 2 · HIPAA · CCPA" },
+  { id: "eu",    flag: "🇪🇺", label: "Europe (EU + UK)",        hint: "GDPR · ISO 27001 · UK GDPR" },
+  { id: "apac",  flag: "🌏", label: "Asia Pacific",             hint: "ISO 27001 · PDPA · SOC 2" },
+  { id: "other", flag: "🌍", label: "Rest of world",            hint: "ISO 27001 · SOC 2" },
+];
+
 const FRAMEWORKS = [
   { id: "soc2",      label: "SOC 2",       desc: "Required by 78% of enterprise buyers" },
   { id: "iso27001",  label: "ISO 27001",   desc: "EMEA procurement standard"             },
@@ -68,35 +78,59 @@ const FRAMEWORKS = [
 // ── Calculation engine ────────────────────────────────────────────────────────
 
 function calcRisk(inputs: Inputs) {
-  const { arr, employees, frameworks, pipelineDeals, avgDealSize, complianceStatus } = inputs;
+  const { arr, employees, frameworks, region, pipelineDeals, avgDealSize, complianceStatus } = inputs;
 
   // ── 1. Revenue blocked in pipeline ──────────────────────────────────────
-  // 72% of enterprise deals require at least SOC 2 / ISO 27001
+  // Enterprise deal fraction varies by region:
+  //   US/CA: 72% of deals require SOC 2 or ISO 27001
+  //   EU: 68% require ISO 27001 or GDPR evidence
+  //   APAC: 60% require ISO 27001
+  //   Other: 55%
+  const enterpriseFraction = region === "eu" ? 0.68
+    : region === "apac" ? 0.60
+    : region === "other" ? 0.55
+    : 0.72;
+
   // Block rate by status: none=65%, inprogress=30%, certified=5%
   const blockRate = complianceStatus === "none" ? 0.65
     : complianceStatus === "inprogress" ? 0.30
     : 0.05;
-  const enterpriseFraction = 0.72;
   const pipelineBlocked = pipelineDeals * avgDealSize * enterpriseFraction * blockRate;
 
   // ── 2. Annual churn from compliance pressure ─────────────────────────────
-  // Customers renewing will ask for certs; block rate is lower (30% of blockRate)
   const churnRisk = complianceStatus === "certified" ? 0
     : arr * (blockRate * 0.30);
 
   // ── 3. Regulatory fines exposure ────────────────────────────────────────
   let finesExposure = 0;
+
   if (frameworks.includes("gdpr")) {
-    // 4% of global annual turnover, but for modeling we use 2% ARR (expected value)
-    finesExposure += arr * 0.02;
+    if (region === "eu") {
+      // EU-based: full GDPR exposure — 4% global turnover max, model at 2% ARR expected value
+      finesExposure += arr * 0.02;
+    } else {
+      // Non-EU but processing EU data: lower expected value (~0.5% ARR)
+      finesExposure += arr * 0.005;
+    }
+  } else if (region === "eu" && complianceStatus === "none") {
+    // EU company not tracking GDPR at all: minimum latent exposure
+    finesExposure += arr * 0.01;
   }
+
   if (frameworks.includes("hipaa")) {
-    // $100–$50K per violation; assume 5 potential violations at $10K avg expected
-    finesExposure += 50_000;
+    if (region === "us_ca") {
+      // HIPAA applies only in the US — $100–$50K per violation, model at 5 violations × $10K avg
+      finesExposure += 50_000;
+    }
+    // HIPAA has no legal weight outside US — omit for other regions
   }
+
   if (frameworks.includes("soc2") && complianceStatus === "none") {
-    // Data breach cost average for non-certified companies: ~$200K for SMBs
-    finesExposure += 200_000;
+    // Data breach cost for non-certified companies; higher in US due to litigation + notification laws
+    const breachCost = region === "us_ca" ? 200_000
+      : region === "eu" ? 160_000   // GDPR breach notification fines on top
+      : 100_000;
+    finesExposure += breachCost;
   }
 
   // ── 4. Internal staff cost ───────────────────────────────────────────────
@@ -197,6 +231,7 @@ export default function RevenueImpactPage() {
     arr: 0,
     employees: 0,
     frameworks: ["soc2"],
+    region: "",
     pipelineDeals: 0,
     avgDealSize: 0,
     complianceStatus: "none",
@@ -214,7 +249,7 @@ export default function RevenueImpactPage() {
     }));
   };
 
-  const step1Valid = inputs.arr > 0 && inputs.employees > 0 && inputs.frameworks.length > 0;
+  const step1Valid = inputs.arr > 0 && inputs.employees > 0 && inputs.frameworks.length > 0 && inputs.region !== "";
   const step2Valid = inputs.pipelineDeals > 0 && inputs.avgDealSize > 0;
   const step3Valid = !!inputs.complianceStatus;
 
@@ -318,6 +353,32 @@ export default function RevenueImpactPage() {
                     <OptionBtn key={o.value} selected={inputs.employees === o.value} onClick={() => set("employees", o.value)}>
                       {o.label}
                     </OptionBtn>
+                  ))}
+                </div>
+              </div>
+
+              {/* Region */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2.5">
+                  Where is your company based?
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {REGION_OPTIONS.map((r) => (
+                    <button
+                      key={r.id}
+                      onClick={() => set("region", r.id)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all ${
+                        inputs.region === r.id
+                          ? "border-teal-500 bg-teal-50"
+                          : "border-gray-200 hover:border-teal-200 hover:bg-teal-50/30"
+                      }`}
+                    >
+                      <span className="text-xl">{r.flag}</span>
+                      <div>
+                        <p className="text-sm font-bold text-gray-800">{r.label}</p>
+                        <p className="text-xs text-gray-400">{r.hint}</p>
+                      </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -683,7 +744,7 @@ export default function RevenueImpactPage() {
               <button
                 onClick={() => {
                   setStep(1);
-                  setInputs({ arr: 0, employees: 0, frameworks: ["soc2"], pipelineDeals: 0, avgDealSize: 0, complianceStatus: "none" });
+                  setInputs({ arr: 0, employees: 0, frameworks: ["soc2"], region: "", pipelineDeals: 0, avgDealSize: 0, complianceStatus: "none" });
                 }}
                 className="text-sm text-gray-400 hover:text-gray-700 underline underline-offset-2 transition-colors"
               >
