@@ -654,7 +654,7 @@ const HOW_IT_WORKS = [
   {
     step: "01",
     title: "Connect your tools",
-    desc: "Paste an API key for your first integration and evidence starts flowing immediately. No agents, no code, no week-long setup. Most teams are collecting evidence within 5 minutes. Not sure which tools to connect? Simulate your stack first — see your projected score before touching a single credential.",
+    desc: "Paste an API key and evidence starts flowing immediately. No agents, no code, no week-long setup. Most teams are collecting evidence within 5 minutes — you can even simulate any integration first to preview your score before touching a credential.",
   },
   {
     step: "02",

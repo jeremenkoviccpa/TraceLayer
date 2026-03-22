@@ -538,7 +538,7 @@ export default function DashboardPage() {
         >
           {/* Radial glow */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-brand-500/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="relative min-w-0 overflow-hidden">
+          <div className="relative min-w-0 overflow-y-hidden">
             <div className="flex items-center gap-3 sm:gap-6">
               <ScoreRing score={scoreLoading ? score : score} />
               <div className="flex-1 min-w-0">
