@@ -151,7 +151,7 @@ export default function ToolsPage() {
 
       {/* Tool cards */}
       <section className="max-w-5xl mx-auto px-6 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {TOOLS.map((tool) => {
             const Icon = tool.icon;
             return (
