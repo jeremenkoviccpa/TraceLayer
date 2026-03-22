@@ -1038,7 +1038,7 @@ export default function LandingPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            New: Integration Simulation · Compliance Stack Scorer · AI Audit Package
+            New:<span className="hidden sm:inline"> Integration Simulation ·</span> Compliance Stack Scorer · AI Audit Package
           </div>
 
           <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[56px] font-extrabold leading-[1.1] mb-4 tracking-tight">
