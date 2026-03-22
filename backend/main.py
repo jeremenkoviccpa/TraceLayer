@@ -8,7 +8,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from sqlalchemy import select, text
 
-from api.v1 import access_reviews, ai_agent_events, api_keys, assets, audit, audit_sessions, auth, auth_google, auth_sso, background_checks, billing, business_continuity, compliance, data_breaches, data_flows, documents, evidence, incidents, ingest, integrations, management_reviews, notifications, offboarding, org, partner, pen_tests, policies, questionnaire, reports, risks, ropa, soa, sso, subject_requests, superadmin, training, trust, vendors, vulnerabilities
+from api.v1 import access_reviews, ai_agent_events, api_keys, assets, audit, audit_sessions, auth, auth_google, auth_sso, background_checks, billing, business_continuity, compliance, data_breaches, data_flows, documents, evidence, incidents, ingest, integrations, management_reviews, notifications, offboarding, org, partner, pen_tests, policies, public, questionnaire, reports, risks, ropa, soa, sso, subject_requests, superadmin, training, trust, vendors, vulnerabilities
 from api.v1.admin.framework_updates import manifests_router as framework_manifests_router
 from api.v1.admin.framework_updates import router as framework_updates_router
 from collectors.scheduler import schedule_integration
@@ -210,6 +210,7 @@ app.include_router(ingest.router, prefix="/v1")
 app.include_router(superadmin.router, prefix="/v1")
 app.include_router(framework_updates_router, prefix="/v1")
 app.include_router(framework_manifests_router, prefix="/v1")
+app.include_router(public.router, prefix="/v1")
 
 
 @app.get("/health")
