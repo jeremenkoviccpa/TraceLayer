@@ -1114,10 +1114,10 @@ export default function LandingPage() {
                 </div>
 
                 {/* Hero row: dark score card (2/3) + mini stats (1/3) */}
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
 
                   {/* Dark score card */}
-                  <div className="col-span-2 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl p-3 overflow-hidden relative">
+                  <div className="sm:col-span-2 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl p-3 overflow-hidden relative">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-20 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
                     {/* Top: ring + score + tabs */}
                     <div className="flex items-start gap-3 mb-3">
@@ -1171,7 +1171,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Mini stats column */}
-                  <div className="space-y-1.5">
+                  <div className="grid grid-cols-2 sm:grid-cols-1 gap-1.5">
                     {[
                       { value:"211",   label:"Evidence records",   sub:"across all integrations", color:"text-gray-900" },
                       { value:"38",    label:"Active integrations", sub:"of 38 connected",         color:"text-teal-600" },
@@ -1188,7 +1188,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Charts row: score trend + evidence activity */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="hidden sm:grid grid-cols-2 gap-2">
                   <div className="bg-white rounded-xl border border-gray-100 p-3">
                     <div className="flex items-center justify-between mb-0.5">
                       <span className="text-[11px] font-semibold text-gray-800">Score trend</span>
