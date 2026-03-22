@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import ForeignKey, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import UUID
@@ -22,11 +23,11 @@ class ManualControl(Base):
     framework: Mapped[str] = mapped_column(String(50), nullable=False)
     control_id: Mapped[str] = mapped_column(String(100), nullable=False)
     status: Mapped[str] = mapped_column(String(50), nullable=False, default="pending")
-    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
-    updated_by_id: Mapped[uuid.UUID | None] = mapped_column(
+    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    updated_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
-    owner_user_id: Mapped[uuid.UUID | None] = mapped_column(
+    owner_user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     updated_at: Mapped[datetime] = mapped_column(

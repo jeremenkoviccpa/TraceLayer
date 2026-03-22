@@ -5,8 +5,9 @@ import { api } from "@/lib/api";
 import type { SuperAdminCompany, SuperAdminUser } from "@/lib/types";
 import {
   ChevronDown, ChevronRight, Shield, Users, Building2, Crown,
-  Trash2, CheckCircle, RotateCcw, MoreHorizontal, X,
+  Trash2, CheckCircle, RotateCcw, MoreHorizontal, X, Sparkles,
 } from "lucide-react";
+import { toast } from "@/lib/toast";
 
 const PLAN_COLORS: Record<string, string> = {
   growth: "bg-emerald-100 text-emerald-800 border border-emerald-200",
@@ -66,6 +67,7 @@ export default function SuperAdminPage() {
   const [saving, setSaving] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<{ message: string; action: () => Promise<void>; danger?: boolean } | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState<string | null>(null);
+  const [seeding, setSeeding] = useState<string | null>(null);
 
   useEffect(() => {
     api.superAdminListCompanies()
@@ -145,6 +147,15 @@ export default function SuperAdminPage() {
       // decrement user_count on company
       setCompanies((prev) => prev.map((c) => c.id === companyId ? { ...c, user_count: c.user_count - 1 } : c));
     } finally { setSaving(null); }
+  }
+
+  async function seedDemo(company: SuperAdminCompany) {
+    setSeeding(company.id);
+    try {
+      const result = await api.superAdminSeedDemo(company.id);
+      toast(`Seeded ${result.integrations_added} integrations + ${result.evidence_upserted} evidence records for "${company.name}"`);
+    } catch { toast("Seed failed", "error"); }
+    finally { setSeeding(null); }
   }
 
   function ask(message: string, action: () => Promise<void>, danger = false) {
@@ -295,6 +306,15 @@ export default function SuperAdminPage() {
                   </td>
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center gap-1">
+                      {/* Seed demo integrations */}
+                      <button
+                        title="Seed demo integrations + evidence"
+                        onClick={() => seedDemo(company)}
+                        disabled={seeding === company.id}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-brand-600 hover:bg-brand-50 transition-colors disabled:opacity-50"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                      </button>
                       {/* Reset subscription */}
                       <button
                         title="Reset subscription to Free"
