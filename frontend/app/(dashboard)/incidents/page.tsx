@@ -134,13 +134,69 @@ export default function IncidentsPage() {
       {loading ? (
         <div className="flex justify-center py-12"><div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" /></div>
       ) : incidents.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-          <Siren className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 font-medium">No incidents recorded</p>
-          <p className="text-sm text-gray-400 mt-1 max-w-sm mx-auto">
-            SOC 2 CC7.3 requires you to document and respond to security incidents. Zero recorded incidents looks suspicious to auditors — it means you&apos;re not monitoring, not that you&apos;re perfect.
-          </p>
-          <button onClick={openCreate} className="btn-primary mt-4 gap-2"><Plus className="w-4 h-4" /> New Incident</button>
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          <div className="text-center py-10 px-6 border-b border-gray-50">
+            <Siren className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-700 font-semibold">No incidents recorded</p>
+            <p className="text-sm text-gray-400 mt-1.5 max-w-sm mx-auto">
+              SOC 2 CC7.3 requires you to document and respond to security incidents. Zero recorded incidents looks suspicious to auditors — it means you&apos;re not monitoring, not that you&apos;re perfect.
+            </p>
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <button onClick={openCreate} className="btn-primary gap-2 text-xs !py-2"><Plus className="w-3.5 h-3.5" /> New Incident</button>
+              <button onClick={handleDetect} disabled={detecting} className="btn-secondary gap-2 text-xs !py-2 disabled:opacity-50">
+                {detecting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                Auto-detect now
+              </button>
+            </div>
+          </div>
+          <div className="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-50">
+            <div className="p-5">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Auto-detected from</p>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Pen test findings</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Any completed pen test with critical or high severity findings auto-creates an incident.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 w-5 h-5 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Long-running critical vulnerabilities</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Critical vulnerabilities left open for 60+ days are automatically escalated to incidents.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-5">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">How detection runs</p>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 w-5 h-5 rounded-full bg-violet-100 flex items-center justify-center shrink-0">
+                    <Sparkles className="w-2.5 h-2.5 text-violet-500" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Runs nightly at 02:15 UTC</p>
+                    <p className="text-xs text-gray-400 mt-0.5">The scheduler scans all pen tests and vulnerabilities automatically — no action needed.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Or trigger it manually</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Use <span className="font-semibold text-gray-600">Auto-detect</span> in the top bar to run detection immediately, or log incidents yourself.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="space-y-6">
