@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
@@ -7,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from core.deps import get_current_user
 from models.access_review import AccessReview
+from models.evidence import Evidence
 from models.user import User
 from schemas.access_review import AccessReviewCreate, AccessReviewResponse, AccessReviewUpdate
 
@@ -129,6 +131,60 @@ async def update_access_review(
     for field, value in update_data.items():
         setattr(review, field, value)
 
+    await db.commit()
+    await db.refresh(review)
+    return await _build_response(review, db)
+
+
+@router.post("/generate", response_model=AccessReviewResponse, status_code=201)
+async def generate_access_review(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Auto-generate a pre-populated access review by counting users across all connected integrations."""
+    USER_EVIDENCE_TYPES = {
+        "iam_users", "github_members", "slack_users",
+        "google_users", "google_workspace_users",
+        "okta_users", "azure_ad_users", "azure_users", "jira_users",
+    }
+
+    evidence_result = await db.execute(
+        select(Evidence).where(
+            Evidence.company_id == current_user.company_id,
+            Evidence.evidence_type.in_(USER_EVIDENCE_TYPES),
+        )
+    )
+    user_evidence = evidence_result.scalars().all()
+
+    by_integration: dict[str, list] = {}
+    for ev in user_evidence:
+        by_integration.setdefault(ev.integration, []).append(ev)
+
+    total_users = len(user_evidence)
+
+    scope_lines = []
+    for integration, evs in sorted(by_integration.items()):
+        label = integration.replace("_", " ").title()
+        scope_lines.append(f"{label}: {len(evs)} user(s)")
+
+    if scope_lines:
+        scope = "\n".join(scope_lines)
+    else:
+        scope = "No integration user data found. Connect integrations (GitHub, AWS, Okta, etc.) to auto-populate."
+
+    now = datetime.now(timezone.utc)
+    q = (now.month - 1) // 3 + 1
+    period = f"Q{q} {now.year}"
+
+    review = AccessReview(
+        company_id=current_user.company_id,
+        title=f"Quarterly Access Review — {period}",
+        period=period,
+        status="open",
+        users_reviewed=total_users,
+        scope=scope,
+    )
+    db.add(review)
     await db.commit()
     await db.refresh(review)
     return await _build_response(review, db)

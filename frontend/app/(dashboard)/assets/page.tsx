@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Asset } from "@/lib/types";
-import { Server, Plus, Trash2, X } from "lucide-react";
+import { Server, Plus, Trash2, X, RefreshCw } from "lucide-react";
 import { toast } from "@/lib/toast";
 
 const ASSET_TYPES = ["hardware", "software", "cloud", "data", "other"] as const;
@@ -47,11 +47,26 @@ export default function AssetsPage() {
   const [editing, setEditing]     = useState<Asset | null>(null);
   const [form, setForm]           = useState<Partial<Asset>>(EMPTY);
   const [saving, setSaving]       = useState(false);
+  const [syncing, setSyncing]     = useState(false);
   const [filter, setFilter]       = useState<string>("all");
 
   useEffect(() => {
     api.getAssets().then(setAssets).finally(() => setLoading(false));
   }, []);
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      const result = await api.syncAssets();
+      if (result.created > 0) {
+        const fresh = await api.getAssets();
+        setAssets(fresh);
+        toast(`Synced ${result.created} asset${result.created !== 1 ? "s" : ""} from integrations`);
+      } else {
+        toast("No new assets found — connect more integrations or they may already be synced");
+      }
+    } catch { toast("Sync failed", "error"); } finally { setSyncing(false); }
+  };
 
   const openCreate = () => { setEditing(null); setForm(EMPTY); setShowModal(true); };
   const openEdit   = (a: Asset) => { setEditing(a); setForm(a); setShowModal(true); };
@@ -95,11 +110,18 @@ export default function AssetsPage() {
             <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">Track hardware, software, cloud, and data assets</p>
           </div>
         </div>
-        <button onClick={openCreate} className="btn-primary gap-1.5 !px-3 !py-2 text-xs shrink-0">
-          <Plus className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Add Asset</span>
-          <span className="sm:hidden">Add</span>
-        </button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button onClick={handleSync} disabled={syncing} className="btn-secondary gap-1.5 !px-3 !py-2 text-xs">
+            <RefreshCw className={`w-3.5 h-3.5 ${syncing ? "animate-spin" : ""}`} />
+            <span className="hidden sm:inline">Sync from integrations</span>
+            <span className="sm:hidden">Sync</span>
+          </button>
+          <button onClick={openCreate} className="btn-primary gap-1.5 !px-3 !py-2 text-xs">
+            <Plus className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Add Asset</span>
+            <span className="sm:hidden">Add</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter tabs */}

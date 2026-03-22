@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { AccessReview, Member } from "@/lib/types";
-import { UserCheck, Plus, Trash2, X, CheckCircle2, Clock, PlayCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { UserCheck, Plus, Trash2, X, CheckCircle2, Clock, PlayCircle, ChevronDown, ChevronUp, Sparkles, RefreshCw } from "lucide-react";
 
 const STATUS_STYLES: Record<string, string> = {
   open: "bg-gray-100 text-gray-600",
@@ -218,6 +218,7 @@ export default function AccessReviewsPage() {
   const [updating, setUpdating] = useState<AccessReview | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -225,6 +226,14 @@ export default function AccessReviewsPage() {
       api.getMembers(),
     ]).then(([r, m]) => { setReviews(r); setMembers(m); }).catch(() => {}).finally(() => setLoading(false));
   }, []);
+
+  const handleAutoGenerate = async () => {
+    setGenerating(true);
+    try {
+      const r = await api.generateAccessReview();
+      setReviews((prev) => [r, ...prev]);
+    } catch { } finally { setGenerating(false); }
+  };
 
   const handleCreate = async (data: Partial<AccessReview>) => {
     const r = await api.createAccessReview(data);
@@ -263,12 +272,22 @@ export default function AccessReviewsPage() {
               <p className="text-sm text-slate-400 mt-0.5">Quarterly access review workflows with documented sign-off for CC6.3.</p>
             </div>
           </div>
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors shrink-0"
-          >
-            <Plus className="w-4 h-4" /> New review
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleAutoGenerate}
+              disabled={generating}
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-2 rounded-xl text-sm transition-colors"
+            >
+              {generating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              <span className="hidden sm:inline">Auto-generate</span>
+            </button>
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors"
+            >
+              <Plus className="w-4 h-4" /> <span className="hidden sm:inline">New review</span><span className="sm:hidden">New</span>
+            </button>
+          </div>
         </div>
 
         {/* Row 2: stats grid */}

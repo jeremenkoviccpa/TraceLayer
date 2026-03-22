@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from core.deps import get_current_user
 from models.asset import Asset
+from models.evidence import Evidence
 from models.user import User
 from schemas.asset import AssetCreate, AssetResponse, AssetUpdate
 
@@ -150,6 +151,95 @@ async def update_asset(
             owner_map[row.id] = row.full_name or row.email
 
     return _to_response(asset, owner_map)
+
+
+@router.post("/sync", status_code=200)
+async def sync_assets_from_integrations(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Pull asset data from collected integration evidence and create Asset records."""
+    ASSET_EVIDENCE_TYPES = {"repositories", "ec2_instances", "s3_buckets", "rds_instances"}
+
+    evidence_result = await db.execute(
+        select(Evidence).where(
+            Evidence.company_id == current_user.company_id,
+            Evidence.evidence_type.in_(ASSET_EVIDENCE_TYPES),
+        )
+    )
+    all_evidence = evidence_result.scalars().all()
+
+    existing_result = await db.execute(
+        select(Asset.name, Asset.asset_type).where(Asset.company_id == current_user.company_id)
+    )
+    existing_keys = {(row[0], row[1]) for row in existing_result.all()}
+
+    created = 0
+    skipped = 0
+
+    for ev in all_evidence:
+        data = ev.data or {}
+        asset_name: Optional[str] = None
+        asset_type: str = "other"
+        vendor: Optional[str] = None
+        environment: str = "production"
+        classification: str = "internal"
+        status: str = "active"
+        description: Optional[str] = None
+        location: Optional[str] = None
+
+        if ev.evidence_type == "repositories":
+            asset_name = data.get("name")
+            full_name = data.get("full_name", asset_name)
+            private = data.get("private", True)
+            archived = data.get("archived", False)
+            asset_type = "software"
+            vendor = "GitHub"
+            classification = "internal" if private else "public"
+            status = "retired" if archived else "active"
+            description = f"GitHub repository: {full_name}"
+            location = "GitHub"
+
+        elif ev.evidence_type == "ec2_instances":
+            asset_name = data.get("InstanceId") or data.get("instance_id")
+            asset_type = "cloud"
+            vendor = "AWS"
+            environment = data.get("environment", "production")
+            description = f"EC2 instance: {data.get('InstanceType', '')} in {data.get('region', ev.integration)}"
+            location = data.get("region", "aws")
+
+        elif ev.evidence_type == "s3_buckets":
+            asset_name = data.get("Name") or data.get("name")
+            asset_type = "cloud"
+            vendor = "AWS"
+            description = f"S3 bucket: {asset_name}"
+            location = data.get("region", "aws")
+
+        if not asset_name:
+            continue
+
+        key = (asset_name, asset_type)
+        if key in existing_keys:
+            skipped += 1
+            continue
+
+        asset = Asset(
+            company_id=current_user.company_id,
+            name=asset_name,
+            asset_type=asset_type,
+            vendor=vendor,
+            environment=environment,
+            classification=classification,
+            status=status,
+            description=description,
+            location=location,
+        )
+        db.add(asset)
+        existing_keys.add(key)
+        created += 1
+
+    await db.commit()
+    return {"created": created, "skipped": skipped}
 
 
 @router.delete("/{asset_id}", status_code=204)

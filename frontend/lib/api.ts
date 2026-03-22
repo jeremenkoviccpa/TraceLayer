@@ -537,6 +537,10 @@ class ApiClient {
     return this.request("DELETE", `/access-reviews/${id}`);
   }
 
+  async generateAccessReview(): Promise<AccessReview> {
+    return this.request<AccessReview>("POST", "/access-reviews/generate");
+  }
+
   // ── Trust Center ──────────────────────────────────────────────────────────
 
   async getTrustPageSettings(): Promise<TrustPageSettings> {
@@ -646,6 +650,10 @@ class ApiClient {
     return this.request("DELETE", `/assets/${id}`);
   }
 
+  async syncAssets(): Promise<{ created: number; skipped: number }> {
+    return this.request("POST", "/assets/sync");
+  }
+
   // ── Vulnerabilities ───────────────────────────────────────────────────────
 
   async getVulnerabilities(): Promise<Vulnerability[]> {
@@ -662,6 +670,10 @@ class ApiClient {
 
   async deleteVulnerability(id: string): Promise<void> {
     return this.request("DELETE", `/vulnerabilities/${id}`);
+  }
+
+  async autoDetectVulnerabilities(): Promise<{ created: number; skipped: number }> {
+    return this.request("POST", "/vulnerabilities/auto-detect");
   }
 
   // ── Business Continuity ───────────────────────────────────────────────────

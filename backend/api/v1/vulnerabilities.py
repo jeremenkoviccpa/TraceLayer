@@ -1,5 +1,6 @@
 import logging
 import uuid
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -9,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from core.deps import get_current_user
 from models.vulnerability import Vulnerability
+from models.evidence import Evidence
 from models.user import User
 from schemas.vulnerability import VulnerabilityCreate, VulnerabilityResponse, VulnerabilityUpdate
 
@@ -150,6 +152,77 @@ async def update_vulnerability(
             owner_map[row.id] = row.full_name or row.email
 
     return _to_response(vuln, owner_map)
+
+
+@router.post("/auto-detect", status_code=200)
+async def auto_detect_vulnerabilities(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Scan collected integration evidence and auto-create vulnerability records for known security issues."""
+    evidence_result = await db.execute(
+        select(Evidence).where(Evidence.company_id == current_user.company_id)
+    )
+    all_evidence = evidence_result.scalars().all()
+
+    existing_result = await db.execute(
+        select(Vulnerability.title).where(Vulnerability.company_id == current_user.company_id)
+    )
+    existing_titles = {row[0] for row in existing_result.all()}
+
+    created = 0
+    skipped = 0
+    now = datetime.now(timezone.utc)
+
+    for ev in all_evidence:
+        data = ev.data or {}
+        findings: list[dict] = []
+
+        if ev.evidence_type == "iam_users":
+            username = data.get("username", data.get("UserName", "unknown"))
+            mfa_enabled = data.get("mfa_enabled", data.get("MFAEnabled", None))
+            if mfa_enabled is False:
+                findings.append({
+                    "title": f"MFA not enabled — AWS IAM user: {username}",
+                    "severity": "high",
+                    "affected_system": "AWS IAM",
+                    "description": f"IAM user '{username}' does not have MFA enabled. This increases the risk of account compromise if credentials are stolen.",
+                    "remediation_notes": "Enable MFA for this IAM user in the AWS Console under IAM → Users → Security credentials.",
+                })
+
+        elif ev.evidence_type == "repositories":
+            name = data.get("full_name", data.get("name", "unknown"))
+            private = data.get("private", True)
+            archived = data.get("archived", False)
+            if not private and not archived:
+                findings.append({
+                    "title": f"Public GitHub repository: {name}",
+                    "severity": "info",
+                    "affected_system": "GitHub",
+                    "description": f"Repository '{name}' is publicly visible. Verify this is intentional and does not expose sensitive code or credentials.",
+                    "remediation_notes": "If this repository should not be public, change its visibility to Private in GitHub repository settings.",
+                })
+
+        for finding in findings:
+            if finding["title"] in existing_titles:
+                skipped += 1
+                continue
+            vuln = Vulnerability(
+                company_id=current_user.company_id,
+                title=finding["title"],
+                severity=finding["severity"],
+                status="open",
+                affected_system=finding.get("affected_system"),
+                description=finding.get("description"),
+                remediation_notes=finding.get("remediation_notes"),
+                discovered_at=now,
+            )
+            db.add(vuln)
+            existing_titles.add(finding["title"])
+            created += 1
+
+    await db.commit()
+    return {"created": created, "skipped": skipped}
 
 
 @router.delete("/{vuln_id}", status_code=204)
