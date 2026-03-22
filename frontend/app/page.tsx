@@ -556,10 +556,10 @@ const INTEGRATION_LOGOS = [
 // ── Static data ───────────────────────────────────────────────────────────────
 
 const STATS = [
-  { value: "100+", label: "Native integrations"     },
-  { value: "7",    label: "Compliance frameworks"    },
-  { value: "3",    label: "AI engines built-in"      },
-  { value: "100%", label: "Automated evidence"       },
+  { value: "100+", label: "integrations, ready to connect" },
+  { value: "7",    label: "frameworks, one platform"       },
+  { value: "3",    label: "AI engines, always running"     },
+  { value: "24h",  label: "evidence collection cycle"      },
 ];
 
 const FRAMEWORKS = [
@@ -654,35 +654,35 @@ const HOW_IT_WORKS = [
   {
     step: "01",
     title: "Connect your tools",
-    desc: "Link your cloud infrastructure and SaaS apps in under 5 minutes using API keys or service accounts. 89+ integrations, no OAuth dance.",
+    desc: "Paste an API key for your first integration and evidence starts flowing immediately. No agents, no code, no week-long setup. Most teams are collecting evidence within 5 minutes.",
   },
   {
     step: "02",
-    title: "AI monitors everything",
-    desc: "Three AI engines run continuously: evidence collector pulls data every 24h, drift detector fires the moment a control changes status, and framework monitor tracks regulation updates at the source.",
+    title: "We watch it for you",
+    desc: "Three AI engines run quietly in the background. They collect evidence every 24 hours, alert you the moment a control breaks, and track regulation changes before they catch you off guard.",
   },
   {
     step: "03",
-    title: "Score, report, audit",
-    desc: "Live readiness score updates after every collection. Generate an AI-written audit narrative and formatted PDF on demand — share a read-only link directly with your auditor.",
+    title: "Share it with your auditor",
+    desc: "Your readiness score updates automatically. When you're ready, generate a complete audit PDF in one click and share a read-only link straight to your auditor. That's it.",
   },
 ];
 
 const TESTIMONIALS = [
   {
-    quote: "We cut our SOC 2 prep from 3 months to 2 weeks. The automated evidence collection alone saved us hundreds of hours and eliminated the spreadsheet chaos entirely.",
+    quote: "SOC 2 prep went from 3 months to 2 weeks. I thought we'd need a whole compliance consultant. Turns out we just needed TraceLayer and an afternoon.",
     author: "Sarah Chen",
     role: "Head of Security, Series B SaaS",
     stars: 5,
   },
   {
-    quote: "Our auditor was genuinely impressed. Everything was organized, timestamped, and mapped to controls. TraceLayer made us look like we had a 10-person compliance team.",
+    quote: "Our auditor was genuinely impressed. Everything was organized, timestamped, and mapped to controls. We looked like we had a 10-person compliance team — it's just us.",
     author: "Marcus Webb",
     role: "CTO, Fintech Startup",
     stars: 5,
   },
   {
-    quote: "We needed SOC 2 and GDPR simultaneously. TraceLayer mapped our AWS and GitHub evidence to both frameworks without any extra configuration. Saved weeks.",
+    quote: "We needed SOC 2 and GDPR at the same time. TraceLayer mapped all our evidence to both without us doing anything extra. That alone saved weeks of painful manual work.",
     author: "Priya Nair",
     role: "VP Engineering, Healthcare Platform",
     stars: 5,
@@ -690,63 +690,59 @@ const TESTIMONIALS = [
 ];
 
 const PAIN_POINTS = [
-  { before: "Spreadsheets tracking evidence manually",          after: "AI collects evidence every 24h across 100+ integrations" },
-  { before: "No idea a control broke until the audit",          after: "AI drift detection fires within minutes of any degradation" },
-  { before: "Vendor questionnaires take days to fill out",      after: "AI autofills all answers in seconds from your live data"  },
-  { before: "Data flows mapped manually in a spreadsheet",      after: "Auto-mapped from integrations — data, region, risk, regulation" },
-  { before: "GDPR compliance managed in spreadsheets",          after: "RoPA, breach register, SARs, SoA, and Data Flow Map in one place" },
-  { before: "Consultants charging $50k+ for the same thing",   after: "Full AI compliance program self-served at startup cost"   },
+  { before: "Manually collecting evidence in spreadsheets",       after: "Evidence collected automatically every 24h from 100+ tools" },
+  { before: "Finding out a control broke at the audit",           after: "Instant alert the moment anything goes wrong"              },
+  { before: "Vendor questionnaires eating days of your time",     after: "AI drafts every answer from your live data in seconds"     },
+  { before: "Mapping data flows by hand in a spreadsheet",        after: "Auto-mapped from your integrations on day one"             },
+  { before: "GDPR buried across docs, emails, and spreadsheets",  after: "Privacy docs, breach log, and data map all in one place"   },
+  { before: "Paying $50k+ for a compliance consultant",           after: "Full compliance program for $149/mo — no consultant needed"},
 ];
 
 
 const FAQ = [
   {
-    q: "How long does setup take?",
-    a: "Under 5 minutes. Create an account, paste an API key for your first integration, and evidence collection starts immediately. No agents to deploy, no code to write.",
+    q: "How long does setup actually take?",
+    a: "Honestly, under 5 minutes. Create an account, paste an API key for your first integration, and evidence collection starts right away. No agents to install, no code to write, no implementation project.",
   },
   {
-    q: "Which compliance frameworks do you support?",
-    a: "SOC 2 Type I & II, ISO 27001 (2022 edition), HIPAA Security Rule, GDPR, PCI DSS v4.0, CCPA, and NIST CSF 2.0. Evidence collected from your integrations maps to all seven simultaneously — no duplicate work, no reconnecting anything.",
+    q: "Which compliance frameworks are supported?",
+    a: "SOC 2 Type I & II, ISO 27001 (2022), HIPAA, GDPR, PCI DSS v4.0, CCPA, and NIST CSF 2.0. The same evidence you collect maps to all seven at once — connect your tools once and switch between framework views without doing any extra work.",
   },
   {
-    q: "What is the Readiness Timeline?",
-    a: "The Readiness Timeline calculates a blended score (70% automated controls, 30% manual controls) and estimates how many weeks you are from audit-ready at your current pace. It updates in real time and surfaces stage-specific next actions.",
+    q: "What does my readiness score mean?",
+    a: "It's a live score that tells you how close you are to audit-ready — based on how much evidence you've collected, how fresh it is, and which controls still have gaps. It also shows a week-by-week estimate and specific next steps to close the gap faster.",
   },
   {
-    q: "What integrations are supported?",
-    a: "100+ integrations: AWS, GitHub, Slack, Google Workspace, Okta, Salesforce, Segment, HubSpot, Mailchimp, OpenAI, Anthropic, Azure AD, Jira, GitLab, GCP, Datadog, CrowdStrike, Jamf, SentinelOne, Snyk, KnowBe4, 360Learning, Lever, Harvest, and many more — each collecting multiple evidence types automatically.",
+    q: "What tools can I connect?",
+    a: "100+ integrations out of the box: AWS, GitHub, Slack, Google Workspace, Okta, Salesforce, Segment, HubSpot, Azure AD, Jira, GitLab, Datadog, CrowdStrike, Jamf, SentinelOne, Snyk, KnowBe4, Anthropic, OpenAI, and many more — each one pulling real evidence automatically.",
   },
   {
-    q: "Does TraceLayer cover training and vendor management?",
-    a: "Yes. The Training Tracker lets you assign security awareness courses by email, track completion, flag overdue assignments, and produce CC1.4 evidence. The Vendor hub tracks all third-party vendors with risk levels, SOC 2 / ISO / HIPAA certifications, review dates, and contact info for CC9.2.",
+    q: "Does it handle security training and vendor reviews?",
+    a: "Yes. You can assign security awareness training to your team by email, track who's completed it, and flag anyone overdue. For vendors, there's a full hub where you can track risk levels, certifications (SOC 2, ISO, HIPAA), and review dates.",
   },
   {
-    q: "What are Access Review Workflows?",
-    a: "Access Reviews let you create formal quarterly review cycles, assign a reviewer, document scope, record how many users were reviewed and how many access changes were made, and capture findings — all with a completed-at timestamp for CC6.3 auditor evidence.",
+    q: "What are access reviews?",
+    a: "Access reviews are formal quarterly reviews where you document who reviewed user access, what changed, and the outcome — all with a timestamp your auditor can rely on. TraceLayer walks you through it so nothing gets missed.",
   },
   {
-    q: "Do you store my cloud credentials?",
-    a: "All credentials are encrypted at rest using Fernet symmetric encryption before being written to the database. We never store or log plaintext secrets, and access is scoped to your company only.",
+    q: "Is my data safe? Do you store credentials?",
+    a: "Yes, your credentials are encrypted before they ever touch our database. We use AES-256 symmetric encryption and never store or log plaintext secrets. Your data is isolated to your company — no one else can see it.",
   },
   {
-    q: "Can I use TraceLayer for a SOC 2 Type II audit?",
-    a: "Yes. TraceLayer collects continuous evidence with timestamps across your entire observation period — exactly what auditors need for a Type II opinion. Generate a formatted PDF report on demand, and share a read-only auditor access link directly from Settings.",
+    q: "Can I actually use this for a SOC 2 Type II audit?",
+    a: "Yes, that's exactly what it's built for. TraceLayer collects continuous evidence with timestamps across your full observation period. When you're done, generate a formatted PDF and share a read-only link directly with your auditor.",
   },
   {
-    q: "Is there a free plan?",
-    a: "Yes — TraceLayer is free to start with no credit card required. The free plan includes SOC 2, automated evidence collection, Risk Register, Policy Templates, Training Tracker, Vendor hub, Access Reviews, and JSON reports for up to 3 integrations and 3 team members. ISO 27001, HIPAA, GDPR, and all other frameworks, plus PDF reports, AI features, and Trust Center require the Growth plan at $149/mo.",
+    q: "Is there really a free plan?",
+    a: "Yes — no credit card, no time limit. The free plan includes SOC 2, automated evidence collection, risk register, policy templates, training tracker, vendor hub, and JSON reports for up to 3 integrations and 3 team members. Upgrade to Growth ($149/mo) for all 7 frameworks, PDF reports, AI features, and Trust Center.",
   },
   {
-    q: "How is the compliance score calculated?",
-    a: "Each control is scored on three factors: coverage (70% weight — evidence types present), recency (20% — how fresh the evidence is), and volume (10% — number of records). Scores are snapshotted up to once per hour.",
-  },
-  {
-    q: "What AI features does TraceLayer include?",
-    a: "Three AI engines are built in: (1) Compliance Drift Detection — after every evidence collection, AI compares control statuses and fires an immediate Slack/Teams alert on any regression. (2) Questionnaire Autofill — AI answers any security questionnaire using your live integration data, policies, risks, and incidents. (3) Framework Monitor — AI monitors official regulation sources weekly and extracts any control changes for your review.",
+    q: "What does the AI actually do?",
+    a: "Three things: (1) It watches your controls and fires an instant Slack or Teams alert the moment something regresses. (2) It reads your live evidence and drafts answers to any security questionnaire a prospect sends you. (3) It monitors regulation sources weekly and flags any framework changes before they affect your audit.",
   },
   {
     q: "Does the AI write my audit report?",
-    a: "Yes. The AI Audit Package generates a complete PDF with an AI-written narrative section — summarizing your security posture, control coverage gaps, and evidence quality — powered by Groq. The report is formatted and ready to hand to your auditor.",
+    a: "Yes. One click generates a complete PDF with an AI-written narrative covering your security posture, control gaps, and evidence quality. It's formatted and ready to hand directly to your auditor.",
   },
 ];
 
@@ -1053,7 +1049,7 @@ export default function LandingPage() {
           </h1>
 
           <p data-animate data-delay="200" className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-8 leading-relaxed">
-            The compliance platform built for SaaS startups and scale-ups. TraceLayer automates evidence collection across 100+ integrations, maps your data flows to regulations, detects compliance drift in real time, and answers enterprise security questionnaires — so your CTO can close deals instead of filling spreadsheets.
+            Connect your tools once and TraceLayer takes it from there — collecting evidence around the clock, catching the moment something breaks, and writing your audit report when you need it. So you can focus on building, not on compliance busywork.
           </p>
 
           <div data-animate data-delay="300" className="flex items-center justify-center gap-3 flex-wrap mb-5">
@@ -1210,7 +1206,7 @@ export default function LandingPage() {
               AI that works while you sleep
             </h2>
             <p className="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
-              TraceLayer doesn't just collect evidence — it thinks about it. Three AI engines run continuously so you&apos;re never surprised by a compliance failure or a data flow risk.
+              TraceLayer doesn&apos;t just collect evidence — it watches over it. Three AI engines run quietly in the background so you&apos;re never blindsided by a broken control or an auditor question you can&apos;t answer.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-5">
@@ -1280,7 +1276,7 @@ export default function LandingPage() {
           <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">How it works</p>
           <h2 className="text-2xl md:text-4xl font-extrabold">Up and running in minutes</h2>
           <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto leading-relaxed">
-            No implementation projects. No spreadsheet juggling. Connect your tools and compliance evidence starts flowing automatically.
+            No implementation project. No consultants. Just connect your tools and watch your compliance program build itself.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 relative">
@@ -1303,9 +1299,9 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10">
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Complete platform</p>
-            <h2 className="text-2xl md:text-4xl font-extrabold">Every tool your compliance program needs</h2>
+            <h2 className="text-2xl md:text-4xl font-extrabold">Everything your compliance program needs</h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto leading-relaxed">
-              Not just evidence collection. A full compliance stack — evidence, risk, privacy, people, vendors, and AI — for startups chasing SOC 2, ISO 27001, HIPAA, GDPR, and more.
+              Not just evidence collection — a complete compliance program. Evidence, risk, privacy, people, vendors, AI, and reporting, all in one place.
             </p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -1355,9 +1351,9 @@ export default function LandingPage() {
               <Workflow className="w-3.5 h-3.5" />
               New — Data Flow Mapping
             </div>
-            <h2 className="text-2xl md:text-4xl font-extrabold text-[var(--ink)]">Know where every byte of data goes</h2>
+            <h2 className="text-2xl md:text-4xl font-extrabold text-[var(--ink)]">Know exactly where your data goes</h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-xl mx-auto leading-relaxed">
-              TraceLayer auto-maps your connected integrations to data types, regions, risk levels, and regulations. No spreadsheets. No manual entry. Your RoPA is pre-populated on day one.
+              TraceLayer reads your connected tools and maps every data type to where it lives, who processes it, and which regulations apply. No spreadsheet. No guesswork. Your privacy docs are ready before you ask for them.
             </p>
           </div>
 
@@ -1518,8 +1514,8 @@ export default function LandingPage() {
       <section className="bg-slate-900 py-14 md:py-22">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-10 md:mb-14">
-            <p className="text-xs font-bold text-orange-400 uppercase tracking-widest mb-2">The old way vs TraceLayer</p>
-            <h2 className="text-2xl md:text-4xl font-extrabold text-white">Compliance doesn&apos;t have to be painful</h2>
+            <p className="text-xs font-bold text-orange-400 uppercase tracking-widest mb-2">Sound familiar?</p>
+            <h2 className="text-2xl md:text-4xl font-extrabold text-white">There&apos;s a better way to do this</h2>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-white/5 rounded-2xl p-6 border border-white/8">
@@ -1557,7 +1553,7 @@ export default function LandingPage() {
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Features</p>
             <h2 className="text-2xl md:text-4xl font-extrabold">A complete compliance program, not just a tool</h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto leading-relaxed">
-              Built for startups who need to move fast without sacrificing security posture — from first integration to audit day.
+              From the first integration you connect to the moment you hand your auditor a report — TraceLayer runs the whole thing automatically.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -1615,7 +1611,7 @@ export default function LandingPage() {
           <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Frameworks</p>
           <h2 className="text-2xl md:text-4xl font-extrabold">Seven frameworks, one platform</h2>
           <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto leading-relaxed">
-            Your integrations map evidence to all frameworks simultaneously. Switch views without reconnecting anything or doing duplicate work.
+            Connect your tools once and your evidence maps to every framework at the same time. Need SOC 2 and GDPR? Done. Switch views without reconnecting anything.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1645,7 +1641,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div data-animate className="text-center mb-10 md:mb-14">
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">What teams say</p>
-            <h2 className="text-2xl md:text-4xl font-extrabold">Trusted by security-conscious teams</h2>
+            <h2 className="text-2xl md:text-4xl font-extrabold">Real teams, real results</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {TESTIMONIALS.map((t, i) => (
@@ -1679,21 +1675,21 @@ export default function LandingPage() {
               <Clock className="w-4 h-4 text-[var(--accent)]" />
               <span className="text-2xl font-extrabold text-[var(--ink)]">2 weeks</span>
             </div>
-            <p className="text-xs text-[var(--muted)]">Average time to first audit-ready report</p>
+            <p className="text-xs text-[var(--muted)]">Average time from signup to first audit-ready report</p>
           </div>
           <div>
             <div className="flex items-center justify-center gap-2 mb-1.5">
               <TrendingUp className="w-4 h-4 text-[var(--accent)]" />
               <span className="text-2xl font-extrabold text-[var(--ink)]">90%</span>
             </div>
-            <p className="text-xs text-[var(--muted)]">Reduction in manual evidence prep</p>
+            <p className="text-xs text-[var(--muted)]">Less time spent on manual evidence prep</p>
           </div>
           <div>
             <div className="flex items-center justify-center gap-2 mb-1.5">
               <Users className="w-4 h-4 text-[var(--accent)]" />
               <span className="text-2xl font-extrabold text-[var(--ink)]">1 person</span>
             </div>
-            <p className="text-xs text-[var(--muted)]">Can run your entire compliance program</p>
+            <p className="text-xs text-[var(--muted)]">Is all you need to run a complete compliance program</p>
           </div>
         </div>
       </section>
@@ -1704,11 +1700,10 @@ export default function LandingPage() {
           <div data-animate className="text-center mb-10 md:mb-14">
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Pricing</p>
             <h2 className="text-2xl md:text-4xl font-extrabold leading-tight">
-              Simple pricing. No surprises.
+              Start free. Upgrade when you&apos;re ready.
             </h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-xl mx-auto leading-relaxed">
-              Start free — no credit card required. Upgrade to Growth when you need PDF reports and AI features.
-              $149/mo is less than 30 minutes with a compliance consultant.
+              No credit card, no time limit. Get your compliance program running for free, and upgrade to Growth when you need PDF reports, AI features, and all seven frameworks. $149/mo is less than 30 minutes with a compliance consultant.
             </p>
           </div>
 
@@ -1724,7 +1719,7 @@ export default function LandingPage() {
               <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-500 text-[10px] font-semibold px-2.5 py-1 rounded-full mb-3 border border-gray-200 w-fit">
                 No credit card required
               </div>
-              <p className="text-xs mb-6 leading-relaxed text-[var(--muted)]">Everything you need to get your compliance program started — SOC 2, risk, policies, and automated evidence.</p>
+              <p className="text-xs mb-6 leading-relaxed text-[var(--muted)]">Everything you need to get started — SOC 2, automated evidence collection, risk, policies, and your whole team included.</p>
               <div className="space-y-2.5 mb-7 flex-1">
                 {[
                   "SOC 2 framework",
@@ -1819,16 +1814,16 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10 md:mb-14">
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">FAQ</p>
-            <h2 className="text-2xl md:text-4xl font-extrabold">Common questions</h2>
+            <h2 className="text-2xl md:text-4xl font-extrabold">Got questions?</h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-md mx-auto leading-relaxed">
-              Everything you need to know before getting started.
+              We&apos;ve answered the common ones below. For everything else, just reach out.
             </p>
           </div>
           <FaqAccordion items={FAQ} />
           <p className="text-center text-sm text-[var(--muted)] mt-8">
-            Still have questions?{" "}
+            Something else on your mind?{" "}
             <a href="mailto:hello@tracelayer.io" className="text-[var(--accent)] font-semibold hover:underline">
-              Drop us a line
+              Just ask us directly
             </a>
           </p>
         </div>
