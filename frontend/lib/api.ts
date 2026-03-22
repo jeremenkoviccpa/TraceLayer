@@ -1,4 +1,4 @@
-import type { AccessReview, ApiKey, AppNotification, Asset, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TrainingRecord, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
+import type { AccessReview, ApiKey, AppNotification, Asset, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TrainingRecord, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -181,6 +181,10 @@ class ApiClient {
 
   async triggerCollect(integrationType: string): Promise<void> {
     return this.request("POST", `/integrations/${integrationType}/collect`);
+  }
+
+  async simulateIntegration(integrationType: string): Promise<SimulationResult> {
+    return this.request<SimulationResult>("GET", `/integrations/simulate/${integrationType}`);
   }
 
   // ── Evidence ────────────────────────────────────────────────────────────

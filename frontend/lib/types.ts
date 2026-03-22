@@ -53,6 +53,39 @@ export interface Integration {
   created_at: string;
 }
 
+export interface SimulationEvidenceType {
+  type: string;
+  label: string;
+  control: string;
+  typical_count: number;
+}
+
+export interface SimulationDataCategory {
+  key: string;
+  label: string;
+  color: string;
+  regulatory_notes: string[];
+}
+
+export interface SimulationFrameworkDelta {
+  framework: string;
+  label: string;
+  current_score: number;
+  simulated_score: number;
+  delta: number;
+  new_types_covered: string[];
+}
+
+export interface SimulationResult {
+  integration_type: string;
+  label: string;
+  description: string;
+  evidence_types: SimulationEvidenceType[];
+  data_categories: SimulationDataCategory[];
+  framework_deltas: SimulationFrameworkDelta[];
+  already_connected: boolean;
+}
+
 export interface Evidence {
   id: string;
   integration: string;

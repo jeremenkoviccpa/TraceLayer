@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { openPaddleCheckout } from "@/lib/paddle";
-import type { BillingInfo, Integration } from "@/lib/types";
-import { CheckCircle2, AlertCircle, Clock, RefreshCw, Trash2, Plus, X, Zap, Lock, Search, BookOpen, ExternalLink, ChevronDown, ChevronUp, Shield } from "lucide-react";
+import type { BillingInfo, Integration, SimulationResult } from "@/lib/types";
+import { CheckCircle2, AlertCircle, Clock, RefreshCw, Trash2, Plus, X, Zap, Lock, Search, BookOpen, ExternalLink, ChevronDown, ChevronUp, Shield, Eye, TrendingUp, Database } from "lucide-react";
 
 const FREE_LIMIT = 3;
 
@@ -2232,6 +2232,167 @@ const SETUP_GUIDES: Record<string, SetupGuide> = {
   },
 };
 
+// ── Simulation Modal ───────────────────────────────────────────────────────────
+const CATEGORY_COLORS: Record<string, string> = {
+  blue:   "bg-blue-50 text-blue-700 border-blue-100",
+  purple: "bg-purple-50 text-purple-700 border-purple-100",
+  green:  "bg-green-50 text-green-700 border-green-100",
+  orange: "bg-orange-50 text-orange-700 border-orange-100",
+  red:    "bg-red-50 text-red-700 border-red-100",
+  teal:   "bg-teal-50 text-teal-700 border-teal-100",
+  yellow: "bg-yellow-50 text-yellow-700 border-yellow-100",
+  indigo: "bg-indigo-50 text-indigo-700 border-indigo-100",
+  gray:   "bg-gray-50 text-gray-700 border-gray-100",
+  slate:  "bg-slate-50 text-slate-700 border-slate-100",
+};
+
+function SimulationModal({ integrationType, onClose, onConnect }: {
+  integrationType: string; onClose: () => void; onConnect: () => void;
+}) {
+  const [result, setResult] = useState<SimulationResult | null>(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    api.simulateIntegration(integrationType)
+      .then(setResult)
+      .catch((err: unknown) => setError(err instanceof Error ? err.message : "Failed to load simulation"));
+  }, [integrationType]);
+
+  const hasScoreImpact = result?.framework_deltas.some((d) => d.delta > 0);
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-lg relative max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center gap-3 rounded-t-2xl sm:rounded-t-2xl z-10">
+          <LogoBadge type={integrationType} size={40}/>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-base font-semibold text-gray-900 truncate">
+              {result ? result.label : integrationType}
+            </h2>
+            <p className="text-xs text-gray-500">Integration impact preview</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 shrink-0">
+            <X className="w-5 h-5"/>
+          </button>
+        </div>
+
+        <div className="px-5 py-4 space-y-5">
+          {/* Loading */}
+          {!result && !error && (
+            <div className="flex flex-col items-center py-10 gap-3">
+              <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"/>
+              <p className="text-sm text-gray-500">Simulating integration impact…</p>
+            </div>
+          )}
+
+          {/* Error */}
+          {error && (
+            <div className="bg-red-50 border border-red-100 text-red-700 rounded-xl px-4 py-3 text-sm">
+              {error}
+            </div>
+          )}
+
+          {result && (
+            <>
+              {/* Already connected notice */}
+              {result.already_connected && (
+                <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 text-sm text-emerald-700">
+                  <CheckCircle2 className="w-4 h-4 shrink-0"/>
+                  This integration is already connected to your account.
+                </div>
+              )}
+
+              {/* Score Impact */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <TrendingUp className="w-4 h-4 text-brand-600"/>
+                  <span className="text-xs font-semibold uppercase tracking-widest text-gray-500">Compliance score impact</span>
+                </div>
+                {hasScoreImpact ? (
+                  <div className="grid grid-cols-3 gap-2">
+                    {result.framework_deltas.map((d) => (
+                      <div key={d.framework} className={`rounded-xl border p-3 text-center ${d.delta > 0 ? "border-emerald-100 bg-emerald-50" : "border-gray-100 bg-gray-50"}`}>
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 mb-1">{d.label}</p>
+                        <p className="text-lg font-bold text-gray-900">{d.simulated_score}<span className="text-xs text-gray-400 font-normal">pts</span></p>
+                        {d.delta > 0 ? (
+                          <p className="text-xs font-semibold text-emerald-600">+{d.delta} pts</p>
+                        ) : (
+                          <p className="text-xs text-gray-400">no change</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm text-gray-500">
+                    This integration adds real evidence to your library but doesn&apos;t directly affect the automated score formula. Auditors will still see the evidence.
+                  </div>
+                )}
+              </div>
+
+              {/* Evidence types */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Database className="w-4 h-4 text-brand-600"/>
+                  <span className="text-xs font-semibold uppercase tracking-widest text-gray-500">Evidence collected every 24h</span>
+                </div>
+                <div className="space-y-2">
+                  {result.evidence_types.map((ev) => (
+                    <div key={ev.type} className="flex items-center justify-between bg-gray-50 rounded-xl px-3.5 py-2.5">
+                      <span className="text-sm text-gray-700">{ev.label}</span>
+                      <span className="text-xs text-gray-400 font-mono">~{ev.typical_count.toLocaleString()} records</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Data categories */}
+              {result.data_categories.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Shield className="w-4 h-4 text-brand-600"/>
+                    <span className="text-xs font-semibold uppercase tracking-widest text-gray-500">Data categories & regulatory impact</span>
+                  </div>
+                  <div className="space-y-3">
+                    {result.data_categories.map((cat) => (
+                      <div key={cat.key} className="border border-gray-100 rounded-xl overflow-hidden">
+                        <div className={`px-3.5 py-2 flex items-center gap-2 border-b ${CATEGORY_COLORS[cat.color] ?? CATEGORY_COLORS.gray}`}>
+                          <span className="text-xs font-semibold">{cat.label}</span>
+                        </div>
+                        <ul className="px-3.5 py-2.5 space-y-1.5 bg-white">
+                          {cat.regulatory_notes.map((note, i) => (
+                            <li key={i} className="text-xs text-gray-600 flex gap-2">
+                              <span className="shrink-0 text-gray-300 mt-0.5">•</span>
+                              <span>{note}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="sticky bottom-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-3">
+          <button onClick={onClose} className="flex-1 border border-gray-200 text-gray-700 rounded-xl px-4 py-2 text-sm hover:bg-gray-50">
+            Close
+          </button>
+          {result && !result.already_connected && (
+            <button onClick={() => { onClose(); onConnect(); }}
+              className="flex-1 flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-xl px-4 py-2 text-sm">
+              <Plus className="w-4 h-4"/> Connect {result.label}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Upgrade Modal ─────────────────────────────────────────────────────────────
 function UpgradeModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
@@ -2401,9 +2562,9 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 // ── Integration card ──────────────────────────────────────────────────────────
-function IntegrationCard({ def, connected, canConnect, collecting, onConnect, onCollect, onDisconnect, onUpgrade }: {
+function IntegrationCard({ def, connected, canConnect, collecting, onConnect, onCollect, onDisconnect, onUpgrade, onSimulate }: {
   def: IntegrationDef; connected?: Integration; canConnect: boolean; collecting: boolean;
-  onConnect: () => void; onCollect: () => void; onDisconnect: () => void; onUpgrade: () => void;
+  onConnect: () => void; onCollect: () => void; onDisconnect: () => void; onUpgrade: () => void; onSimulate: () => void;
 }) {
   return (
     <div className={`bg-white rounded-2xl border p-4 flex items-center gap-4 transition-shadow ${
@@ -2443,13 +2604,25 @@ function IntegrationCard({ def, connected, canConnect, collecting, onConnect, on
             </button>
           </>
         ) : !canConnect ? (
-          <button onClick={onUpgrade} className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold rounded-xl transition-colors">
-            <Lock className="w-3.5 h-3.5"/> Upgrade
-          </button>
+          <>
+            <button onClick={onSimulate} title="Preview impact"
+              className="p-2 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-colors">
+              <Eye className="w-4 h-4"/>
+            </button>
+            <button onClick={onUpgrade} className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold rounded-xl transition-colors">
+              <Lock className="w-3.5 h-3.5"/> Upgrade
+            </button>
+          </>
         ) : (
-          <button onClick={onConnect} className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-xl transition-colors">
-            <Plus className="w-3.5 h-3.5"/> Connect
-          </button>
+          <>
+            <button onClick={onSimulate} title="Preview impact"
+              className="p-2 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-colors">
+              <Eye className="w-4 h-4"/>
+            </button>
+            <button onClick={onConnect} className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-xl transition-colors">
+              <Plus className="w-3.5 h-3.5"/> Connect
+            </button>
+          </>
         )}
       </div>
     </div>
@@ -2466,6 +2639,7 @@ export default function IntegrationsPage() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [toast, setToast] = useState("");
   const [search, setSearch] = useState("");
+  const [simulating, setSimulating] = useState<string | null>(null);
 
   const load = () =>
     Promise.all([api.getIntegrations(), api.getSubscription()])
@@ -2545,6 +2719,13 @@ export default function IntegrationsPage() {
       {connecting && connectingDef && (
         <ConnectModal def={connectingDef} onClose={() => setConnecting(null)} onConnected={load} onUpgradeNeeded={() => setShowUpgrade(true)}/>
       )}
+      {simulating && (
+        <SimulationModal
+          integrationType={simulating}
+          onClose={() => setSimulating(null)}
+          onConnect={() => setConnecting(simulating)}
+        />
+      )}
 
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
@@ -2602,6 +2783,7 @@ export default function IntegrationsPage() {
                     onCollect={() => handleCollect(def.type)}
                     onDisconnect={() => handleDisconnect(def.type)}
                     onUpgrade={() => setShowUpgrade(true)}
+                    onSimulate={() => setSimulating(def.type)}
                   />
                 );
               })}
