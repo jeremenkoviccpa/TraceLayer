@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowRight, Zap, Shield, CheckCircle2, TrendingDown,
-  Clock, DollarSign, AlertTriangle, Target, Users, BarChart3,
+  Clock, DollarSign, AlertTriangle, Target, Users, BarChart3, Activity,
 } from "lucide-react";
 
 // ── Tool definitions ──────────────────────────────────────────────────────────
@@ -56,6 +56,21 @@ const TOOLS = [
     cta: "Calculate my risk",
     highlight: true,
   },
+  {
+    id: "stack-scorer",
+    href: "/tools/stack-scorer",
+    badge: "Simulation",
+    icon: Activity,
+    iconBg: "bg-teal-50 border-teal-100",
+    iconColor: "text-teal-600",
+    badgeBg: "bg-teal-100 text-teal-700",
+    accentColor: "from-teal-500 to-emerald-500",
+    name: "Compliance Stack Scorer",
+    tagline: "Select your stack · Instant score",
+    desc: "Pick every tool your team uses and see your projected SOC 2, ISO 27001, and HIPAA readiness score — with the exact evidence that would be collected automatically.",
+    pills: ["Real evidence mapping", "3 frameworks", "No signup"],
+    cta: "Score my stack",
+  },
 ];
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -106,14 +121,14 @@ export default function ToolsPage() {
       <section className="max-w-3xl mx-auto px-6 pt-16 pb-12 text-center">
         <div className="inline-flex items-center gap-2 bg-white/80 text-teal-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-5 border border-black/5 shadow-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
-          3 free tools · No account required · Takes under 5 minutes
+          4 free tools · No account required · Takes under 5 minutes
         </div>
         <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 leading-tight tracking-tight">
           Know exactly where you stand<br />
           <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">before spending a dollar on compliance</span>
         </h1>
         <p className="text-gray-500 text-base max-w-xl mx-auto leading-relaxed">
-          Three tools built for startup CTOs and engineering leaders. Run them in under 5 minutes — no email, no signup, no sales call.
+          Four tools built for startup CTOs and engineering leaders. Run them in under 5 minutes — no email, no signup, no sales call.
         </p>
       </section>
 
@@ -136,7 +151,7 @@ export default function ToolsPage() {
 
       {/* Tool cards */}
       <section className="max-w-5xl mx-auto px-6 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {TOOLS.map((tool) => {
             const Icon = tool.icon;
             return (
