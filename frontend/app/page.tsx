@@ -1581,6 +1581,79 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Locked markets section ────────────────────────────────────────────── */}
+      <section className="py-14 md:py-20 bg-slate-950 overflow-hidden">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-10">
+            <p className="text-xs font-bold text-rose-400 uppercase tracking-widest mb-3">The cost of waiting</p>
+            <h2 className="text-2xl md:text-4xl font-extrabold text-white leading-tight mb-4">
+              No SOC 2? Here&apos;s what you&apos;re<br className="hidden sm:block" />{" "}
+              <span className="bg-gradient-to-r from-rose-400 to-orange-400 bg-clip-text text-transparent">not allowed to touch.</span>
+            </h2>
+            <p className="text-white/50 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+              Compliance isn&apos;t a checkbox — it&apos;s a market access key. Without it, entire verticals, contract types, and partner ecosystems are simply off the table.
+            </p>
+          </div>
+
+          {/* Locked doors grid */}
+          <div className="grid sm:grid-cols-2 gap-4 mb-10">
+            {[
+              {
+                icon: Building2,
+                market: "Enterprise deals",
+                tag: "$100k+ ACV",
+                desc: "78% of enterprise procurement teams require SOC 2 or ISO 27001 before a contract can be signed. Your deal gets paused at security review. Their compliant competitor closes it.",
+              },
+              {
+                icon: Shield,
+                market: "Government & federal",
+                tag: "FedRAMP / NIST",
+                desc: "Federal contracts, state agencies, defense contractors — an entire market worth trillions sits behind a compliance gate. Without certification, you can't even submit a proposal.",
+              },
+              {
+                icon: Lock,
+                market: "Healthcare & life sciences",
+                tag: "HIPAA required",
+                desc: "Any vendor that touches PHI needs HIPAA compliance. No exceptions, no grace periods. The hospital legal team will not countersign until your BAA is backed by a real audit trail.",
+              },
+              {
+                icon: Globe,
+                market: "Partner & marketplace listings",
+                tag: "Salesforce · AWS · Slack",
+                desc: "AppExchange, AWS Marketplace, Slack App Directory — all require a passing security review or compliance certification to list. Without it, you're invisible to their customer bases.",
+              },
+            ].map(({ icon: Icon, market, tag, desc }) => (
+              <div key={market} className="bg-white/4 border border-white/8 rounded-2xl p-6 hover:bg-white/6 transition-colors">
+                <div className="flex items-start gap-4 mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center shrink-0">
+                    <Icon className="w-4 h-4 text-rose-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-white">{market}</p>
+                    <p className="text-xs text-rose-400/80 font-semibold mt-0.5">{tag}</p>
+                  </div>
+                </div>
+                <p className="text-sm text-white/45 leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom stat bar */}
+          <div className="bg-white/4 border border-white/8 rounded-2xl p-5 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/8 text-center">
+            {[
+              { stat: "78%", label: "of enterprise buyers require SOC 2 before signing" },
+              { stat: "6 mo", label: "average deal delay when compliance docs are missing" },
+              { stat: "$4.35M", label: "average cost of a data breach (IBM Security, 2024)" },
+            ].map(({ stat, label }) => (
+              <div key={stat} className="py-4 sm:py-2 sm:px-6 first:pt-0 last:pb-0 sm:first:pt-2 sm:last:pb-2">
+                <p className="text-2xl font-extrabold text-rose-400 mb-1">{stat}</p>
+                <p className="text-xs text-white/40 leading-snug">{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Revenue Impact lead magnet ────────────────────────────────────────── */}
       <section className="py-14 md:py-20 bg-[var(--bg)]">
         <div className="max-w-5xl mx-auto px-6">
