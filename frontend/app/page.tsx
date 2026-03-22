@@ -1085,74 +1085,131 @@ export default function LandingPage() {
           {/* Dashboard preview */}
           <div className="max-w-3xl mx-auto">
             <div className="bg-white rounded-2xl border border-black/8 shadow-[0_24px_80px_rgba(15,23,42,0.12)] overflow-hidden">
+
               {/* Browser chrome */}
-              <div className="flex items-center gap-1.5 px-4 py-3 border-b border-gray-100 bg-gray-50/80">
+              <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-gray-100 bg-gray-50/80">
                 <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
                 <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
                 <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                 <div className="flex-1 mx-4">
                   <div className="bg-white border border-gray-200 rounded-md px-3 py-1 text-[11px] text-gray-400 font-mono hidden sm:block max-w-[220px] mx-auto text-center">
-                    app.tracelayer.it.com/readiness
+                    app.tracelayer.it.com/dashboard
                   </div>
                 </div>
               </div>
-              {/* Stats row */}
-              <div className="p-3 sm:p-5 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 bg-gray-50/50">
-                {[
-                  { label: "Readiness",  value: "82%",   color: "text-teal-600",    sub: "SOC 2" },
-                  { label: "Evidence",   value: "3,241", color: "text-gray-900",    sub: "records" },
-                  { label: "Training",   value: "11/14", color: "text-emerald-600", sub: "completed" },
-                  { label: "Est. time",  value: "~4wk",  color: "text-amber-600",   sub: "to audit" },
-                ].map((s) => (
-                  <div key={s.label} className="bg-white rounded-xl border border-gray-100 p-3 text-left">
-                    <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">{s.label}</p>
-                    <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">{s.sub}</p>
-                  </div>
-                ))}
-              </div>
-              {/* Controls + next steps */}
-              <div className="px-3 sm:px-5 pb-3 sm:pb-5 bg-gray-50/50 grid sm:grid-cols-2 gap-3">
-                <div className="bg-white rounded-xl border border-gray-100 p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-semibold text-gray-700">SOC 2 Controls</span>
-                    <span className="text-xs text-teal-600 font-bold">82%</span>
-                  </div>
-                  {[
-                    { name: "Access Control",       score: 95 },
-                    { name: "Logging & Monitoring",  score: 88 },
-                    { name: "Change Management",     score: 72 },
-                  ].map((c) => (
-                    <div key={c.name} className="mb-2">
-                      <div className="flex justify-between text-xs text-gray-500 mb-1">
-                        <span>{c.name}</span><span className="font-semibold">{c.score}%</span>
-                      </div>
-                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${c.score}%` }} />
-                      </div>
+
+              {/* Score hero card — dark */}
+              <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 sm:p-5">
+                <div className="flex items-center gap-4 sm:gap-6">
+                  {/* Score ring */}
+                  <div className="relative shrink-0 w-20 h-20">
+                    <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                      <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
+                      <circle cx="40" cy="40" r="32" fill="none" stroke="#10b981" strokeWidth="8"
+                        strokeDasharray={`${2 * Math.PI * 32}`}
+                        strokeDashoffset={`${2 * Math.PI * 32 * (1 - 0.94)}`}
+                        strokeLinecap="round" />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-xl font-black text-white leading-none">94</span>
+                      <span className="text-[9px] text-white/40 font-semibold">/100</span>
                     </div>
-                  ))}
-                </div>
-                <div className="bg-white rounded-xl border border-gray-100 p-4">
-                  <p className="text-xs font-semibold text-gray-700 mb-3">Recommended next steps</p>
-                  <div className="space-y-2">
+                  </div>
+                  {/* Score info */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] text-white/50 font-semibold mb-0.5">Compliance score</p>
+                    <p className="text-3xl font-black text-white mb-2">94<span className="text-lg text-white/30">%</span></p>
+                    {/* Framework tabs */}
+                    <div className="flex gap-1 flex-wrap">
+                      {["SOC 2","ISO 27001","HIPAA","GDPR","PCI DSS","CCPA","NIST CSF"].map((fw, i) => (
+                        <span key={fw} className={`text-[10px] font-semibold px-2 py-1 rounded-lg whitespace-nowrap ${
+                          i === 0 ? "bg-white text-slate-900" : "text-white/40 bg-white/8"
+                        }`}>{fw}</span>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Quick stats */}
+                  <div className="hidden sm:flex flex-col gap-2 shrink-0 text-right">
                     {[
-                      { label: "Schedule annual pen test",   done: false },
-                      { label: "Complete Q1 vendor reviews", done: false },
-                      { label: "Run Q1 access review",       done: true  },
-                      { label: "Policy templates adopted",   done: true  },
-                    ].map((item) => (
-                      <div key={item.label} className="flex items-center gap-2">
-                        <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${item.done ? "bg-emerald-100" : "bg-gray-100"}`}>
-                          {item.done && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
-                        </div>
-                        <span className={`text-[11px] ${item.done ? "text-gray-400 line-through" : "text-gray-700"}`}>{item.label}</span>
+                      { label: "Passing", value: "3", color: "text-emerald-400" },
+                      { label: "Failing", value: "0", color: "text-white/30" },
+                    ].map((s) => (
+                      <div key={s.label}>
+                        <p className={`text-lg font-black ${s.color}`}>{s.value}</p>
+                        <p className="text-[9px] text-white/30 uppercase tracking-wider">{s.label}</p>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
+
+              {/* Score trend + mini stats row */}
+              <div className="grid sm:grid-cols-3 gap-0 border-b border-gray-100">
+                {/* Trend chart */}
+                <div className="sm:col-span-2 p-4 border-b sm:border-b-0 sm:border-r border-gray-100">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[11px] font-semibold text-gray-700">Score trend</span>
+                    <span className="text-[11px] font-bold text-emerald-600">↑0pts</span>
+                  </div>
+                  <p className="text-[10px] text-gray-400 mb-3">Last 30 days · SOC 2</p>
+                  <svg viewBox="0 0 280 60" className="w-full h-12">
+                    <defs>
+                      <linearGradient id="lp-grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.3"/>
+                        <stop offset="100%" stopColor="#10b981" stopOpacity="0"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M0,55 L60,55 L70,50 L80,52 L90,48 L160,45 L200,10 L240,8 L280,8 L280,60 L0,60Z" fill="url(#lp-grad)"/>
+                    <path d="M0,55 L60,55 L70,50 L80,52 L90,48 L160,45 L200,10 L240,8 L280,8" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <line x1="0" y1="8" x2="280" y2="8" stroke="rgba(0,0,0,0.06)" strokeWidth="1" strokeDasharray="4,3"/>
+                  </svg>
+                </div>
+                {/* Mini stats */}
+                <div className="grid grid-cols-2 sm:grid-cols-1 gap-px bg-gray-100 sm:bg-transparent">
+                  {[
+                    { label: "Evidence records", value: "3,241", sub: "across all integrations" },
+                    { label: "Active integrations", value: "38",    sub: "connected" },
+                  ].map((s) => (
+                    <div key={s.label} className="bg-white p-3 sm:border-b border-gray-100 last:border-0">
+                      <p className="text-[10px] text-gray-400 mb-1">{s.label}</p>
+                      <p className="text-base font-black text-gray-900">{s.value}</p>
+                      <p className="text-[10px] text-gray-400">{s.sub}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Control breakdown */}
+              <div className="p-4 bg-gray-50/40">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] font-semibold text-gray-700">Control breakdown</span>
+                  <span className="text-[10px] text-teal-600 font-semibold">Full view →</span>
+                </div>
+                {[
+                  { name: "Access Control",      status: "Passing", score: 95,  records: 75  },
+                  { name: "Logging & Monitoring", status: "Passing", score: 100, records: 211 },
+                  { name: "Change Management",    status: "Passing", score: 83,  records: 38  },
+                ].map((c) => (
+                  <div key={c.name} className="mb-2.5 last:mb-0">
+                    <div className="flex items-center justify-between text-[11px] mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-700 font-medium">{c.name}</span>
+                        <span className="text-emerald-600 font-semibold">{c.status}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-400">
+                        <span>{c.records} records</span>
+                        <span className="font-bold text-gray-700">{c.score}%</span>
+                      </div>
+                    </div>
+                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${c.score}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
             </div>
+
             {/* Live sync pill */}
             <div className="flex justify-center mt-4">
               <div className="inline-flex items-center gap-2 bg-white/90 backdrop-blur rounded-full px-4 py-2 shadow-md border border-black/5 text-xs">
