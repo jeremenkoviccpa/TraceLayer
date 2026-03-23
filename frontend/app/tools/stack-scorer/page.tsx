@@ -8,6 +8,7 @@ import {
   AlertCircle, ChevronRight, Layers, Search, BarChart3,
   Shield, Zap, Database, Lock,
 } from "lucide-react";
+import { ToolEmailGate } from "@/components/tool-email-gate";
 
 // ── Integration catalogue ─────────────────────────────────────────────────────
 
@@ -268,6 +269,7 @@ export default function StackScorerPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SimResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [emailCaptured, setEmailCaptured] = useState(false);
 
   function toggle(type: string) {
     setSelected((prev) => {
@@ -310,6 +312,7 @@ export default function StackScorerPage() {
     setResult(null);
     setSelected(new Set());
     setSearch("");
+    setEmailCaptured(false);
   }
 
   const filteredGroups = search.trim()
@@ -470,6 +473,24 @@ export default function StackScorerPage() {
               )}
             </div>
 
+          ) : result && !emailCaptured ? (
+            /* ── Email gate ────────────────────────────────────────────────── */
+            <ToolEmailGate
+              toolName="compliance-stack-scorer"
+              headline={`Your stack scores ${result.framework_results[0]?.projected_score ?? 0}% on ${result.framework_results[0]?.label ?? "SOC 2"}`}
+              subline={`${result.integration_count} integration${result.integration_count !== 1 ? "s" : ""} · ~${result.total_records.toLocaleString()} evidence records / day`}
+              teasers={result.framework_results.map((fw) => ({
+                label: fw.label,
+                value: `${fw.projected_score}%`,
+                valueColor:
+                  fw.projected_score >= 70
+                    ? "text-emerald-600"
+                    : fw.projected_score >= 40
+                    ? "text-amber-600"
+                    : "text-rose-600",
+              }))}
+              onUnlocked={() => setEmailCaptured(true)}
+            />
           ) : (
             /* ── Results ──────────────────────────────────────────────────── */
             <div className="space-y-5">

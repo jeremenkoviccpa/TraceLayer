@@ -43,7 +43,7 @@ export default function GapScannerPage() {
           Walk through 10 critical SOC 2 controls. See which ones you&apos;d fail in a real audit — and the exact language your auditor would use to describe each gap.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500">
-          {["No signup required", "Real audit criteria", "Per-control breakdown"].map((t) => (
+          {["Free report emailed", "Real audit criteria", "Per-control breakdown"].map((t) => (
             <span key={t} className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-teal-500" /> {t}
             </span>

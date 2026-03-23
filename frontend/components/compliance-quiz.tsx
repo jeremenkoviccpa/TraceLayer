@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, RotateCcw, Zap } from "lucide-react";
+import { ToolEmailGate } from "@/components/tool-email-gate";
 
 // ── Quiz data ─────────────────────────────────────────────────────────────────
 
@@ -201,6 +202,7 @@ export function ComplianceQuiz() {
   const [step, setStep] = useState(-1); // -1 = intro
   const [answers, setAnswers] = useState<Answers>({});
   const [done, setDone] = useState(false);
+  const [emailCaptured, setEmailCaptured] = useState(false);
 
   const q = QUESTIONS[step];
   const progress = step >= 0 ? ((step + 1) / QUESTIONS.length) * 100 : 0;
@@ -234,6 +236,7 @@ export function ComplianceQuiz() {
     setStep(-1);
     setAnswers({});
     setDone(false);
+    setEmailCaptured(false);
   };
 
   const result = done ? computeResult(answers) : null;
@@ -263,6 +266,33 @@ export function ComplianceQuiz() {
           Start the check <ArrowRight className="w-4 h-4" />
         </button>
       </div>
+    );
+  }
+
+  // ── Email gate ──
+  if (done && result && !emailCaptured) {
+    return (
+      <ToolEmailGate
+        toolName="compliance-readiness-check"
+        headline={result.headline}
+        subline={result.subline}
+        teasers={[
+          {
+            label: "automatable",
+            value: `${result.score}%`,
+            valueColor: result.score >= 70 ? "text-emerald-600" : result.score >= 40 ? "text-amber-600" : "text-teal-700",
+          },
+          {
+            label: "integrations ready",
+            value: String(result.automatable),
+            valueColor: "text-gray-900",
+          },
+          ...(result.hoursPerWeek > 1
+            ? [{ label: "hrs saved / week", value: `${result.hoursPerWeek}h+`, valueColor: "text-gray-900" }]
+            : []),
+        ]}
+        onUnlocked={() => setEmailCaptured(true)}
+      />
     );
   }
 

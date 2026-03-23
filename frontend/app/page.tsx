@@ -848,6 +848,27 @@ export default function LandingPage() {
   const [scrolled, setScrolled]     = useState(false);
   const [hidden, setHidden]         = useState(false);
   const [progress, setProgress]     = useState(0);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterSent, setNewsletterSent]   = useState(false);
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail) return;
+    setNewsletterLoading(true);
+    try {
+      await fetch("/api/capture-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newsletterEmail, tool: "newsletter" }),
+      });
+      setNewsletterSent(true);
+    } catch {
+      setNewsletterSent(true); // Still show success
+    } finally {
+      setNewsletterLoading(false);
+    }
+  };
   const lastY = useRef(0);
 
   useEffect(() => {
@@ -1042,9 +1063,14 @@ export default function LandingPage() {
               Start for free
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href="/login" className="inline-flex items-center gap-2 border border-black/12 hover:border-black/20 bg-white/60 hover:bg-white/90 text-[var(--ink)] font-semibold px-7 py-3.5 rounded-xl transition-all text-sm">
-              Sign in
-            </Link>
+            <a
+              href="https://calendly.com/tracelayer/demo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 border border-black/12 hover:border-[var(--accent)]/40 bg-white/60 hover:bg-white/90 text-[var(--ink)] font-semibold px-7 py-3.5 rounded-xl transition-all text-sm"
+            >
+              Book a 20-min demo
+            </a>
           </div>
 
           <p className="text-xs text-[var(--muted)] mb-5">Free to start · Growth plan from <span className="font-semibold text-[var(--ink)]">$149/mo</span> · Not $20,000/year like Vanta</p>
@@ -2092,6 +2118,48 @@ export default function LandingPage() {
               </Link>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── Newsletter / Checklist capture ───────────────────────────────────── */}
+      <section className="bg-white border-y border-gray-100 py-14 px-4">
+        <div className="max-w-2xl mx-auto text-center">
+          <p className="text-xs font-bold uppercase tracking-widest text-[var(--accent)] mb-3">Free resource</p>
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-2">
+            Get the SOC 2 Starter Checklist
+          </h2>
+          <p className="text-gray-500 text-sm mb-6 max-w-md mx-auto">
+            50+ controls, auditor language for each gap, and a prioritized fix order. Used by startup CTOs to prep for their first SOC 2. Free PDF, no fluff.
+          </p>
+          {newsletterSent ? (
+            <div className="inline-flex items-center gap-2 bg-teal-50 text-teal-700 border border-teal-200 px-5 py-3 rounded-xl text-sm font-semibold">
+              <CheckCircle2 className="w-4 h-4" />
+              Check your inbox — checklist is on its way!
+            </div>
+          ) : (
+            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
+              <input
+                type="email"
+                required
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                placeholder="you@yourcompany.com"
+                className="flex-1 text-sm border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] placeholder:text-gray-300"
+              />
+              <button
+                type="submit"
+                disabled={newsletterLoading}
+                className="inline-flex items-center justify-center gap-2 bg-[var(--accent)] hover:bg-[var(--accent-strong)] disabled:opacity-60 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm whitespace-nowrap"
+              >
+                {newsletterLoading ? (
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>Get the checklist <ArrowRight className="w-4 h-4" /></>
+                )}
+              </button>
+            </form>
+          )}
+          <p className="text-xs text-gray-400 mt-3">No spam. Unsubscribe anytime.</p>
         </div>
       </section>
 

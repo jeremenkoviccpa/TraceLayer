@@ -8,6 +8,7 @@ import {
   Clock, CheckCircle2, ChevronRight, BarChart3, Shield,
   ArrowLeft, Sparkles, Users, Lock,
 } from "lucide-react";
+import { ToolEmailGate } from "@/components/tool-email-gate";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -227,6 +228,7 @@ function OptionBtn({
 
 export default function RevenueImpactPage() {
   const [step, setStep] = useState<Step>(1);
+  const [emailCaptured, setEmailCaptured] = useState(false);
   const [inputs, setInputs] = useState<Inputs>({
     arr: 0,
     employees: 0,
@@ -572,8 +574,35 @@ export default function RevenueImpactPage() {
           </div>
         )}
 
+        {/* ── Email gate ── */}
+        {step === "results" && results && !emailCaptured && (
+          <ToolEmailGate
+            toolName="revenue-impact-calculator"
+            headline={`You're exposed to ${fmt(results.totalExposure)}/year`}
+            subline="Revenue blocked, fines, and staff time — full breakdown below"
+            teasers={[
+              {
+                label: "total risk exposure",
+                value: fmt(results.totalExposure),
+                valueColor: "text-rose-600",
+              },
+              {
+                label: "recoverable with TraceLayer",
+                value: fmt(results.tlSavings),
+                valueColor: "text-teal-600",
+              },
+              {
+                label: "ROI",
+                value: `${results.roiMultiple}×`,
+                valueColor: "text-teal-600",
+              },
+            ]}
+            onUnlocked={() => setEmailCaptured(true)}
+          />
+        )}
+
         {/* ── Results ── */}
-        {step === "results" && results && (
+        {step === "results" && results && emailCaptured && (
           <div className="space-y-5">
 
             {/* Header card */}

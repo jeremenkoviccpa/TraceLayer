@@ -43,7 +43,7 @@ export default function ReadinessPage() {
           Answer 5 quick questions about your stack. See exactly how much compliance work you can automate today — and what to tackle first.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500">
-          {["No signup required", "Instant results", "Personalised to your stack"].map((t) => (
+          {["Free report emailed", "Instant results", "Personalised to your stack"].map((t) => (
             <span key={t} className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-teal-500" /> {t}
             </span>

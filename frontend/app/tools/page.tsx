@@ -22,7 +22,7 @@ const TOOLS = [
     name: "Compliance Readiness Check",
     tagline: "5 questions · 60 seconds",
     desc: "Find out how much of your compliance work can be automated today based on your existing tech stack. Get a personalized score with specific recommendations.",
-    pills: ["Stack-based analysis", "Instant results", "No signup"],
+    pills: ["Stack-based analysis", "Instant results", "Free report emailed"],
     cta: "Check my readiness",
   },
   {
@@ -37,7 +37,7 @@ const TOOLS = [
     name: "SOC 2 Gap Scanner",
     tagline: "10 controls · 2 minutes",
     desc: "Walk through 10 critical SOC 2 controls and see exactly which gaps would be flagged in a real audit — with the exact language your auditor would use.",
-    pills: ["Real audit criteria", "Per-control breakdown", "No signup"],
+    pills: ["Real audit criteria", "Per-control breakdown", "Free report emailed"],
     cta: "Scan for gaps",
   },
   {
@@ -52,7 +52,7 @@ const TOOLS = [
     name: "Revenue Impact Calculator",
     tagline: "3 questions · 2 minutes",
     desc: "See the exact dollar value of deals you're losing, fines you're exposed to, and staff time you're burning — with a clear ROI on fixing it.",
-    pills: ["Personalised to your ARR", "Pipeline analysis", "No signup"],
+    pills: ["Personalised to your ARR", "Pipeline analysis", "Free report emailed"],
     cta: "Calculate my risk",
     highlight: true,
   },
@@ -68,7 +68,7 @@ const TOOLS = [
     name: "Compliance Stack Scorer",
     tagline: "Select your stack · Instant score",
     desc: "Pick every tool your team uses and see your projected SOC 2, ISO 27001, and HIPAA readiness score — with the exact evidence that would be collected automatically.",
-    pills: ["Real evidence mapping", "3 frameworks", "No signup"],
+    pills: ["Real evidence mapping", "3 frameworks", "Free report emailed"],
     cta: "Score my stack",
   },
 ];

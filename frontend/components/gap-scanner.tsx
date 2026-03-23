@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, RotateCcw, Shield, CheckCircle2 } from "lucide-react";
+import { ToolEmailGate } from "@/components/tool-email-gate";
 
 // ── Control definitions ───────────────────────────────────────────────────────
 
@@ -178,6 +179,7 @@ export function GapScanner() {
   const [started, setStarted] = useState(false);
   const [answers, setAnswers] = useState<Answers>({});
   const [done, setDone] = useState(false);
+  const [emailCaptured, setEmailCaptured] = useState(false);
 
   const answered = Object.keys(answers).length;
   const allAnswered = answered === CONTROLS.length;
@@ -186,7 +188,7 @@ export function GapScanner() {
   const setAnswer = (id: string, status: Status) =>
     setAnswers((a) => ({ ...a, [id]: status }));
 
-  const reset = () => { setStarted(false); setAnswers({}); setDone(false); };
+  const reset = () => { setStarted(false); setAnswers({}); setDone(false); setEmailCaptured(false); };
 
   const RISK_CONFIG = {
     critical: { label: "Critical", bg: "bg-red-100", text: "text-red-700" },
@@ -223,6 +225,41 @@ export function GapScanner() {
           Scan my compliance <ArrowRight className="w-4 h-4" />
         </button>
       </div>
+    );
+  }
+
+  // ── Email gate ──
+  if (done && result && !emailCaptured) {
+    const riskColors: Record<string, string> = {
+      critical: "text-red-600",
+      high: "text-orange-600",
+      medium: "text-yellow-600",
+      good: "text-emerald-600",
+    };
+    const totalGaps = result.criticalGaps.length + result.highGaps.length;
+    return (
+      <ToolEmailGate
+        toolName="soc2-gap-scanner"
+        headline={result.headline}
+        subline={
+          totalGaps > 0
+            ? `${result.criticalGaps.length} critical gap${result.criticalGaps.length !== 1 ? "s" : ""} · ${result.highGaps.length} high-risk control${result.highGaps.length !== 1 ? "s" : ""} identified`
+            : "Your controls are in good shape — full details below"
+        }
+        teasers={[
+          {
+            label: "readiness score",
+            value: `${result.score}%`,
+            valueColor: riskColors[result.riskLevel],
+          },
+          {
+            label: "risk level",
+            value: result.riskLabel,
+            valueColor: riskColors[result.riskLevel],
+          },
+        ]}
+        onUnlocked={() => setEmailCaptured(true)}
+      />
     );
   }
 
