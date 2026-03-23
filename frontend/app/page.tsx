@@ -910,6 +910,12 @@ export default function LandingPage() {
       className="min-h-screen bg-[var(--bg)] text-[var(--ink)]"
       style={THEME}
     >
+      {/* Founding member announcement bar */}
+      <div className="w-full bg-[var(--accent)] text-white text-xs font-medium text-center py-2 px-4 z-50 relative">
+        Founding member offer: $99/mo locked permanently (normally $149) — first 100 customers only.{" "}
+        <Link href="/register" className="underline font-semibold hover:opacity-80">Claim your spot →</Link>
+      </div>
+
       {/* Scroll progress bar */}
       <div className="fixed top-0 left-0 right-0 h-[2px] z-[60] bg-transparent">
         <div className="h-full bg-[var(--accent)] transition-all duration-75" style={{ width: `${progress}%` }} />
@@ -1030,7 +1036,7 @@ export default function LandingPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            New:<span className="hidden sm:inline"> Integration Simulation ·</span> Compliance Stack Scorer · AI Audit Package
+            SOC 2 audit-ready in 2 weeks — not 6 months, not $20,000
           </div>
 
           <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[56px] font-extrabold leading-[1.1] mb-4 tracking-tight">
@@ -1057,6 +1063,21 @@ export default function LandingPage() {
               Sign in
             </Link>
           </div>
+
+          {/* Social proof + price anchor */}
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <div className="flex -space-x-2">
+              {["bg-teal-500","bg-emerald-500","bg-cyan-500","bg-teal-600","bg-emerald-600"].map((c,i) => (
+                <div key={i} className={`w-7 h-7 rounded-full border-2 border-white ${c} flex items-center justify-center text-white text-[9px] font-bold`}>
+                  {["A","M","J","R","S"][i]}
+                </div>
+              ))}
+            </div>
+            <p className="text-sm text-[var(--muted)]">
+              <span className="font-semibold text-[var(--ink)]">50+ startups</span> already collecting evidence
+            </p>
+          </div>
+          <p className="text-xs text-[var(--muted)] mb-5">Free to start · Growth plan from <span className="font-semibold text-[var(--ink)]">$149/mo</span> · Not $20,000/year like Vanta</p>
 
           {/* Trust strip */}
           <div className="flex items-center justify-center flex-wrap gap-x-6 gap-y-1.5 text-xs text-[var(--muted)] mb-8">
