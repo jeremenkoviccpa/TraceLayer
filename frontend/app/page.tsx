@@ -1040,18 +1040,18 @@ export default function LandingPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            SOC 2 audit-ready in 2 weeks — not 6 months, not $20,000
+            Built for startup CTOs whose enterprise deals got paused for SOC 2
           </div>
 
           <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[56px] font-extrabold leading-[1.1] mb-4 tracking-tight">
-            Stop chasing compliance.<br />
+            Enterprise deal requires SOC 2?<br />
             <span className="bg-gradient-to-r from-[var(--accent)] via-emerald-500 to-teal-400 bg-clip-text text-transparent">
-              Let it run itself.
+              You&apos;ll have it in 2 weeks.
             </span>
           </h1>
 
           <p data-animate data-delay="200" className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-6 leading-relaxed">
-            Connect your tools once — evidence collects itself, alerts fire the moment something breaks, and your audit report is one click away.
+            TraceLayer is the compliance platform built for seed, Series A, and Series B startup CTOs — not Fortune 500 compliance teams with $20K budgets. Connect your stack once, evidence collects itself, and your auditor gets a formatted report in one click.
           </p>
 
           <div data-animate data-delay="300" className="flex items-center justify-center gap-3 flex-wrap mb-4">
@@ -1076,7 +1076,7 @@ export default function LandingPage() {
           <p className="text-xs text-[var(--muted)] mb-5">Free to start · Growth plan from <span className="font-semibold text-[var(--ink)]">$149/mo</span> · Not $20,000/year like Vanta</p>
 
           {/* Trust strip */}
-          <div className="flex items-center justify-center flex-wrap gap-x-6 gap-y-1.5 text-xs text-[var(--muted)] mb-8">
+          <div className="flex items-center justify-center flex-wrap gap-x-6 gap-y-1.5 text-xs text-[var(--muted)] mb-6">
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
               Free forever — no credit card
@@ -1087,8 +1087,22 @@ export default function LandingPage() {
             </span>
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-              Setup in under 5 minutes
+              Audit-ready in 2 weeks, not 9 months
             </span>
+          </div>
+
+          {/* ICP callout — who this is for */}
+          <div className="inline-flex flex-wrap items-center justify-center gap-2 mb-8">
+            {[
+              "Seed & Series A/B CTOs",
+              "First enterprise deal",
+              "No compliance team yet",
+              "Tired of $20K Vanta quotes",
+            ].map((tag) => (
+              <span key={tag} className="text-[11px] font-semibold text-[var(--accent)] bg-[var(--accent)]/8 border border-[var(--accent)]/20 px-3 py-1 rounded-full">
+                {tag}
+              </span>
+            ))}
           </div>
 
           {/* Dashboard preview */}
@@ -1278,6 +1292,42 @@ export default function LandingPage() {
                 <span className="text-gray-500">Next run in <span className="font-semibold text-gray-900">21h</span></span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Who it's for ──────────────────────────────────────────────────────── */}
+      <section className="bg-white/60 border-y border-black/5 py-10">
+        <div className="max-w-5xl mx-auto px-6">
+          <p className="text-center text-xs font-bold text-[var(--muted)] uppercase tracking-widest mb-6">You&apos;re in the right place if…</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              {
+                icon: Building2,
+                heading: "An enterprise prospect asked for SOC 2",
+                body: "Your deal is on hold until security review clears. You need to get certified fast — not in 9 months, not for $20K.",
+              },
+              {
+                icon: Users,
+                heading: "You're a CTO or founder at a 10–200 person startup",
+                body: "Seed, Series A, or Series B. You run engineering and there's no dedicated compliance team — just you and the clock.",
+              },
+              {
+                icon: Zap,
+                heading: "You need results without a consultant",
+                body: "No $300/hr vCISO, no months-long implementation project. Connect your tools today, evidence starts collecting tonight.",
+              },
+            ].map(({ icon: Icon, heading, body }) => (
+              <div key={heading} className="flex gap-4 p-5 rounded-2xl border border-black/5 bg-[var(--card)] shadow-[0_2px_12px_rgba(15,23,42,0.04)]">
+                <div className="w-9 h-9 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <Icon className="w-4 h-4 text-[var(--accent)]" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-[var(--ink)] mb-1 leading-snug">{heading}</p>
+                  <p className="text-xs text-[var(--muted)] leading-relaxed">{body}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -1896,7 +1946,7 @@ export default function LandingPage() {
               Start free. Upgrade when you&apos;re ready.
             </h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-xl mx-auto leading-relaxed">
-              No credit card, no time limit. Get your compliance program running for free, and upgrade to Growth when you need PDF reports, AI features, and all seven frameworks. $149/mo is less than 30 minutes with a compliance consultant.
+              Built for seed, Series A, and Series B startups — not enterprises with six-figure compliance budgets. Start free, upgrade when you need AI, PDF reports, and all 7 frameworks. $149/mo is literally one hour with a compliance consultant.
             </p>
           </div>
 
@@ -2223,7 +2273,7 @@ export default function LandingPage() {
             {/* Brand */}
             <div className="col-span-2">
               <p className="text-sm text-slate-300 leading-relaxed mb-5 max-w-xs">
-                Continuous compliance automation for engineering teams closing enterprise deals — without hiring a compliance team.
+                The compliance platform for seed & Series A/B startup CTOs closing enterprise deals — without a compliance team or a $20K Vanta contract.
               </p>
               <div className="flex items-center gap-2.5">
                 {[
@@ -2310,7 +2360,7 @@ export default function LandingPage() {
           {/* Bottom bar */}
           <div className="border-t border-white/6 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-slate-600">© {new Date().getFullYear()} TraceLayer, Inc. All rights reserved.</p>
-            <p className="text-xs text-slate-600">Built for startups closing enterprise deals.</p>
+            <p className="text-xs text-slate-600">Built for seed & Series A/B startup CTOs closing enterprise deals.</p>
           </div>
         </div>
       </footer>
