@@ -1326,6 +1326,11 @@ export default function SettingsPage() {
                     "AI Questionnaire Autofill",
                     "AI Audit Package",
                     "Trust Center (public page)",
+                    "Trust Center analytics",
+                    "Custom trust domain",
+                    "Device monitoring",
+                    "Questionnaire collaboration",
+                    "Excel/CSV upload & AI autofill",
                     "Unlimited team members",
                     "Priority support",
                   ].map((f) => (
@@ -1359,7 +1364,7 @@ export default function SettingsPage() {
               <div className="rounded-xl bg-emerald-50 border border-emerald-100 px-5 py-4">
                 <p className="text-sm font-semibold text-emerald-800 mb-2">You&apos;re on Growth</p>
                 <p className="text-xs text-emerald-700 leading-relaxed">
-                  Unlimited integrations · PDF &amp; CSV reports · AI features · Trust Center · Unlimited team members
+                  Unlimited integrations · PDF &amp; CSV reports · AI features · Trust Center + analytics + custom domain · Device monitoring · Questionnaire collaboration · Excel/CSV autofill · Unlimited team members
                 </p>
               </div>
             )}
