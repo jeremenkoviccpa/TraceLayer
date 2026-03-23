@@ -1044,14 +1044,14 @@ export default function LandingPage() {
           </div>
 
           <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[56px] font-extrabold leading-[1.1] mb-4 tracking-tight">
-            Enterprise deal requires SOC 2?<br />
+            Stop chasing compliance.<br />
             <span className="bg-gradient-to-r from-[var(--accent)] via-emerald-500 to-teal-400 bg-clip-text text-transparent">
-              You&apos;ll have it in 2 weeks.
+              Let it run itself.
             </span>
           </h1>
 
           <p data-animate data-delay="200" className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-6 leading-relaxed">
-            TraceLayer is the compliance platform built for seed, Series A, and Series B startup CTOs — not Fortune 500 compliance teams with $20K budgets. Connect your stack once, evidence collects itself, and your auditor gets a formatted report in one click.
+            Connect your tools once — evidence collects itself, alerts fire the moment something breaks, and your audit report is one click away.
           </p>
 
           <div data-animate data-delay="300" className="flex items-center justify-center gap-3 flex-wrap mb-4">
