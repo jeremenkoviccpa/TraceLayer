@@ -389,6 +389,7 @@ export default function DashboardPage() {
   const [tmData, setTmData] = useState<TimeMachineResult | null>(null);
   const [tmLoading, setTmLoading] = useState(false);
   const [tmPickerOpen, setTmPickerOpen] = useState(false);
+  const [tmInputDate, setTmInputDate] = useState("");
   const [onboardingStatus, setOnboardingStatus] = useState<{
     has_integration: boolean; has_evidence: boolean; has_vendor: boolean;
     has_member: boolean; has_training: boolean; has_report: boolean; has_risk: boolean;
@@ -455,12 +456,12 @@ export default function DashboardPage() {
   };
 
   const handleTimeMachine = async (date: string) => {
-    setTmPickerOpen(false);
     setTmDate(date);
     setTmLoading(true);
     try {
       const result = await api.timeMachine(date, framework);
       setTmData(result);
+      setTmPickerOpen(false);
     } catch {
       setTmData(null);
       setTmDate(null);
@@ -472,6 +473,7 @@ export default function DashboardPage() {
   const exitTimeMachine = () => {
     setTmDate(null);
     setTmData(null);
+    setTmInputDate("");
     setTmPickerOpen(false);
   };
 
@@ -510,11 +512,14 @@ export default function DashboardPage() {
   const failingControls = compliance?.controls.filter((c) => c.status === "failing" || c.status === "warning") ?? [];
   const score = compliance?.overall_score ?? 0;
 
-  // Time machine: override display values when viewing a historical date
+  // Time machine: override ALL display values when viewing a historical date
   const activeCompliance: ComplianceScore | null = tmData ? tmData.historical : compliance;
   const activeScore = activeCompliance?.overall_score ?? 0;
   const activePassingControls = activeCompliance?.controls.filter((c) => c.status === "passing").length ?? 0;
   const activeFailingControls = activeCompliance?.controls.filter((c) => c.status === "failing" || c.status === "warning") ?? [];
+  const activeEvidenceTotal = tmData ? tmData.evidence_count : evidenceTotal;
+  const activeIntegrationCount = tmData ? tmData.integration_count : activeIntegrations;
+  const activeIntegrationSub = tmData ? `connected as of ${tmDate}` : `of ${integrations.length} connected`;
 
   const historyData = scoreHistory.map((p) => ({ date: fmtDay(p.ts), score: p.score }));
   // Trim leading zeros so the trend starts where evidence actually begins
@@ -543,40 +548,19 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {/* Time Machine picker */}
-          <div className="relative">
-            <button
-              onClick={() => setTmPickerOpen((p) => !p)}
-              title="Time Machine — view compliance at a past date"
-              className={`flex items-center gap-2 text-sm font-semibold border px-3 sm:px-3.5 py-2 rounded-xl transition-all ${
-                tmData
-                  ? "bg-violet-600 border-violet-600 text-white hover:bg-violet-700"
-                  : "text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-              }`}
-            >
-              <History className="w-4 h-4" />
-              <span className="hidden sm:inline">{tmData ? "Time Machine" : "Time Machine"}</span>
-            </button>
-            {tmPickerOpen && (
-              <div className="absolute top-full mt-2 right-0 z-30 bg-white border border-gray-200 rounded-2xl shadow-2xl p-4 w-64">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">View compliance as of</p>
-                <input
-                  type="date"
-                  max={new Date(Date.now() - 86_400_000).toISOString().split("T")[0]}
-                  min="2020-01-01"
-                  defaultValue={tmDate ?? ""}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  onChange={(e) => e.target.value && handleTimeMachine(e.target.value)}
-                />
-                <p className="text-[11px] text-gray-400 mt-2">Score is recomputed from evidence that existed on that date.</p>
-                {tmData && (
-                  <button onClick={exitTimeMachine} className="mt-3 w-full text-xs font-semibold text-red-500 hover:text-red-700 py-1.5 border border-red-100 rounded-xl hover:bg-red-50 transition-colors">
-                    Exit time machine
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
+          {/* Time Machine toggle */}
+          <button
+            onClick={() => { setTmPickerOpen((p) => !p); if (tmData) exitTimeMachine(); }}
+            title="Time Machine — view compliance at a past date"
+            className={`flex items-center gap-2 text-sm font-semibold border px-3 sm:px-3.5 py-2 rounded-xl transition-all ${
+              tmData || tmPickerOpen
+                ? "bg-violet-600 border-violet-600 text-white hover:bg-violet-700"
+                : "text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+            }`}
+          >
+            <History className="w-4 h-4" />
+            <span className="hidden sm:inline">Time Machine</span>
+          </button>
           <Link href="/reports"
             className="flex items-center gap-2 text-sm font-semibold text-gray-600 border border-gray-200 hover:border-gray-300 px-3 sm:px-3.5 py-2 rounded-xl hover:bg-gray-50 transition-all">
             <FileText className="w-4 h-4" /> <span className="hidden sm:inline">Report</span>
@@ -590,6 +574,46 @@ export default function DashboardPage() {
 
       {/* ── Getting started ── */}
       <GettingStarted status={onboardingStatus} />
+
+      {/* ── Time Machine inline picker ── */}
+      {tmPickerOpen && !tmData && (
+        <div className="bg-violet-50 border border-violet-200 rounded-2xl p-4 sm:p-5">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-8 h-8 rounded-xl bg-violet-100 flex items-center justify-center shrink-0">
+              <History className="w-4 h-4 text-violet-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-violet-900">Compliance Time Machine</p>
+              <p className="text-xs text-violet-500 mt-0.5">View your full compliance posture — score, evidence, integrations — as it was on any past date.</p>
+            </div>
+            <button onClick={() => setTmPickerOpen(false)} className="text-violet-400 hover:text-violet-600 transition-colors shrink-0 mt-0.5">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1">
+              <label className="block text-xs font-semibold text-violet-700 mb-1.5">Select a date in the past</label>
+              <input
+                type="date"
+                max={new Date(Date.now() - 86_400_000).toISOString().split("T")[0]}
+                min="2020-01-01"
+                value={tmInputDate}
+                onChange={(e) => setTmInputDate(e.target.value)}
+                className="w-full border border-violet-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 bg-white"
+              />
+            </div>
+            <div className="flex items-end">
+              <button
+                onClick={() => tmInputDate && handleTimeMachine(tmInputDate)}
+                disabled={!tmInputDate || tmLoading}
+                className="w-full sm:w-auto bg-violet-600 hover:bg-violet-700 disabled:opacity-40 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors whitespace-nowrap"
+              >
+                {tmLoading ? "Loading…" : "Go back in time"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Time Machine banner ── */}
       {(tmData || tmLoading) && (
@@ -713,8 +737,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
-              {/* Readiness badge — desktop only */}
-              {readiness && (
+              {/* Readiness badge — desktop only, hidden in time machine mode */}
+              {readiness && !tmData && (
                 <Link href="/readiness" className="hidden sm:flex shrink-0 flex-col items-center gap-1 bg-white/10 hover:bg-white/15 transition-colors rounded-2xl px-4 py-3 text-center">
                   <Target className="w-5 h-5 text-violet-300 mb-0.5" />
                   <span className="text-2xl font-black text-white">{readiness.readiness_score}%</span>
@@ -725,8 +749,8 @@ export default function DashboardPage() {
                 </Link>
               )}
             </div>
-            {/* Readiness row — mobile only */}
-            {readiness && (
+            {/* Readiness row — mobile only, hidden in time machine mode */}
+            {readiness && !tmData && (
               <Link href="/readiness" className="sm:hidden flex items-center justify-between gap-2 mt-4 pt-3 border-t border-white/10 min-w-0">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Target className="w-4 h-4 text-violet-300 shrink-0" />
@@ -773,17 +797,17 @@ export default function DashboardPage() {
           <MiniStat
             icon={Database}
             label="Evidence records"
-            value={evidenceTotal.toLocaleString()}
-            sub="across all integrations"
+            value={activeEvidenceTotal.toLocaleString()}
+            sub={tmData ? `collected by ${tmDate}` : "across all integrations"}
             color="brand"
             tooltip="Total pieces of evidence collected from your connected tools"
           />
           <MiniStat
             icon={Plug}
             label="Active integrations"
-            value={activeIntegrations}
-            sub={`of ${integrations.length} connected`}
-            color={activeIntegrations > 0 ? "green" : "brand"}
+            value={activeIntegrationCount}
+            sub={activeIntegrationSub}
+            color={activeIntegrationCount > 0 ? "green" : "brand"}
             tooltip="Integrations currently collecting evidence on schedule"
           />
           <MiniStat
@@ -1118,18 +1142,18 @@ export default function DashboardPage() {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${failingControls.length > 0 ? "bg-amber-50" : "bg-emerald-50"}`}>
-                <AlertTriangle className={`w-3.5 h-3.5 ${failingControls.length > 0 ? "text-amber-500" : "text-emerald-500"}`} />
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${activeFailingControls.length > 0 ? "bg-amber-50" : "bg-emerald-50"}`}>
+                <AlertTriangle className={`w-3.5 h-3.5 ${activeFailingControls.length > 0 ? "text-amber-500" : "text-emerald-500"}`} />
               </div>
               <span className="text-sm font-semibold text-gray-800">Action items</span>
             </div>
-            {failingControls.length > 0 && (
+            {activeFailingControls.length > 0 && (
               <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full">
-                {failingControls.length}
+                {activeFailingControls.length}
               </span>
             )}
           </div>
-          {failingControls.length === 0 ? (
+          {activeFailingControls.length === 0 ? (
             <div className="flex flex-col gap-3 py-2">
               <div className="flex items-center gap-2.5 p-3 bg-emerald-50 border border-emerald-100 rounded-xl">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -1141,7 +1165,7 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="space-y-1.5">
-              {failingControls.slice(0, 5).map((c) => (
+              {activeFailingControls.slice(0, 5).map((c) => (
                 <Link key={c.category} href="/compliance" className="flex items-start gap-2.5 group p-2.5 rounded-xl hover:bg-gray-50 transition-colors -mx-0.5">
                   <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${c.status === "failing" ? "bg-red-400" : "bg-amber-400"}`} />
                   <div className="min-w-0 flex-1">
@@ -1155,9 +1179,9 @@ export default function DashboardPage() {
                   <ChevronRight className="w-3 h-3 text-gray-300 group-hover:text-brand-400 shrink-0 mt-1 transition-colors" />
                 </Link>
               ))}
-              {failingControls.length > 5 && (
+              {activeFailingControls.length > 5 && (
                 <Link href="/compliance" className="block text-xs text-center text-brand-600 font-semibold hover:text-brand-700 pt-1">
-                  +{failingControls.length - 5} more →
+                  +{activeFailingControls.length - 5} more →
                 </Link>
               )}
             </div>

@@ -3,12 +3,14 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
 from core.deps import get_current_user
 from core.plan_gate import require_growth
+from models.evidence import Evidence
+from models.integration import Integration
 from models.manual_control import ManualControl
 from models.user import User
 from schemas.compliance import (
@@ -189,12 +191,28 @@ async def time_machine_score(
     historical = await get_compliance_score_at(current_user.company_id, framework, db, as_of)
     today_data = await get_compliance_score(current_user.company_id, framework, db)
 
+    evidence_count = await db.scalar(
+        select(func.count(Evidence.id)).where(
+            Evidence.company_id == current_user.company_id,
+            Evidence.created_at <= as_of,
+        )
+    ) or 0
+
+    integration_count = await db.scalar(
+        select(func.count(Integration.id)).where(
+            Integration.company_id == current_user.company_id,
+            Integration.created_at <= as_of,
+        )
+    ) or 0
+
     return {
         "as_of": date,
         "framework": framework,
         "historical": historical,
         "today_score": today_data["overall_score"],
         "delta": historical["overall_score"] - today_data["overall_score"],
+        "evidence_count": evidence_count,
+        "integration_count": integration_count,
     }
 
 

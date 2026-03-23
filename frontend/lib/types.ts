@@ -172,6 +172,8 @@ export interface TimeMachineResult {
   historical: ComplianceScore;
   today_score: number;
   delta: number; // historical - today (negative = you were worse then)
+  evidence_count: number;
+  integration_count: number;
 }
 
 export interface EvidenceActivityPoint {

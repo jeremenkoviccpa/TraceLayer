@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import type { ComplianceScore, ManualControl, Member, Document } from "@/lib/types";
+import type { ComplianceScore, ControlScore, ManualControl, Member, Document } from "@/lib/types";
 import { PlanGate, useUpgrade } from "@/components/plan-gate";
 import { usePlan } from "@/hooks/usePlan";
 import { getRemediationForMissingType, getRemediationForCategory } from "@/lib/remediation";
@@ -431,6 +431,74 @@ function ManualControlRow({
   );
 }
 
+// ── Automated control row ─────────────────────────────────────────────────────
+function AutoControlRow({ control }: { control: ControlScore }) {
+  const isGood  = control.status === "passing";
+  const isWarn  = control.status === "warning";
+  const isBad   = control.status === "failing";
+  const noData  = control.status === "no_evidence";
+
+  // Failing + warning start expanded so users immediately see what needs fixing
+  const [expanded, setExpanded] = useState(isBad || isWarn);
+
+  const borderColor = isGood ? "border-l-emerald-300" : isWarn ? "border-l-amber-400" : isBad ? "border-l-red-400" : "border-l-gray-200";
+  const bgColor     = isGood ? "" : isWarn ? "bg-amber-50/40" : isBad ? "bg-red-50/20" : "";
+  const iconBg      = isGood ? "bg-emerald-50" : isWarn ? "bg-amber-50" : isBad ? "bg-red-50" : "bg-gray-50";
+  const dotColor    = isGood ? "bg-emerald-400" : isWarn ? "bg-amber-400" : isBad ? "bg-red-400" : "bg-gray-300";
+
+  return (
+    <div className={`bg-white rounded-2xl border border-gray-100 border-l-4 ${borderColor} shadow-sm overflow-hidden ${bgColor}`}>
+      <div
+        className="flex items-center gap-3 px-4 sm:px-5 py-3 cursor-pointer select-none"
+        onClick={() => setExpanded((v) => !v)}
+      >
+        <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}>
+          <div className={`w-2 h-2 rounded-full ${dotColor}`} />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={`text-sm font-semibold leading-snug ${isGood ? "text-gray-600" : "text-gray-900"}`}>
+              {control.name}
+            </span>
+            <AutoBadge status={control.status} />
+          </div>
+          {!isGood && (
+            <div className="mt-1.5 h-1 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${scoreBarColor(control.score)}`}
+                style={{ width: `${control.score}%` }}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <span className={`font-bold ${isGood ? "text-xs text-emerald-600" : "text-sm " + scoreColor(control.score)}`}>
+            {control.score}%
+          </span>
+          {expanded
+            ? <ChevronUp className="w-4 h-4 text-gray-300" />
+            : <ChevronDown className="w-4 h-4 text-gray-300" />}
+        </div>
+      </div>
+
+      {expanded && (
+        <div className={`border-t px-4 sm:px-5 pb-4 pt-3 ${
+          isWarn ? "border-amber-100/60 bg-amber-50/30" :
+          isBad  ? "border-red-100/60 bg-red-50/20" :
+          "border-gray-50 bg-gray-50/30"
+        }`}>
+          <EvidenceDots covered={control.covered_types} missing={control.missing_types} />
+          {!isGood && (
+            <RemediationPanel missingTypes={control.missing_types} category={control.category} />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── AI Advisor ────────────────────────────────────────────────────────────────
 function AIAdvisor({
   framework,
@@ -457,23 +525,23 @@ function AIAdvisor({
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-card-md">
+    <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-4 sm:px-5 py-3.5 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center shrink-0">
-          <Sparkles className="w-4 h-4 text-violet-300" />
+      <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-4 sm:px-5 py-3 flex items-center gap-3">
+        <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center shrink-0">
+          <Sparkles className="w-3.5 h-3.5 text-violet-300" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white leading-none">AI Compliance Advisor</p>
-          <div className="flex items-center gap-1.5 mt-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-            <span className="text-xs text-slate-400">Llama 3.3 · Groq</span>
-          </div>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="text-xs text-slate-400">Llama 3.3 · Groq</span>
         </div>
         {summary && !loading && (
           <button
             onClick={onGenerate}
-            className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 px-2.5 py-1.5 rounded-lg border border-white/10 transition-all shrink-0"
+            className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 px-2.5 py-1.5 rounded-lg border border-white/10 transition-all shrink-0 ml-2"
           >
             <RefreshCw className="w-3 h-3" />
             <span className="hidden sm:block">Regenerate</span>
@@ -482,30 +550,19 @@ function AIAdvisor({
       </div>
 
       {/* Body */}
-      <div className="bg-white px-4 sm:px-5 py-5">
+      <div className="bg-white px-4 sm:px-5 py-4">
 
-        {/* Empty state */}
+        {/* Empty state — compact single row */}
         {!summary && !loading && !error && (
-          <div className="flex flex-col items-center text-center py-6 gap-4">
-            <div className="relative">
-              <div className="w-14 h-14 rounded-2xl bg-slate-900 flex items-center justify-center shadow-lg">
-                <Sparkles className="w-6 h-6 text-violet-300" />
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center">
-                <span className="text-white text-[9px] font-black">AI</span>
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-gray-900 mb-1">Get your compliance briefing</p>
-              <p className="text-xs text-gray-400 max-w-xs leading-relaxed">
-                Analyzes your live {framework.toUpperCase()} evidence and surfaces the single most impactful action to improve your score.
-              </p>
-            </div>
+          <div className="flex items-center gap-3">
+            <p className="flex-1 text-sm text-gray-500 min-w-0 leading-snug">
+              Analyzes your live {framework.toUpperCase()} evidence and surfaces the single most impactful action to improve your score.
+            </p>
             <button
               onClick={onGenerate}
-              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors shadow-sm"
+              className="shrink-0 flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-colors"
             >
-              <Sparkles className="w-4 h-4 text-violet-300" />
+              <Sparkles className="w-3.5 h-3.5 text-violet-300" />
               Generate insight
             </button>
           </div>
@@ -639,124 +696,170 @@ export default function CompliancePage() {
   return (
     <div className="animate-fade-in">
       {/* Page header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-3">Compliance</h1>
-
-        {/* Framework pill selector — scrollable on mobile */}
-        <div
-          className="overflow-x-auto no-scrollbar -mx-1"
-          style={{ maskImage: "linear-gradient(to right, black 85%, transparent 100%)" }}
-        >
-          <div className="flex gap-2 px-1 pb-0.5 w-max pr-6">
-            {FRAMEWORKS.map((f) => {
-              const locked = !isPro && f.value !== "soc2";
-              return (
-                <button
-                  key={f.value}
-                  onClick={() => locked ? triggerUpgrade() : setFramework(f.value)}
-                  className={`shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-150 ${
-                    framework === f.value
-                      ? "bg-brand-600 text-white shadow-sm shadow-brand-600/25"
-                      : locked
-                      ? "bg-white border border-amber-200 text-amber-500 hover:border-amber-300 hover:bg-amber-50"
-                      : "bg-white border border-gray-200 text-gray-500 hover:border-brand-300 hover:text-brand-600"
-                  }`}
-                >
-                  {locked && <Lock className="w-3 h-3 shrink-0" />}
-                  {f.label}
-                </button>
-              );
-            })}
+      <div className="mb-5">
+        <div className="flex items-center justify-between gap-4 mb-3">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 leading-none">Compliance</h1>
+            <p className="text-xs text-gray-400 mt-1">
+              {FRAMEWORKS.find((f) => f.value === framework)?.description ?? "Select a framework"}
+            </p>
           </div>
+        </div>
+
+        {/* Framework tab strip */}
+        <div className="flex gap-0 bg-gray-100 rounded-xl p-1 overflow-x-auto no-scrollbar">
+          {FRAMEWORKS.map((f) => {
+            const locked = !isPro && f.value !== "soc2";
+            const active = framework === f.value;
+            return (
+              <button
+                key={f.value}
+                onClick={() => locked ? triggerUpgrade() : setFramework(f.value)}
+                className={`shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 whitespace-nowrap ${
+                  active
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : locked
+                    ? "text-amber-500 hover:text-amber-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                {locked && <Lock className="w-2.5 h-2.5 shrink-0" />}
+                {f.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {loading ? (
-        <div className="space-y-6">
-          <div className="h-36 bg-gray-100 rounded-2xl animate-pulse" />
+        <div className="space-y-4">
+          <div className="h-28 bg-gray-100 rounded-2xl animate-pulse" />
+          <div className="h-24 bg-gray-100 rounded-2xl animate-pulse" />
           <div className="space-y-2">
-            {[0,1,2,3,4,5].map((i) => <div key={i} className="h-16 bg-gray-100 rounded-2xl animate-pulse" />)}
+            {[0,1,2,3,4,5].map((i) => <div key={i} className="h-14 bg-gray-100 rounded-2xl animate-pulse" />)}
           </div>
           <div className="space-y-2">
             {[0,1,2,3].map((i) => <div key={i} className="h-14 bg-gray-100 rounded-2xl animate-pulse" />)}
           </div>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-5">
+
+          {/* Score overview */}
+          {score && (() => {
+            const fw = FRAMEWORKS.find((f) => f.value === framework);
+            const cats = [
+              { label: "Passing", status: "passing",     color: "text-emerald-400", bar: "bg-emerald-400", count: score.controls.filter((c) => c.status === "passing").length },
+              { label: "Warning", status: "warning",     color: "text-amber-400",   bar: "bg-amber-400",   count: score.controls.filter((c) => c.status === "warning").length },
+              { label: "Failing", status: "failing",     color: "text-red-400",     bar: "bg-red-400",     count: score.controls.filter((c) => c.status === "failing").length },
+              { label: "No data", status: "no_evidence", color: "text-slate-500",   bar: "bg-slate-600",   count: score.controls.filter((c) => c.status === "no_evidence").length },
+            ];
+            const total = score.controls.length || 1;
+            const scoreColor = score.overall_score >= 80 ? "text-emerald-400" : score.overall_score >= 50 ? "text-amber-400" : "text-red-400";
+            const strokeColor = score.overall_score >= 80 ? "#10b981" : score.overall_score >= 50 ? "#f59e0b" : "#ef4444";
+            return (
+              <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-5 sm:p-6 overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(20,184,166,0.1),_transparent_55%)] pointer-events-none" />
+                <div className="relative">
+                  <div className="flex items-center gap-5 sm:gap-6">
+                    {/* Score ring */}
+                    <div className="relative shrink-0">
+                      <svg viewBox="0 0 80 80" className="w-20 h-20">
+                        <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="8" />
+                        <circle cx="40" cy="40" r="34" fill="none" stroke={strokeColor} strokeWidth="8"
+                          strokeDasharray={`${(2 * Math.PI * 34).toFixed(2)}`}
+                          strokeDashoffset={`${(2 * Math.PI * 34 * (1 - score.overall_score / 100)).toFixed(2)}`}
+                          strokeLinecap="round" transform="rotate(-90 40 40)"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className={`text-xl font-black leading-none ${scoreColor}`}>{score.overall_score}</span>
+                        <span className="text-[10px] text-white/30 font-semibold">/ 100</span>
+                      </div>
+                    </div>
+
+                    {/* Details */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-bold text-base leading-none mb-0.5">{fw?.label} Compliance</p>
+                      <p className="text-slate-400 text-xs mb-3">{fw?.description}</p>
+                      <div className="flex gap-3 sm:gap-5 flex-wrap">
+                        {cats.filter((c) => c.count > 0).map(({ label, count, color }) => (
+                          <div key={label} className="flex items-center gap-1.5">
+                            <span className={`text-sm font-bold ${color}`}>{count}</span>
+                            <span className="text-slate-500 text-xs">{label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Category breakdown bar */}
+                  <div className="mt-4 pt-4 border-t border-white/8">
+                    <div className="flex gap-0.5 h-2 rounded-full overflow-hidden">
+                      {cats.filter((c) => c.count > 0).map(({ status, bar, count }) => (
+                        <div key={status} className={`h-full ${bar} first:rounded-l-full last:rounded-r-full`} style={{ flex: count / total }} />
+                      ))}
+                    </div>
+                    <div className="flex gap-3 sm:gap-4 mt-2 flex-wrap">
+                      {cats.filter((c) => c.count > 0).map(({ label, bar, count }) => (
+                        <div key={label} className="flex items-center gap-1">
+                          <div className={`w-1.5 h-1.5 rounded-full ${bar}`} />
+                          <span className="text-[10px] text-slate-500">{count} {label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* AI Advisor */}
           <PlanGate feature="AI Compliance Advisor" mode="blur">
-          <AIAdvisor
-            framework={framework}
-            onGenerate={generateSummary}
-            loading={aiLoading}
-            summary={aiSummary}
-            generatedAt={aiGeneratedAt}
-            error={aiError}
-          />
+            <AIAdvisor
+              framework={framework}
+              onGenerate={generateSummary}
+              loading={aiLoading}
+              summary={aiSummary}
+              generatedAt={aiGeneratedAt}
+              error={aiError}
+            />
           </PlanGate>
 
           {/* Automated controls */}
           <section>
-            <div className="flex items-center justify-between gap-3 mb-3">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-brand-500 shrink-0" />
-                <h2 className="font-semibold text-gray-800 text-sm">Automated controls</h2>
-              </div>
-              {score && (
-                <span className={`text-xl font-bold shrink-0 ${scoreColor(score.overall_score)}`}>
-                  {score.overall_score}%
-                </span>
-              )}
+            <div className="flex items-center gap-2 mb-3">
+              <ShieldCheck className="w-4 h-4 text-brand-500 shrink-0" />
+              <h2 className="font-semibold text-gray-800 text-sm">Automated controls</h2>
+              {score && (() => {
+                const needsAttention = score.controls.filter((c) => c.status !== "passing").length;
+                return needsAttention > 0
+                  ? <span className="ml-auto text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full">{needsAttention} need attention</span>
+                  : <span className="ml-auto text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">All passing</span>;
+              })()}
             </div>
-
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-card divide-y divide-gray-50 overflow-hidden">
+            <div className="space-y-2">
               {score?.controls.map((c) => (
-                <div key={c.category} className="px-4 sm:px-5 py-4">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-2 flex-wrap min-w-0">
-                      <span className="text-sm font-semibold text-gray-800 leading-snug">{c.name}</span>
-                      <AutoBadge status={c.status} />
-                    </div>
-                    <span className={`text-sm font-bold shrink-0 ${scoreColor(c.score)}`}>{c.score}%</span>
-                  </div>
-
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-2">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${scoreBarColor(c.score)}`}
-                      style={{ width: `${c.score}%` }}
-                    />
-                  </div>
-
-                  <EvidenceDots covered={c.covered_types} missing={c.missing_types} />
-                  {(c.status === "failing" || c.status === "warning" || c.status === "no_evidence") && (
-                    <RemediationPanel missingTypes={c.missing_types} category={c.category} />
-                  )}
-                </div>
+                <AutoControlRow key={c.category} control={c} />
               ))}
             </div>
           </section>
 
           {/* Manual controls */}
           <section>
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <div className="flex items-center gap-2 min-w-0">
-                <CheckCircle2 className="w-4 h-4 text-brand-500 shrink-0" />
-                <h2 className="font-semibold text-gray-800 text-sm">Manual controls</h2>
-                <span className="text-xs text-gray-400 shrink-0">
-                  {manualCompliant}/{manualTotal}
-                </span>
-              </div>
-              <div className="h-1.5 w-24 bg-gray-100 rounded-full overflow-hidden shrink-0">
-                <div
-                  className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                  style={{ width: `${manualTotal > 0 ? (manualCompliant / manualTotal) * 100 : 0}%` }}
-                />
+            <div className="flex items-center gap-2 mb-4">
+              <CheckCircle2 className="w-4 h-4 text-brand-500 shrink-0" />
+              <h2 className="font-semibold text-gray-800 text-sm">Manual controls</h2>
+              <div className="ml-auto flex items-center gap-2 shrink-0">
+                <span className="text-xs text-gray-500 font-medium">{manualCompliant} / {manualTotal} compliant</span>
+                <div className="h-1.5 w-24 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                    style={{ width: `${manualTotal > 0 ? (manualCompliant / manualTotal) * 100 : 0}%` }}
+                  />
+                </div>
               </div>
             </div>
-            <p className="text-xs text-gray-400 mb-4">
-              Tap the circle to cycle status. Expand a row to set status explicitly or add notes.
-            </p>
             <div className="space-y-2">
               {manualControls.map((c) => (
                 <ManualControlRow
