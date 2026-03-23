@@ -1,6 +1,6 @@
 """Add devices, trust_page_views, questionnaire_sessions/comments, custom domain to trust_pages.
 
-Revision ID: 043_add_devices_trust_analytics_questionnaire_collab
+Revision ID: 043_add_gap_features
 Revises: 042_add_partner_ecosystem
 Create Date: 2026-03-23 00:00:00.000000
 """
@@ -8,7 +8,7 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-revision = '043_add_devices_trust_analytics_questionnaire_collab'
+revision = '043_add_gap_features'
 down_revision = '042_add_partner_ecosystem'
 branch_labels = None
 depends_on = None
