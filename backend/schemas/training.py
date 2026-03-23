@@ -40,6 +40,10 @@ class TrainingResponse(BaseModel):
     notes: Optional[str]
     auto_detected: bool = False
     detection_key: Optional[str] = None
+    completion_token: Optional[str] = None
+    quiz_score: Optional[int] = None
+    quiz_passed: bool = False
+    quiz_attempts: int = 0
     created_at: datetime
     updated_at: datetime
 

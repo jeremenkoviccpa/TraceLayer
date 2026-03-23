@@ -11,6 +11,7 @@ from core.deps import get_current_user
 from models.device import Device
 from models.policy import Policy
 from models.policy_signature import PolicySignature
+from models.training import TrainingRecord
 from models.user import User
 
 router = APIRouter(prefix="/portal", tags=["portal"])
@@ -40,6 +41,18 @@ class DeviceTaskItem(BaseModel):
     antivirus_installed: Optional[bool] = None
 
 
+class TrainingTaskItem(BaseModel):
+    id: str
+    title: str
+    status: str
+    due_date: Optional[str]
+    completed_at: Optional[str]
+    quiz_passed: bool
+    quiz_score: Optional[int]
+    quiz_attempts: int
+    completion_token: Optional[str]
+
+
 class PortalTasksResponse(BaseModel):
     user_email: str
     user_name: Optional[str]
@@ -47,6 +60,7 @@ class PortalTasksResponse(BaseModel):
     total_count: int
     policies: list[PolicyTaskItem]
     device: DeviceTaskItem
+    training: list[TrainingTaskItem]
 
 
 class PolicyContentResponse(BaseModel):
@@ -104,10 +118,34 @@ async def get_portal_tasks(
         antivirus_installed=device.antivirus_installed if device else None,
     )
 
+    # Training records assigned to this user's email
+    training_result = await db.execute(
+        select(TrainingRecord).where(
+            TrainingRecord.company_id == current_user.company_id,
+            TrainingRecord.assignee_email == current_user.email,
+        ).order_by(TrainingRecord.created_at.desc())
+    )
+    training_records = training_result.scalars().all()
+    training_tasks = [
+        TrainingTaskItem(
+            id=str(t.id),
+            title=t.title,
+            status=t.status,
+            due_date=t.due_date.isoformat() if t.due_date else None,
+            completed_at=t.completed_at.isoformat() if t.completed_at else None,
+            quiz_passed=t.quiz_passed,
+            quiz_score=t.quiz_score,
+            quiz_attempts=t.quiz_attempts,
+            completion_token=t.completion_token,
+        )
+        for t in training_records
+    ]
+
     unsigned_policies = sum(1 for p in policy_tasks if not p.signed)
     device_pending = 0 if device_task.attested else 1
-    pending = unsigned_policies + device_pending
-    total = len(policy_tasks) + 1  # +1 for device task
+    training_pending = sum(1 for t in training_tasks if not t.quiz_passed)
+    pending = unsigned_policies + device_pending + training_pending
+    total = len(policy_tasks) + 1 + len(training_tasks)
 
     return PortalTasksResponse(
         user_email=current_user.email,
@@ -116,6 +154,7 @@ async def get_portal_tasks(
         total_count=total,
         policies=policy_tasks,
         device=device_task,
+        training=training_tasks,
     )
 
 

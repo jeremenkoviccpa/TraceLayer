@@ -1,4 +1,4 @@
-import type { AccessReview, ApiKey, AppNotification, Asset, AuditComment, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Device, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PolicyContentResponse, PolicyTaskItem, PortalTasksResponse, PublicAuditView, PublicTrustPageView, QuestionnaireComment, QuestionnaireResult, QuestionnaireSession, QuestionnaireSessionAnswer, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SlackConfig, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingRecord, TrustAnalytics, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
+import type { AccessReview, ApiKey, AppNotification, Asset, AuditComment, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Device, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PolicyContentResponse, PolicyTaskItem, PortalTasksResponse, PublicAuditView, PublicTrustPageView, QuestionnaireComment, QuestionnaireResult, QuestionnaireSession, QuestionnaireSessionAnswer, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SlackConfig, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingCertificate, TrainingQuiz, TrainingQuizResult, TrainingRecord, TrustAnalytics, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -493,6 +493,18 @@ class ApiClient {
 
   async runTrainingDetection(): Promise<{ created: number }> {
     return this.request<{ created: number }>("POST", "/training/detect");
+  }
+
+  async getTrainingQuiz(token: string): Promise<TrainingQuiz> {
+    return this.requestPublic<TrainingQuiz>("GET", `/training/take/${token}`);
+  }
+
+  async submitTrainingQuiz(token: string, answers: Record<string, number>): Promise<TrainingQuizResult> {
+    return this.requestPublic<TrainingQuizResult>("POST", `/training/take/${token}/submit`, { answers });
+  }
+
+  async getTrainingCertificate(token: string): Promise<TrainingCertificate> {
+    return this.requestPublic<TrainingCertificate>("GET", `/training/certificate/${token}`);
   }
 
   // ── Pen Tests ─────────────────────────────────────────────────────────────

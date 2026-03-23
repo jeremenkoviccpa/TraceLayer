@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import Boolean, ForeignKey, String, Text, func
+from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import TIMESTAMP
@@ -31,5 +31,10 @@ class TrainingRecord(Base):
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     auto_detected: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     detection_key: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    # Quiz delivery
+    completion_token: Mapped[Optional[str]] = mapped_column(String(64), unique=True, nullable=True)
+    quiz_score: Mapped[Optional[int]] = mapped_column(Integer(), nullable=True)
+    quiz_passed: Mapped[bool] = mapped_column(Boolean(), nullable=False, server_default="false")
+    quiz_attempts: Mapped[int] = mapped_column(Integer(), nullable=False, server_default="0")
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())

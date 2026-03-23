@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { TrainingRecord } from "@/lib/types";
-import { GraduationCap, Plus, CheckCircle2, Clock, AlertTriangle, Trash2, X, RefreshCw, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { GraduationCap, Plus, CheckCircle2, Clock, AlertTriangle, Trash2, X, RefreshCw, Sparkles, Link2, Award } from "lucide-react";
 
 const STATUS_STYLES: Record<string, string> = {
   completed: "bg-emerald-50 text-emerald-700",
@@ -145,6 +146,13 @@ export default function TrainingPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [detecting, setDetecting] = useState(false);
   const [detectMsg, setDetectMsg] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyLink = (token: string, id: string) => {
+    navigator.clipboard.writeText(`${window.location.origin}/training/take/${token}`);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   const load = () => api.getTraining().then(setRecords).catch(() => {}).finally(() => setLoading(false));
 
@@ -319,14 +327,44 @@ export default function TrainingPage() {
                         {r.due_date ? new Date(r.due_date).toLocaleDateString() : "—"}
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_STYLES[r.status]}`}>
-                          <StatusIcon className="w-3 h-3" />
-                          {r.status.charAt(0).toUpperCase() + r.status.slice(1)}
-                        </span>
+                        <div className="space-y-1">
+                          <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_STYLES[r.status]}`}>
+                            <StatusIcon className="w-3 h-3" />
+                            {r.status.charAt(0).toUpperCase() + r.status.slice(1)}
+                          </span>
+                          {r.quiz_passed && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+                                Quiz {r.quiz_score}%
+                              </span>
+                            </div>
+                          )}
+                          {!r.quiz_passed && r.quiz_attempts > 0 && (
+                            <span className="text-[10px] text-amber-500">{r.quiz_attempts} attempt{r.quiz_attempts > 1 ? "s" : ""}</span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2 justify-end">
-                          {r.status !== "completed" && (
+                          {r.quiz_passed && r.completion_token && (
+                            <Link
+                              href={`/training/certificate/${r.completion_token}`}
+                              target="_blank"
+                              className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 border border-emerald-200 hover:border-emerald-300 px-2 py-1 rounded-lg transition-colors flex items-center gap-1 whitespace-nowrap"
+                            >
+                              <Award className="w-3 h-3" /> Cert
+                            </Link>
+                          )}
+                          {r.completion_token && !r.quiz_passed && (
+                            <button
+                              onClick={() => copyLink(r.completion_token!, r.id)}
+                              className="text-xs font-semibold text-brand-600 hover:text-brand-700 border border-brand-200 hover:border-brand-300 px-2 py-1 rounded-lg transition-colors flex items-center gap-1 whitespace-nowrap"
+                            >
+                              <Link2 className="w-3 h-3" />
+                              {copiedId === r.id ? "Copied!" : "Quiz link"}
+                            </button>
+                          )}
+                          {r.status !== "completed" && !r.quiz_passed && (
                             <button
                               onClick={() => markComplete(r.id)}
                               className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 border border-emerald-200 hover:border-emerald-300 px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap"

@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { api } from "@/lib/api";
-import type { DeviceTaskItem, PolicyContentResponse, PolicyTaskItem, PortalTasksResponse } from "@/lib/types";
+import type { DeviceTaskItem, PolicyContentResponse, PolicyTaskItem, PortalTasksResponse, TrainingTaskItem } from "@/lib/types";
 import {
   CheckCircle2, Clock, FileText, Monitor, AlertTriangle,
-  ChevronDown, ChevronUp, X, Loader2,
+  ChevronDown, ChevronUp, X, Loader2, GraduationCap, Award, ArrowRight,
 } from "lucide-react";
 import { showToast } from "@/components/ui/Toaster";
 
@@ -236,6 +237,7 @@ export default function PortalPage() {
   const [signingSlug, setSigningSlug] = useState<string | null>(null);
   const [policiesOpen, setPoliciesOpen] = useState(true);
   const [deviceOpen, setDeviceOpen] = useState(true);
+  const [trainingOpen, setTrainingOpen] = useState(true);
 
   const load = async () => {
     try {
@@ -391,17 +393,83 @@ export default function PortalPage() {
         )}
       </div>
 
-      {/* Training — stub */}
-      <div className="bg-white rounded-2xl border border-dashed border-gray-200 px-5 py-4 flex items-center gap-4 opacity-60">
-        <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-          <span className="text-sm">🎓</span>
+      {/* Training */}
+      {tasks.training.length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <button
+            onClick={() => setTrainingOpen(o => !o)}
+            className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                <GraduationCap className="w-4 h-4 text-amber-600" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-bold text-gray-800">Security Training</p>
+                <p className="text-xs text-gray-400">
+                  {tasks.training.filter(t => t.quiz_passed).length}/{tasks.training.length} completed
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {tasks.training.some(t => !t.quiz_passed) && (
+                <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                  {tasks.training.filter(t => !t.quiz_passed).length} pending
+                </span>
+              )}
+              {trainingOpen ? <ChevronUp className="w-4 h-4 text-gray-300" /> : <ChevronDown className="w-4 h-4 text-gray-300" />}
+            </div>
+          </button>
+
+          {trainingOpen && (
+            <div className="border-t border-gray-100 divide-y divide-gray-50">
+              {tasks.training.map((t: TrainingTaskItem) => (
+                <div key={t.id} className="flex items-center justify-between px-5 py-3.5 gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    {t.quiz_passed
+                      ? <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                      : <Clock className="w-4 h-4 text-amber-400 shrink-0" />
+                    }
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-800 truncate">{t.title}</p>
+                      {t.quiz_passed && t.completed_at && (
+                        <p className="text-xs text-gray-400">
+                          Passed {new Date(t.completed_at).toLocaleDateString()} · {t.quiz_score}%
+                        </p>
+                      )}
+                      {!t.quiz_passed && t.quiz_attempts > 0 && (
+                        <p className="text-xs text-amber-500">
+                          {t.quiz_attempts} attempt{t.quiz_attempts > 1 ? "s" : ""} — keep trying!
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="shrink-0">
+                    {t.quiz_passed ? (
+                      <Link
+                        href={`/training/certificate/${t.completion_token}`}
+                        target="_blank"
+                        className="flex items-center gap-1.5 text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        <Award className="w-3.5 h-3.5" /> Certificate
+                      </Link>
+                    ) : t.completion_token ? (
+                      <Link
+                        href={`/training/take/${t.completion_token}`}
+                        className="flex items-center gap-1.5 text-xs font-semibold bg-teal-600 hover:bg-teal-500 text-white px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        Take Quiz <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    ) : (
+                      <span className="text-xs text-gray-400">Link pending</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        <div>
-          <p className="text-sm font-bold text-gray-700">Security Awareness Training</p>
-          <p className="text-xs text-gray-400">Coming soon — modules launching shortly.</p>
-        </div>
-        <span className="ml-auto text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full shrink-0">Soon</span>
-      </div>
+      )}
 
       {/* Policy modal */}
       {signingSlug && (

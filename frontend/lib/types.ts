@@ -326,8 +326,57 @@ export interface TrainingRecord {
   notes: string | null;
   auto_detected: boolean;
   detection_key: string | null;
+  completion_token: string | null;
+  quiz_score: number | null;
+  quiz_passed: boolean;
+  quiz_attempts: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface TrainingQuizQuestion {
+  id: number;
+  question: string;
+  options: string[];
+}
+
+export interface TrainingQuiz {
+  training_id: string;
+  title: string;
+  assignee_name: string | null;
+  assignee_email: string;
+  company_name: string;
+  already_passed: boolean;
+  questions: TrainingQuizQuestion[];
+}
+
+export interface TrainingQuizResult {
+  passed: boolean;
+  score: number;
+  correct: number;
+  total: number;
+  completion_token: string;
+}
+
+export interface TrainingCertificate {
+  title: string;
+  assignee_name: string;
+  assignee_email: string;
+  company_name: string;
+  completed_at: string;
+  score: number;
+}
+
+export interface TrainingTaskItem {
+  id: string;
+  title: string;
+  status: string;
+  due_date: string | null;
+  completed_at: string | null;
+  quiz_passed: boolean;
+  quiz_score: number | null;
+  quiz_attempts: number;
+  completion_token: string | null;
 }
 
 export interface PenTest {
@@ -512,6 +561,7 @@ export interface PortalTasksResponse {
   total_count: number;
   policies: PolicyTaskItem[];
   device: DeviceTaskItem;
+  training: TrainingTaskItem[];
 }
 
 export interface PolicyContentResponse {
