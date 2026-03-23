@@ -6,7 +6,9 @@ import type { SuperAdminCompany, SuperAdminUser } from "@/lib/types";
 import {
   ChevronDown, ChevronRight, Shield, Users, Building2, Crown,
   Trash2, CheckCircle, RotateCcw, MoreHorizontal, X, Sparkles,
+  Plus, FileSearch, Microscope, Globe, Star, EyeOff,
 } from "lucide-react";
+import type { PartnerDirectoryEntry } from "@/lib/types";
 import { toast } from "@/lib/toast";
 
 const PLAN_COLORS: Record<string, string> = {
@@ -57,6 +59,19 @@ function ConfirmModal({
   );
 }
 
+const BLANK_ENTRY = {
+  partner_type: "auditor" as "auditor" | "pen_test",
+  name: "",
+  description: "",
+  website: "",
+  referral_url: "",
+  contact_email: "",
+  frameworks: "",
+  specialties: "",
+  is_featured: false,
+  is_active: true,
+};
+
 export default function SuperAdminPage() {
   const [companies, setCompanies] = useState<SuperAdminCompany[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,12 +84,79 @@ export default function SuperAdminPage() {
   const [userMenuOpen, setUserMenuOpen] = useState<string | null>(null);
   const [seeding, setSeeding] = useState<string | null>(null);
 
+  // Partner directory state
+  const [partnerEntries, setPartnerEntries] = useState<PartnerDirectoryEntry[]>([]);
+  const [partnerTab, setPartnerTab] = useState<"auditor" | "pen_test">("auditor");
+  const [showPartnerForm, setShowPartnerForm] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<PartnerDirectoryEntry | null>(null);
+  const [partnerForm, setPartnerForm] = useState(BLANK_ENTRY);
+  const [savingPartner, setSavingPartner] = useState(false);
+
   useEffect(() => {
     api.superAdminListCompanies()
       .then(setCompanies)
       .catch(() => setError("Access denied or unable to load companies."))
       .finally(() => setLoading(false));
+    api.superAdminListPartnerDirectory()
+      .then(setPartnerEntries)
+      .catch(() => {});
   }, []);
+
+  function openNewEntry() {
+    setEditingEntry(null);
+    setPartnerForm({ ...BLANK_ENTRY, partner_type: partnerTab });
+    setShowPartnerForm(true);
+  }
+
+  function openEditEntry(entry: PartnerDirectoryEntry) {
+    setEditingEntry(entry);
+    setPartnerForm({
+      partner_type: entry.partner_type,
+      name: entry.name,
+      description: entry.description ?? "",
+      website: entry.website ?? "",
+      referral_url: entry.referral_url ?? "",
+      contact_email: entry.contact_email ?? "",
+      frameworks: (entry.frameworks ?? []).join(", "),
+      specialties: (entry.specialties ?? []).join(", "),
+      is_featured: entry.is_featured,
+      is_active: true,
+    });
+    setShowPartnerForm(true);
+  }
+
+  async function savePartnerEntry() {
+    setSavingPartner(true);
+    try {
+      const payload = {
+        partner_type: partnerForm.partner_type,
+        name: partnerForm.name,
+        description: partnerForm.description || null,
+        website: partnerForm.website || null,
+        referral_url: partnerForm.referral_url || null,
+        contact_email: partnerForm.contact_email || null,
+        frameworks: partnerForm.frameworks ? partnerForm.frameworks.split(",").map((s) => s.trim()).filter(Boolean) : null,
+        specialties: partnerForm.specialties ? partnerForm.specialties.split(",").map((s) => s.trim()).filter(Boolean) : null,
+        is_featured: partnerForm.is_featured,
+        is_active: partnerForm.is_active,
+      };
+      if (editingEntry) {
+        const updated = await api.superAdminPatchPartnerEntry(editingEntry.id, payload);
+        setPartnerEntries((prev) => prev.map((e) => e.id === updated.id ? updated : e));
+      } else {
+        const created = await api.superAdminCreatePartnerEntry(payload);
+        setPartnerEntries((prev) => [...prev, created]);
+      }
+      setShowPartnerForm(false);
+    } finally {
+      setSavingPartner(false);
+    }
+  }
+
+  async function deletePartnerEntry(entry: PartnerDirectoryEntry) {
+    await api.superAdminDeletePartnerEntry(entry.id);
+    setPartnerEntries((prev) => prev.filter((e) => e.id !== entry.id));
+  }
 
   async function toggleExpand(id: string) {
     if (expanded === id) { setExpanded(null); return; }
@@ -425,6 +507,263 @@ export default function SuperAdminPage() {
         </table>
         </div>
       </div>
+
+      {/* ── Partner Directory ──────────────────────────────────────────────── */}
+      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <FileSearch className="w-4 h-4 text-violet-500" />
+            <h2 className="text-sm font-semibold text-slate-900">Partner Directory</h2>
+            <span className="text-xs text-slate-400">({partnerEntries.length} entries)</span>
+          </div>
+          <button
+            onClick={openNewEntry}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold bg-[#0f766e] text-white px-3 py-1.5 rounded-lg hover:bg-[#0d6460] transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" /> Add firm
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-slate-100">
+          {([["auditor", "Auditors", FileSearch], ["pen_test", "Pen Test Firms", Microscope]] as const).map(([key, label, Icon]) => (
+            <button
+              key={key}
+              onClick={() => setPartnerTab(key)}
+              className={`flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
+                partnerTab === key
+                  ? "border-[#0f766e] text-[#0f766e]"
+                  : "border-transparent text-slate-400 hover:text-slate-700"
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" /> {label}
+              <span className="ml-1 text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">
+                {partnerEntries.filter((e) => e.partner_type === key).length}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-50">
+                <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-5 py-3">Name</th>
+                <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-5 py-3 hidden md:table-cell">Description</th>
+                <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-5 py-3 hidden lg:table-cell">Frameworks</th>
+                <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-5 py-3">Featured</th>
+                <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-5 py-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {partnerEntries.filter((e) => e.partner_type === partnerTab).length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-5 py-8 text-center text-sm text-slate-400">
+                    No {partnerTab === "auditor" ? "auditor" : "pen test"} firms listed yet. Click "Add firm" to add one.
+                  </td>
+                </tr>
+              ) : partnerEntries.filter((e) => e.partner_type === partnerTab).map((entry) => (
+                <tr key={entry.id} className="hover:bg-slate-50/50">
+                  <td className="px-5 py-3">
+                    <div>
+                      <p className="font-medium text-slate-900 text-sm">{entry.name}</p>
+                      {entry.website && (
+                        <a href={entry.website} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-[#0f766e] flex items-center gap-1 mt-0.5">
+                          <Globe className="w-3 h-3" /> {entry.website.replace(/^https?:\/\//, "")}
+                        </a>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-5 py-3 hidden md:table-cell">
+                    <p className="text-xs text-slate-500 max-w-xs truncate">{entry.description ?? "—"}</p>
+                  </td>
+                  <td className="px-5 py-3 hidden lg:table-cell">
+                    <div className="flex flex-wrap gap-1">
+                      {(entry.frameworks ?? []).slice(0, 3).map((f) => (
+                        <span key={f} className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">{f}</span>
+                      ))}
+                      {(entry.frameworks ?? []).length > 3 && (
+                        <span className="text-[10px] text-slate-400">+{(entry.frameworks ?? []).length - 3}</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-5 py-3">
+                    <button
+                      onClick={async () => {
+                        const updated = await api.superAdminPatchPartnerEntry(entry.id, { is_featured: !entry.is_featured });
+                        setPartnerEntries((prev) => prev.map((e) => e.id === updated.id ? updated : e));
+                      }}
+                      className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full transition-colors ${
+                        entry.is_featured
+                          ? "bg-amber-50 text-amber-600 hover:bg-amber-100"
+                          : "bg-slate-100 text-slate-400 hover:bg-slate-200"
+                      }`}
+                    >
+                      <Star className="w-3 h-3" /> {entry.is_featured ? "Featured" : "Regular"}
+                    </button>
+                  </td>
+                  <td className="px-5 py-3">
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => openEditEntry(entry)}
+                        className="text-xs font-medium text-slate-500 hover:text-slate-800 border border-slate-200 px-2 py-1 rounded-lg hover:bg-slate-50 transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => ask(
+                          `Remove "${entry.name}" from the partner directory?`,
+                          () => deletePartnerEntry(entry),
+                          true,
+                        )}
+                        className="p-1 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Partner entry form modal */}
+      {showPartnerForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-slate-100">
+              <h2 className="text-sm font-semibold text-slate-900">
+                {editingEntry ? `Edit — ${editingEntry.name}` : "Add partner firm"}
+              </h2>
+              <button onClick={() => setShowPartnerForm(false)} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              {/* Type */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Type</label>
+                <div className="flex gap-2">
+                  {(["auditor", "pen_test"] as const).map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setPartnerForm((f) => ({ ...f, partner_type: t }))}
+                      className={`flex-1 py-2 rounded-xl text-xs font-semibold border transition-colors ${
+                        partnerForm.partner_type === t
+                          ? "bg-[#0f766e] text-white border-[#0f766e]"
+                          : "border-slate-200 text-slate-500 hover:border-slate-300"
+                      }`}
+                    >
+                      {t === "auditor" ? "Auditor" : "Pen Test Firm"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Name */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Firm name <span className="text-red-400">*</span></label>
+                <input
+                  value={partnerForm.name}
+                  onChange={(e) => setPartnerForm((f) => ({ ...f, name: e.target.value }))}
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30"
+                  placeholder="Prescient Assurance"
+                />
+              </div>
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Short description</label>
+                <input
+                  value={partnerForm.description}
+                  onChange={(e) => setPartnerForm((f) => ({ ...f, description: e.target.value }))}
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30"
+                  placeholder="Startup-friendly SOC 2, fast timelines"
+                />
+              </div>
+              {/* Website + Referral URL */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Website</label>
+                  <input
+                    value={partnerForm.website}
+                    onChange={(e) => setPartnerForm((f) => ({ ...f, website: e.target.value }))}
+                    className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30"
+                    placeholder="https://prescientassurance.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Referral URL</label>
+                  <input
+                    value={partnerForm.referral_url}
+                    onChange={(e) => setPartnerForm((f) => ({ ...f, referral_url: e.target.value }))}
+                    className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30"
+                    placeholder="https://... (optional)"
+                  />
+                </div>
+              </div>
+              {/* Contact email */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Contact email</label>
+                <input
+                  value={partnerForm.contact_email}
+                  onChange={(e) => setPartnerForm((f) => ({ ...f, contact_email: e.target.value }))}
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30"
+                  placeholder="hello@firm.com"
+                />
+              </div>
+              {/* Frameworks + Specialties */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Frameworks <span className="font-normal text-slate-400">(comma-separated)</span></label>
+                  <input
+                    value={partnerForm.frameworks}
+                    onChange={(e) => setPartnerForm((f) => ({ ...f, frameworks: e.target.value }))}
+                    className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30"
+                    placeholder="SOC 2, ISO 27001, HIPAA"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Specialties <span className="font-normal text-slate-400">(comma-separated)</span></label>
+                  <input
+                    value={partnerForm.specialties}
+                    onChange={(e) => setPartnerForm((f) => ({ ...f, specialties: e.target.value }))}
+                    className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30"
+                    placeholder="Startups, Cloud Security"
+                  />
+                </div>
+              </div>
+              {/* Featured toggle */}
+              <label className="flex items-center gap-3 cursor-pointer">
+                <div
+                  onClick={() => setPartnerForm((f) => ({ ...f, is_featured: !f.is_featured }))}
+                  className={`relative w-9 h-5 rounded-full transition-colors ${partnerForm.is_featured ? "bg-amber-400" : "bg-slate-200"}`}
+                >
+                  <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${partnerForm.is_featured ? "translate-x-4" : "translate-x-0.5"}`} />
+                </div>
+                <span className="text-sm font-medium text-slate-700 flex items-center gap-1.5">
+                  <Star className="w-3.5 h-3.5 text-amber-400" /> Featured listing
+                </span>
+              </label>
+            </div>
+            <div className="px-6 pb-5 flex justify-end gap-2">
+              <button onClick={() => setShowPartnerForm(false)} className="px-4 py-2 text-sm rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50">
+                Cancel
+              </button>
+              <button
+                onClick={savePartnerEntry}
+                disabled={!partnerForm.name || savingPartner}
+                className="px-5 py-2 text-sm rounded-xl bg-[#0f766e] text-white font-semibold hover:bg-[#0d6460] disabled:opacity-50 transition-colors"
+              >
+                {savingPartner ? "Saving…" : editingEntry ? "Save changes" : "Add firm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

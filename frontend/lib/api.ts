@@ -909,6 +909,10 @@ class ApiClient {
   async superAdminPatchUser(companyId: string, userId: string, data: { role?: string; email_verified?: boolean }): Promise<SuperAdminUser> { return this.request("PATCH", `/super-admin/companies/${companyId}/users/${userId}`, data); }
   async superAdminDeleteUser(companyId: string, userId: string): Promise<void> { return this.request("DELETE", `/super-admin/companies/${companyId}/users/${userId}`); }
   async superAdminSeedDemo(companyId: string): Promise<{ integrations_added: number; integrations_skipped: number; evidence_upserted: number; added: string[] }> { return this.request("POST", `/super-admin/companies/${companyId}/seed-demo`); }
+  async superAdminListPartnerDirectory(): Promise<PartnerDirectoryEntry[]> { return this.request("GET", "/super-admin/partner-directory"); }
+  async superAdminCreatePartnerEntry(data: Omit<PartnerDirectoryEntry, "id"> & { is_active?: boolean }): Promise<PartnerDirectoryEntry> { return this.request("POST", "/super-admin/partner-directory", data); }
+  async superAdminPatchPartnerEntry(id: string, data: Partial<Omit<PartnerDirectoryEntry, "id"> & { is_active: boolean }>): Promise<PartnerDirectoryEntry> { return this.request("PATCH", `/super-admin/partner-directory/${id}`, data); }
+  async superAdminDeletePartnerEntry(id: string): Promise<void> { return this.request("DELETE", `/super-admin/partner-directory/${id}`); }
 
   // ── Evidence Export ───────────────────────────────────────────────────────
   async exportEvidenceCsv(params?: { control?: string; integration?: string }): Promise<void> {

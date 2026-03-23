@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import type { PenTest } from "@/lib/types";
+import type { PenTest, PartnerDirectoryEntry } from "@/lib/types";
 import { ShieldAlert, Plus, Trash2, X, ChevronDown, ChevronUp, ExternalLink, Microscope } from "lucide-react";
 import { DocumentUpload } from "@/components/document-upload";
 
@@ -151,9 +151,11 @@ export default function PenTestsPage() {
   const [editing, setEditing] = useState<PenTest | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [penTestFirms, setPenTestFirms] = useState<PartnerDirectoryEntry[]>([]);
 
   useEffect(() => {
     api.getPenTests().then(setTests).catch(() => {}).finally(() => setLoading(false));
+    api.getPartnerDirectory("pen_test").then(setPenTestFirms).catch(() => {});
   }, []);
 
   const handleCreate = async (data: Partial<PenTest>) => {
@@ -237,30 +239,27 @@ export default function PenTestsPage() {
             </button>
           </div>
           {/* Partner CTA */}
-          <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Microscope className="w-4 h-4 text-orange-500" />
-              <p className="text-sm font-semibold text-gray-900">Need a pen test? Use one of our vetted partners.</p>
+          {penTestFirms.length > 0 && (
+            <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Microscope className="w-4 h-4 text-orange-500" />
+                <p className="text-sm font-semibold text-gray-900">Need a pen test? Use one of our vetted partners.</p>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-2">
+                {penTestFirms.map((firm) => (
+                  <a key={firm.id} href={firm.referral_url ?? firm.website ?? "#"} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center justify-between bg-white border border-orange-100 rounded-xl px-3 py-2.5 hover:border-orange-200 transition-colors group"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{firm.name}</p>
+                      <p className="text-xs text-gray-400">{firm.description ?? ""}</p>
+                    </div>
+                    <ExternalLink className="w-3.5 h-3.5 text-gray-300 group-hover:text-orange-400 transition-colors" />
+                  </a>
+                ))}
+              </div>
             </div>
-            <div className="grid sm:grid-cols-2 gap-2">
-              {[
-                { name: "Cobalt", note: "PtaaS — results in days", href: "https://cobalt.io" },
-                { name: "NetSPI", note: "Enterprise-grade", href: "https://netspi.com" },
-                { name: "Synack", note: "Crowdsourced red team", href: "https://synack.com" },
-                { name: "Rapid7", note: "Full-service + vuln mgmt", href: "https://rapid7.com" },
-              ].map(({ name, note, href }) => (
-                <a key={name} href={href} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center justify-between bg-white border border-orange-100 rounded-xl px-3 py-2.5 hover:border-orange-200 transition-colors group"
-                >
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">{name}</p>
-                    <p className="text-xs text-gray-400">{note}</p>
-                  </div>
-                  <ExternalLink className="w-3.5 h-3.5 text-gray-300 group-hover:text-orange-400 transition-colors" />
-                </a>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
       ) : (
         <div className="space-y-3">

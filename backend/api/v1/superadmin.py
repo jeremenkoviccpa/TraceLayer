@@ -21,7 +21,9 @@ from core.deps import get_current_user
 from models.company import Company
 from models.evidence import Evidence
 from models.integration import Integration
+from models.partner_directory import PartnerDirectoryEntry
 from models.user import User
+from schemas.partner_directory import PartnerDirectoryEntryResponse
 from services import audit_service
 
 logger = logging.getLogger(__name__)
@@ -291,6 +293,96 @@ async def delete_company_user(
         raise HTTPException(status_code=404, detail="User not found")
 
     await db.delete(user)
+    await db.commit()
+    return Response(status_code=204)
+
+
+# ── Partner Directory CRUD ────────────────────────────────────────────────────
+
+class PartnerDirectoryBody(BaseModel):
+    partner_type: str
+    name: str
+    description: Optional[str] = None
+    website: Optional[str] = None
+    referral_url: Optional[str] = None
+    contact_email: Optional[str] = None
+    frameworks: Optional[list[str]] = None
+    specialties: Optional[list[str]] = None
+    is_featured: bool = False
+    is_active: bool = True
+
+
+class PartnerDirectoryPatchBody(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    website: Optional[str] = None
+    referral_url: Optional[str] = None
+    contact_email: Optional[str] = None
+    frameworks: Optional[list[str]] = None
+    specialties: Optional[list[str]] = None
+    is_featured: Optional[bool] = None
+    is_active: Optional[bool] = None
+
+
+@router.get("/partner-directory", response_model=list[PartnerDirectoryEntryResponse])
+async def list_partner_directory(
+    _: User = Depends(require_super_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(PartnerDirectoryEntry).order_by(
+            PartnerDirectoryEntry.partner_type,
+            PartnerDirectoryEntry.is_featured.desc(),
+            PartnerDirectoryEntry.name,
+        )
+    )
+    return result.scalars().all()
+
+
+@router.post("/partner-directory", response_model=PartnerDirectoryEntryResponse)
+async def create_partner_entry(
+    body: PartnerDirectoryBody,
+    _: User = Depends(require_super_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    if body.partner_type not in ("auditor", "pen_test"):
+        raise HTTPException(status_code=400, detail="partner_type must be 'auditor' or 'pen_test'")
+    entry = PartnerDirectoryEntry(**body.model_dump())
+    db.add(entry)
+    await db.commit()
+    await db.refresh(entry)
+    return entry
+
+
+@router.patch("/partner-directory/{entry_id}", response_model=PartnerDirectoryEntryResponse)
+async def patch_partner_entry(
+    entry_id: uuid.UUID,
+    body: PartnerDirectoryPatchBody,
+    _: User = Depends(require_super_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(PartnerDirectoryEntry).where(PartnerDirectoryEntry.id == entry_id))
+    entry = result.scalar_one_or_none()
+    if not entry:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    for k, v in body.model_dump(exclude_none=True).items():
+        setattr(entry, k, v)
+    await db.commit()
+    await db.refresh(entry)
+    return entry
+
+
+@router.delete("/partner-directory/{entry_id}", status_code=204)
+async def delete_partner_entry(
+    entry_id: uuid.UUID,
+    _: User = Depends(require_super_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(PartnerDirectoryEntry).where(PartnerDirectoryEntry.id == entry_id))
+    entry = result.scalar_one_or_none()
+    if not entry:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    await db.delete(entry)
     await db.commit()
     return Response(status_code=204)
 

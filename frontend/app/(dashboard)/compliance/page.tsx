@@ -669,6 +669,11 @@ function InviteAuditorModal({
   });
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
+  const [auditorFirms, setAuditorFirms] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    api.getPartnerDirectory("auditor").then((firms) => setAuditorFirms(firms.map((f) => ({ id: f.id, name: f.name })))).catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -727,9 +732,27 @@ function InviteAuditorModal({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Firm</label>
-              <input type="text" value={form.auditor_firm}
-                onChange={(e) => setForm((f) => ({ ...f, auditor_firm: e.target.value }))}
-                className="input" placeholder="Prescient Assurance" />
+              {auditorFirms.length > 0 ? (
+                <select
+                  value={form.auditor_firm}
+                  onChange={(e) => setForm((f) => ({ ...f, auditor_firm: e.target.value }))}
+                  className="input"
+                >
+                  <option value="">Select a firm…</option>
+                  {auditorFirms.map((f) => (
+                    <option key={f.id} value={f.name}>{f.name}</option>
+                  ))}
+                  <option value="__other__">Other (type manually)</option>
+                </select>
+              ) : (
+                <input type="text" value={form.auditor_firm}
+                  onChange={(e) => setForm((f) => ({ ...f, auditor_firm: e.target.value }))}
+                  className="input" placeholder="Prescient Assurance" />
+              )}
+              {form.auditor_firm === "__other__" && (
+                <input type="text" className="input mt-2" placeholder="Firm name"
+                  onChange={(e) => setForm((f) => ({ ...f, auditor_firm: e.target.value }))} />
+              )}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
