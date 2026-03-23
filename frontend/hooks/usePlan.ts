@@ -6,7 +6,7 @@ type Plan = "free" | "growth";
 
 const CACHE_KEY = "billing_plan";
 const CACHE_AT_KEY = "billing_plan_at";
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL = 30 * 1000; // 30 seconds
 
 // Internal accounts always have full Growth access
 const INTERNAL_ADMINS = ["admin@tracelayer.it.com", "jeremenkovic23@gmail.com"];
