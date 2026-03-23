@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/components/auth-provider";
-import { Eye, EyeOff, AlertCircle, CheckCircle2, Building2, Users } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, CheckCircle2 } from "lucide-react";
 
 function RegisterForm() {
   const { register } = useAuth();
@@ -53,10 +53,10 @@ function RegisterForm() {
 
         <div className="relative">
           <h2 className="text-3xl font-bold text-white leading-tight mb-4">
-            Audit-ready in<br />minutes, not months.
+            SOC 2 audit-ready in<br />minutes, not months.
           </h2>
           <p className="text-white/65 text-base mb-10 leading-relaxed">
-            Connect your tools and TraceLayer starts collecting compliance evidence automatically.
+            Connect your tools and TraceLayer starts collecting SOC 2, ISO 27001, and HIPAA evidence automatically.
           </p>
           <div className="space-y-3">
             {[
@@ -72,9 +72,13 @@ function RegisterForm() {
               </div>
             ))}
           </div>
+          <div className="mt-8 pt-6 border-t border-white/15">
+            <p className="text-white/80 text-sm font-semibold">50+ startups already collecting evidence</p>
+            <p className="text-white/45 text-xs mt-1">Trusted by teams pursuing SOC 2, ISO 27001 &amp; HIPAA</p>
+          </div>
         </div>
 
-        <p className="relative text-white/35 text-xs">© 2025 TraceLayer. All rights reserved.</p>
+        <p className="relative text-white/35 text-xs">© 2026 TraceLayer. All rights reserved.</p>
       </div>
 
       {/* Right form panel */}
@@ -91,33 +95,6 @@ function RegisterForm() {
             <p className="text-gray-500 text-sm">Get started — it&apos;s free</p>
           </div>
 
-          {/* Account type toggle */}
-          <div className="mb-5 grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-xl">
-            <button
-              type="button"
-              onClick={() => setAccountType("company")}
-              className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                accountType === "company"
-                  ? "bg-white shadow-sm text-gray-900"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <Building2 className="w-4 h-4" />
-              My company
-            </button>
-            <button
-              type="button"
-              onClick={() => setAccountType("partner")}
-              className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                accountType === "partner"
-                  ? "bg-white shadow-sm text-gray-900"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <Users className="w-4 h-4" />
-              Partner / Agency
-            </button>
-          </div>
           {accountType === "partner" && (
             <div className="mb-5 bg-brand-50 border border-brand-100 rounded-xl px-4 py-3 text-xs text-brand-700 leading-relaxed">
               As a partner you manage compliance for multiple clients. Each client workspace costs $99 — you share a Trust Center link with each client.
@@ -224,7 +201,25 @@ function RegisterForm() {
             <Link href="/dpa" className="underline hover:text-gray-600">DPA</Link>
           </p>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
+          <p className="text-center text-xs text-gray-400 mt-3">
+            {accountType === "company" ? (
+              <>
+                Registering as a partner or agency?{" "}
+                <button type="button" onClick={() => setAccountType("partner")} className="underline hover:text-gray-600">
+                  Switch here
+                </button>
+              </>
+            ) : (
+              <>
+                Registering your own company?{" "}
+                <button type="button" onClick={() => setAccountType("company")} className="underline hover:text-gray-600">
+                  Switch here
+                </button>
+              </>
+            )}
+          </p>
+
+          <p className="text-center text-sm text-gray-500 mt-4">
             Already have an account?{" "}
             <Link href="/login" className="text-brand-600 hover:text-brand-700 font-semibold">
               Sign in
