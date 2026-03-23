@@ -485,6 +485,52 @@ export interface QuestionnaireComment {
   created_at: string;
 }
 
+// ── Employee Portal ──────────────────────────────────────────────────────────
+
+export interface PolicyTaskItem {
+  policy_id: string;
+  slug: string;
+  title: string;
+  signed: boolean;
+  signed_at: string | null;
+}
+
+export interface DeviceTaskItem {
+  attested: boolean;
+  device_id: string | null;
+  device_name: string | null;
+  last_attested_at: string | null;
+  disk_encrypted: boolean | null;
+  lockscreen_enabled: boolean | null;
+  antivirus_installed: boolean | null;
+}
+
+export interface PortalTasksResponse {
+  user_email: string;
+  user_name: string | null;
+  pending_count: number;
+  total_count: number;
+  policies: PolicyTaskItem[];
+  device: DeviceTaskItem;
+}
+
+export interface PolicyContentResponse {
+  slug: string;
+  title: string;
+  content: string;
+}
+
+// ── Slack Bot ─────────────────────────────────────────────────────────────────
+
+export interface SlackConfig {
+  webhook_url: string;
+  channel_name: string | null;
+  reminder_enabled: boolean;
+  last_sent_at: string | null;
+}
+
+// ── Public Trust ──────────────────────────────────────────────────────────────
+
 export interface PublicTrustControlScore {
   name: string;
   score: number;

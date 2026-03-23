@@ -1,4 +1,4 @@
-import type { AccessReview, ApiKey, AppNotification, Asset, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Device, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireComment, QuestionnaireResult, QuestionnaireSession, QuestionnaireSessionAnswer, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingRecord, TrustAnalytics, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
+import type { AccessReview, ApiKey, AppNotification, Asset, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Device, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PolicyContentResponse, PolicyTaskItem, PortalTasksResponse, PublicAuditView, PublicTrustPageView, QuestionnaireComment, QuestionnaireResult, QuestionnaireSession, QuestionnaireSessionAnswer, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SlackConfig, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingRecord, TrustAnalytics, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -1093,6 +1093,38 @@ class ApiClient {
     a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  // ── Employee Portal ───────────────────────────────────────────────────────
+
+  async getPortalTasks(): Promise<PortalTasksResponse> {
+    return this.request("GET", "/portal/tasks");
+  }
+
+  async getPortalPolicy(slug: string): Promise<PolicyContentResponse> {
+    return this.request("GET", `/portal/policies/${slug}`);
+  }
+
+  async signPolicy(slug: string): Promise<PolicyTaskItem> {
+    return this.request("POST", `/portal/policies/${slug}/sign`);
+  }
+
+  // ── Slack Bot ─────────────────────────────────────────────────────────────
+
+  async getSlackConfig(): Promise<SlackConfig | null> {
+    return this.request("GET", "/slack/config");
+  }
+
+  async saveSlackConfig(data: { webhook_url: string; channel_name?: string; reminder_enabled: boolean }): Promise<SlackConfig> {
+    return this.request("PUT", "/slack/config", data);
+  }
+
+  async testSlackWebhook(): Promise<{ ok: boolean; message: string }> {
+    return this.request("POST", "/slack/test");
+  }
+
+  async sendSlackReminders(): Promise<{ ok: boolean; message: string }> {
+    return this.request("POST", "/slack/send-reminders");
   }
 }
 

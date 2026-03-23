@@ -22,6 +22,8 @@ from models.partner_directory import PartnerDirectoryEntry
 from models.device import Device
 from models.trust_page_view import TrustPageView
 from models.questionnaire_session import QuestionnaireSession, QuestionnaireComment
+from models.policy_signature import PolicySignature
+from models.slack_config import SlackConfig
 
 __all__ = [
     "Base",
@@ -49,4 +51,6 @@ __all__ = [
     "TrustPageView",
     "QuestionnaireSession",
     "QuestionnaireComment",
+    "PolicySignature",
+    "SlackConfig",
 ]

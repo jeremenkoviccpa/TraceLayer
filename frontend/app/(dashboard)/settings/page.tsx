@@ -527,6 +527,67 @@ export default function SettingsPage() {
   const [trustAnalytics, setTrustAnalytics] = useState<TrustAnalytics | null>(null);
   const [trustAnalyticsOpen, setTrustAnalyticsOpen] = useState(false);
   const [domainVerifying, setDomainVerifying] = useState(false);
+  const [slackConfig, setSlackConfig] = useState<import("@/lib/types").SlackConfig | null>(null);
+  const [slackWebhook, setSlackWebhook] = useState("");
+  const [slackChannel, setSlackChannel] = useState("");
+  const [slackEnabled, setSlackEnabled] = useState(true);
+  const [slackSaving, setSlackSaving] = useState(false);
+  const [slackTesting, setSlackTesting] = useState(false);
+  const [slackSending, setSlackSending] = useState(false);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    api.getSlackConfig().then(cfg => {
+      if (cfg) {
+        setSlackConfig(cfg);
+        setSlackWebhook(cfg.webhook_url);
+        setSlackChannel(cfg.channel_name ?? "");
+        setSlackEnabled(cfg.reminder_enabled);
+      }
+    }).catch(() => {});
+  }, [isAdmin]);
+
+  const handleSaveSlack = async () => {
+    if (!slackWebhook.trim()) return;
+    setSlackSaving(true);
+    try {
+      const cfg = await api.saveSlackConfig({ webhook_url: slackWebhook.trim(), channel_name: slackChannel.trim() || undefined, reminder_enabled: slackEnabled });
+      setSlackConfig(cfg);
+      showToast("Slack config saved");
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : "Save failed", "error");
+    } finally {
+      setSlackSaving(false);
+    }
+  };
+
+  const handleTestSlack = async () => {
+    setSlackTesting(true);
+    try {
+      const res = await api.testSlackWebhook();
+      showToast(res.message, res.ok ? "success" : "error");
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : "Test failed", "error");
+    } finally {
+      setSlackTesting(false);
+    }
+  };
+
+  const handleSendReminders = async () => {
+    setSlackSending(true);
+    try {
+      const res = await api.sendSlackReminders();
+      showToast(res.message, res.ok ? "success" : "error");
+      if (res.ok) {
+        const cfg = await api.getSlackConfig();
+        if (cfg) setSlackConfig(cfg);
+      }
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : "Send failed", "error");
+    } finally {
+      setSlackSending(false);
+    }
+  };
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -622,6 +683,7 @@ export default function SettingsPage() {
     ...(isAdmin ? [{ id: "company", label: "Company", icon: Building2 }] : []),
     ...(isAdmin ? [{ id: "auditor-access", label: "Auditor Access", icon: Eye }] : []),
     ...(isAdmin ? [{ id: "trust-center",  label: "Trust Center",   icon: Globe }] : []),
+    ...(isAdmin ? [{ id: "slack-bot",     label: "Slack Bot",       icon: Bell  }] : []),
     { id: "your-data",     label: "Your Data",         icon: ShieldAlert },
   ];
 
@@ -1881,6 +1943,92 @@ export default function SettingsPage() {
               </button>
             </div>
           )}
+        </section>
+      )}
+
+      {/* ── H2. Slack Bot (admin only) ────────────────────────────────────────── */}
+      {isAdmin && (
+        <section id="slack-bot" className="rounded-2xl border border-gray-100 shadow-card bg-white p-5 sm:p-6 scroll-mt-20 lg:scroll-mt-8">
+          <SectionHeader icon={Bell} title="Slack Compliance Bot" color="brand" />
+          <p className="text-xs text-gray-500 mb-5">
+            Send weekly compliance reminders to your team via Slack. Employees are prompted to sign policies and attest their devices.
+          </p>
+
+          <div className="space-y-4">
+            {/* Webhook URL */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                Incoming Webhook URL
+              </label>
+              <input
+                type="url"
+                value={slackWebhook}
+                onChange={e => setSlackWebhook(e.target.value)}
+                placeholder="https://hooks.slack.com/services/..."
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+              <p className="text-[11px] text-gray-400 mt-1">
+                Create an incoming webhook at <span className="font-mono">api.slack.com/apps</span> → Incoming Webhooks.
+              </p>
+            </div>
+
+            {/* Channel name */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                Channel (optional, for display only)
+              </label>
+              <input
+                type="text"
+                value={slackChannel}
+                onChange={e => setSlackChannel(e.target.value)}
+                placeholder="#compliance-reminders"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
+
+            {/* Reminder toggle */}
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div
+                onClick={() => setSlackEnabled(e => !e)}
+                className={`relative w-9 h-5 rounded-full transition-colors ${slackEnabled ? "bg-brand-500" : "bg-gray-200"}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${slackEnabled ? "translate-x-4" : "translate-x-0"}`} />
+              </div>
+              <span className="text-sm text-gray-700">Enable weekly automated reminders</span>
+            </label>
+
+            {/* Actions */}
+            <div className="flex flex-wrap gap-2 pt-1">
+              <button
+                onClick={handleSaveSlack}
+                disabled={slackSaving || !slackWebhook.trim()}
+                className="px-4 py-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-40 text-white text-xs font-semibold rounded-lg transition-colors"
+              >
+                {slackSaving ? "Saving…" : "Save"}
+              </button>
+              <button
+                onClick={handleTestSlack}
+                disabled={slackTesting || !slackConfig}
+                className="px-4 py-2 border border-gray-200 hover:border-gray-300 disabled:opacity-40 text-gray-700 text-xs font-semibold rounded-lg transition-colors"
+              >
+                {slackTesting ? "Testing…" : "Test webhook"}
+              </button>
+              <button
+                onClick={handleSendReminders}
+                disabled={slackSending || !slackConfig}
+                className="px-4 py-2 border border-gray-200 hover:border-gray-300 disabled:opacity-40 text-gray-700 text-xs font-semibold rounded-lg transition-colors"
+              >
+                {slackSending ? "Sending…" : "Send reminders now"}
+              </button>
+            </div>
+
+            {/* Last sent */}
+            {slackConfig?.last_sent_at && (
+              <p className="text-xs text-gray-400">
+                Last sent: {new Date(slackConfig.last_sent_at).toLocaleString()}
+              </p>
+            )}
+          </div>
         </section>
       )}
 
