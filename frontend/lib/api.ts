@@ -1,4 +1,4 @@
-import type { AccessReview, ApiKey, AppNotification, Asset, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Device, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PolicyContentResponse, PolicyTaskItem, PortalTasksResponse, PublicAuditView, PublicTrustPageView, QuestionnaireComment, QuestionnaireResult, QuestionnaireSession, QuestionnaireSessionAnswer, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SlackConfig, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingRecord, TrustAnalytics, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
+import type { AccessReview, ApiKey, AppNotification, Asset, AuditComment, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Device, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PolicyContentResponse, PolicyTaskItem, PortalTasksResponse, PublicAuditView, PublicTrustPageView, QuestionnaireComment, QuestionnaireResult, QuestionnaireSession, QuestionnaireSessionAnswer, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SlackConfig, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingRecord, TrustAnalytics, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -856,6 +856,22 @@ class ApiClient {
 
   async getAuditEngagementView(token: string): Promise<AuditEngagementView> {
     return this.requestPublic<AuditEngagementView>("GET", `/audit-engagements/view/${token}`);
+  }
+
+  async getEngagementComments(engagementId: string): Promise<AuditComment[]> {
+    return this.request<AuditComment[]>("GET", `/audit-engagements/${engagementId}/comments`);
+  }
+
+  async addEngagementComment(engagementId: string, body: string): Promise<AuditComment> {
+    return this.request<AuditComment>("POST", `/audit-engagements/${engagementId}/comments`, { body });
+  }
+
+  async getEngagementCommentsPublic(token: string): Promise<AuditComment[]> {
+    return this.requestPublic<AuditComment[]>("GET", `/audit-engagements/by-token/${token}/comments`);
+  }
+
+  async addEngagementCommentPublic(token: string, body: string): Promise<AuditComment> {
+    return this.requestPublic<AuditComment>("POST", `/audit-engagements/by-token/${token}/comments`, { body });
   }
 
   // ── Partner Directory ──────────────────────────────────────────────────────

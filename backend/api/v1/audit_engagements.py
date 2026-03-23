@@ -1,14 +1,17 @@
 import logging
 import uuid
 from datetime import datetime, timezone, timedelta
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
 from core.deps import get_current_user
 from core.config import settings
+from models.audit_comment import AuditComment
 from models.audit_engagement import AuditEngagement
 from models.company import Company
 from models.manual_control import ManualControl
@@ -18,6 +21,34 @@ from services.compliance_service import get_compliance_score
 from services.email_service import send_audit_invitation_email
 
 logger = logging.getLogger(__name__)
+
+
+# ── Comment schemas ───────────────────────────────────────────────────────────
+
+class AuditCommentOut(BaseModel):
+    id: uuid.UUID
+    engagement_id: uuid.UUID
+    author_name: str
+    author_role: str
+    body: str
+    item_type: Optional[str] = None
+    item_ref: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class AuditCommentCreate(BaseModel):
+    body: str
+    item_type: Optional[str] = None
+    item_ref: Optional[str] = None
+
+
+class AuditorCommentCreate(BaseModel):
+    body: str
+    item_type: Optional[str] = None
+    item_ref: Optional[str] = None
 router = APIRouter(prefix="/audit-engagements", tags=["audit-engagements"])
 
 # Imported here to avoid circular imports at module level
@@ -196,3 +227,113 @@ async def view_engagement_public(
         controls=[c.model_dump() for c in score_data.controls],
         manual_controls=manual_controls,
     )
+
+
+# ── Comments (company side, JWT auth) ─────────────────────────────────────────
+
+@router.get("/{engagement_id}/comments", response_model=list[AuditCommentOut])
+async def list_comments(
+    engagement_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(AuditEngagement).where(
+            AuditEngagement.id == engagement_id,
+            AuditEngagement.customer_company_id == current_user.company_id,
+        )
+    )
+    if not result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Engagement not found")
+
+    comments = await db.execute(
+        select(AuditComment)
+        .where(AuditComment.engagement_id == engagement_id)
+        .order_by(AuditComment.created_at)
+    )
+    return comments.scalars().all()
+
+
+@router.post("/{engagement_id}/comments", response_model=AuditCommentOut)
+async def add_comment(
+    engagement_id: uuid.UUID,
+    body: AuditCommentCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(AuditEngagement).where(
+            AuditEngagement.id == engagement_id,
+            AuditEngagement.customer_company_id == current_user.company_id,
+        )
+    )
+    engagement = result.scalar_one_or_none()
+    if not engagement:
+        raise HTTPException(status_code=404, detail="Engagement not found")
+
+    display_name = current_user.full_name or current_user.email
+    comment = AuditComment(
+        engagement_id=engagement_id,
+        company_id=current_user.company_id,
+        author_name=display_name,
+        author_role="team",
+        author_user_id=current_user.id,
+        body=body.body.strip(),
+        item_type=body.item_type,
+        item_ref=body.item_ref,
+    )
+    db.add(comment)
+    await db.commit()
+    await db.refresh(comment)
+    return comment
+
+
+# ── Comments (auditor side, token auth) ───────────────────────────────────────
+
+@router.get("/by-token/{token}/comments", response_model=list[AuditCommentOut])
+async def list_comments_auditor(
+    token: str,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(AuditEngagement).where(AuditEngagement.access_token == token)
+    )
+    engagement = result.scalar_one_or_none()
+    if not engagement or engagement.status != "active":
+        raise HTTPException(status_code=404, detail="Engagement not found or inactive")
+
+    comments = await db.execute(
+        select(AuditComment)
+        .where(AuditComment.engagement_id == engagement.id)
+        .order_by(AuditComment.created_at)
+    )
+    return comments.scalars().all()
+
+
+@router.post("/by-token/{token}/comments", response_model=AuditCommentOut)
+async def add_comment_auditor(
+    token: str,
+    body: AuditorCommentCreate,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(AuditEngagement).where(AuditEngagement.access_token == token)
+    )
+    engagement = result.scalar_one_or_none()
+    if not engagement or engagement.status != "active":
+        raise HTTPException(status_code=404, detail="Engagement not found or inactive")
+
+    author = engagement.auditor_name or engagement.auditor_email
+    comment = AuditComment(
+        engagement_id=engagement.id,
+        company_id=engagement.customer_company_id,
+        author_name=author,
+        author_role="auditor",
+        body=body.body.strip(),
+        item_type=body.item_type,
+        item_ref=body.item_ref,
+    )
+    db.add(comment)
+    await db.commit()
+    await db.refresh(comment)
+    return comment

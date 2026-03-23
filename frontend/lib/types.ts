@@ -875,6 +875,17 @@ export interface AuditEngagement {
   access_link: string;
 }
 
+export interface AuditComment {
+  id: string;
+  engagement_id: string;
+  author_name: string;
+  author_role: "auditor" | "team";
+  body: string;
+  item_type: string | null;
+  item_ref: string | null;
+  created_at: string;
+}
+
 export interface AuditEngagementView {
   id: string;
   framework: string;

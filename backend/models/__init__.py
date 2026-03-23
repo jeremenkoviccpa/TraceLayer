@@ -18,6 +18,7 @@ from models.control_mapping import ControlMapping
 from models.control_status_snapshot import ControlStatusSnapshot
 from models.control_drift_event import ControlDriftEvent
 from models.audit_engagement import AuditEngagement
+from models.audit_comment import AuditComment
 from models.partner_directory import PartnerDirectoryEntry
 from models.device import Device
 from models.trust_page_view import TrustPageView
@@ -46,6 +47,7 @@ __all__ = [
     "ControlStatusSnapshot",
     "ControlDriftEvent",
     "AuditEngagement",
+    "AuditComment",
     "PartnerDirectoryEntry",
     "Device",
     "TrustPageView",
