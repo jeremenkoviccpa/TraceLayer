@@ -14,7 +14,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${BASE_URL}/tools`,
       lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.8,
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/tools/soc2-gap-scanner`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
+      url: `${BASE_URL}/tools/compliance-readiness-check`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
+      url: `${BASE_URL}/tools/revenue-impact-calculator`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
+      url: `${BASE_URL}/tools/compliance-stack-scorer`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.85,
     },
     {
       url: `${BASE_URL}/partners`,
@@ -23,7 +47,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
-      url: `${BASE_URL}/signup`,
+      url: `${BASE_URL}/register`,
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.6,
@@ -38,18 +62,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${BASE_URL}/security`,
       lastModified: new Date(),
       changeFrequency: "yearly",
-      priority: 0.3,
+      priority: 0.4,
     },
     {
       url: `${BASE_URL}/dpa`,
       lastModified: new Date(),
       changeFrequency: "yearly",
-      priority: 0.2,
-    },
-    {
-      url: `${BASE_URL}/status`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
       priority: 0.2,
     },
     {
@@ -62,6 +80,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${BASE_URL}/terms`,
       lastModified: new Date(),
       changeFrequency: "yearly",
+      priority: 0.2,
+    },
+    {
+      url: `${BASE_URL}/status`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
       priority: 0.2,
     },
   ];

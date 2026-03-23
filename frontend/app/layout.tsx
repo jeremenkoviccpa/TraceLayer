@@ -14,7 +14,7 @@ const sora = Sora({
   variable: "--font-sora",
 });
 
-const BASE_URL = "https://www.tracelayer.it.com";
+const BASE_URL = "https://tracelayer.it.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -23,18 +23,22 @@ export const metadata: Metadata = {
     template: "%s | TraceLayer",
   },
   description:
-    "Stop losing enterprise deals over SOC 2. TraceLayer automates compliance evidence collection across GitHub, AWS, Slack & 20+ integrations. Get audit-ready in weeks, not months.",
+    "TraceLayer automates SOC 2 compliance evidence collection for startups. Connect AWS, GitHub, Okta and 120+ tools — evidence collects every 24h, audit report in one click. Start free, no credit card.",
   keywords: [
     "SOC 2 compliance software",
-    "compliance automation",
+    "SOC 2 automation for startups",
+    "compliance automation tool",
     "ISO 27001 automation",
-    "HIPAA compliance tool",
+    "HIPAA compliance software",
     "continuous compliance monitoring",
-    "audit evidence collection",
+    "SOC 2 evidence collection",
     "compliance software for startups",
-    "SOC 2 readiness",
-    "GDPR compliance",
-    "PCI DSS compliance",
+    "SOC 2 readiness tool",
+    "GDPR compliance automation",
+    "PCI DSS compliance tool",
+    "affordable SOC 2 software",
+    "Vanta alternative",
+    "Drata alternative",
   ],
   authors: [{ name: "TraceLayer", url: BASE_URL }],
   creator: "TraceLayer",
@@ -75,27 +79,96 @@ export const metadata: Metadata = {
   },
 };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: "TraceLayer",
-  url: BASE_URL,
-  description:
-    "Automated compliance evidence collection and monitoring for SOC 2, ISO 27001, HIPAA, GDPR, and PCI DSS.",
-  applicationCategory: "BusinessApplication",
-  operatingSystem: "Web",
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "USD",
-    description: "Free plan available",
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "TraceLayer",
+    url: BASE_URL,
+    description:
+      "Automated SOC 2 compliance evidence collection and monitoring for startups. Connects to AWS, GitHub, Okta, Slack and 120+ tools.",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    offers: [
+      {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+        description: "Free plan — SOC 2 framework, up to 3 integrations",
+      },
+      {
+        "@type": "Offer",
+        price: "149",
+        priceCurrency: "USD",
+        description: "Growth plan — all 7 frameworks, 120+ integrations, AI features, PDF reports",
+      },
+    ],
+    creator: {
+      "@type": "Organization",
+      name: "TraceLayer",
+      url: BASE_URL,
+    },
   },
-  creator: {
+  {
+    "@context": "https://schema.org",
     "@type": "Organization",
     name: "TraceLayer",
     url: BASE_URL,
+    logo: `${BASE_URL}/logo-icon.png`,
+    contactPoint: {
+      "@type": "ContactPoint",
+      email: "hello@tracelayer.it.com",
+      contactType: "customer support",
+    },
+    sameAs: [],
   },
-};
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "How long does SOC 2 setup take with TraceLayer?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Most teams are collecting evidence within 5 minutes of signup. You paste an API key, TraceLayer connects to your tools, and evidence starts flowing immediately. No agents, no code, no week-long setup.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Is TraceLayer a Vanta alternative?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. TraceLayer offers continuous SOC 2 compliance automation starting from $0 (free plan) to $149/mo — compared to Vanta's $15,000–$20,000/year. It supports SOC 2, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, and NIST CSF.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Which compliance frameworks does TraceLayer support?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "TraceLayer supports SOC 2 Type I & II, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, and NIST CSF — all mapped simultaneously from a single set of integrations.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Does TraceLayer have a free plan?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. The free plan includes SOC 2 framework coverage, automated evidence collection, up to 3 integrations, risk register, policy templates, and up to 3 team members. No credit card required.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Can I use TraceLayer for a SOC 2 Type II audit?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. TraceLayer collects continuous, timestamped evidence across your full observation period — exactly what auditors need for Type II. The AI Audit Package generates a formatted PDF report your auditor can use directly.",
+        },
+      },
+    ],
+  },
+];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

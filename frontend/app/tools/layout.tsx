@@ -1,16 +1,24 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Free SOC 2 Compliance Tools for Startups",
+  title: "Free SOC 2 Compliance Tools — Gap Scanner, Readiness Check & More",
   description:
-    "Check your SOC 2 readiness in 60 seconds, scan for compliance gaps, and find out exactly what to fix before your audit. Free — no signup required.",
+    "4 free SOC 2 compliance tools for startups. Check your readiness in 60 seconds, scan for audit gaps, calculate your risk exposure, and score your tech stack. No signup required.",
+  keywords: [
+    "free SOC 2 gap analysis",
+    "SOC 2 readiness check free",
+    "SOC 2 compliance checker",
+    "compliance stack scorer",
+    "SOC 2 risk calculator",
+    "free compliance tools for startups",
+  ],
   openGraph: {
-    title: "Free SOC 2 Compliance Tools for Startups | TraceLayer",
+    title: "Free SOC 2 Compliance Tools — Gap Scanner, Readiness Check & More",
     description:
-      "Check your SOC 2 readiness in 60 seconds, scan for compliance gaps, and find out exactly what to fix before your audit. Free — no signup required.",
+      "4 free SOC 2 compliance tools for startups. Check your readiness, scan for gaps, calculate risk. No signup required.",
   },
   alternates: {
-    canonical: "https://www.tracelayer.it.com/tools",
+    canonical: "https://tracelayer.it.com/tools",
   },
 };
 
