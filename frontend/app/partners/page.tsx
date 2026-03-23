@@ -190,13 +190,13 @@ export default function PartnersPage() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/register?type=partner"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 text-white font-semibold px-6 py-3 text-sm shadow-lg shadow-brand-700/25 hover:bg-brand-500 transition-colors"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 text-white font-semibold px-6 py-3 text-sm shadow-lg shadow-brand-700/25 hover:bg-brand-500 transition-colors whitespace-nowrap"
                 >
-                  Start your partner account <ArrowRight className="w-4 h-4" />
+                  Start your partner account <ArrowRight className="w-4 h-4 shrink-0" />
                 </Link>
                 <Link
                   href="/partner-login"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 text-gray-600 font-semibold px-5 py-3 text-sm hover:border-gray-300 hover:text-gray-900 transition-colors"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 text-gray-600 font-semibold px-5 py-3 text-sm hover:border-gray-300 hover:text-gray-900 transition-colors whitespace-nowrap"
                 >
                   Already a partner? Sign in
                 </Link>
@@ -438,13 +438,13 @@ export default function PartnersPage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/register?type=partner"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 text-white font-semibold px-6 py-3 text-sm shadow-lg shadow-brand-700/20 hover:bg-brand-500 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 text-white font-semibold px-6 py-3 text-sm shadow-lg shadow-brand-700/20 hover:bg-brand-500 transition-colors whitespace-nowrap"
             >
-              Create your partner account <ArrowRight className="w-4 h-4" />
+              Create your partner account <ArrowRight className="w-4 h-4 shrink-0" />
             </Link>
             <Link
               href="/partner-login"
-              className="inline-flex items-center justify-center rounded-xl border border-gray-200 text-gray-600 font-semibold px-5 py-3 text-sm hover:border-gray-300 hover:text-gray-900 transition-colors"
+              className="inline-flex items-center justify-center rounded-xl border border-gray-200 text-gray-600 font-semibold px-5 py-3 text-sm hover:border-gray-300 hover:text-gray-900 transition-colors whitespace-nowrap"
             >
               Sign in to existing account
             </Link>
