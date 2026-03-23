@@ -1,8 +1,16 @@
 import type { MetadataRoute } from "next";
+import { getAllPosts } from "@/lib/posts";
 
 const BASE_URL = "https://tracelayer.it.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const blogPosts = getAllPosts().map((post) => ({
+    url: `${BASE_URL}/blog/${post.slug}`,
+    lastModified: new Date(post.date),
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
+  }));
+
   return [
     {
       url: BASE_URL,
@@ -88,5 +96,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.2,
     },
+    {
+      url: `${BASE_URL}/blog`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    ...blogPosts,
   ];
 }

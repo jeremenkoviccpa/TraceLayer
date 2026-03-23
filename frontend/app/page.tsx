@@ -735,6 +735,7 @@ const NAV_LINKS = [
   { href: "/partners",     label: "Partners"     },
   { href: "#faq",          label: "FAQ"          },
   { href: "/tools",        label: "Free Tools"   },
+  { href: "/blog",         label: "Blog"         },
 ];
 
 const THEME = {
