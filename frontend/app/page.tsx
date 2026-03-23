@@ -14,7 +14,7 @@ import {
   Menu, X, AlertTriangle, BookOpen, GraduationCap, Target,
   Globe, ClipboardList, Building2, UserCheck, Shield,
   Siren, Server, Bug, RefreshCw, Database, Workflow,
-  Sparkles, ClipboardCheck, Network,
+  Sparkles, ClipboardCheck, Network, Github, Twitter, Linkedin,
 } from "lucide-react";
 
 // ── Integration logos ────────────────────────────────────────────────────────
@@ -556,7 +556,7 @@ const INTEGRATION_LOGOS = [
 // ── Static data ───────────────────────────────────────────────────────────────
 
 const STATS = [
-  { value: "100+", label: "integrations, ready to connect" },
+  { value: "120+", label: "integrations, ready to connect" },
   { value: "7",    label: "frameworks, one platform"       },
   { value: "3",    label: "AI engines, always running"     },
   { value: "24h",  label: "evidence collection cycle"      },
@@ -595,7 +595,7 @@ const FEATURES = [
   },
   {
     icon: Plug,
-    title: "100+ native integrations · simulate before you connect",
+    title: "120+ native integrations · simulate before you connect",
     desc: "Connect AWS, GitHub, Okta, Datadog, Snyk, and 95 more in minutes — no agents, no code. Before connecting anything, use the built-in simulation mode to see exactly what each integration adds to your score.",
   },
   {
@@ -690,7 +690,7 @@ const TESTIMONIALS = [
 ];
 
 const PAIN_POINTS = [
-  { before: "Manually collecting evidence in spreadsheets",       after: "Evidence collected automatically every 24h from 100+ tools" },
+  { before: "Manually collecting evidence in spreadsheets",       after: "Evidence collected automatically every 24h from 120+ tools" },
   { before: "Finding out a control broke at the audit",           after: "Instant alert the moment anything goes wrong"              },
   { before: "Vendor questionnaires eating days of your time",     after: "AI drafts every answer from your live data in seconds"     },
   { before: "Mapping data flows by hand in a spreadsheet",        after: "Auto-mapped from your integrations on day one"             },
@@ -714,7 +714,7 @@ const FAQ = [
   },
   {
     q: "What tools can I connect?",
-    a: "100+ integrations out of the box: AWS, GitHub, Slack, Google Workspace, Okta, Salesforce, Segment, HubSpot, Azure AD, Jira, GitLab, Datadog, CrowdStrike, Jamf, SentinelOne, Snyk, KnowBe4, Anthropic, OpenAI, and many more — each one pulling real evidence automatically.",
+    a: "120+ integrations out of the box: AWS, GitHub, Slack, Google Workspace, Okta, Salesforce, Segment, HubSpot, Azure AD, Jira, GitLab, Datadog, CrowdStrike, Jamf, SentinelOne, Snyk, KnowBe4, Anthropic, OpenAI, and many more — each one pulling real evidence automatically.",
   },
   {
     q: "Does it handle security training and vendor reviews?",
@@ -1448,7 +1448,7 @@ export default function LandingPage() {
               { icon: Lock,          label: "Auditor Portal",       desc: "Read-only access"        },
               { icon: Users,         label: "Team RBAC",            desc: "Admin & member"          },
               { icon: Network,       label: "CI/CD Ingest",         desc: "Push from pipelines"     },
-              { icon: Plug,          label: "100+ Integrations",    desc: "Salesforce, AWS, Okta…"  },
+              { icon: Plug,          label: "120+ Integrations",    desc: "Salesforce, AWS, Okta…"  },
             ].map(({ icon: Icon, label, desc }) => (
               <div key={label} className="bg-[var(--card)] rounded-2xl border border-black/5 p-4 hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 transition-all duration-200 group">
                 <div className="w-8 h-8 bg-[color:var(--accent)]/10 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[color:var(--accent)]/18 transition-colors">
@@ -1958,7 +1958,7 @@ export default function LandingPage() {
               <p className="text-xs mb-6 leading-relaxed text-white/45">AI features, PDF reports, all 7 frameworks, Trust Center, unlimited integrations and team members.</p>
               <div className="space-y-2.5 mb-7 flex-1">
                 {[
-                  "Unlimited integrations (100+)",
+                  "Unlimited integrations (120+)",
                   "All 7 frameworks (incl. GDPR, PCI DSS, CCPA, NIST CSF)",
                   "PDF & CSV audit reports",
                   "AI Compliance Advisor",
@@ -2122,43 +2122,70 @@ export default function LandingPage() {
       </section>
 
       {/* ── Footer ────────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-black/5 pt-14 pb-8 bg-[var(--bg)]">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-8 mb-12">
+      <footer className="bg-slate-950 text-slate-400">
+        {/* Top bar — brand + key stats */}
+        <div className="border-b border-white/6">
+          <div className="max-w-6xl mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <Image src="/logo-icon.png" alt="TraceLayer" width={22} height={22} className="rounded-md" />
+              <span className="font-extrabold text-sm text-white tracking-tight">TraceLayer</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-5 sm:gap-8">
+              {[
+                { value: "120+", label: "integrations" },
+                { value: "7",    label: "frameworks"   },
+                { value: "24h",  label: "sync cadence" },
+              ].map(({ value, label }) => (
+                <div key={label} className="flex items-baseline gap-1">
+                  <span className="text-sm font-black text-white">{value}</span>
+                  <span className="text-xs text-slate-500">{label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="hidden lg:flex items-center gap-3">
+              {["SOC 2", "ISO 27001", "HIPAA", "GDPR", "PCI DSS"].map((f) => (
+                <span key={f} className="text-[10px] font-semibold text-slate-500 border border-white/8 px-2 py-0.5 rounded-full">{f}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Main grid */}
+        <div className="max-w-6xl mx-auto px-6 pt-12 pb-10">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-x-8 gap-y-10 mb-12">
             {/* Brand */}
-            <div className="col-span-2 sm:col-span-1">
-              <div className="flex items-center gap-2.5 mb-3">
-                <Image src="/logo-icon.png" alt="TraceLayer" width={28} height={28} className="rounded-lg" />
-                <span className="font-extrabold text-base text-[var(--ink)]">TraceLayer</span>
-              </div>
-              <p className="text-xs text-[var(--muted)] leading-relaxed max-w-[200px]">
-                Continuous compliance automation for modern engineering teams.
+            <div className="col-span-2">
+              <p className="text-sm text-slate-300 leading-relaxed mb-5 max-w-xs">
+                Continuous compliance automation for engineering teams closing enterprise deals — without hiring a compliance team.
               </p>
-              <div className="flex flex-wrap gap-1.5 mt-4">
-                {["SOC 2", "ISO 27001", "HIPAA", "GDPR", "PCI DSS"].map((f) => (
-                  <span key={f} className="text-[10px] font-semibold text-[var(--accent)] bg-[color:var(--accent)]/8 px-2 py-0.5 rounded-full border border-[color:var(--accent)]/15">
-                    {f}
-                  </span>
+              <div className="flex items-center gap-2.5">
+                {[
+                  { icon: Github,   href: "https://github.com/Jeremenkovic/TraceLayer", label: "GitHub"   },
+                  { icon: Twitter,  href: "https://twitter.com/tracelayer",              label: "Twitter"  },
+                  { icon: Linkedin, href: "https://linkedin.com/company/tracelayer",     label: "LinkedIn" },
+                ].map(({ icon: Icon, href, label }) => (
+                  <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
+                    className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 border border-white/8 flex items-center justify-center transition-all group">
+                    <Icon className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
+                  </a>
                 ))}
               </div>
             </div>
 
             {/* Product */}
             <div>
-              <p className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider mb-4">Product</p>
-              <ul className="space-y-2.5">
+              <p className="text-[11px] font-bold text-slate-300 uppercase tracking-widest mb-4">Product</p>
+              <ul className="space-y-3">
                 {[
                   { label: "How it works", href: "#how-it-works" },
                   { label: "Features",     href: "#features"     },
                   { label: "Pricing",      href: "#pricing"      },
+                  { label: "Integrations", href: "#integrations" },
                   { label: "FAQ",          href: "#faq"          },
                 ].map((l) => (
                   <li key={l.label}>
-                    <a
-                      href={l.href}
-                      onClick={(e) => smoothScroll(e, l.href)}
-                      className="text-xs text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
-                    >
+                    <a href={l.href} onClick={(e) => smoothScroll(e, l.href)}
+                      className="text-xs text-slate-500 hover:text-slate-200 transition-colors">
                       {l.label}
                     </a>
                   </li>
@@ -2166,28 +2193,25 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            {/* Account */}
+            {/* Company */}
             <div>
-              <p className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider mb-4">Account</p>
-              <ul className="space-y-2.5">
+              <p className="text-[11px] font-bold text-slate-300 uppercase tracking-widest mb-4">Company</p>
+              <ul className="space-y-3">
                 {[
-                  { label: "Sign in",       href: "/login"         },
-                  { label: "Get started",   href: "/register"      },
-                  { label: "Partner login",      href: "/partner-login" },
-                  { label: "Partner program",    href: "#partner"       },
-                  { label: "Partner directory",  href: "/partners"      },
+                  { label: "Sign in",          href: "/login"         },
+                  { label: "Get started",       href: "/register"      },
+                  { label: "Partner program",   href: "#partner"       },
+                  { label: "Partner directory", href: "/partners"      },
+                  { label: "Partner login",     href: "/partner-login" },
                 ].map((l) => (
                   <li key={l.label}>
                     {l.href.startsWith("#") ? (
-                      <a
-                        href={l.href}
-                        onClick={(e) => smoothScroll(e, l.href)}
-                        className="text-xs text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
-                      >
+                      <a href={l.href} onClick={(e) => smoothScroll(e, l.href)}
+                        className="text-xs text-slate-500 hover:text-slate-200 transition-colors">
                         {l.label}
                       </a>
                     ) : (
-                      <Link href={l.href} className="text-xs text-[var(--muted)] hover:text-[var(--ink)] transition-colors">
+                      <Link href={l.href} className="text-xs text-slate-500 hover:text-slate-200 transition-colors">
                         {l.label}
                       </Link>
                     )}
@@ -2196,28 +2220,10 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            {/* Free Tools */}
-            <div>
-              <p className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider mb-4">Free Tools</p>
-              <ul className="space-y-2.5">
-                {[
-                  { label: "Readiness Check",        href: "/tools#readiness"               },
-                  { label: "SOC 2 Gap Scanner",       href: "/tools#gap-scanner"             },
-                  { label: "Revenue Impact Calculator", href: "/tools/revenue-impact"        },
-                ].map((l) => (
-                  <li key={l.label}>
-                    <Link href={l.href} className="text-xs text-[var(--muted)] hover:text-[var(--ink)] transition-colors">
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
             {/* Legal */}
             <div>
-              <p className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider mb-4">Legal</p>
-              <ul className="space-y-2.5">
+              <p className="text-[11px] font-bold text-slate-300 uppercase tracking-widest mb-4">Legal</p>
+              <ul className="space-y-3">
                 {[
                   { label: "Privacy Policy",   href: "/privacy"  },
                   { label: "Terms of Service", href: "/terms"    },
@@ -2226,7 +2232,7 @@ export default function LandingPage() {
                   { label: "Status",           href: "/status"   },
                 ].map((l) => (
                   <li key={l.label}>
-                    <Link href={l.href} className="text-xs text-[var(--muted)] hover:text-[var(--ink)] transition-colors">
+                    <Link href={l.href} className="text-xs text-slate-500 hover:text-slate-200 transition-colors">
                       {l.label}
                     </Link>
                   </li>
@@ -2235,9 +2241,10 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="border-t border-black/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-xs text-[var(--muted)]">© {new Date().getFullYear()} TraceLayer. All rights reserved.</p>
-            <p className="text-xs text-[var(--muted)]">Built for startups chasing certification.</p>
+          {/* Bottom bar */}
+          <div className="border-t border-white/6 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-xs text-slate-600">© {new Date().getFullYear()} TraceLayer, Inc. All rights reserved.</p>
+            <p className="text-xs text-slate-600">Built for startups closing enterprise deals.</p>
           </div>
         </div>
       </footer>
