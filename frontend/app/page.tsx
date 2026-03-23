@@ -750,7 +750,7 @@ const NAV_LINKS = [
   { href: "#how-it-works", label: "How it works" },
   { href: "#features",     label: "Features"     },
   { href: "#pricing",      label: "Pricing"      },
-  { href: "#partner",      label: "Partners"     },
+  { href: "/partners",     label: "Partners"     },
   { href: "#faq",          label: "FAQ"          },
   { href: "/tools",        label: "Free Tools"   },
 ];
@@ -955,10 +955,6 @@ export default function LandingPage() {
           </nav>
 
           <div className="hidden md:flex items-center gap-2">
-            <Link href="/partner-login" className="text-sm text-[var(--accent)] font-medium px-3 py-1.5 rounded-lg hover:bg-[color:var(--accent)]/8 transition-all flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5" />
-              Partner login
-            </Link>
             <Link href="/login" className="text-sm text-[var(--muted)] hover:text-[var(--ink)] font-medium px-3 py-1.5 rounded-lg hover:bg-black/5 transition-all">
               Sign in
             </Link>
@@ -1000,10 +996,6 @@ export default function LandingPage() {
               )
             )}
             <div className="pt-3 border-t border-black/5 space-y-2">
-              <Link href="/partner-login" onClick={() => setMobileOpen(false)} className="flex items-center justify-center gap-2 text-sm font-medium text-center text-[var(--accent)] px-3 py-2.5 rounded-lg border border-[color:var(--accent)]/20 bg-[color:var(--accent)]/6 hover:bg-[color:var(--accent)]/12 transition-colors">
-                <Users className="w-4 h-4" />
-                Partner login
-              </Link>
               <Link href="/login" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-center text-[var(--muted)] px-3 py-2.5 rounded-lg border border-black/10 hover:bg-black/5 transition-colors">
                 Sign in
               </Link>
@@ -2026,50 +2018,74 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10 md:mb-14" data-animate>
             <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Partner Program</p>
-            <h2 className="text-2xl md:text-4xl font-extrabold text-[var(--ink)]">Built for compliance agencies</h2>
+            <h2 className="text-2xl md:text-4xl font-extrabold text-[var(--ink)]">Three ways to partner with TraceLayer</h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-xl mx-auto leading-relaxed">
-              Run compliance programs for multiple clients from a single partner account. Each client workspace costs $99 — you manage their data and share a Trust Center link with them.
+              Consultants manage client compliance. Auditors receive pre-organized customers. Pen test firms get qualified referrals at exactly the right moment.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
+          {/* 3 track cards */}
+          <div className="grid md:grid-cols-3 gap-5 mb-10">
             {[
               {
                 icon: Users,
-                title: "One account, many clients",
-                desc: "A single partner login gives you access to all your client workspaces. Switch between them in one click — no juggling credentials.",
+                badge: "Consultants & vCISOs",
+                badgeColor: "bg-[color:var(--accent)]/10 text-[var(--accent)]",
+                title: "Manage every client from one login",
+                desc: "Provision dedicated workspaces for each client. Switch between them in one click. Share a Trust Center link. Bill your clients however you like — pay $99 per workspace, once.",
+                cta: "Become a consultant partner",
+                href: "/partners",
+                primary: true,
+              },
+              {
+                icon: FileText,
+                badge: "Auditors",
+                badgeColor: "bg-violet-50 text-violet-600",
+                title: "Customers arrive pre-organized",
+                desc: "When a customer hits 75%+ readiness, TraceLayer surfaces your firm. They share a read-only evidence link — no account needed on your end. Your fieldwork starts with everything already mapped.",
+                cta: "List your firm",
+                href: "/partners#auditors",
+                primary: false,
               },
               {
                 icon: Shield,
-                title: "Full compliance toolset",
-                desc: "Every client workspace includes automated evidence collection, risk register, policies, training tracker, vendor hub, and live readiness scoring.",
-              },
-              {
-                icon: Globe,
-                title: "Branded Trust Center",
-                desc: "Each client gets a dedicated Trust Center page you can share with their prospects and auditors — showing their live compliance posture.",
+                badge: "Pen Test Firms",
+                badgeColor: "bg-orange-50 text-orange-600",
+                title: "Referrals at the exact right moment",
+                desc: "SOC 2 requires an annual pen test. TraceLayer shows your firm when a customer's section is empty or overdue — warm leads with a clear deadline and a compliance reason to act.",
+                cta: "List your firm",
+                href: "/partners#pen-testers",
+                primary: false,
               },
             ].map((item) => (
-              <div key={item.title} data-animate className="bg-[var(--bg)] rounded-2xl p-6 border border-black/5">
-                <div className="w-10 h-10 rounded-xl bg-[color:var(--accent)]/10 flex items-center justify-center mb-4">
-                  <item.icon className="w-5 h-5 text-[var(--accent)]" />
+              <div key={item.title} data-animate className={`rounded-2xl p-6 border flex flex-col gap-4 ${item.primary ? "bg-[var(--bg)] border-black/5" : "bg-[var(--bg)] border-black/5"}`}>
+                <div className="flex items-center gap-2">
+                  <div className="w-9 h-9 rounded-xl bg-[color:var(--accent)]/10 flex items-center justify-center">
+                    <item.icon className="w-4.5 h-4.5 text-[var(--accent)]" />
+                  </div>
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${item.badgeColor}`}>{item.badge}</span>
                 </div>
-                <h3 className="font-bold text-[var(--ink)] mb-2">{item.title}</h3>
-                <p className="text-sm text-[var(--muted)] leading-relaxed">{item.desc}</p>
+                <div className="flex-1">
+                  <h3 className="font-bold text-[var(--ink)] mb-2 leading-snug">{item.title}</h3>
+                  <p className="text-sm text-[var(--muted)] leading-relaxed">{item.desc}</p>
+                </div>
+                <Link href={item.href} className="text-sm font-semibold text-[var(--accent)] hover:text-[color:var(--accent)]/80 flex items-center gap-1 transition-colors">
+                  {item.cta} <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
             ))}
           </div>
 
-          {/* Pricing + CTA */}
+          {/* Consultant pricing + CTA */}
           <div data-animate className="bg-gradient-to-br from-brand-600 to-brand-900 rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl shadow-brand-600/20">
             <div>
-              <p className="text-brand-200 text-xs font-bold uppercase tracking-widest mb-2">Simple pricing</p>
+              <p className="text-brand-200 text-xs font-bold uppercase tracking-widest mb-2">Consultant pricing</p>
               <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-2">$99 per client workspace</h3>
               <p className="text-brand-200 text-sm leading-relaxed max-w-md">
-                One-time payment per client. No monthly fees per client, no seat limits. Your partner account is free — only pay when you onboard a new client.
+                One-time per client. No monthly seat fees. Your partner account is free — only pay when you onboard a new client. Auditor and pen test listings are free.
               </p>
               <div className="flex flex-wrap gap-2 mt-4">
-                {["No monthly fee per client", "Unlimited team members", "All frameworks included", "Trust Center included"].map((f) => (
+                {["First 3 clients free", "All frameworks included", "Trust Center per client", "Auditor access links"].map((f) => (
                   <span key={f} className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-100 bg-white/10 border border-white/15 px-2.5 py-1 rounded-full">
                     <CheckCircle2 className="w-3 h-3 text-brand-300 shrink-0" />
                     {f}
@@ -2079,17 +2095,17 @@ export default function LandingPage() {
             </div>
             <div className="flex flex-col gap-3 shrink-0 w-full md:w-auto">
               <Link
-                href="/register"
+                href="/partners"
                 className="inline-flex items-center justify-center gap-2 bg-white hover:bg-brand-50 text-brand-700 font-bold px-8 py-3.5 rounded-xl transition-colors text-sm shadow-sm whitespace-nowrap"
               >
-                Become a partner
+                See the partner program
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/partner-login"
                 className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 font-semibold px-8 py-3 rounded-xl transition-colors text-sm whitespace-nowrap"
               >
-                Partner login
+                Already a partner? Sign in
               </Link>
             </div>
           </div>
@@ -2200,8 +2216,7 @@ export default function LandingPage() {
                 {[
                   { label: "Sign in",          href: "/login"         },
                   { label: "Get started",       href: "/register"      },
-                  { label: "Partner program",   href: "#partner"       },
-                  { label: "Partner directory", href: "/partners"      },
+                  { label: "Partner program",   href: "/partners"      },
                   { label: "Partner login",     href: "/partner-login" },
                 ].map((l) => (
                   <li key={l.label}>
