@@ -15,6 +15,7 @@ import {
   BarChart2,
   CalendarDays,
   Lock,
+  Braces,
 } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
 
@@ -46,28 +47,24 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 const FRAMEWORKS = [
-  { value: "soc2", label: "SOC 2" },
+  { value: "soc2",     label: "SOC 2 Type II" },
   { value: "iso27001", label: "ISO 27001" },
-  { value: "hipaa", label: "HIPAA" },
+  { value: "hipaa",    label: "HIPAA" },
+  { value: "gdpr",     label: "GDPR" },
+  { value: "pci_dss",  label: "PCI DSS" },
+  { value: "ccpa",     label: "CCPA" },
+  { value: "nist_csf", label: "NIST CSF" },
 ];
 
 // Per-framework accent colours for report cards
 const FRAMEWORK_ACCENT: Record<string, { bar: string; icon: string; badge: string }> = {
-  soc2: {
-    bar: "bg-emerald-500",
-    icon: "text-emerald-500 bg-emerald-50",
-    badge: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  },
-  iso27001: {
-    bar: "bg-blue-500",
-    icon: "text-blue-500 bg-blue-50",
-    badge: "bg-blue-50 text-blue-700 border-blue-200",
-  },
-  hipaa: {
-    bar: "bg-violet-500",
-    icon: "text-violet-500 bg-violet-50",
-    badge: "bg-violet-50 text-violet-700 border-violet-200",
-  },
+  soc2:     { bar: "bg-emerald-500", icon: "text-emerald-500 bg-emerald-50", badge: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  iso27001: { bar: "bg-blue-500",    icon: "text-blue-500 bg-blue-50",       badge: "bg-blue-50 text-blue-700 border-blue-200"         },
+  hipaa:    { bar: "bg-violet-500",  icon: "text-violet-500 bg-violet-50",   badge: "bg-violet-50 text-violet-700 border-violet-200"   },
+  gdpr:     { bar: "bg-indigo-500",  icon: "text-indigo-500 bg-indigo-50",   badge: "bg-indigo-50 text-indigo-700 border-indigo-200"   },
+  pci_dss:  { bar: "bg-orange-500",  icon: "text-orange-500 bg-orange-50",   badge: "bg-orange-50 text-orange-700 border-orange-200"   },
+  ccpa:     { bar: "bg-teal-500",    icon: "text-teal-500 bg-teal-50",       badge: "bg-teal-50 text-teal-700 border-teal-200"         },
+  nist_csf: { bar: "bg-cyan-500",    icon: "text-cyan-500 bg-cyan-50",       badge: "bg-cyan-50 text-cyan-700 border-cyan-200"         },
 };
 
 function defaultAccent() {
@@ -355,27 +352,29 @@ export default function ReportsPage() {
                 ))}
               </select>
 
-              {/* Format toggle */}
-              <div className="flex rounded-lg border border-slate-600 overflow-hidden text-sm">
+              {/* Format toggle — segmented pill */}
+              <div className="flex items-center gap-1 bg-slate-800/80 border border-slate-600/60 rounded-xl p-1">
                 <button
                   onClick={() => setFormat("json")}
-                  className={`px-3 py-2 font-semibold transition-colors ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-150 ${
                     format === "json"
-                      ? "bg-emerald-600 text-white"
-                      : "text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+                      ? "bg-emerald-500 text-white shadow-md shadow-emerald-900/40"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/60"
                   }`}
                 >
+                  <Braces className="w-3.5 h-3.5" />
                   JSON
                 </button>
                 {isPro ? (
                   <button
                     onClick={() => setFormat("pdf")}
-                    className={`px-3 py-2 font-semibold transition-colors ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-150 ${
                       format === "pdf"
-                        ? "bg-emerald-600 text-white"
-                        : "text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+                        ? "bg-emerald-500 text-white shadow-md shadow-emerald-900/40"
+                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/60"
                     }`}
                   >
+                    <FileText className="w-3.5 h-3.5" />
                     PDF
                   </button>
                 ) : (
@@ -383,14 +382,14 @@ export default function ReportsPage() {
                     onClick={handlePdfUpgrade}
                     disabled={upgradingPdf}
                     title="PDF reports require the Growth plan"
-                    className="relative flex items-center gap-1.5 px-3 py-2 font-semibold text-slate-500 hover:text-slate-300 disabled:opacity-50 transition-colors border-l border-slate-700 group"
+                    className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-500 hover:text-slate-300 hover:bg-slate-700/60 disabled:opacity-50 transition-all duration-150 group"
                   >
                     {upgradingPdf
-                      ? <span className="w-3 h-3 border border-amber-400 border-t-transparent rounded-full animate-spin" />
-                      : <Lock className="w-3 h-3 text-amber-500/80 group-hover:text-amber-400 transition-colors" />
+                      ? <span className="w-3.5 h-3.5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                      : <Lock className="w-3.5 h-3.5 text-amber-500/80 group-hover:text-amber-400 transition-colors" />
                     }
-                    <span className="group-hover:text-slate-300 transition-colors">PDF</span>
-                    <span className="absolute -top-2 -right-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[8px] font-black uppercase rounded px-1 py-0.5 leading-none shadow-sm">
+                    PDF
+                    <span className="absolute -top-2 -right-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[8px] font-black uppercase rounded-md px-1 py-0.5 leading-none shadow-sm">
                       Pro
                     </span>
                   </button>
