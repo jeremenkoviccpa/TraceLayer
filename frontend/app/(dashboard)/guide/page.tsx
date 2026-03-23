@@ -219,21 +219,23 @@ export default function GuidePage() {
       </div>
 
       {/* Progress bar */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-10 flex items-center gap-5 shadow-sm">
-        <div className="flex items-center gap-1.5 shrink-0">
-          <Rocket className="w-4 h-4 text-brand-600" />
-          <span className="text-xs font-semibold text-gray-700">7-phase roadmap</span>
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-10 shadow-sm">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-1.5">
+            <Rocket className="w-4 h-4 text-brand-600" />
+            <span className="text-xs font-semibold text-gray-700">7-phase roadmap</span>
+          </div>
+          <div className="flex items-center gap-3 text-xs text-gray-400 ml-auto">
+            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> 2–3 weeks</span>
+            <span className="hidden sm:flex items-center gap-1"><Zap className="w-3 h-3 text-amber-500" /> Audit-ready</span>
+          </div>
         </div>
-        <div className="flex-1 flex items-center gap-1">
+        <div className="flex items-center gap-1">
           {PHASES.map((p, i) => (
             <div key={p.number} className="flex items-center gap-1 flex-1">
               <div className={`h-1.5 rounded-full flex-1 ${i < 2 ? "bg-brand-500" : "bg-gray-100"}`} />
             </div>
           ))}
-        </div>
-        <div className="flex items-center gap-3 text-xs text-gray-400 shrink-0">
-          <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> 2–3 weeks</span>
-          <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-amber-500" /> Audit-ready</span>
         </div>
       </div>
 
@@ -244,7 +246,7 @@ export default function GuidePage() {
 
         <div className="space-y-0">
           {PHASES.map((phase, i) => (
-            <div key={phase.number} className="relative flex gap-6 pb-8">
+            <div key={phase.number} className="relative flex gap-3 sm:gap-6 pb-8">
               {/* Phase marker */}
               <div className="relative z-10 shrink-0">
                 <div className={`w-10 h-10 rounded-full ${phase.markerBg} flex items-center justify-center shadow-md`}>
@@ -264,7 +266,7 @@ export default function GuidePage() {
                   </span>
                 </div>
 
-                <div className={`rounded-2xl border p-5 ${phase.cardBg}`}>
+                <div className={`rounded-2xl border p-4 sm:p-5 ${phase.cardBg}`}>
                   <h2 className="text-base font-bold text-gray-900 mb-1">{phase.title}</h2>
                   <p className="text-sm text-gray-500 mb-5 leading-relaxed">{phase.subtitle}</p>
 
@@ -274,7 +276,7 @@ export default function GuidePage() {
                       <Link
                         key={href}
                         href={href}
-                        className="group flex items-start gap-3 bg-white hover:bg-white rounded-xl px-3.5 py-3 border border-white/80 hover:border-gray-200 shadow-sm hover:shadow transition-all"
+                        className="group flex items-start gap-2.5 bg-white hover:bg-white rounded-xl px-3 sm:px-3.5 py-3 border border-white/80 hover:border-gray-200 shadow-sm hover:shadow transition-all"
                       >
                         <div className="w-7 h-7 rounded-lg bg-gray-50 group-hover:bg-brand-50 border border-gray-100 flex items-center justify-center shrink-0 mt-0.5 transition-colors">
                           <Icon className="w-3.5 h-3.5 text-gray-400 group-hover:text-brand-600 transition-colors" />
@@ -318,11 +320,11 @@ export default function GuidePage() {
         <p className="text-white/70 text-xs leading-relaxed max-w-sm mx-auto">
           All 7 phases complete. Generate your AI Audit Package and share your auditor access link. Your evidence is continuously updated.
         </p>
-        <div className="flex items-center justify-center gap-3 mt-4">
-          <Link href="/audit-package" className="inline-flex items-center gap-1.5 bg-white hover:bg-white/90 text-emerald-700 font-semibold px-4 py-2 rounded-xl text-xs transition-colors">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mt-4">
+          <Link href="/audit-package" className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-white hover:bg-white/90 text-emerald-700 font-semibold px-4 py-2 rounded-xl text-xs transition-colors">
             <Sparkles className="w-3.5 h-3.5" /> Generate audit package
           </Link>
-          <Link href="/compliance" className="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white font-semibold px-4 py-2 rounded-xl text-xs transition-colors">
+          <Link href="/compliance" className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 text-white font-semibold px-4 py-2 rounded-xl text-xs transition-colors">
             <MessageCircle className="w-3.5 h-3.5" /> Invite auditor
           </Link>
         </div>
