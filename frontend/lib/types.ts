@@ -410,6 +410,79 @@ export interface TrustPageSettings {
   custom_headline: string | null;
   custom_message: string | null;
   frameworks: string[];
+  custom_domain: string | null;
+  domain_verified: boolean;
+  domain_verification_token: string | null;
+}
+
+export interface TrustDailyViewPoint {
+  date: string;
+  count: number;
+}
+
+export interface TrustRecentView {
+  visitor_ip: string | null;
+  visitor_country: string | null;
+  referrer: string | null;
+  user_agent_summary: string | null;
+  viewed_at: string;
+}
+
+export interface TrustAnalytics {
+  total_views: number;
+  views_last_30_days: TrustDailyViewPoint[];
+  recent_views: TrustRecentView[];
+}
+
+export interface Device {
+  id: string;
+  company_id: string;
+  user_id: string | null;
+  device_name: string;
+  device_type: string;
+  os_type: string;
+  os_version: string | null;
+  serial_number: string | null;
+  attested_by_email: string | null;
+  disk_encrypted: boolean;
+  lockscreen_enabled: boolean;
+  antivirus_installed: boolean;
+  last_attested_at: string | null;
+  notes: string | null;
+  compliance_score: number;
+  is_compliant: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface QuestionnaireSessionAnswer {
+  question: string;
+  answer: string;
+}
+
+export interface QuestionnaireSession {
+  id: string;
+  company_id: string;
+  created_by_id: string | null;
+  assigned_to_id: string | null;
+  assigned_to_email: string | null;
+  title: string;
+  questionnaire_type: string | null;
+  status: 'draft' | 'in_review' | 'completed';
+  answers: QuestionnaireSessionAnswer[];
+  comment_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface QuestionnaireComment {
+  id: string;
+  session_id: string;
+  user_id: string | null;
+  user_email: string | null;
+  question_index: number;
+  comment_text: string;
+  created_at: string;
 }
 
 export interface PublicTrustControlScore {

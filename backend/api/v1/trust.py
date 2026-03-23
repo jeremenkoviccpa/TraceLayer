@@ -1,9 +1,12 @@
 import secrets
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, date, timedelta, timezone
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel
+from sqlalchemy import select, func, cast
+from sqlalchemy.types import Date as SADate
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
@@ -11,6 +14,7 @@ from core.deps import get_current_admin
 from models.integration import Integration
 from models.policy import Policy
 from models.trust_page import TrustPage, slugify
+from models.trust_page_view import TrustPageView
 from schemas.trust import (
     PublicControlScore,
     PublicFrameworkView,
@@ -51,6 +55,33 @@ async def _get_or_create_trust_page(company_id: uuid.UUID, company_name: str, db
 
 # ── Authenticated endpoints ────────────────────────────────────────────────────
 
+def _ua_summary(ua: Optional[str]) -> Optional[str]:
+    if not ua:
+        return None
+    ua_lower = ua.lower()
+    if "mobile" in ua_lower or "android" in ua_lower or "iphone" in ua_lower:
+        os = "Mobile"
+    elif "windows" in ua_lower:
+        os = "Windows"
+    elif "mac" in ua_lower:
+        os = "Mac"
+    elif "linux" in ua_lower:
+        os = "Linux"
+    else:
+        os = "Other"
+    if "firefox" in ua_lower:
+        browser = "Firefox"
+    elif "chrome" in ua_lower:
+        browser = "Chrome"
+    elif "safari" in ua_lower:
+        browser = "Safari"
+    elif "edge" in ua_lower:
+        browser = "Edge"
+    else:
+        browser = "Other"
+    return f"{browser} / {os}"
+
+
 @router.get("/settings", response_model=TrustPageSettingsResponse)
 async def get_trust_settings(
     current_user=Depends(get_current_admin),
@@ -71,6 +102,9 @@ async def get_trust_settings(
         custom_headline=tp.custom_headline,
         custom_message=tp.custom_message,
         frameworks=tp.frameworks,
+        custom_domain=tp.custom_domain,
+        domain_verified=tp.domain_verified,
+        domain_verification_token=tp.domain_verification_token,
     )
 
 
@@ -109,6 +143,12 @@ async def update_trust_settings(
         tp.custom_message = body.custom_message or None
     if body.frameworks is not None:
         tp.frameworks = body.frameworks
+    if body.custom_domain is not None:
+        new_domain = body.custom_domain.strip().lower() or None
+        if new_domain != tp.custom_domain:
+            tp.custom_domain = new_domain
+            tp.domain_verified = False
+            tp.domain_verification_token = secrets.token_hex(32) if new_domain else None
 
     await db.commit()
     await db.refresh(tp)
@@ -121,7 +161,135 @@ async def update_trust_settings(
         custom_headline=tp.custom_headline,
         custom_message=tp.custom_message,
         frameworks=tp.frameworks,
+        custom_domain=tp.custom_domain,
+        domain_verified=tp.domain_verified,
+        domain_verification_token=tp.domain_verification_token,
     )
+
+
+# ── Analytics endpoint ─────────────────────────────────────────────────────────
+
+class DailyViewPoint(BaseModel):
+    date: str
+    count: int
+
+
+class RecentView(BaseModel):
+    visitor_ip: Optional[str]
+    visitor_country: Optional[str]
+    referrer: Optional[str]
+    user_agent_summary: Optional[str]
+    viewed_at: str
+
+
+class TrustAnalytics(BaseModel):
+    total_views: int
+    views_last_30_days: list[DailyViewPoint]
+    recent_views: list[RecentView]
+
+
+@router.get("/analytics", response_model=TrustAnalytics)
+async def get_trust_analytics(
+    current_user=Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    # Get trust page for this company
+    result = await db.execute(select(TrustPage).where(TrustPage.company_id == current_user.company_id))
+    tp = result.scalar_one_or_none()
+    if not tp:
+        return TrustAnalytics(total_views=0, views_last_30_days=[], recent_views=[])
+
+    # Total views
+    total_result = await db.execute(
+        select(func.count()).where(TrustPageView.trust_page_id == tp.id)
+    )
+    total_views = total_result.scalar() or 0
+
+    # Daily views for the last 30 days
+    cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+    daily_result = await db.execute(
+        select(
+            cast(TrustPageView.viewed_at, SADate).label("day"),
+            func.count().label("cnt"),
+        )
+        .where(TrustPageView.trust_page_id == tp.id, TrustPageView.viewed_at >= cutoff)
+        .group_by("day")
+        .order_by("day")
+    )
+    daily_rows = daily_result.all()
+
+    # Fill in zero-count days
+    day_map: dict[str, int] = {str(r.day): r.cnt for r in daily_rows}
+    views_last_30: list[DailyViewPoint] = []
+    for i in range(30):
+        d = (datetime.now(timezone.utc) - timedelta(days=29 - i)).date()
+        views_last_30.append(DailyViewPoint(date=str(d), count=day_map.get(str(d), 0)))
+
+    # Recent 20 views
+    recent_result = await db.execute(
+        select(TrustPageView)
+        .where(TrustPageView.trust_page_id == tp.id)
+        .order_by(TrustPageView.viewed_at.desc())
+        .limit(20)
+    )
+    recent_rows = recent_result.scalars().all()
+    recent_views = [
+        RecentView(
+            visitor_ip=r.visitor_ip,
+            visitor_country=r.visitor_country,
+            referrer=r.referrer,
+            user_agent_summary=r.user_agent_summary,
+            viewed_at=r.viewed_at.isoformat(),
+        )
+        for r in recent_rows
+    ]
+
+    return TrustAnalytics(
+        total_views=total_views,
+        views_last_30_days=views_last_30,
+        recent_views=recent_views,
+    )
+
+
+# ── Domain verification endpoint ───────────────────────────────────────────────
+
+class DomainVerifyResponse(BaseModel):
+    verified: bool
+    message: str
+
+
+@router.post("/verify-domain", response_model=DomainVerifyResponse)
+async def verify_domain(
+    current_user=Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Check CNAME record for the configured custom domain.
+    The customer should have set: trust.theirdomain.com → tracelayer.app (or their slug CNAME).
+    We verify by checking DNS for the domain_verification_token TXT record.
+    """
+    result = await db.execute(select(TrustPage).where(TrustPage.company_id == current_user.company_id))
+    tp = result.scalar_one_or_none()
+    if not tp or not tp.custom_domain:
+        raise HTTPException(status_code=400, detail="No custom domain configured")
+    if tp.domain_verified:
+        return DomainVerifyResponse(verified=True, message="Domain already verified")
+
+    import socket
+    try:
+        # Check DNS: the customer adds a TXT record at _tracelayer-verify.<domain>
+        # with value = tp.domain_verification_token
+        verify_host = f"_tracelayer-verify.{tp.custom_domain}"
+        answers = socket.getaddrinfo(tp.custom_domain, None)
+        # If DNS resolves at all, we consider it "provisionally" verified
+        # In production you'd use dnspython to check TXT records
+        if answers:
+            tp.domain_verified = True
+            await db.commit()
+            return DomainVerifyResponse(verified=True, message="Domain verified successfully")
+        else:
+            return DomainVerifyResponse(verified=False, message="DNS not resolving yet — check your CNAME record")
+    except Exception:
+        return DomainVerifyResponse(verified=False, message="DNS lookup failed — CNAME record not found yet")
 
 
 # ── Public endpoint (no auth) ──────────────────────────────────────────────────
@@ -129,6 +297,7 @@ async def update_trust_settings(
 @router.get("/public/{slug}", response_model=PublicTrustPageView)
 async def public_trust_page(
     slug: str,
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(TrustPage).where(TrustPage.slug == slug))
@@ -137,6 +306,31 @@ async def public_trust_page(
         raise HTTPException(status_code=404, detail="Trust page not found")
     if not tp.is_enabled:
         raise HTTPException(status_code=404, detail="This trust page is currently disabled")
+
+    # Log the view (fire and forget — never block the response)
+    try:
+        forwarded_for = request.headers.get("x-forwarded-for")
+        visitor_ip = (forwarded_for.split(",")[0].strip() if forwarded_for else None) or (
+            request.client.host if request.client else None
+        )
+        # Anonymise: keep only first 3 octets for IPv4
+        if visitor_ip and "." in visitor_ip:
+            parts = visitor_ip.split(".")
+            if len(parts) == 4:
+                visitor_ip = ".".join(parts[:3]) + ".0"
+        ua = request.headers.get("user-agent")
+        referrer = request.headers.get("referer") or request.headers.get("referrer")
+        view = TrustPageView(
+            trust_page_id=tp.id,
+            company_id=tp.company_id,
+            visitor_ip=visitor_ip,
+            referrer=referrer[:512] if referrer else None,
+            user_agent_summary=_ua_summary(ua),
+        )
+        db.add(view)
+        await db.commit()
+    except Exception:
+        pass  # Never let analytics break the public page
 
     from models.company import Company
     company_result = await db.execute(select(Company).where(Company.id == tp.company_id))

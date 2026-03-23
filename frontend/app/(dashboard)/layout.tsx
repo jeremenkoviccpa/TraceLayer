@@ -49,6 +49,7 @@ import {
   Workflow,
   Compass,
   Bot,
+  Monitor,
 } from "lucide-react";
 import type { AppNotification } from "@/lib/types";
 import { usePlan } from "@/hooks/usePlan";
@@ -91,6 +92,7 @@ const NAV_GROUPS: NavGroup[] = [
     title: "Operations",
     items: [
       { href: "/assets",              label: "Asset Inventory",     icon: Server    },
+      { href: "/devices",             label: "Device Monitoring",   icon: Monitor   },
       { href: "/business-continuity", label: "Business Continuity", icon: RefreshCw },
       { href: "/vendors",             label: "Vendor Risk",         icon: Building2 },
       { href: "/access-reviews",      label: "Access Reviews",      icon: UserCheck },

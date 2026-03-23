@@ -1,6 +1,12 @@
+import csv
+import io
+import json
 import logging
+import uuid
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, field_validator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from core.deps import get_current_user
 from core.plan_gate import require_growth
+from models.questionnaire_session import QuestionnaireComment, QuestionnaireSession
 from models.user import User
 from services.ai_service import autofill_questionnaire
 
@@ -360,4 +367,401 @@ async def ai_autofill_questionnaire(
         detected_type=detected_type,
         context=AutofillContextSummary(**ctx_summary),
         answers=[AutofillAnswerItem(question=a["question"], answer=a["answer"]) for a in answers],
+    )
+
+
+# ── Questionnaire Sessions (Collaboration) ────────────────────────────────────
+
+class SessionAnswerItem(BaseModel):
+    question: str
+    answer: str
+
+
+class SessionCreateRequest(BaseModel):
+    title: str
+    questionnaire_type: Optional[str] = None
+    answers: list[SessionAnswerItem]
+    assigned_to_id: Optional[str] = None
+
+
+class SessionUpdateRequest(BaseModel):
+    title: Optional[str] = None
+    status: Optional[str] = None
+    assigned_to_id: Optional[str] = None
+    answers: Optional[list[SessionAnswerItem]] = None
+
+
+class SessionOut(BaseModel):
+    id: str
+    company_id: str
+    created_by_id: Optional[str]
+    assigned_to_id: Optional[str]
+    assigned_to_email: Optional[str]
+    title: str
+    questionnaire_type: Optional[str]
+    status: str
+    answers: list[SessionAnswerItem]
+    comment_count: int
+    created_at: str
+    updated_at: str
+
+
+class CommentCreateRequest(BaseModel):
+    question_index: int
+    comment_text: str
+
+
+class CommentOut(BaseModel):
+    id: str
+    session_id: str
+    user_id: Optional[str]
+    user_email: Optional[str]
+    question_index: int
+    comment_text: str
+    created_at: str
+
+
+async def _session_to_out(
+    session: QuestionnaireSession,
+    comment_count: int,
+    assigned_to_email: Optional[str],
+) -> SessionOut:
+    try:
+        answers = [SessionAnswerItem(**a) for a in json.loads(session.answers_json)]
+    except Exception:
+        answers = []
+    return SessionOut(
+        id=str(session.id),
+        company_id=str(session.company_id),
+        created_by_id=str(session.created_by_id) if session.created_by_id else None,
+        assigned_to_id=str(session.assigned_to_id) if session.assigned_to_id else None,
+        assigned_to_email=assigned_to_email,
+        title=session.title,
+        questionnaire_type=session.questionnaire_type,
+        status=session.status,
+        answers=answers,
+        comment_count=comment_count,
+        created_at=session.created_at.isoformat(),
+        updated_at=session.updated_at.isoformat(),
+    )
+
+
+@router.post("/sessions", response_model=SessionOut, status_code=201)
+async def create_session(
+    body: SessionCreateRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    assigned_uuid = uuid.UUID(body.assigned_to_id) if body.assigned_to_id else None
+    session = QuestionnaireSession(
+        company_id=current_user.company_id,
+        created_by_id=current_user.id,
+        assigned_to_id=assigned_uuid,
+        title=body.title,
+        questionnaire_type=body.questionnaire_type,
+        answers_json=json.dumps([a.model_dump() for a in body.answers]),
+    )
+    db.add(session)
+    await db.commit()
+    await db.refresh(session)
+
+    assigned_email: Optional[str] = None
+    if assigned_uuid:
+        u_result = await db.execute(select(User).where(User.id == assigned_uuid))
+        u = u_result.scalar_one_or_none()
+        if u:
+            assigned_email = u.email
+
+    return await _session_to_out(session, 0, assigned_email)
+
+
+@router.get("/sessions", response_model=list[SessionOut])
+async def list_sessions(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(QuestionnaireSession)
+        .where(QuestionnaireSession.company_id == current_user.company_id)
+        .order_by(QuestionnaireSession.updated_at.desc())
+    )
+    sessions = result.scalars().all()
+
+    out = []
+    for s in sessions:
+        # Count comments
+        cc_result = await db.execute(
+            select(QuestionnaireComment).where(QuestionnaireComment.session_id == s.id)
+        )
+        cc = len(cc_result.scalars().all())
+
+        assigned_email: Optional[str] = None
+        if s.assigned_to_id:
+            u_result = await db.execute(select(User).where(User.id == s.assigned_to_id))
+            u = u_result.scalar_one_or_none()
+            if u:
+                assigned_email = u.email
+
+        out.append(await _session_to_out(s, cc, assigned_email))
+    return out
+
+
+@router.get("/sessions/{session_id}", response_model=SessionOut)
+async def get_session(
+    session_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(QuestionnaireSession).where(
+            QuestionnaireSession.id == uuid.UUID(session_id),
+            QuestionnaireSession.company_id == current_user.company_id,
+        )
+    )
+    session = result.scalar_one_or_none()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    cc_result = await db.execute(
+        select(QuestionnaireComment).where(QuestionnaireComment.session_id == session.id)
+    )
+    cc = len(cc_result.scalars().all())
+
+    assigned_email: Optional[str] = None
+    if session.assigned_to_id:
+        u_result = await db.execute(select(User).where(User.id == session.assigned_to_id))
+        u = u_result.scalar_one_or_none()
+        if u:
+            assigned_email = u.email
+
+    return await _session_to_out(session, cc, assigned_email)
+
+
+@router.patch("/sessions/{session_id}", response_model=SessionOut)
+async def update_session(
+    session_id: str,
+    body: SessionUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(QuestionnaireSession).where(
+            QuestionnaireSession.id == uuid.UUID(session_id),
+            QuestionnaireSession.company_id == current_user.company_id,
+        )
+    )
+    session = result.scalar_one_or_none()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    if body.title is not None:
+        session.title = body.title
+    if body.status is not None:
+        session.status = body.status
+    if body.answers is not None:
+        session.answers_json = json.dumps([a.model_dump() for a in body.answers])
+    if body.assigned_to_id is not None:
+        session.assigned_to_id = uuid.UUID(body.assigned_to_id) if body.assigned_to_id else None
+
+    await db.commit()
+    await db.refresh(session)
+
+    cc_result = await db.execute(
+        select(QuestionnaireComment).where(QuestionnaireComment.session_id == session.id)
+    )
+    cc = len(cc_result.scalars().all())
+
+    assigned_email: Optional[str] = None
+    if session.assigned_to_id:
+        u_result = await db.execute(select(User).where(User.id == session.assigned_to_id))
+        u = u_result.scalar_one_or_none()
+        if u:
+            assigned_email = u.email
+
+    return await _session_to_out(session, cc, assigned_email)
+
+
+@router.delete("/sessions/{session_id}", status_code=204)
+async def delete_session(
+    session_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(QuestionnaireSession).where(
+            QuestionnaireSession.id == uuid.UUID(session_id),
+            QuestionnaireSession.company_id == current_user.company_id,
+        )
+    )
+    session = result.scalar_one_or_none()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    await db.delete(session)
+    await db.commit()
+
+
+@router.get("/sessions/{session_id}/comments", response_model=list[CommentOut])
+async def list_comments(
+    session_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    # Verify session belongs to company
+    s_result = await db.execute(
+        select(QuestionnaireSession).where(
+            QuestionnaireSession.id == uuid.UUID(session_id),
+            QuestionnaireSession.company_id == current_user.company_id,
+        )
+    )
+    if not s_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    c_result = await db.execute(
+        select(QuestionnaireComment)
+        .where(QuestionnaireComment.session_id == uuid.UUID(session_id))
+        .order_by(QuestionnaireComment.created_at.asc())
+    )
+    comments = c_result.scalars().all()
+    return [
+        CommentOut(
+            id=str(c.id),
+            session_id=str(c.session_id),
+            user_id=str(c.user_id) if c.user_id else None,
+            user_email=c.user_email,
+            question_index=c.question_index,
+            comment_text=c.comment_text,
+            created_at=c.created_at.isoformat(),
+        )
+        for c in comments
+    ]
+
+
+@router.post("/sessions/{session_id}/comments", response_model=CommentOut, status_code=201)
+async def add_comment(
+    session_id: str,
+    body: CommentCreateRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    s_result = await db.execute(
+        select(QuestionnaireSession).where(
+            QuestionnaireSession.id == uuid.UUID(session_id),
+            QuestionnaireSession.company_id == current_user.company_id,
+        )
+    )
+    if not s_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    comment = QuestionnaireComment(
+        session_id=uuid.UUID(session_id),
+        company_id=current_user.company_id,
+        user_id=current_user.id,
+        user_email=current_user.email,
+        question_index=body.question_index,
+        comment_text=body.comment_text,
+    )
+    db.add(comment)
+    await db.commit()
+    await db.refresh(comment)
+    return CommentOut(
+        id=str(comment.id),
+        session_id=str(comment.session_id),
+        user_id=str(comment.user_id) if comment.user_id else None,
+        user_email=comment.user_email,
+        question_index=comment.question_index,
+        comment_text=comment.comment_text,
+        created_at=comment.created_at.isoformat(),
+    )
+
+
+# ── Excel/CSV upload & AI autofill ────────────────────────────────────────────
+
+def _parse_questions_from_file(content: bytes, filename: str) -> list[str]:
+    """Parse questions from uploaded CSV or XLSX file.
+    Looks for rows where first column contains a question (ends with ? or is non-empty).
+    """
+    questions: list[str] = []
+    fname = filename.lower()
+
+    if fname.endswith(".csv"):
+        text = content.decode("utf-8", errors="replace")
+        reader = csv.reader(io.StringIO(text))
+        for row in reader:
+            if not row:
+                continue
+            cell = row[0].strip()
+            if cell and len(cell) > 10 and cell not in ("Question", "question", "Questions"):
+                questions.append(cell)
+
+    elif fname.endswith((".xlsx", ".xls")):
+        try:
+            import openpyxl
+            wb = openpyxl.load_workbook(io.BytesIO(content), read_only=True, data_only=True)
+            ws = wb.active
+            for row in ws.iter_rows(values_only=True):
+                if not row:
+                    continue
+                cell = str(row[0] or "").strip()
+                if cell and len(cell) > 10 and cell.lower() not in ("question", "questions"):
+                    questions.append(cell)
+        except ImportError:
+            raise HTTPException(
+                status_code=400,
+                detail="openpyxl is required to process Excel files. Please upload a CSV instead."
+            )
+    else:
+        raise HTTPException(status_code=400, detail="Only .csv, .xlsx, and .xls files are supported")
+
+    return [q for q in questions if q][:100]
+
+
+@router.post("/upload")
+async def upload_questionnaire(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_growth),
+):
+    """Upload a CSV or Excel questionnaire file → AI answers → download answered CSV."""
+    from models.company import Company
+    from datetime import datetime, timezone
+
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+
+    content = await file.read()
+    if len(content) > 5 * 1024 * 1024:  # 5 MB limit
+        raise HTTPException(status_code=400, detail="File too large (max 5 MB)")
+
+    questions = _parse_questions_from_file(content, file.filename)
+    if not questions:
+        raise HTTPException(status_code=400, detail="No questions found in the uploaded file. Make sure questions are in the first column.")
+
+    # Load company name
+    company_result = await db.execute(select(Company).where(Company.id == current_user.company_id))
+    company = company_result.scalar_one_or_none()
+    company_name = company.name if company else "Your Company"
+
+    # AI autofill
+    try:
+        answers, _, _ = await autofill_questionnaire(current_user.company_id, questions, db)
+    except Exception as e:
+        logger.exception("AI autofill failed during upload")
+        raise HTTPException(status_code=502, detail=f"AI service error: {e}")
+
+    # Build answered CSV
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Question", "Answer", "Company"])
+    for a in answers:
+        writer.writerow([a["question"], a["answer"], company_name])
+    output.seek(0)
+
+    base_name = file.filename.rsplit(".", 1)[0]
+    download_name = f"{base_name}-answered.csv"
+
+    return StreamingResponse(
+        io.BytesIO(output.getvalue().encode("utf-8")),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{download_name}"'},
     )

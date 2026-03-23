@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { api } from "@/lib/api";
 import { openPaddleCheckout } from "@/lib/paddle";
 import { useAuth } from "@/components/auth-provider";
-import type { ApiKey, AuditSession, BillingInfo, Company, NotificationSettings, TrustPageSettings } from "@/lib/types";
+import type { ApiKey, AuditSession, BillingInfo, Company, NotificationSettings, TrustAnalytics, TrustPageSettings } from "@/lib/types";
 import {
   CreditCard,
   Lock,
@@ -523,22 +523,58 @@ export default function SettingsPage() {
   const [trustSaving, setTrustSaving] = useState(false);
   const [trustCopied, setTrustCopied] = useState(false);
   const [trustSlugInput, setTrustSlugInput] = useState("");
+  const [trustDomainInput, setTrustDomainInput] = useState("");
+  const [trustAnalytics, setTrustAnalytics] = useState<TrustAnalytics | null>(null);
+  const [trustAnalyticsOpen, setTrustAnalyticsOpen] = useState(false);
+  const [domainVerifying, setDomainVerifying] = useState(false);
 
   useEffect(() => {
     if (!isAdmin) return;
     api.getTrustPageSettings().then((s) => {
       setTrustSettings(s);
       setTrustSlugInput(s.slug);
+      setTrustDomainInput(s.custom_domain ?? "");
     }).catch(() => {});
   }, [isAdmin]);
+
+  const loadTrustAnalytics = async () => {
+    try {
+      const a = await api.getTrustAnalytics();
+      setTrustAnalytics(a);
+      setTrustAnalyticsOpen(true);
+    } catch {
+      showToast("Failed to load analytics", "error");
+    }
+  };
+
+  const handleVerifyDomain = async () => {
+    if (!trustSettings?.custom_domain) return;
+    setDomainVerifying(true);
+    try {
+      const result = await api.verifyTrustDomain();
+      showToast(result.message, result.verified ? undefined : "error");
+      if (result.verified) {
+        setTrustSettings(s => s ? { ...s, domain_verified: true } : s);
+      }
+    } catch {
+      showToast("Verification failed", "error");
+    } finally {
+      setDomainVerifying(false);
+    }
+  };
 
   const handleSaveTrustSettings = async () => {
     if (!trustSettings) return;
     setTrustSaving(true);
     try {
-      const updated = await api.updateTrustPageSettings({ ...trustSettings, slug: trustSlugInput });
+      const updated = await api.updateTrustPageSettings({
+        ...trustSettings,
+        slug: trustSlugInput,
+        custom_domain: trustDomainInput.trim() || null,
+      });
       setTrustSettings(updated);
       setTrustSlugInput(updated.slug);
+      setTrustDomainInput(updated.custom_domain ?? "");
       showToast("Trust Center settings saved");
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : "Failed to save settings", "error");
@@ -1615,6 +1651,123 @@ export default function SettingsPage() {
                   rows={3}
                   maxLength={500}
                 />
+              </div>
+
+              <div className="border-t border-gray-100" />
+
+              {/* Custom domain */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Custom domain <span className="text-gray-400 font-normal">(optional)</span>
+                </label>
+                <p className="text-xs text-gray-400 mb-2">
+                  Host your trust page at <code className="bg-gray-100 px-1 rounded">trust.yourcompany.com</code> by adding a CNAME record pointing to <code className="bg-gray-100 px-1 rounded">tracelayer.app</code>
+                </p>
+                <div className="flex gap-2 flex-wrap">
+                  <input
+                    type="text"
+                    value={trustDomainInput}
+                    onChange={(e) => setTrustDomainInput(e.target.value.toLowerCase().trim())}
+                    placeholder="trust.yourcompany.com"
+                    className={`${inputCls} flex-1 min-w-[200px]`}
+                  />
+                  {trustSettings.custom_domain && (
+                    <button
+                      onClick={handleVerifyDomain}
+                      disabled={domainVerifying}
+                      className="shrink-0 flex items-center gap-1.5 text-xs font-semibold border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                    >
+                      {domainVerifying ? "Checking…" : trustSettings.domain_verified ? "✓ Verified" : "Verify DNS"}
+                    </button>
+                  )}
+                </div>
+                {trustSettings.custom_domain && trustSettings.domain_verification_token && !trustSettings.domain_verified && (
+                  <div className="mt-2 bg-amber-50 border border-amber-100 rounded-lg p-3 text-xs text-amber-700 space-y-1">
+                    <p className="font-semibold">DNS setup required:</p>
+                    <p>Add this TXT record: <code className="bg-white border border-amber-200 px-1.5 py-0.5 rounded font-mono">_tracelayer-verify.{trustSettings.custom_domain}</code></p>
+                    <p>Value: <code className="bg-white border border-amber-200 px-1.5 py-0.5 rounded font-mono break-all">{trustSettings.domain_verification_token}</code></p>
+                  </div>
+                )}
+                {trustSettings.domain_verified && (
+                  <p className="mt-1.5 text-xs text-emerald-600 font-medium">✓ Domain verified — trust page accessible at {trustSettings.custom_domain}</p>
+                )}
+              </div>
+
+              <div className="border-t border-gray-100" />
+
+              {/* Analytics */}
+              <div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">Trust Center Analytics</p>
+                    <p className="text-xs text-gray-500">See who&apos;s viewing your public trust page</p>
+                  </div>
+                  <button
+                    onClick={loadTrustAnalytics}
+                    className="text-xs font-semibold text-brand-600 hover:text-brand-700 border border-brand-200 hover:border-brand-300 px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    {trustAnalyticsOpen ? "Refresh" : "View analytics"}
+                  </button>
+                </div>
+
+                {trustAnalyticsOpen && trustAnalytics && (
+                  <div className="mt-3 space-y-3">
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="bg-gray-50 rounded-xl p-3 text-center">
+                        <p className="text-2xl font-bold text-gray-900">{trustAnalytics.total_views}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Total views</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-3 text-center">
+                        <p className="text-2xl font-bold text-gray-900">
+                          {trustAnalytics.views_last_30_days.reduce((s, d) => s + d.count, 0)}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">Last 30 days</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-3 text-center">
+                        <p className="text-2xl font-bold text-gray-900">{trustAnalytics.recent_views.length}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Recent visitors</p>
+                      </div>
+                    </div>
+
+                    {/* Sparkline */}
+                    {trustAnalytics.views_last_30_days.some(d => d.count > 0) && (
+                      <div className="bg-gray-50 rounded-xl p-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-2">Daily views — last 30 days</p>
+                        <div className="flex items-end gap-0.5 h-12">
+                          {(() => {
+                            const maxVal = Math.max(...trustAnalytics.views_last_30_days.map(d => d.count), 1);
+                            return trustAnalytics.views_last_30_days.map((d, i) => (
+                              <div
+                                key={i}
+                                title={`${d.date}: ${d.count} view${d.count !== 1 ? "s" : ""}`}
+                                className="flex-1 bg-brand-500 rounded-sm min-h-[2px] transition-all hover:bg-brand-600"
+                                style={{ height: `${Math.max((d.count / maxVal) * 100, d.count > 0 ? 8 : 0)}%` }}
+                              />
+                            ));
+                          })()}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Recent visitors */}
+                    {trustAnalytics.recent_views.length > 0 && (
+                      <div className="bg-gray-50 rounded-xl p-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-2">Recent visitors</p>
+                        <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                          {trustAnalytics.recent_views.map((v, i) => (
+                            <div key={i} className="flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="text-gray-500 truncate">{v.user_agent_summary || "Unknown browser"}</span>
+                                {v.referrer && <span className="text-gray-400 truncate">· from {new URL(v.referrer).hostname}</span>}
+                              </div>
+                              <span className="text-gray-400 shrink-0 ml-2">{new Date(v.viewed_at).toLocaleString()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end">

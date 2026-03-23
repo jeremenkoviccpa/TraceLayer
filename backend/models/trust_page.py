@@ -1,5 +1,6 @@
 import json
 import re
+import secrets
 import uuid
 from datetime import datetime
 from typing import Optional
@@ -29,6 +30,10 @@ class TrustPage(Base):
     custom_headline: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     custom_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     frameworks_json: Mapped[str] = mapped_column(Text, nullable=False, server_default=_DEFAULT_FRAMEWORKS)
+    # Custom domain support
+    custom_domain: Mapped[Optional[str]] = mapped_column(String(253), nullable=True)
+    domain_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    domain_verification_token: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
 

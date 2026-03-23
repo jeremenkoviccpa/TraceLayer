@@ -19,6 +19,9 @@ from models.control_status_snapshot import ControlStatusSnapshot
 from models.control_drift_event import ControlDriftEvent
 from models.audit_engagement import AuditEngagement
 from models.partner_directory import PartnerDirectoryEntry
+from models.device import Device
+from models.trust_page_view import TrustPageView
+from models.questionnaire_session import QuestionnaireSession, QuestionnaireComment
 
 __all__ = [
     "Base",
@@ -42,4 +45,8 @@ __all__ = [
     "ControlDriftEvent",
     "AuditEngagement",
     "PartnerDirectoryEntry",
+    "Device",
+    "TrustPageView",
+    "QuestionnaireSession",
+    "QuestionnaireComment",
 ]

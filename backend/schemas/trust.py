@@ -24,6 +24,9 @@ class TrustPageSettingsResponse(BaseModel):
     custom_headline: Optional[str]
     custom_message: Optional[str]
     frameworks: list[str]
+    custom_domain: Optional[str] = None
+    domain_verified: bool = False
+    domain_verification_token: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -37,6 +40,7 @@ class TrustPageUpdate(BaseModel):
     custom_headline: Optional[str] = None
     custom_message: Optional[str] = None
     frameworks: Optional[list[str]] = None
+    custom_domain: Optional[str] = None
 
     @field_validator("slug")
     @classmethod

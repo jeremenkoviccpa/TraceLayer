@@ -1,4 +1,4 @@
-import type { AccessReview, ApiKey, AppNotification, Asset, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingRecord, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
+import type { AccessReview, ApiKey, AppNotification, Asset, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Device, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireComment, QuestionnaireResult, QuestionnaireSession, QuestionnaireSessionAnswer, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingRecord, TrustAnalytics, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -978,6 +978,121 @@ class ApiClient {
 
   async scanDataFlows(): Promise<import("./types").DataFlow[]> {
     return this.request("POST", "/data-flows/scan");
+  }
+
+  // ── Devices ───────────────────────────────────────────────────────────────
+
+  async getDevices(): Promise<Device[]> {
+    return this.request("GET", "/devices");
+  }
+
+  async createDevice(body: Partial<Device>): Promise<Device> {
+    return this.request("POST", "/devices", body);
+  }
+
+  async updateDevice(id: string, body: Partial<Device>): Promise<Device> {
+    return this.request("PATCH", `/devices/${id}`, body);
+  }
+
+  async deleteDevice(id: string): Promise<void> {
+    return this.request("DELETE", `/devices/${id}`);
+  }
+
+  async attestDevice(body: {
+    device_name: string;
+    device_type: string;
+    os_type: string;
+    os_version?: string;
+    serial_number?: string;
+    disk_encrypted: boolean;
+    lockscreen_enabled: boolean;
+    antivirus_installed: boolean;
+  }): Promise<Device> {
+    return this.request("POST", "/devices/attest", body);
+  }
+
+  async getMyDevice(): Promise<Device | null> {
+    return this.request("GET", "/devices/my");
+  }
+
+  // ── Trust Analytics ───────────────────────────────────────────────────────
+
+  async getTrustAnalytics(): Promise<TrustAnalytics> {
+    return this.request("GET", "/trust/analytics");
+  }
+
+  async verifyTrustDomain(): Promise<{ verified: boolean; message: string }> {
+    return this.request("POST", "/trust/verify-domain");
+  }
+
+  // ── Questionnaire Sessions ────────────────────────────────────────────────
+
+  async createQuestionnaireSession(body: {
+    title: string;
+    questionnaire_type?: string;
+    answers: QuestionnaireSessionAnswer[];
+    assigned_to_id?: string;
+  }): Promise<QuestionnaireSession> {
+    return this.request("POST", "/questionnaire/sessions", body);
+  }
+
+  async getQuestionnaireSessions(): Promise<QuestionnaireSession[]> {
+    return this.request("GET", "/questionnaire/sessions");
+  }
+
+  async getQuestionnaireSession(id: string): Promise<QuestionnaireSession> {
+    return this.request("GET", `/questionnaire/sessions/${id}`);
+  }
+
+  async updateQuestionnaireSession(
+    id: string,
+    body: { title?: string; status?: string; assigned_to_id?: string; answers?: QuestionnaireSessionAnswer[] }
+  ): Promise<QuestionnaireSession> {
+    return this.request("PATCH", `/questionnaire/sessions/${id}`, body);
+  }
+
+  async deleteQuestionnaireSession(id: string): Promise<void> {
+    return this.request("DELETE", `/questionnaire/sessions/${id}`);
+  }
+
+  async getSessionComments(sessionId: string): Promise<QuestionnaireComment[]> {
+    return this.request("GET", `/questionnaire/sessions/${sessionId}/comments`);
+  }
+
+  async addSessionComment(sessionId: string, questionIndex: number, text: string): Promise<QuestionnaireComment> {
+    return this.request("POST", `/questionnaire/sessions/${sessionId}/comments`, {
+      question_index: questionIndex,
+      comment_text: text,
+    });
+  }
+
+  // ── Questionnaire File Upload ─────────────────────────────────────────────
+
+  async uploadQuestionnaire(file: File): Promise<void> {
+    const token = this.getToken();
+    if (!token) throw new Error("Not authenticated");
+    const form = new FormData();
+    form.append("file", file);
+    const res = await fetch(`${API_URL}/v1/questionnaire/upload`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    });
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      throw new Error((json as { detail?: string }).detail ?? "Upload failed");
+    }
+    // Download the answered file
+    const blob = await res.blob();
+    const disposition = res.headers.get("content-disposition") ?? "";
+    const match = disposition.match(/filename="?([^"]+)"?/);
+    const filename = match?.[1] ?? "answered-questionnaire.csv";
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }
 

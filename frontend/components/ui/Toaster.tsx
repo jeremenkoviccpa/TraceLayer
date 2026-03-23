@@ -19,6 +19,13 @@ const STYLES = {
 
 let _id = 0;
 
+/** Fire-and-forget toast from anywhere — dispatches a custom DOM event. */
+export function showToast(msg: string, type: "success" | "error" | "info" = "success") {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("app-toast", { detail: { msg, type } }));
+  }
+}
+
 export default function Toaster() {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
