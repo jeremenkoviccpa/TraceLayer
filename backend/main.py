@@ -8,7 +8,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from sqlalchemy import select, text
 
-from api.v1 import access_reviews, ai_agent_events, api_keys, assets, audit, audit_sessions, auth, auth_google, auth_sso, background_checks, billing, business_continuity, compliance, data_breaches, data_flows, documents, evidence, incidents, ingest, integrations, management_reviews, notifications, offboarding, org, partner, pen_tests, policies, public, questionnaire, reports, risks, ropa, soa, sso, subject_requests, superadmin, training, trust, vendors, vulnerabilities
+from api.v1 import access_reviews, ai_agent_events, api_keys, assets, audit, audit_engagements, audit_sessions, auth, auth_google, auth_sso, background_checks, billing, business_continuity, compliance, data_breaches, data_flows, documents, evidence, incidents, ingest, integrations, management_reviews, notifications, offboarding, org, partner, partner_directory, pen_tests, policies, public, questionnaire, reports, risks, ropa, soa, sso, subject_requests, superadmin, training, trust, vendors, vulnerabilities
 from api.v1.admin.framework_updates import manifests_router as framework_manifests_router
 from api.v1.admin.framework_updates import router as framework_updates_router
 from collectors.scheduler import schedule_integration
@@ -191,6 +191,8 @@ app.include_router(vendors.router, prefix="/v1")
 app.include_router(access_reviews.router, prefix="/v1")
 app.include_router(trust.router, prefix="/v1")
 app.include_router(partner.router, prefix="/v1")
+app.include_router(audit_engagements.router, prefix="/v1")
+app.include_router(partner_directory.router, prefix="/v1")
 app.include_router(documents.router, prefix="/v1")
 app.include_router(notifications.router, prefix="/v1")
 app.include_router(incidents.router, prefix="/v1")

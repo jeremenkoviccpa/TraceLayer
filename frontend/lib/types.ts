@@ -741,6 +741,57 @@ export interface AiAgentSession {
   total_events: number;
 }
 
+export interface AuditEngagement {
+  id: string;
+  framework: string;
+  obs_start: string;
+  obs_end: string;
+  auditor_email: string;
+  auditor_name: string | null;
+  auditor_firm: string | null;
+  status: string;
+  created_at: string;
+  expires_at: string | null;
+  last_accessed_at: string | null;
+  access_link: string;
+}
+
+export interface AuditEngagementView {
+  id: string;
+  framework: string;
+  obs_start: string;
+  obs_end: string;
+  auditor_email: string;
+  auditor_name: string | null;
+  auditor_firm: string | null;
+  customer_name: string;
+  created_at: string;
+  score: number;
+  passing_controls: number;
+  failing_controls: number;
+  evidence_count: number;
+  controls: ControlScore[];
+  manual_controls: Array<{
+    control_id: string;
+    name: string;
+    description: string;
+    status: string;
+  }>;
+}
+
+export interface PartnerDirectoryEntry {
+  id: string;
+  partner_type: "auditor" | "pen_test";
+  name: string;
+  description: string | null;
+  website: string | null;
+  referral_url: string | null;
+  contact_email: string | null;
+  frameworks: string[] | null;
+  specialties: string[] | null;
+  is_featured: boolean;
+}
+
 export interface DataFlow {
   id: string;
   company_id: string;

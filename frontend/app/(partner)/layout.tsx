@@ -5,11 +5,13 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/components/auth-provider";
-import { Users, LogOut, Menu, X, LayoutDashboard } from "lucide-react";
+import { Users, LogOut, Menu, X, LayoutDashboard, CreditCard, Globe } from "lucide-react";
 
 const NAV = [
   { href: "/partner/clients", label: "Clients", icon: Users },
   { href: "/partner/dashboard", label: "Overview", icon: LayoutDashboard },
+  { href: "/partner/payments", label: "Payments", icon: CreditCard },
+  { href: "/partners", label: "Partner directory", icon: Globe, external: true },
 ];
 
 export default function PartnerLayout({ children }: { children: React.ReactNode }) {
@@ -99,8 +101,20 @@ export default function PartnerLayout({ children }: { children: React.ReactNode 
         {/* Nav */}
         <nav className="flex-1 py-4 px-3 overflow-y-auto">
           <div className="space-y-0.5">
-            {NAV.map(({ href, label, icon: Icon }) => {
-              const active = pathname === href || pathname.startsWith(href + "/");
+            {NAV.map(({ href, label, icon: Icon, external }) => {
+              const active = !external && (pathname === href || pathname.startsWith(href + "/"));
+              if (external) {
+                return (
+                  <a
+                    key={href}
+                    href={href}
+                    className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-all duration-150"
+                  >
+                    <Icon className="w-4 h-4 shrink-0 text-gray-400" />
+                    {label}
+                  </a>
+                );
+              }
               return (
                 <Link
                   key={href}

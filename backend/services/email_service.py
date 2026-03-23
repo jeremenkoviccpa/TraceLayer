@@ -1058,3 +1058,46 @@ def send_auto_detection_digest(
       </p>
     """
     _send(to, subject, _layout(body))
+
+
+def send_audit_invitation_email(
+    to: str,
+    auditor_name: str,
+    customer_name: str,
+    framework: str,
+    obs_start,
+    obs_end,
+    access_link: str,
+) -> None:
+    framework_display = (
+        framework.upper()
+        .replace("SOC2", "SOC 2")
+        .replace("ISO27001", "ISO 27001")
+        .replace("_", " ")
+    )
+    obs_start_str = obs_start.strftime("%B %-d, %Y") if hasattr(obs_start, "strftime") else str(obs_start)
+    obs_end_str = obs_end.strftime("%B %-d, %Y") if hasattr(obs_end, "strftime") else str(obs_end)
+    subject = f"Audit access — {customer_name} ({framework_display})"
+    body = f"""
+      <h2 style="margin:0 0 10px;color:{_TEXT_HEAD};font-size:22px;">You've been granted audit access</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 20px;font-size:15px;line-height:1.6;">
+        Hi {auditor_name},<br><br>
+        <strong>{customer_name}</strong> has shared their {framework_display} compliance evidence
+        with you for the observation period <strong>{obs_start_str} – {obs_end_str}</strong>.
+      </p>
+      <div style="background:{_BRAND_LIGHT};border:1.5px solid {_BRAND_BORDER};border-radius:12px;padding:18px 22px;margin:0 0 28px;">
+        <p style="margin:0 0 10px;font-weight:700;color:{_BRAND};font-size:13px;text-transform:uppercase;letter-spacing:0.06em;">What you can access</p>
+        <table cellpadding="0" cellspacing="0" border="0" width="100%">
+          <tr><td style="padding:4px 0;font-size:14px;color:#065f46;">✓ &nbsp;Full control list with passing / failing status</td></tr>
+          <tr><td style="padding:4px 0;font-size:14px;color:#065f46;">✓ &nbsp;All evidence records with timestamps</td></tr>
+          <tr><td style="padding:4px 0;font-size:14px;color:#065f46;">✓ &nbsp;Manual control documentation status</td></tr>
+          <tr><td style="padding:4px 0;font-size:14px;color:#065f46;">✓ &nbsp;AI-generated audit package PDF</td></tr>
+        </table>
+      </div>
+      {_btn(access_link, "Open audit view &rarr;")}
+      <p style="color:{_TEXT_MUTED};font-size:12px;margin:24px 0 0;line-height:1.6;">
+        No account required — this link grants read-only access to {customer_name}'s compliance data.
+        Valid for 6 months. Questions? <a href="mailto:support@tracelayer.it.com" style="color:{_BRAND};">support@tracelayer.it.com</a>
+      </p>
+    """
+    _send(to, subject, _layout(body))

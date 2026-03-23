@@ -1,4 +1,4 @@
-import type { AccessReview, ApiKey, AppNotification, Asset, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingRecord, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
+import type { AccessReview, ApiKey, AppNotification, Asset, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PublicAuditView, PublicTrustPageView, QuestionnaireResult, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingRecord, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -69,6 +69,10 @@ class ApiClient {
     const json = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(json.detail ?? "Request failed");
     return json as T;
+  }
+
+  async requestPublic<T>(method: string, path: string, body?: unknown): Promise<T> {
+    return this.request<T>(method, path, body, false);
   }
 
   // ── Auth ────────────────────────────────────────────────────────────────
@@ -791,6 +795,14 @@ class ApiClient {
     return this.request<PartnerTrustCenterInfo>("GET", `/partner/clients/${clientCompanyId}/trust-center`);
   }
 
+  async getPartnerPayments(): Promise<Array<{
+    id: string; client_name: string; status: string;
+    amount_cents: number; created_at: string | null;
+    paid_at: string | null; client_company_id: string | null;
+  }>> {
+    return this.request("GET", "/partner/payments");
+  }
+
   /** Restore the partner's own token after exiting client context. */
   restorePartnerToken(): boolean {
     if (typeof window === "undefined") return false;
@@ -819,6 +831,37 @@ class ApiClient {
   getActiveClientName(): string | null {
     if (typeof window === "undefined") return null;
     return localStorage.getItem("active_client_name");
+  }
+
+  // ── Audit Engagements ──────────────────────────────────────────────────────
+  async getAuditEngagements(): Promise<AuditEngagement[]> {
+    return this.request<AuditEngagement[]>("GET", "/audit-engagements");
+  }
+
+  async createAuditEngagement(data: {
+    auditor_email: string;
+    auditor_name?: string;
+    auditor_firm?: string;
+    framework: string;
+    obs_start: string;
+    obs_end: string;
+    send_email?: boolean;
+  }): Promise<AuditEngagement> {
+    return this.request<AuditEngagement>("POST", "/audit-engagements", data);
+  }
+
+  async revokeAuditEngagement(id: string): Promise<void> {
+    return this.request("DELETE", `/audit-engagements/${id}`);
+  }
+
+  async getAuditEngagementView(token: string): Promise<AuditEngagementView> {
+    return this.requestPublic<AuditEngagementView>("GET", `/audit-engagements/view/${token}`);
+  }
+
+  // ── Partner Directory ──────────────────────────────────────────────────────
+  async getPartnerDirectory(partnerType?: "auditor" | "pen_test"): Promise<PartnerDirectoryEntry[]> {
+    const params = partnerType ? `?partner_type=${partnerType}` : "";
+    return this.requestPublic<PartnerDirectoryEntry[]>("GET", `/partner-directory${params}`);
   }
 
   // ── SoA ───────────────────────────────────────────────────────────────────

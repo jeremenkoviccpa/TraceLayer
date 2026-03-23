@@ -17,6 +17,8 @@ from models.framework_update_request import FrameworkUpdateRequest
 from models.control_mapping import ControlMapping
 from models.control_status_snapshot import ControlStatusSnapshot
 from models.control_drift_event import ControlDriftEvent
+from models.audit_engagement import AuditEngagement
+from models.partner_directory import PartnerDirectoryEntry
 
 __all__ = [
     "Base",
@@ -38,4 +40,6 @@ __all__ = [
     "ControlMapping",
     "ControlStatusSnapshot",
     "ControlDriftEvent",
+    "AuditEngagement",
+    "PartnerDirectoryEntry",
 ]

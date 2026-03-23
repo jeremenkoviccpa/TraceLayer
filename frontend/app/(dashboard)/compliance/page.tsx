@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import type { ComplianceScore, ControlScore, ManualControl, Member, Document } from "@/lib/types";
+import type { AuditEngagement, ComplianceScore, ControlScore, ManualControl, Member, Document } from "@/lib/types";
 import { PlanGate, useUpgrade } from "@/components/plan-gate";
 import { usePlan } from "@/hooks/usePlan";
 import { getRemediationForMissingType, getRemediationForCategory } from "@/lib/remediation";
@@ -26,6 +26,10 @@ import {
   Trash2,
   FileText,
   X,
+  FileSearch,
+  Send,
+  Link as LinkIcon,
+  Loader2,
 } from "lucide-react";
 
 const FRAMEWORKS = [
@@ -643,6 +647,123 @@ function AIAdvisor({
   );
 }
 
+// ── Invite Auditor Modal ──────────────────────────────────────────────────────
+function InviteAuditorModal({
+  framework,
+  onClose,
+  onCreated,
+}: {
+  framework: string;
+  onClose: () => void;
+  onCreated: (e: AuditEngagement) => void;
+}) {
+  const today = new Date().toISOString().slice(0, 10);
+  const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const [form, setForm] = useState({
+    auditor_email: "",
+    auditor_name: "",
+    auditor_firm: "",
+    obs_start: ninetyDaysAgo,
+    obs_end: today,
+    send_email: true,
+  });
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.auditor_email) return;
+    setSaving(true);
+    setErr("");
+    try {
+      const result = await api.createAuditEngagement({
+        auditor_email: form.auditor_email,
+        auditor_name: form.auditor_name || undefined,
+        auditor_firm: form.auditor_firm || undefined,
+        framework,
+        obs_start: form.obs_start,
+        obs_end: form.obs_end,
+        send_email: form.send_email,
+      });
+      onCreated(result);
+    } catch (ex: unknown) {
+      setErr(ex instanceof Error ? ex.message : "Failed to create audit link");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md animate-fade-in">
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900">Invite auditor</h2>
+            <p className="text-sm text-gray-400 mt-0.5">Generate a read-only compliance link for your auditor</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {err && (
+            <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              {err}
+            </div>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Auditor email <span className="text-red-400">*</span></label>
+            <input type="email" required value={form.auditor_email}
+              onChange={(e) => setForm((f) => ({ ...f, auditor_email: e.target.value }))}
+              className="input" placeholder="auditor@firm.com" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Auditor name</label>
+              <input type="text" value={form.auditor_name}
+                onChange={(e) => setForm((f) => ({ ...f, auditor_name: e.target.value }))}
+                className="input" placeholder="Jane Smith" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Firm</label>
+              <input type="text" value={form.auditor_firm}
+                onChange={(e) => setForm((f) => ({ ...f, auditor_firm: e.target.value }))}
+                className="input" placeholder="Prescient Assurance" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Obs. period start</label>
+              <input type="date" value={form.obs_start}
+                onChange={(e) => setForm((f) => ({ ...f, obs_start: e.target.value }))}
+                className="input" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Obs. period end</label>
+              <input type="date" value={form.obs_end}
+                onChange={(e) => setForm((f) => ({ ...f, obs_end: e.target.value }))}
+                className="input" />
+            </div>
+          </div>
+          <label className="flex items-center gap-2.5 cursor-pointer">
+            <input type="checkbox" checked={form.send_email}
+              onChange={(e) => setForm((f) => ({ ...f, send_email: e.target.checked }))}
+              className="rounded border-gray-300 text-brand-500 focus:ring-brand-500" />
+            <span className="text-sm text-gray-600">Send invitation email to auditor</span>
+          </label>
+          <div className="flex gap-3 pt-1">
+            <button type="button" onClick={onClose} className="flex-1 btn-secondary justify-center py-2.5">Cancel</button>
+            <button type="submit" disabled={saving || !form.auditor_email} className="flex-1 btn-primary justify-center py-2.5">
+              {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating…</> : <><Send className="w-4 h-4" /> Create link</>}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function CompliancePage() {
   const { isPro } = usePlan();
@@ -658,6 +779,10 @@ export default function CompliancePage() {
   const [aiError, setAiError]             = useState<string | null>(null);
   const [aiGeneratedAt, setAiGeneratedAt] = useState<string | null>(null);
 
+  const [engagements, setEngagements]     = useState<AuditEngagement[]>([]);
+  const [showInvite, setShowInvite]       = useState(false);
+  const [copiedId, setCopiedId]           = useState<string | null>(null);
+
   const load = async (fw: string) => {
     setLoading(true);
     setAiSummary(null);
@@ -672,6 +797,18 @@ export default function CompliancePage() {
 
   useEffect(() => { load(framework); }, [framework]); // eslint-disable-line
   useEffect(() => { api.getMembers().then(setMembers).catch(() => {}); }, []);
+  useEffect(() => { api.getAuditEngagements().then(setEngagements).catch(() => {}); }, []);
+
+  const handleCopyLink = async (link: string, id: string) => {
+    await navigator.clipboard.writeText(link);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleRevokeEngagement = async (id: string) => {
+    await api.revokeAuditEngagement(id);
+    setEngagements((prev) => prev.map((e) => e.id === id ? { ...e, status: "revoked" } : e));
+  };
 
   const generateSummary = async () => {
     setAiLoading(true);
@@ -814,6 +951,25 @@ export default function CompliancePage() {
             );
           })()}
 
+          {/* Audit-ready CTA — shown when score >= 75 */}
+          {score && score.overall_score >= 75 && (
+            <div className="flex items-center gap-4 bg-violet-50 border border-violet-200 rounded-2xl px-5 py-4">
+              <div className="w-9 h-9 bg-violet-100 rounded-xl flex items-center justify-center shrink-0">
+                <FileSearch className="w-4.5 h-4.5 text-violet-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900">You're audit-ready</p>
+                <p className="text-xs text-gray-500 mt-0.5">Your score is {score.overall_score}/100. Invite your auditor to access your evidence — no account needed on their end.</p>
+              </div>
+              <button
+                onClick={() => setShowInvite(true)}
+                className="shrink-0 btn-primary text-xs py-1.5 px-3"
+              >
+                Invite auditor
+              </button>
+            </div>
+          )}
+
           {/* AI Advisor */}
           <PlanGate feature="AI Compliance Advisor" mode="blur">
             <AIAdvisor
@@ -873,7 +1029,69 @@ export default function CompliancePage() {
             </div>
           </section>
 
+          {/* Audit access links */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <LinkIcon className="w-4 h-4 text-brand-500 shrink-0" />
+              <h2 className="font-semibold text-gray-800 text-sm">Audit access links</h2>
+              <button
+                onClick={() => setShowInvite(true)}
+                className="ml-auto btn-secondary text-xs py-1 px-3"
+              >
+                + Invite auditor
+              </button>
+            </div>
+            {engagements.filter((e) => e.status === "active").length === 0 ? (
+              <div className="bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 flex items-center gap-3">
+                <FileSearch className="w-4 h-4 text-gray-300 shrink-0" />
+                <p className="text-sm text-gray-400">No active audit access links. Invite an auditor to give them a read-only view of your compliance evidence.</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {engagements.filter((e) => e.status === "active").map((e) => (
+                  <div key={e.id} className="bg-white border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {e.auditor_firm ? `${e.auditor_firm} — ` : ""}{e.auditor_email}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {e.obs_start} → {e.obs_end} · {e.framework.toUpperCase().replace("SOC2","SOC 2")}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => handleCopyLink(e.access_link, e.id)}
+                        className="btn-secondary text-xs py-1 px-2.5"
+                        title="Copy link"
+                      >
+                        {copiedId === e.id ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                      <button
+                        onClick={() => handleRevokeEngagement(e.id)}
+                        className="text-gray-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                        title="Revoke access"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
         </div>
+      )}
+
+      {showInvite && (
+        <InviteAuditorModal
+          framework={framework}
+          onClose={() => setShowInvite(false)}
+          onCreated={(e) => {
+            setEngagements((prev) => [e, ...prev]);
+            setShowInvite(false);
+          }}
+        />
       )}
     </div>
   );
