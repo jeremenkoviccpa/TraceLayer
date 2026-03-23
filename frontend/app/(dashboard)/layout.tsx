@@ -64,7 +64,7 @@ const NAV_GROUPS: NavGroup[] = [
     // Home — always visible, no section label
     items: [
       { href: "/dashboard", label: "Dashboard",  icon: LayoutDashboard },
-      { href: "/portal",    label: "My Portal",  icon: UserCheck       },
+      { href: "/guide",     label: "Guide",       icon: Compass         },
     ],
   },
   {
@@ -141,7 +141,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/team",      label: "Team",      icon: Users     },
       { href: "/audit-log", label: "Audit Log", icon: ScrollText },
-      { href: "/guide",     label: "Guide",     icon: Compass   },
+      { href: "/portal",    label: "My Portal", icon: UserCheck  },
       { href: "/settings",  label: "Settings",  icon: Settings  },
     ],
   },
