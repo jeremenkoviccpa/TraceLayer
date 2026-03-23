@@ -893,9 +893,9 @@ export default function LandingPage() {
       style={THEME}
     >
       {/* Founding member announcement bar */}
-      <div className="fixed top-0 left-0 right-0 w-full bg-[var(--accent)] text-white text-xs font-medium text-center py-2 px-4 z-[55]">
-        Founding member offer: $99/mo locked permanently (normally $149) — first 100 customers only.{" "}
-        <Link href="/register" className="underline font-semibold hover:opacity-80">Claim your spot →</Link>
+      <div className="fixed top-0 left-0 right-0 w-full bg-[var(--accent)] text-white text-xs font-medium text-center py-1.5 px-4 z-[55] leading-snug">
+        <span className="sm:hidden">$99/mo locked permanently — 100 spots.{" "}<Link href="/register" className="underline font-semibold">Claim →</Link></span>
+        <span className="hidden sm:inline">Founding member offer: $99/mo locked permanently (normally $149) — first 100 customers only.{" "}<Link href="/register" className="underline font-semibold hover:opacity-80">Claim your spot →</Link></span>
       </div>
 
       {/* Scroll progress bar */}
@@ -905,7 +905,7 @@ export default function LandingPage() {
 
       {/* Nav */}
       <header
-        className={`fixed top-[32px] left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-[28px] left-0 right-0 z-50 transition-all duration-300 ${
           hidden ? "-translate-y-full" : "translate-y-0"
         } ${
           scrolled
@@ -995,7 +995,7 @@ export default function LandingPage() {
         )}
       </header>
 
-      <div className="h-[88px]" />
+      <div className="h-[80px] sm:h-[88px]" />
 
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
