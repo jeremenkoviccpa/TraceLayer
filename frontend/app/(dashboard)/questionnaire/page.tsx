@@ -631,20 +631,34 @@ function CommentsPanel({ sessionId, questionIndex, onClose }: {
   const [comments, setComments] = useState<QuestionnaireComment[]>([]);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const fetchComments = async () => {
+    try {
+      const all = await api.getSessionComments(sessionId);
+      setComments(all.filter(c => c.question_index === questionIndex));
+    } catch {
+      // silent
+    }
+  };
 
   useEffect(() => {
-    api.getSessionComments(sessionId)
-      .then(all => setComments(all.filter(c => c.question_index === questionIndex)))
-      .catch(() => {});
+    fetchComments();
   }, [sessionId, questionIndex]);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [comments]);
 
   const send = async () => {
     if (!text.trim()) return;
     setSending(true);
     try {
-      const c = await api.addSessionComment(sessionId, questionIndex, text);
-      setComments(prev => [...prev, c]);
+      await api.addSessionComment(sessionId, questionIndex, text);
       setText("");
+      await fetchComments();
     } catch (e: unknown) {
       showToast(e instanceof Error ? e.message : "Failed to add comment", "error");
     } finally {
@@ -660,7 +674,7 @@ function CommentsPanel({ sessionId, questionIndex, onClose }: {
           <X className="w-3.5 h-3.5" />
         </button>
       </div>
-      <div className="space-y-2 max-h-40 overflow-y-auto">
+      <div ref={scrollRef} className="space-y-2 max-h-40 overflow-y-auto">
         {comments.length === 0 ? (
           <p className="text-xs text-slate-500 text-center py-3">No comments yet</p>
         ) : comments.map(c => (
