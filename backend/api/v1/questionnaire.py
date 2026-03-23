@@ -724,7 +724,6 @@ async def upload_questionnaire(
 ):
     """Upload a CSV or Excel questionnaire file → AI answers → download answered CSV."""
     from models.company import Company
-    from datetime import datetime, timezone
 
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")

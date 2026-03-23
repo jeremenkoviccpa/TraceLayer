@@ -1,6 +1,6 @@
 import secrets
 import uuid
-from datetime import datetime, date, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
