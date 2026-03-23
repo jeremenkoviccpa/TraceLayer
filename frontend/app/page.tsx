@@ -668,25 +668,7 @@ const HOW_IT_WORKS = [
   },
 ];
 
-const TESTIMONIALS = [
-  {
-    quote: "SOC 2 prep went from 3 months to 2 weeks. I thought we'd need a whole compliance consultant. Turns out we just needed TraceLayer and an afternoon.",
-    author: "Sarah Chen",
-    role: "Head of Security, Series B SaaS",
-    stars: 5,
-  },
-  {
-    quote: "Our auditor was genuinely impressed. Everything was organized, timestamped, and mapped to controls. We looked like we had a 10-person compliance team — it's just us.",
-    author: "Marcus Webb",
-    role: "CTO, Fintech Startup",
-    stars: 5,
-  },
-  {
-    quote: "We needed SOC 2 and GDPR at the same time. TraceLayer mapped all our evidence to both without us doing anything extra. That alone saved weeks of painful manual work.",
-    author: "Priya Nair",
-    role: "VP Engineering, Healthcare Platform",
-    stars: 5,
-  },
+const TESTIMONIALS: { quote: string; author: string; role: string; stars: number }[] = [
 ];
 
 const PAIN_POINTS = [
@@ -1064,19 +1046,6 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          {/* Social proof + price anchor */}
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <div className="flex -space-x-2">
-              {["bg-teal-500","bg-emerald-500","bg-cyan-500","bg-teal-600","bg-emerald-600"].map((c,i) => (
-                <div key={i} className={`w-7 h-7 rounded-full border-2 border-white ${c} flex items-center justify-center text-white text-[9px] font-bold`}>
-                  {["A","M","J","R","S"][i]}
-                </div>
-              ))}
-            </div>
-            <p className="text-sm text-[var(--muted)]">
-              <span className="font-semibold text-[var(--ink)]">50+ startups</span> already collecting evidence
-            </p>
-          </div>
           <p className="text-xs text-[var(--muted)] mb-5">Free to start · Growth plan from <span className="font-semibold text-[var(--ink)]">$149/mo</span> · Not $20,000/year like Vanta</p>
 
           {/* Trust strip */}
@@ -1841,60 +1810,52 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Testimonials ──────────────────────────────────────────────────────── */}
-      <section className="bg-white/60 py-14 md:py-22 border-y border-black/5">
-        <div className="max-w-6xl mx-auto px-6">
-          <div data-animate className="text-center mb-10 md:mb-14">
-            <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">What teams say</p>
-            <h2 className="text-2xl md:text-4xl font-extrabold">Real teams, real results</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {TESTIMONIALS.map((t, i) => (
-              <div key={t.author} data-animate data-delay={String(i * 100 + 100)} className="bg-[var(--card)] rounded-2xl border border-black/5 p-6 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
-                <div className="flex gap-0.5 mb-4">
-                  {Array.from({ length: t.stars }).map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-[var(--accent-warm)] text-[var(--accent-warm)]" />
-                  ))}
-                </div>
-                <p className="text-sm text-[var(--ink)] leading-relaxed mb-5">&ldquo;{t.quote}&rdquo;</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[color:var(--accent)]/12 flex items-center justify-center text-xs font-bold text-[var(--accent)] shrink-0">
-                    {t.author[0]}
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-[var(--ink)]">{t.author}</p>
-                    <p className="text-xs text-[var(--muted)]">{t.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+      {/* ── Founder story ─────────────────────────────────────────────────────── */}
+      <section className="bg-white/60 py-14 md:py-20 border-y border-black/5">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-4">Why we built this</p>
+          <h2 className="text-2xl md:text-3xl font-extrabold mb-6 leading-tight">
+            We spent 3 months on a manual SOC 2 audit.<br className="hidden md:block" /> Then built the tool we wished existed.
+          </h2>
+          <p className="text-[var(--muted)] text-base leading-relaxed mb-6 max-w-2xl mx-auto">
+            Pulling screenshots from AWS at midnight. Chasing engineers for access logs. Rebuilding the same spreadsheet every quarter. Then handing an auditor a ZIP file of 400 screenshots and hoping for the best.
+          </p>
+          <p className="text-[var(--muted)] text-base leading-relaxed mb-8 max-w-2xl mx-auto">
+            TraceLayer connects to your tools and collects that evidence automatically — every 24 hours, mapped to the right controls, ready to hand to an auditor in one click.
+          </p>
+          <div className="inline-flex items-center gap-3 bg-[var(--card)] border border-black/8 rounded-2xl px-5 py-3 shadow-sm">
+            <div className="w-9 h-9 rounded-xl bg-[var(--accent)]/12 flex items-center justify-center text-sm font-bold text-[var(--accent)] shrink-0">N</div>
+            <div className="text-left">
+              <p className="text-xs font-bold text-[var(--ink)]">Nemanja Jeremenkovic</p>
+              <p className="text-xs text-[var(--muted)]">Founder, TraceLayer</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── Metrics strip ─────────────────────────────────────────────────────── */}
+      {/* ── Product stats strip ───────────────────────────────────────────────── */}
       <section className="border-b border-black/5 bg-[var(--bg)] py-12">
         <div className="max-w-4xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-3 gap-10 text-center">
           <div>
             <div className="flex items-center justify-center gap-2 mb-1.5">
-              <Clock className="w-4 h-4 text-[var(--accent)]" />
-              <span className="text-2xl font-extrabold text-[var(--ink)]">2 weeks</span>
+              <Plug className="w-4 h-4 text-[var(--accent)]" />
+              <span className="text-2xl font-extrabold text-[var(--ink)]">120+</span>
             </div>
-            <p className="text-xs text-[var(--muted)]">Average time from signup to first audit-ready report</p>
+            <p className="text-xs text-[var(--muted)]">Integrations ready to connect on day one</p>
           </div>
           <div>
             <div className="flex items-center justify-center gap-2 mb-1.5">
-              <TrendingUp className="w-4 h-4 text-[var(--accent)]" />
-              <span className="text-2xl font-extrabold text-[var(--ink)]">90%</span>
+              <RefreshCw className="w-4 h-4 text-[var(--accent)]" />
+              <span className="text-2xl font-extrabold text-[var(--ink)]">24h</span>
             </div>
-            <p className="text-xs text-[var(--muted)]">Less time spent on manual evidence prep</p>
+            <p className="text-xs text-[var(--muted)]">Automated evidence collection cycle — no manual work</p>
           </div>
           <div>
             <div className="flex items-center justify-center gap-2 mb-1.5">
-              <Users className="w-4 h-4 text-[var(--accent)]" />
-              <span className="text-2xl font-extrabold text-[var(--ink)]">1 person</span>
+              <ShieldCheck className="w-4 h-4 text-[var(--accent)]" />
+              <span className="text-2xl font-extrabold text-[var(--ink)]">7</span>
             </div>
-            <p className="text-xs text-[var(--muted)]">Is all you need to run a complete compliance program</p>
+            <p className="text-xs text-[var(--muted)]">Frameworks mapped simultaneously from one integration set</p>
           </div>
         </div>
       </section>
