@@ -507,6 +507,11 @@ class ApiClient {
     return this.requestPublic<TrainingCertificate>("GET", `/training/certificate/${token}`);
   }
 
+  // ── Integration OAuth ──────────────────────────────────────────────────────
+  async getIntegrationOAuthUrl(provider: string): Promise<{ url: string }> {
+    return this.request<{ url: string }>("GET", `/integrations/oauth/${provider}/authorize`);
+  }
+
   // ── Pen Tests ─────────────────────────────────────────────────────────────
 
   async getPenTests(): Promise<PenTest[]> {

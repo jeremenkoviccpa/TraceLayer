@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { openPaddleCheckout } from "@/lib/paddle";
 import type { BillingInfo, Integration, SimulationResult } from "@/lib/types";
-import { CheckCircle2, AlertCircle, Clock, RefreshCw, Trash2, Plus, X, Zap, Lock, Search, BookOpen, ExternalLink, ChevronDown, ChevronUp, Shield, Eye, TrendingUp, Database } from "lucide-react";
+import { CheckCircle2, AlertCircle, Clock, RefreshCw, Trash2, Plus, X, Zap, Lock, Search, BookOpen, ExternalLink, ChevronDown, ChevronUp, Shield, Eye, TrendingUp, Database, Loader2 } from "lucide-react";
 
 const FREE_LIMIT = 3;
 
@@ -670,6 +670,7 @@ type IntegrationDef = {
   description: string;
   comingSoon?: boolean;
   core?: boolean;
+  oauth?: boolean;  // supports one-click OAuth authorization
   fields?: { key: string; label: string; placeholder: string; type?: string; hint?: string }[];
 };
 
@@ -902,7 +903,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
     title: "Source Control",
     integrations: [
       {
-        type: "github", label: "GitHub", core: true,
+        type: "github", label: "GitHub", core: true, oauth: true,
         description: "Collect repositories, members, admin users, and branch protection rules",
         fields: [
           { key: "token", label: "Personal Access Token", placeholder: "ghp_••••••••", type: "password", hint: "Starts with ghp_ or github_pat_" },
@@ -941,14 +942,14 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "linear", label: "Linear",
+        type: "linear", label: "Linear", oauth: true,
         description: "Collect issues, cycles, and team members for change tracking evidence",
         fields: [
           { key: "api_key", label: "API Key", placeholder: "lin_api_••••••••", type: "password", hint: "Starts with lin_api_" },
         ],
       },
       {
-        type: "notion", label: "Notion",
+        type: "notion", label: "Notion", oauth: true,
         description: "Sync policy documents and runbooks as compliance evidence",
         fields: [
           { key: "api_key", label: "Integration Token", placeholder: "secret_••••••••", type: "password", hint: "Starts with secret_" },
@@ -1015,7 +1016,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
     title: "Communication",
     integrations: [
       {
-        type: "slack", label: "Slack", core: true,
+        type: "slack", label: "Slack", core: true, oauth: true,
         description: "Collect workspace users, admin users, and channel retention policies",
         fields: [
           { key: "bot_token", label: "Bot Token", placeholder: "xoxb-••••••••", type: "password", hint: "Starts with xoxb-" },
@@ -2442,10 +2443,26 @@ function ConnectModal({ def, onClose, onConnected, onUpgradeNeeded }: {
 }) {
   const [fields, setFields] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState(false);
   const [error, setError] = useState("");
   const [guideOpen, setGuideOpen] = useState(true);
+  const [showManual, setShowManual] = useState(!def.oauth);
 
   const guide = SETUP_GUIDES[def.type];
+
+  const handleOAuth = async () => {
+    setOauthLoading(true);
+    setError("");
+    try {
+      const { url } = await api.getIntegrationOAuthUrl(def.type);
+      window.location.href = url;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Authorization failed";
+      if (msg.toLowerCase().includes("free plan") || msg.toLowerCase().includes("upgrade")) { onClose(); onUpgradeNeeded(); }
+      else setError(msg);
+      setOauthLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setError(""); setLoading(true);
@@ -2457,6 +2474,13 @@ function ConnectModal({ def, onClose, onConnected, onUpgradeNeeded }: {
       if (msg.toLowerCase().includes("free plan") || msg.toLowerCase().includes("upgrade")) { onClose(); onUpgradeNeeded(); }
       else setError(msg);
     } finally { setLoading(false); }
+  };
+
+  const OAUTH_LABELS: Record<string, string> = {
+    github: "Authorize with GitHub",
+    slack: "Authorize with Slack",
+    linear: "Authorize with Linear",
+    notion: "Authorize with Notion",
   };
 
   return (
@@ -2471,8 +2495,44 @@ function ConnectModal({ def, onClose, onConnected, onUpgradeNeeded }: {
           </div>
         </div>
 
-        {/* Setup guide */}
-        {guide && (
+        {error && <div className="mb-4 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{error}</div>}
+
+        {/* OAuth one-click button */}
+        {def.oauth && (
+          <div className="mb-4">
+            <button
+              type="button"
+              onClick={handleOAuth}
+              disabled={oauthLoading}
+              className="w-full flex items-center justify-center gap-2.5 bg-gray-900 hover:bg-gray-800 disabled:opacity-60 text-white font-semibold rounded-xl px-4 py-3 text-sm transition-colors"
+            >
+              {oauthLoading ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting…</>
+              ) : (
+                <>{OAUTH_LABELS[def.type] ?? `Authorize with ${def.label}`}</>
+              )}
+            </button>
+            <p className="mt-2 text-center text-xs text-gray-400">
+              You&apos;ll be redirected to {def.label} to authorize access. No credentials to copy.
+            </p>
+
+            {/* Divider */}
+            <div className="flex items-center gap-2 my-4">
+              <div className="flex-1 h-px bg-gray-200" />
+              <button
+                type="button"
+                onClick={() => setShowManual((v) => !v)}
+                className="text-xs text-gray-400 hover:text-gray-600 whitespace-nowrap"
+              >
+                {showManual ? "Hide manual setup ▲" : "Or enter credentials manually ▼"}
+              </button>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+          </div>
+        )}
+
+        {/* Setup guide (shown when manual is visible) */}
+        {showManual && guide && (
           <div className="mb-4 border border-blue-100 rounded-xl overflow-hidden">
             <button
               type="button"
@@ -2513,30 +2573,39 @@ function ConnectModal({ def, onClose, onConnected, onUpgradeNeeded }: {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{error}</div>}
-          {(def.fields ?? []).map((f) => (
-            <div key={f.key}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{f.label}</label>
-              {f.type === "textarea" ? (
-                <textarea placeholder={f.placeholder} required rows={5} value={fields[f.key] ?? ""}
-                  onChange={(e) => setFields((p) => ({ ...p, [f.key]: e.target.value }))}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand-500/30 resize-none"/>
-              ) : (
-                <input type={f.type ?? "text"} placeholder={f.placeholder} required value={fields[f.key] ?? ""}
-                  onChange={(e) => setFields((p) => ({ ...p, [f.key]: e.target.value }))}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30"/>
-              )}
-              {f.hint && <p className="mt-1 text-[11px] text-gray-400">{f.hint}</p>}
+        {/* Manual form */}
+        {showManual && (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {(def.fields ?? []).map((f) => (
+              <div key={f.key}>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{f.label}</label>
+                {f.type === "textarea" ? (
+                  <textarea placeholder={f.placeholder} required rows={5} value={fields[f.key] ?? ""}
+                    onChange={(e) => setFields((p) => ({ ...p, [f.key]: e.target.value }))}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand-500/30 resize-none"/>
+                ) : (
+                  <input type={f.type ?? "text"} placeholder={f.placeholder} required value={fields[f.key] ?? ""}
+                    onChange={(e) => setFields((p) => ({ ...p, [f.key]: e.target.value }))}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30"/>
+                )}
+                {f.hint && <p className="mt-1 text-[11px] text-gray-400">{f.hint}</p>}
+              </div>
+            ))}
+            <div className="flex gap-3 pt-1">
+              <button type="button" onClick={onClose} className="flex-1 border border-gray-200 text-gray-700 rounded-xl px-4 py-2 text-sm hover:bg-gray-50">Cancel</button>
+              <button type="submit" disabled={loading} className="flex-1 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white font-medium rounded-xl px-4 py-2 text-sm">
+                {loading ? "Connecting…" : "Connect"}
+              </button>
             </div>
-          ))}
-          <div className="flex gap-3 pt-1">
-            <button type="button" onClick={onClose} className="flex-1 border border-gray-200 text-gray-700 rounded-xl px-4 py-2 text-sm hover:bg-gray-50">Cancel</button>
-            <button type="submit" disabled={loading} className="flex-1 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white font-medium rounded-xl px-4 py-2 text-sm">
-              {loading ? "Connecting…" : "Connect"}
-            </button>
-          </div>
-        </form>
+          </form>
+        )}
+
+        {/* Cancel when only OAuth shown */}
+        {!showManual && def.oauth && (
+          <button type="button" onClick={onClose} className="w-full border border-gray-200 text-gray-700 rounded-xl px-4 py-2 text-sm hover:bg-gray-50">
+            Cancel
+          </button>
+        )}
       </div>
     </div>
   );
@@ -2640,6 +2709,8 @@ export default function IntegrationsPage() {
   const [toast, setToast] = useState("");
   const [search, setSearch] = useState("");
   const [simulating, setSimulating] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   const load = () =>
     Promise.all([api.getIntegrations(), api.getSubscription()])
@@ -2649,7 +2720,24 @@ export default function IntegrationsPage() {
 
   useEffect(() => { load(); }, []);
 
-  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
+  // Handle OAuth callback redirects
+  useEffect(() => {
+    const success = searchParams.get("oauth_success");
+    const errorParam = searchParams.get("oauth_error");
+    const reason = searchParams.get("reason");
+    if (success) {
+      const label = success.charAt(0).toUpperCase() + success.slice(1);
+      showToast(`${label} connected successfully via OAuth!`);
+      load();
+      router.replace("/integrations");
+    } else if (errorParam) {
+      const msg = reason ? `OAuth failed: ${reason.replace(/_/g, " ")}` : "OAuth authorization failed";
+      showToast(msg);
+      router.replace("/integrations");
+    }
+  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 4000); };
 
   const handleCollect = async (type: string) => {
     setCollecting(type);

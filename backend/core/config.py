@@ -26,10 +26,19 @@ class Settings(BaseSettings):
     paddle_webhook_secret: str = ""         # pdl_ntfset_xxxx
     paddle_partner_client_price_id: str = ""  # pri_xxxx  ($99 one-time partner client slot)
     paddle_sandbox: bool = False            # set True during testing
-    # Google OAuth
+    # Google OAuth (for login)
     google_client_id: str = ""
     google_client_secret: str = ""
     backend_url: str = "http://localhost:8000"
+    # Integration OAuth
+    github_oauth_client_id: str = ""
+    github_oauth_client_secret: str = ""
+    slack_oauth_client_id: str = ""
+    slack_oauth_client_secret: str = ""
+    linear_oauth_client_id: str = ""
+    linear_oauth_client_secret: str = ""
+    notion_oauth_client_id: str = ""
+    notion_oauth_client_secret: str = ""
     # Observability
     sentry_dsn: str = ""
     # Internal accounts that bypass billing checks (comma-separated emails in env)
