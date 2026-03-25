@@ -335,6 +335,8 @@ export default function SuperAdminPage() {
               <th className="text-left px-4 py-3 text-slate-500 font-medium">Company</th>
               <th className="text-left px-4 py-3 text-slate-500 font-medium hidden md:table-cell">Admins</th>
               <th className="text-left px-4 py-3 text-slate-500 font-medium hidden sm:table-cell">Users</th>
+              <th className="text-left px-4 py-3 text-slate-500 font-medium hidden md:table-cell">Integrations</th>
+              <th className="text-left px-4 py-3 text-slate-500 font-medium hidden lg:table-cell">Evidence</th>
               <th className="text-left px-4 py-3 text-slate-500 font-medium">Plan</th>
               <th className="text-left px-4 py-3 text-slate-500 font-medium hidden lg:table-cell">Partner</th>
               <th className="text-left px-4 py-3 text-slate-500 font-medium hidden lg:table-cell">Created</th>
@@ -359,6 +361,22 @@ export default function SuperAdminPage() {
                     {company.admin_emails.join(", ") || "—"}
                   </td>
                   <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{company.user_count}</td>
+                  <td className="px-4 py-3 hidden md:table-cell">
+                    {company.integration_count > 0 ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
+                        {company.integration_count} connected
+                      </span>
+                    ) : (
+                      <span className="text-xs text-slate-400">None</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-slate-600 text-xs hidden lg:table-cell">
+                    {company.evidence_count > 0 ? (
+                      <span className="font-medium text-slate-700">{company.evidence_count}</span>
+                    ) : (
+                      <span className="text-slate-400">0</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <select
                       value={company.plan}

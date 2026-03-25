@@ -11,7 +11,7 @@ from typing import Optional
 from cryptography.fernet import Fernet
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel
-from sqlalchemy import select, text
+from sqlalchemy import func, select, text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -51,6 +51,8 @@ class CompanyRow(BaseModel):
     created_at: datetime
     user_count: int
     admin_emails: list[str]
+    integration_count: int = 0
+    evidence_count: int = 0
 
     class Config:
         from_attributes = True
@@ -90,6 +92,19 @@ async def list_companies(
     result = await db.execute(select(Company).order_by(Company.created_at.desc()))
     companies = result.scalars().all()
 
+    # Batch-load integration and evidence counts
+    int_counts_result = await db.execute(
+        select(Integration.company_id, func.count(Integration.id).label("cnt"))
+        .group_by(Integration.company_id)
+    )
+    int_counts = {str(row.company_id): row.cnt for row in int_counts_result}
+
+    ev_counts_result = await db.execute(
+        select(Evidence.company_id, func.count(Evidence.id).label("cnt"))
+        .group_by(Evidence.company_id)
+    )
+    ev_counts = {str(row.company_id): row.cnt for row in ev_counts_result}
+
     rows = []
     for c in companies:
         users_result = await db.execute(
@@ -97,8 +112,9 @@ async def list_companies(
         )
         users = users_result.scalars().all()
         admin_emails = [u.email for u in users if u.role == "admin"]
+        cid = str(c.id)
         rows.append(CompanyRow(
-            id=str(c.id),
+            id=cid,
             name=c.name,
             plan=c.plan,
             subscription_status=c.subscription_status,
@@ -106,6 +122,8 @@ async def list_companies(
             created_at=c.created_at,
             user_count=len(users),
             admin_emails=admin_emails,
+            integration_count=int_counts.get(cid, 0),
+            evidence_count=ev_counts.get(cid, 0),
         ))
     return rows
 
@@ -150,6 +168,12 @@ async def patch_company(
 
     users_result = await db.execute(select(User).where(User.company_id == company.id))
     users = users_result.scalars().all()
+    ic_result = await db.execute(
+        select(func.count(Integration.id)).where(Integration.company_id == company.id)
+    )
+    ec_result = await db.execute(
+        select(func.count(Evidence.id)).where(Evidence.company_id == company.id)
+    )
     return CompanyRow(
         id=str(company.id),
         name=company.name,
@@ -159,6 +183,8 @@ async def patch_company(
         created_at=company.created_at,
         user_count=len(users),
         admin_emails=[u.email for u in users if u.role == "admin"],
+        integration_count=ic_result.scalar_one() or 0,
+        evidence_count=ec_result.scalar_one() or 0,
     )
 
 

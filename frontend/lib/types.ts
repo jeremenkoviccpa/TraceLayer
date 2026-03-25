@@ -842,6 +842,8 @@ export interface SuperAdminCompany {
   created_at: string;
   user_count: number;
   admin_emails: string[];
+  integration_count: number;
+  evidence_count: number;
 }
 
 export interface SuperAdminUser {
