@@ -1064,7 +1064,7 @@ export default function LandingPage() {
               <ArrowRight className="w-4 h-4" />
             </Link>
             <a
-              href="https://tracelayer.zohobookings.eu/#/255190000000052054"
+              href="https://calendly.com/nemanja-tracelayer/tracelayer-demo"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 border border-black/12 hover:border-[var(--accent)]/40 bg-white/60 hover:bg-white/90 text-[var(--ink)] font-semibold px-7 py-3.5 rounded-xl transition-all text-sm"
