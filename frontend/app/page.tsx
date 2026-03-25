@@ -816,6 +816,46 @@ function FaqAccordion({ items }: { items: typeof FAQ }) {
   );
 }
 
+// ── Animated stat counter ─────────────────────────────────────────────────────
+function StatNumber({ value }: { value: string }) {
+  const ref = useRef<HTMLParagraphElement>(null);
+  const [displayed, setDisplayed] = useState("0");
+  const [started, setStarted] = useState(false);
+
+  // Parse "120+" → { num: 120, suffix: "+" }, "24h" → { num: 24, suffix: "h" }
+  const match = value.match(/^(\d+)(.*)$/);
+  const target = match ? parseInt(match[1]) : 0;
+  const suffix = match ? match[2] : value;
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting && !started) setStarted(true); },
+      { threshold: 0.5 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [started]);
+
+  useEffect(() => {
+    if (!started) return;
+    const duration = 1400;
+    const startTime = Date.now();
+    const timer = setInterval(() => {
+      const progress = Math.min((Date.now() - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplayed(String(Math.round(target * eased)) + suffix);
+      if (progress >= 1) clearInterval(timer);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [started, target, suffix]);
+
+  return (
+    <p ref={ref} className={`text-4xl md:text-5xl font-extrabold text-[var(--accent)] mb-1.5 leading-none ${started ? "stat-pop" : "opacity-0"}`}>
+      {displayed}
+    </p>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
@@ -894,7 +934,7 @@ export default function LandingPage() {
       },
       { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
     );
-    document.querySelectorAll("[data-animate]").forEach((el) => observer.observe(el));
+    document.querySelectorAll("[data-animate], [data-stagger]").forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, []);
 
@@ -1023,15 +1063,20 @@ export default function LandingPage() {
       <section className="relative overflow-hidden">
         {/* Subtle grid pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(#0f766e14_1px,transparent_1px)] [background-size:28px_28px]" />
-        {/* Glow orbs — static */}
-        <div className="absolute -top-40 right-0 h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,_rgba(15,118,110,0.2),_transparent_65%)] pointer-events-none" />
-        <div className="absolute -bottom-40 -left-20 h-[400px] w-[400px] rounded-full bg-[radial-gradient(circle,_rgba(249,115,22,0.12),_transparent_65%)] pointer-events-none" />
+        {/* Glow orbs */}
+        <div className="absolute -top-40 right-0 h-[600px] w-[600px] rounded-full bg-[radial-gradient(circle,_rgba(15,118,110,0.22),_transparent_65%)] pointer-events-none animate-float-slow" />
+        <div className="absolute -bottom-40 -left-20 h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,_rgba(249,115,22,0.13),_transparent_65%)] pointer-events-none animate-float-delay" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[700px] w-[700px] rounded-full bg-[radial-gradient(circle,_rgba(15,118,110,0.05),_transparent_60%)] pointer-events-none" />
         {/* Floating decorative orbs */}
-        <div className="absolute top-20 left-[8%] w-16 h-16 rounded-full bg-teal-400/20 blur-xl pointer-events-none animate-float" />
-        <div className="absolute top-40 right-[12%] w-10 h-10 rounded-full bg-emerald-400/25 blur-lg pointer-events-none animate-float-delay" />
-        <div className="absolute bottom-32 left-[20%] w-12 h-12 rounded-full bg-teal-300/20 blur-xl pointer-events-none animate-float-slow" />
-        <div className="absolute top-60 right-[5%] w-8 h-8 rounded-full bg-orange-300/20 blur-lg pointer-events-none animate-float-delay" />
-        <div className="absolute bottom-20 right-[22%] w-14 h-14 rounded-full bg-brand-400/15 blur-xl pointer-events-none animate-float" />
+        <div className="absolute top-20 left-[8%] w-20 h-20 rounded-full bg-teal-400/20 blur-2xl pointer-events-none animate-float" />
+        <div className="absolute top-40 right-[12%] w-14 h-14 rounded-full bg-emerald-400/25 blur-xl pointer-events-none animate-float-delay" />
+        <div className="absolute bottom-32 left-[20%] w-16 h-16 rounded-full bg-teal-300/20 blur-2xl pointer-events-none animate-float-slow" />
+        <div className="absolute top-60 right-[5%] w-10 h-10 rounded-full bg-orange-300/20 blur-xl pointer-events-none animate-float-delay" />
+        <div className="absolute bottom-20 right-[22%] w-18 h-18 rounded-full bg-brand-400/15 blur-2xl pointer-events-none animate-float" />
+        {/* Sweeping light beam */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 bottom-0 w-32 bg-gradient-to-r from-transparent via-white/[0.07] to-transparent animate-beam-sweep" />
+        </div>
 
         <div className="max-w-6xl mx-auto px-6 pt-12 pb-8 text-center relative">
           {/* Announcement badge */}
@@ -1045,7 +1090,7 @@ export default function LandingPage() {
 
           <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[56px] font-extrabold leading-[1.1] mb-4 tracking-tight">
             Stop chasing compliance.<br />
-            <span className="bg-gradient-to-r from-[var(--accent)] via-emerald-500 to-teal-400 bg-clip-text text-transparent">
+            <span className="gradient-flow">
               Let it run itself.
             </span>
           </h1>
@@ -1357,10 +1402,8 @@ export default function LandingPage() {
       <section className="bg-white/60 py-12 border-b border-black/5">
         <div className="max-w-4xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {STATS.map((s) => (
-            <div key={s.label} className="group">
-              <p className="text-4xl md:text-5xl font-extrabold text-[var(--accent)] mb-1.5 group-hover:scale-105 transition-transform duration-200 leading-none">
-                {s.value}
-              </p>
+            <div key={s.label} className="group cursor-default">
+              <StatNumber value={s.value} />
               <p className="text-xs text-[var(--muted)] font-semibold">{s.label}</p>
             </div>
           ))}
@@ -1416,11 +1459,17 @@ export default function LandingPage() {
                 desc: "AI monitors official sources for SOC 2, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, and NIST CSF every week. When a framework updates, AI extracts the changed controls, summarizes what changed, and queues a review — so you're always on the latest version.",
                 bullets: ["Monitors 7 regulatory sources", "AI-extracts control changes", "Human review before applying"],
               },
-            ].map((engine) => (
+            ].map((engine, i) => (
               <div
                 key={engine.number}
                 data-animate
-                className={`rounded-2xl border p-6 ${engine.bg} flex flex-col gap-4`}
+                data-delay={String(i * 150)}
+                className={`spotlight rounded-2xl border p-6 ${engine.bg} flex flex-col gap-4 hover:-translate-y-1 transition-transform duration-300`}
+                onMouseMove={(e) => {
+                  const r = e.currentTarget.getBoundingClientRect();
+                  e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
+                  e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
+                }}
               >
                 <div className="flex items-start justify-between">
                   <div className={`text-3xl font-black bg-gradient-to-r ${engine.color} bg-clip-text text-transparent leading-none`}>
@@ -1508,9 +1557,19 @@ export default function LandingPage() {
               { icon: Users,         label: "Team RBAC",            desc: "Admin & member"          },
               { icon: Network,       label: "CI/CD Ingest",         desc: "Push from pipelines"     },
               { icon: Plug,          label: "120+ Integrations",    desc: "Salesforce, AWS, Okta…"  },
-            ].map(({ icon: Icon, label, desc }) => (
-              <div key={label} className="bg-[var(--card)] rounded-2xl border border-black/5 p-4 hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 transition-all duration-200 group">
-                <div className="w-8 h-8 bg-[color:var(--accent)]/10 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[color:var(--accent)]/18 transition-colors">
+            ].map(({ icon: Icon, label, desc }, i) => (
+              <div
+                key={label}
+                data-stagger
+                style={{ transitionDelay: `${i * 35}ms` }}
+                className="spotlight bg-[var(--card)] rounded-2xl border border-black/5 p-4 hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:-translate-y-1 transition-all duration-200 group"
+                onMouseMove={(e) => {
+                  const r = e.currentTarget.getBoundingClientRect();
+                  e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
+                  e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
+                }}
+              >
+                <div className="w-8 h-8 bg-[color:var(--accent)]/10 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[color:var(--accent)]/20 transition-colors group-hover:scale-110 duration-200">
                   <Icon className="w-4 h-4 text-[var(--accent)]" />
                 </div>
                 <p className="text-xs font-bold text-[var(--ink)] leading-snug">{label}</p>

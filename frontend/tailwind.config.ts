@@ -47,6 +47,8 @@ const config: Config = {
         "glow-pulse":   "glowPulse 3s ease-in-out infinite",
         "gradient-x":   "gradientX 5s ease infinite",
         "spin-slow":    "spin 12s linear infinite",
+        "beam-sweep":   "beamSweep 9s ease-in-out 1.5s infinite",
+        "border-rotate":"borderRotate 4s linear infinite",
       },
       keyframes: {
         fadeIn: {
