@@ -1069,7 +1069,7 @@ export default function LandingPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 border border-black/12 hover:border-[var(--accent)]/40 bg-white/60 hover:bg-white/90 text-[var(--ink)] font-semibold px-7 py-3.5 rounded-xl transition-all text-sm"
             >
-              Book a 20-min demo
+              Book a 15-min demo
             </a>
           </div>
 
