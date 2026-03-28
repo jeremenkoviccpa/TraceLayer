@@ -15,7 +15,6 @@ import {
   ChevronDown,
   ChevronUp,
   Sparkles,
-  RefreshCw,
   Copy,
   Check,
   AlertCircle,
@@ -507,145 +506,182 @@ function AutoControlRow({ control }: { control: ControlScore }) {
   );
 }
 
-// ── AI Advisor ────────────────────────────────────────────────────────────────
-function AIAdvisor({
-  framework,
-  onGenerate,
-  loading,
-  summary,
-  generatedAt,
-  error,
-}: {
-  framework: string;
-  onGenerate: () => void;
-  loading: boolean;
-  summary: string | null;
-  generatedAt: string | null;
-  error: string | null;
-}) {
-  const [copied, setCopied] = useState(false);
+// ── AI Advisor Chat ────────────────────────────────────────────────────────────
+type ChatMessage = { role: "bot" | "user"; content: string };
 
-  const handleCopy = () => {
-    if (!summary) return;
-    navigator.clipboard.writeText(summary);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+const SUGGESTED_QUESTIONS: string[] = [
+  "What should I do first?",
+  "What's my biggest gap?",
+  "Which integrations should I connect?",
+  "How long to reach 80%?",
+];
+
+const FOLLOWUP_QUESTIONS: string[] = [
+  "How do I fix that?",
+  "Give me step-by-step instructions",
+  "What else should I do?",
+];
+
+function AdvisorChat({ framework, score }: { framework: string; score: ComplianceScore | null }) {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-load initial analysis on mount (framework is baked in via key= on the parent)
+  useEffect(() => {
+    if (!score) return;
+    setSending(true);
+    const fw = FRAMEWORKS.find(f => f.value === framework);
+    const initMsg = `Give me a clear, prioritized action plan for ${fw?.label ?? framework} compliance. List the top 3 things I should do right now to improve my score, with specific steps for each. Reference the actual failing controls and missing evidence types in my data.`;
+    api.advisorChat(framework, initMsg, [])
+      .then(({ reply }) => setMessages([{ role: "bot", content: reply }]))
+      .catch(() => setMessages([{ role: "bot", content: "I couldn't load your analysis. Ask me a question below and I'll help you get compliant." }]))
+      .finally(() => setSending(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages, sending]);
+
+  const sendMessage = async (text: string) => {
+    const msg = text.trim();
+    if (!msg || sending) return;
+    setInput("");
+    const history = messages.map(m => ({ role: m.role === "bot" ? "assistant" : "user", content: m.content }));
+    setMessages(prev => [...prev, { role: "user", content: msg }]);
+    setSending(true);
+    try {
+      const { reply } = await api.advisorChat(framework, msg, history);
+      setMessages(prev => [...prev, { role: "bot", content: reply }]);
+    } catch {
+      setMessages(prev => [...prev, { role: "bot", content: "Sorry, I had trouble responding. Please try again." }]);
+    } finally {
+      setSending(false);
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
   };
 
+  const suggested = messages.length <= 1 && !sending
+    ? SUGGESTED_QUESTIONS
+    : messages.length > 1 && !sending
+    ? FOLLOWUP_QUESTIONS
+    : [];
+  const fw = FRAMEWORKS.find(f => f.value === framework);
+
   return (
-    <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+    <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-4 sm:px-5 py-3 flex items-center gap-3">
+      <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-4 sm:px-5 py-3 flex items-center gap-3 shrink-0">
         <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center shrink-0">
           <Sparkles className="w-3.5 h-3.5 text-violet-300" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white leading-none">AI Compliance Advisor</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">{fw?.label} · Ask anything about getting compliant</p>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
           <span className="text-xs text-slate-400">Llama 3.3 · Groq</span>
         </div>
-        {summary && !loading && (
-          <button
-            onClick={onGenerate}
-            className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 px-2.5 py-1.5 rounded-lg border border-white/10 transition-all shrink-0 ml-2"
-          >
-            <RefreshCw className="w-3 h-3" />
-            <span className="hidden sm:block">Regenerate</span>
-          </button>
-        )}
       </div>
 
-      {/* Body */}
-      <div className="bg-white px-4 sm:px-5 py-4">
-
-        {/* Empty state — compact single row */}
-        {!summary && !loading && !error && (
-          <div className="flex items-center gap-3">
-            <p className="flex-1 text-sm text-gray-500 min-w-0 leading-snug">
-              Analyzes your live {framework.toUpperCase()} evidence and surfaces the single most impactful action to improve your score.
-            </p>
-            <button
-              onClick={onGenerate}
-              className="shrink-0 flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-colors"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-violet-300" />
-              Generate insight
-            </button>
-          </div>
-        )}
-
-        {/* Loading — typing indicator */}
-        {loading && (
-          <div className="py-2">
-            <div className="flex items-start gap-3">
-              <div className="w-7 h-7 rounded-xl bg-slate-900 flex items-center justify-center shrink-0 mt-0.5">
-                <Sparkles className="w-3.5 h-3.5 text-violet-300" />
-              </div>
-              <div className="flex-1">
-                <div className="inline-flex items-center gap-1 bg-slate-50 border border-slate-100 rounded-2xl rounded-tl-sm px-4 py-3 mb-3">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0ms]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:150ms]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:300ms]" />
-                </div>
-                <div className="space-y-2 max-w-md">
-                  <div className="h-2.5 bg-slate-100 rounded-full animate-pulse w-full" />
-                  <div className="h-2.5 bg-slate-100 rounded-full animate-pulse w-[88%]" />
-                  <div className="h-2.5 bg-slate-100 rounded-full animate-pulse w-[72%]" />
-                </div>
-                <p className="text-xs text-gray-400 mt-2">Analyzing your compliance posture…</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Error */}
-        {error && !loading && (
-          <div className="flex items-start gap-3 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
-            <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-red-700">Couldn&apos;t generate summary</p>
-              <p className="text-xs text-red-400 mt-0.5 break-words">{error}</p>
-            </div>
-            <button
-              onClick={onGenerate}
-              className="text-xs font-semibold text-red-600 hover:text-red-700 shrink-0 underline underline-offset-2"
-            >
-              Retry
-            </button>
-          </div>
-        )}
-
-        {/* Result — chat bubble style */}
-        {summary && !loading && (
-          <div className="flex items-start gap-3">
+      {/* Messages */}
+      <div ref={scrollRef} className="overflow-y-auto bg-white px-4 py-4 space-y-3" style={{ minHeight: 200, maxHeight: 360 }}>
+        {/* Initial loading state */}
+        {messages.length === 0 && sending && (
+          <div className="flex items-start gap-2.5">
             <div className="w-7 h-7 rounded-xl bg-slate-900 flex items-center justify-center shrink-0 mt-0.5">
               <Sparkles className="w-3.5 h-3.5 text-violet-300" />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="bg-slate-50 border border-slate-100 rounded-2xl rounded-tl-sm px-4 py-3.5 mb-2">
-                <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-line">{summary}</p>
+            <div className="flex flex-col gap-2 flex-1">
+              <div className="inline-flex items-center gap-1 bg-slate-50 border border-slate-100 rounded-2xl rounded-tl-sm px-4 py-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0ms]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:150ms]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:300ms]" />
               </div>
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <span className="text-xs text-gray-400">
-                  {generatedAt
-                    ? `Generated at ${new Date(generatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-                    : ""}
-                </span>
-                <button
-                  onClick={handleCopy}
-                  className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors"
-                >
-                  {copied
-                    ? <><Check className="w-3.5 h-3.5 text-emerald-500" /><span className="text-emerald-600">Copied</span></>
-                    : <><Copy className="w-3.5 h-3.5" />Copy</>
-                  }
-                </button>
+              <p className="text-[11px] text-gray-400 ml-1">Analyzing your {fw?.label} posture…</p>
+            </div>
+          </div>
+        )}
+
+        {/* Message bubbles */}
+        {messages.map((msg, i) => (
+          <div key={i} className={`flex items-end gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+            {msg.role === "bot" ? (
+              <div className="w-7 h-7 rounded-xl bg-slate-900 flex items-center justify-center shrink-0 mb-0.5">
+                <Sparkles className="w-3.5 h-3.5 text-violet-300" />
+              </div>
+            ) : (
+              <div className="w-7 h-7 rounded-xl bg-brand-600 flex items-center justify-center shrink-0 mb-0.5">
+                <UserIcon className="w-3.5 h-3.5 text-white" />
+              </div>
+            )}
+            <div className={`max-w-[84%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
+              msg.role === "bot"
+                ? "bg-slate-50 border border-slate-100 rounded-bl-sm text-gray-800"
+                : "bg-brand-600 text-white rounded-br-sm"
+            }`}>
+              <p className="whitespace-pre-line">{msg.content}</p>
+            </div>
+          </div>
+        ))}
+
+        {/* Typing indicator (follow-up) */}
+        {sending && messages.length > 0 && (
+          <div className="flex items-end gap-2.5">
+            <div className="w-7 h-7 rounded-xl bg-slate-900 flex items-center justify-center shrink-0 mb-0.5">
+              <Sparkles className="w-3.5 h-3.5 text-violet-300" />
+            </div>
+            <div className="bg-slate-50 border border-slate-100 rounded-2xl rounded-bl-sm px-4 py-3">
+              <div className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0ms]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:150ms]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:300ms]" />
               </div>
             </div>
           </div>
         )}
+      </div>
+
+      {/* Suggested question pills */}
+      {suggested.length > 0 && (
+        <div className="px-4 py-2.5 bg-gray-50 border-t border-gray-100 flex flex-wrap gap-1.5 shrink-0">
+          {suggested.map((q) => (
+            <button
+              key={q}
+              onClick={() => sendMessage(q)}
+              disabled={sending}
+              className="text-[11px] font-medium text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-100 px-2.5 py-1 rounded-full transition-colors disabled:opacity-40 whitespace-nowrap"
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Input bar */}
+      <div className="px-4 py-3 bg-white border-t border-gray-100 flex items-center gap-2 shrink-0">
+        <input
+          ref={inputRef}
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
+          placeholder={`Ask about ${fw?.label ?? framework} compliance…`}
+          disabled={sending}
+          className="flex-1 text-sm border border-gray-200 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500/25 focus:border-brand-400 bg-white transition-all disabled:opacity-50 placeholder:text-gray-400"
+        />
+        <button
+          onClick={() => sendMessage(input)}
+          disabled={!input.trim() || sending}
+          className="w-9 h-9 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center shrink-0 transition-colors"
+        >
+          {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+        </button>
       </div>
     </div>
   );
@@ -801,11 +837,6 @@ export default function CompliancePage() {
   const [members, setMembers]     = useState<Member[]>([]);
   const [loading, setLoading]     = useState(true);
 
-  const [aiSummary, setAiSummary]         = useState<string | null>(null);
-  const [aiLoading, setAiLoading]         = useState(false);
-  const [aiError, setAiError]             = useState<string | null>(null);
-  const [aiGeneratedAt, setAiGeneratedAt] = useState<string | null>(null);
-
   const [engagements, setEngagements]     = useState<AuditEngagement[]>([]);
   const [showInvite, setShowInvite]       = useState(false);
   const [copiedId, setCopiedId]           = useState<string | null>(null);
@@ -817,9 +848,6 @@ export default function CompliancePage() {
 
   const load = async (fw: string) => {
     setLoading(true);
-    setAiSummary(null);
-    setAiError(null);
-    setAiGeneratedAt(null);
     try {
       const [s, m] = await Promise.all([api.getComplianceScore(fw), api.getManualControls(fw)]);
       setScore(s);
@@ -869,20 +897,6 @@ export default function CompliancePage() {
       commentScrollRef.current.scrollTop = commentScrollRef.current.scrollHeight;
     }
   }, [comments]);
-
-  const generateSummary = async () => {
-    setAiLoading(true);
-    setAiError(null);
-    try {
-      const result = await api.getAISummary(framework);
-      setAiSummary(result.summary);
-      setAiGeneratedAt(result.generated_at);
-    } catch (e: unknown) {
-      setAiError(e instanceof Error ? e.message : "Failed to generate summary");
-    } finally {
-      setAiLoading(false);
-    }
-  };
 
   const handleUpdate = (updated: ManualControl) =>
     setManualControls((prev) => prev.map((c) => (c.control_id === updated.control_id ? { ...c, ...updated } : c)));
@@ -1030,16 +1044,9 @@ export default function CompliancePage() {
             </div>
           )}
 
-          {/* AI Advisor */}
+          {/* AI Advisor Chat */}
           <PlanGate feature="AI Compliance Advisor" mode="blur">
-            <AIAdvisor
-              framework={framework}
-              onGenerate={generateSummary}
-              loading={aiLoading}
-              summary={aiSummary}
-              generatedAt={aiGeneratedAt}
-              error={aiError}
-            />
+            <AdvisorChat key={framework} framework={framework} score={score} />
           </PlanGate>
 
           {/* Automated controls */}

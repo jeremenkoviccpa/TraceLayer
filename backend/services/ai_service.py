@@ -11,6 +11,18 @@ logger = logging.getLogger(__name__)
 
 FRAMEWORK_LABELS = {"soc2": "SOC 2", "iso27001": "ISO 27001", "hipaa": "HIPAA"}
 
+FRAMEWORK_LABELS_FULL = {
+    "soc2":     "SOC 2 Type II",
+    "iso27001": "ISO 27001",
+    "hipaa":    "HIPAA",
+    "gdpr":     "GDPR",
+    "pci_dss":  "PCI DSS",
+    "ccpa":     "CCPA",
+    "nist_csf": "NIST CSF",
+    "dpdp":     "DPDP Act 2023 (India)",
+    "cert_in":  "CERT-In Directions 2022 (India)",
+}
+
 
 def _build_prompt(framework: str, score_data: dict) -> str:
     label = FRAMEWORK_LABELS.get(framework, framework.upper())
@@ -67,6 +79,70 @@ async def generate_compliance_summary(framework: str, score_data: dict) -> str:
         max_tokens=220,
     )
 
+    return completion.choices[0].message.content.strip()
+
+
+# ── Advisor chat ──────────────────────────────────────────────────────────────
+
+async def chat_with_advisor(
+    framework: str,
+    score_data: dict,
+    message: str,
+    history: list[dict],
+) -> str:
+    """Multi-turn compliance advisor chat powered by Groq."""
+    if not settings.groq_api_key:
+        raise ValueError("GROQ_API_KEY is not configured on this server.")
+
+    try:
+        from groq import AsyncGroq
+    except ImportError as exc:
+        raise RuntimeError("groq package not installed") from exc
+
+    label = FRAMEWORK_LABELS_FULL.get(framework, framework.upper())
+
+    controls_lines = []
+    for c in score_data["controls"]:
+        collected = ", ".join(c["covered_types"]) or "none"
+        missing   = ", ".join(c["missing_types"])  or "none"
+        controls_lines.append(
+            f"  - {c['name']}: {c['score']}% ({c['status']}) | "
+            f"collected: {collected} | missing: {missing}"
+        )
+    controls_text = "\n".join(controls_lines)
+
+    failing = [c for c in score_data["controls"] if c["status"] in ("failing", "no_evidence")]
+    top_gap = failing[0]["name"] if failing else "—"
+
+    system_prompt = f"""You are TraceLayer's AI Compliance Advisor — a direct, expert guide helping an engineering team achieve {label} compliance.
+
+CURRENT POSTURE (live data):
+- Framework: {label}
+- Overall score: {score_data["overall_score"]}%
+- Controls:
+{controls_text}
+- Top priority gap: {top_gap}
+
+RULES:
+- Give numbered, specific action steps grounded in the data above — never generic advice
+- Reference actual control names and missing evidence types from the data
+- For failing/no_evidence controls, name exactly what integrations or manual steps fix them
+- Be concise (≤150 words) unless the user asks to elaborate
+- Tone: friendly, direct, no jargon unless asked
+- If asked about integrations, match missing evidence types to the integrations that collect them"""
+
+    msgs: list[dict] = [{"role": "system", "content": system_prompt}]
+    for h in history[-14:]:
+        msgs.append({"role": h["role"], "content": h["content"]})
+    msgs.append({"role": "user", "content": message})
+
+    client = AsyncGroq(api_key=settings.groq_api_key)
+    completion = await client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=msgs,
+        temperature=0.35,
+        max_tokens=400,
+    )
     return completion.choices[0].message.content.strip()
 
 

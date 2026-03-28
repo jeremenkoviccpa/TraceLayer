@@ -339,6 +339,14 @@ class ApiClient {
     return this.request("POST", `/compliance/ai-summary?framework=${framework}`);
   }
 
+  async advisorChat(
+    framework: string,
+    message: string,
+    history: { role: string; content: string }[],
+  ): Promise<{ reply: string }> {
+    return this.request("POST", "/compliance/advisor/chat", { framework, message, history });
+  }
+
   async assignManualControl(controlId: string, framework: string, ownerUserId: string | null): Promise<ManualControl> {
     return this.request<ManualControl>("PATCH", `/compliance/manual-controls/${controlId}/assign?framework=${framework}`, { owner_user_id: ownerUserId });
   }

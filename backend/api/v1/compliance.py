@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,7 +23,7 @@ from schemas.compliance import (
     ScoreHistoryPoint,
     UpdateManualControlRequest,
 )
-from services.ai_service import generate_compliance_summary
+from services.ai_service import chat_with_advisor, generate_compliance_summary
 from services.compliance_service import get_compliance_score, get_compliance_score_at, get_evidence_activity, get_score_history
 
 logger = logging.getLogger(__name__)
@@ -555,3 +556,33 @@ async def ai_summary(
         overall_score=score_data["overall_score"],
         generated_at=datetime.now(timezone.utc).isoformat(),
     )
+
+
+# ── Advisor chat ──────────────────────────────────────────────────────────────
+
+class AdvisorChatRequest(BaseModel):
+    framework: str
+    message: str
+    history: list[dict] = []
+
+
+class AdvisorChatResponse(BaseModel):
+    reply: str
+
+
+@router.post("/advisor/chat", response_model=AdvisorChatResponse)
+async def advisor_chat(
+    body: AdvisorChatRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_growth),
+):
+    score_data = await get_compliance_score(current_user.company_id, body.framework, db)
+    try:
+        reply = await chat_with_advisor(body.framework, score_data, body.message, body.history)
+    except ValueError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    except Exception:
+        logger.exception("Advisor chat failed for company=%s framework=%s", current_user.company_id, body.framework)
+        raise HTTPException(status_code=503, detail="Advisor temporarily unavailable. Try again shortly.")
+    return AdvisorChatResponse(reply=reply)
