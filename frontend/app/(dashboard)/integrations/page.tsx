@@ -675,10 +675,6 @@ const LOGO_CONFIG: Record<string, LogoCfg> = {
       </>
     ),
   },
-  freshdesk: {
-    bg: "#25C16F", label: "FD",
-    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.29}>FD</text>,
-  },
 };
 
 function LogoBadge({ type, size = 42 }: { type: string; size?: number }) {
