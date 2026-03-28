@@ -104,6 +104,8 @@ async def update_company(
     if not company:
         raise HTTPException(status_code=404, detail="Company not found")
     company.name = body.name
+    if body.gst_number is not None:
+        company.gst_number = body.gst_number.strip() or None
     await db.commit()
     await db.refresh(company)
     await log_action(db, current_user.company_id, "company.updated",

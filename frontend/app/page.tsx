@@ -2005,7 +2005,7 @@ export default function LandingPage() {
               Start free. Upgrade when you&apos;re ready.
             </h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-xl mx-auto leading-relaxed">
-              Built for seed, Series A, and Series B startups — not enterprises with six-figure compliance budgets. Start free, upgrade when you need AI, PDF reports, and all 7 frameworks. $149/mo is literally one hour with a compliance consultant.
+              Built for seed, Series A, and Series B startups — not enterprises with six-figure compliance budgets. Start free, upgrade when you need AI, PDF reports, and all 9 frameworks including DPDP Act and CERT-In. $149/mo is literally one hour with a compliance consultant.
             </p>
           </div>
 
@@ -2058,10 +2058,11 @@ export default function LandingPage() {
                 </span>
               </div>
               <p className="text-sm font-bold text-white/50 mb-1">Growth</p>
-              <div className="flex items-baseline gap-1 mb-1.5">
+              <div className="flex items-baseline gap-1 mb-0.5">
                 <span className="text-4xl font-black text-white">$149</span>
                 <span className="text-sm text-white/40">/mo</span>
               </div>
+              <p className="text-xs text-white/30 mb-1.5">≈ <span className="text-white/45 font-semibold">₹12,400/mo</span> · vs ₹75,000/mo for Sprinto</p>
               <div className="inline-flex items-center gap-1.5 bg-teal-500/15 text-teal-300 text-[10px] font-semibold px-2.5 py-1 rounded-full mb-3 border border-teal-500/20">
                 <TrendingUp className="w-3 h-3" /> ≈ 30 min with a $300/hr consultant
               </div>
@@ -2069,7 +2070,7 @@ export default function LandingPage() {
               <div className="space-y-2.5 mb-7 flex-1">
                 {[
                   "Unlimited integrations (120+)",
-                  "All 7 frameworks (incl. GDPR, PCI DSS, CCPA, NIST CSF)",
+                  "All 9 frameworks (incl. GDPR, DPDP Act, CERT-In, PCI DSS, NIST CSF)",
                   "PDF & CSV audit reports",
                   "AI Compliance Advisor",
                   "AI Questionnaire Autofill (17 data sources)",

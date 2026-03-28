@@ -292,8 +292,8 @@ class ApiClient {
     return this.request("GET", "/org/onboarding-status");
   }
 
-  async updateCompany(name: string): Promise<Company> {
-    return this.request<Company>("PATCH", "/org/company", { name });
+  async updateCompany(name: string, gstNumber?: string): Promise<Company> {
+    return this.request<Company>("PATCH", "/org/company", { name, gst_number: gstNumber ?? null });
   }
 
   async completeOnboarding(): Promise<void> {

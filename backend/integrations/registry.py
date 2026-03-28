@@ -138,6 +138,9 @@ _REGISTRY: dict[str, str] = {
     "openai":            "integrations.openai_api.adapter.OpenAIIntegration",
     "google_gemini":     "integrations.google_gemini.adapter.GoogleGeminiIntegration",
     "anthropic":         "integrations.anthropic_api.adapter.AnthropicIntegration",
+    # ── India-focused HR & ITSM ───────────────────────────────────────────────
+    "zoho_people":       "integrations.zoho_people.adapter.ZohoPeopleIntegration",
+    "freshdesk":         "integrations.freshdesk.adapter.FreshdeskIntegration",
 }
 
 

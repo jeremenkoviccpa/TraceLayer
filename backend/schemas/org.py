@@ -38,6 +38,7 @@ class AcceptInviteRequest(BaseModel):
 
 class UpdateCompanyRequest(BaseModel):
     name: str
+    gst_number: Optional[str] = None
 
 
 class CompanyResponse(BaseModel):
@@ -47,5 +48,6 @@ class CompanyResponse(BaseModel):
     created_at: datetime
     onboarding_completed: bool
     is_partner_account: bool = False
+    gst_number: Optional[str] = None
 
     model_config = {"from_attributes": True}

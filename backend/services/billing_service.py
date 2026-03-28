@@ -27,7 +27,12 @@ def _headers() -> dict:
     }
 
 
-async def create_checkout_url(company_id: uuid.UUID, user_email: str) -> str:
+async def create_checkout_url(
+    company_id: uuid.UUID,
+    user_email: str,
+    company_name: str | None = None,
+    gst_number: str | None = None,
+) -> str:
     """Create a Paddle hosted checkout URL for the Growth plan subscription."""
     if not settings.paddle_sk or not settings.paddle_growth_price_id:
         raise ValueError("Paddle is not configured on this server.")
@@ -41,6 +46,13 @@ async def create_checkout_url(company_id: uuid.UUID, user_email: str) -> str:
             "allow_logout": False,
         },
     }
+
+    # Pass GST number to Paddle for GST-compliant invoices (India)
+    if gst_number:
+        payload["business"] = {
+            "name": company_name or "",
+            "tax_identifier": gst_number,
+        }
 
     async with httpx.AsyncClient(timeout=15) as client:
         resp = await client.post(

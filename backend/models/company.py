@@ -23,6 +23,9 @@ class Company(Base):
     ls_subscription_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     ls_customer_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
+    # Billing / Tax
+    gst_number: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+
     # Notifications
     notification_prefs: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default="{}")
     slack_webhook_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)

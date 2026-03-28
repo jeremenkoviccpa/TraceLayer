@@ -49,6 +49,34 @@ EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
             "workspace_users", "okta_users", "jira_users",
         },
     },
+    "dpdp": {
+        "lawful_processing": {
+            "slack_users", "workspace_users",
+        },
+        "data_fiduciary_obligations": {
+            "cloudtrail_logs",
+        },
+        "access_control": {
+            "iam_users", "iam_policies",
+            "okta_users", "azure_users",
+        },
+    },
+    "cert_in": {
+        "log_management": {
+            "cloudtrail_logs",
+        },
+        "access_control": {
+            "iam_users", "iam_policies",
+            "okta_users", "azure_users",
+            "okta_mfa_factors",
+        },
+        "vulnerability_management": {
+            "github_members", "repositories",
+        },
+        "endpoint_security": {
+            "freshdesk_agents",
+        },
+    },
 }
 
 

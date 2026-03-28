@@ -26,8 +26,15 @@ async def create_checkout(
     db: AsyncSession = Depends(get_db),
 ):
     """Return a hosted Paddle checkout URL for upgrading to Growth."""
+    result = await db.execute(select(Company).where(Company.id == current_user.company_id))
+    company = result.scalar_one_or_none()
     try:
-        url = await create_checkout_url(current_user.company_id, current_user.email)
+        url = await create_checkout_url(
+            current_user.company_id,
+            current_user.email,
+            company_name=company.name if company else None,
+            gst_number=company.gst_number if company else None,
+        )
     except ValueError as exc:
         logger.error("PADDLE CONFIG ERROR: %s", exc)
         raise HTTPException(status_code=503, detail=str(exc))

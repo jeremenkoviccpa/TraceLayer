@@ -375,6 +375,7 @@ export default function SettingsPage() {
   // ── Company ───────────────────────────────────────────────────────────────
   const [company, setCompany] = useState<Company | null>(null);
   const [companyName, setCompanyName] = useState("");
+  const [gstNumber, setGstNumber] = useState("");
   const [companySaving, setCompanySaving] = useState(false);
 
   useEffect(() => {
@@ -384,6 +385,7 @@ export default function SettingsPage() {
       .then((c) => {
         setCompany(c);
         setCompanyName(c.name);
+        setGstNumber((c as Company & { gst_number?: string }).gst_number ?? "");
       })
       .catch(console.error);
   }, [isAdmin]);
@@ -392,9 +394,9 @@ export default function SettingsPage() {
     e.preventDefault();
     setCompanySaving(true);
     try {
-      const updated = await api.updateCompany(companyName);
+      const updated = await api.updateCompany(companyName, gstNumber || undefined);
       setCompany(updated);
-      showToast("Company name updated");
+      showToast("Company settings saved");
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : "Failed to update company", "error");
     } finally {
@@ -1453,6 +1455,20 @@ export default function SettingsPage() {
                   onChange={(e) => setCompanyName(e.target.value)}
                   className={inputCls}
                 />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                  GST Number <span className="text-gray-400 font-normal">(optional — for GST-compliant invoices)</span>
+                </label>
+                <input
+                  type="text"
+                  value={gstNumber}
+                  onChange={(e) => setGstNumber(e.target.value.toUpperCase())}
+                  placeholder="e.g. 22AAAAA0000A1Z5"
+                  maxLength={15}
+                  className={inputCls}
+                />
+                <p className="text-[11px] text-gray-400 mt-1">Your 15-digit GSTIN will appear on Paddle invoices for GST input tax credit claims.</p>
               </div>
               <div className="flex justify-end">
                 <button

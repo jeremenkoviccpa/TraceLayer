@@ -56,6 +56,27 @@ const CHECKLISTS: Record<string, Checklist> = {
       { area: "Workforce Security",     control: "§164.308(a)", integrations: ["bamboohr","jamf","kandji"],             note: "Training completion and device security" },
     ],
   },
+  dpdp: {
+    label: "DPDP Act", color: "orange",
+    areas: [
+      { area: "Consent & Lawful Basis",  control: "Sec. 6–7",  integrations: ["aws","google_workspace","okta"],            note: "Consent records and lawful basis documented for all processing" },
+      { area: "Data Security Safeguards",control: "Sec. 8",    integrations: ["aws","google_cloud","cloudflare","wiz"],     note: "Technical and organisational measures to prevent breaches" },
+      { area: "Access Control",          control: "Sec. 8",    integrations: ["okta","azure_ad","google_workspace"],        note: "Restrict personal data access to authorised personnel only" },
+      { area: "Breach Detection",        control: "Sec. 8.6",  integrations: ["datadog","sentry","crowdstrike"],            note: "Detect and notify DPBI and data principals within prescribed time" },
+      { area: "HR & Workforce Controls", control: "Sec. 8",    integrations: ["zoho_people","bamboohr","rippling"],         note: "Staff with access to personal data tracked and trained" },
+    ],
+  },
+  cert_in: {
+    label: "CERT-In", color: "amber",
+    areas: [
+      { area: "Log Retention 180 Days", control: "Dir. 3",  integrations: ["aws","datadog","splunk","elastic"],         note: "All ICT logs retained 180 days within Indian jurisdiction" },
+      { area: "NTP Synchronisation",    control: "Dir. 2",  integrations: ["aws","google_cloud","cloudflare"],           note: "Clocks synced to NIC/NPL NTP servers across all systems" },
+      { area: "MFA & Privileged Access",control: "Dir. 8",  integrations: ["okta","azure_ad","duo","google_workspace"],  note: "MFA on all admin accounts; privileged sessions logged" },
+      { area: "Vulnerability Mgmt",     control: "Dir. 7",  integrations: ["snyk","tenable","crowdstrike","wiz"],        note: "Regular VA/PT; CERT-In advisories applied within timelines" },
+      { area: "Monitoring & Detection", control: "Dir. 10", integrations: ["datadog","sentry","pagerduty","new_relic"],   note: "Anomaly detection and alert response in place" },
+      { area: "Endpoint Security",      control: "Dir. 11", integrations: ["jamf","kandji","crowdstrike","sentinelone"],  note: "All endpoints encrypted and managed" },
+    ],
+  },
 };
 
 const CHECKLIST_COLORS: Record<string, { tab: string; badge: string; check: string; bar: string }> = {
@@ -63,6 +84,8 @@ const CHECKLIST_COLORS: Record<string, { tab: string; badge: string; check: stri
   emerald: { tab: "bg-emerald-600 text-white", badge: "bg-emerald-50 text-emerald-700 border-emerald-100", check: "text-emerald-500", bar: "bg-emerald-500" },
   purple:  { tab: "bg-purple-600 text-white",  badge: "bg-purple-50 text-purple-700 border-purple-100", check: "text-purple-500",  bar: "bg-purple-500" },
   rose:    { tab: "bg-rose-600 text-white",    badge: "bg-rose-50 text-rose-700 border-rose-100",    check: "text-rose-500",    bar: "bg-rose-500" },
+  orange:  { tab: "bg-orange-600 text-white",  badge: "bg-orange-50 text-orange-700 border-orange-100", check: "text-orange-500", bar: "bg-orange-500" },
+  amber:   { tab: "bg-amber-600 text-white",   badge: "bg-amber-50 text-amber-700 border-amber-100",  check: "text-amber-500",   bar: "bg-amber-500" },
 };
 
 function ComplianceChecklist({ connectedTypes }: { connectedTypes: string[] }) {
@@ -642,6 +665,19 @@ const LOGO_CONFIG: Record<string, LogoCfg> = {
         <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="#1a1a1a" fontFamily="Georgia,serif" fontWeight="700" fontSize={s*0.38}>A</text>
       </>
     ),
+  },
+  zoho_people: {
+    bg: "#E42527", label: "ZP",
+    svg: (s) => (
+      <>
+        <text x={s/2} y={s*0.47} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.27}>ZOHO</text>
+        <text x={s/2} y={s*0.73} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="600" fontSize={s*0.2}>People</text>
+      </>
+    ),
+  },
+  freshdesk: {
+    bg: "#25C16F", label: "FD",
+    svg: (s) => <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.29}>FD</text>,
   },
 };
 
@@ -1655,6 +1691,29 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
     ],
   },
   {
+    title: "India — DPDP & CERT-In",
+    integrations: [
+      {
+        type: "zoho_people", label: "Zoho People",
+        description: "Collect employee directory, departments, and employment status for HR security and DPDP Act workforce control evidence",
+        fields: [
+          { key: "client_id",     label: "Client ID",     placeholder: "1000.••••••••••••••••",   hint: "api-console.zoho.com → Add Client → Server-based Applications → copy Client ID" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••••••••••",    type: "password", hint: "Same page as Client ID — copy Client Secret" },
+          { key: "refresh_token", label: "Refresh Token", placeholder: "1000.••••••••••••••••",   type: "password", hint: "Exchange an auth code for an offline refresh token using Zoho OAuth 2.0 flow with scope: ZohoPeople.employee.READ" },
+          { key: "region",        label: "Region (optional)", placeholder: "in",                  hint: 'Zoho datacenter: "com" (default), "in" (India), "eu", "com.au", "jp"' },
+        ],
+      },
+      {
+        type: "freshdesk", label: "Freshdesk",
+        description: "Collect support agent accounts and ticket activity for access control and change management evidence supporting CERT-In and ISO 27001",
+        fields: [
+          { key: "subdomain", label: "Subdomain", placeholder: "mycompany", hint: "The subdomain part of your Freshdesk URL: mycompany.freshdesk.com" },
+          { key: "api_key",   label: "API Key",   placeholder: "••••••••••••••••••••", type: "password", hint: "Freshdesk → Profile Settings → Your API Key (bottom of the page)" },
+        ],
+      },
+    ],
+  },
+  {
     title: "Coming Soon",
     integrations: [
       { type: "workday",      label: "Workday",        comingSoon: true, description: "Sync employee records, org chart, and lifecycle events for HR compliance evidence", fields: [] },
@@ -1665,7 +1724,6 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
       { type: "carbon_black", label: "Carbon Black",   comingSoon: true, description: "Collect endpoint sensor deployment, policy enforcement, and threat detections", fields: [] },
       { type: "rapid7",       label: "Rapid7",         comingSoon: true, description: "Pull vulnerability scan results, asset risk scores, and remediation tracking", fields: [] },
       { type: "prisma_cloud", label: "Prisma Cloud",   comingSoon: true, description: "Collect CSPM findings, compliance benchmarks, and misconfiguration alerts", fields: [] },
-      { type: "freshdesk",    label: "Freshdesk",      comingSoon: true, description: "Collect support agents, SLA configurations, and ticket workflow policies", fields: [] },
       { type: "secureframe",  label: "Secureframe",    comingSoon: true, description: "Import existing compliance posture and evidence library for cross-platform migration", fields: [] },
       { type: "drata",        label: "Drata",          comingSoon: true, description: "Import existing controls and evidence library for cross-platform migration", fields: [] },
     ],
@@ -2229,6 +2287,25 @@ const SETUP_GUIDES: Record<string, SetupGuide> = {
       "For full inventory (workspaces, all keys): use an Admin API key",
       "For model access only: a standard API key works",
       "Copy the key — it starts with sk-ant-",
+    ],
+  },
+  zoho_people: {
+    url: "https://api-console.zoho.in/",
+    steps: [
+      "Go to api-console.zoho.in (or api-console.zoho.com) → Add Client → Server-based Applications",
+      "Set Authorized Redirect URI to https://localhost (not used but required)",
+      "Copy Client ID and Client Secret",
+      "Generate a refresh token: exchange an auth code via the OAuth 2.0 flow with scope ZohoPeople.employee.READ",
+      "For Indian accounts, set region to 'in'",
+    ],
+  },
+  freshdesk: {
+    url: "https://support.freshdesk.com/support/solutions/articles/215517",
+    steps: [
+      "Log in to your Freshdesk account",
+      "Click your avatar → Profile Settings",
+      "Scroll to the bottom — copy the API Key",
+      "Your subdomain is the part before .freshdesk.com in your URL",
     ],
   },
 };

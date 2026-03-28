@@ -1,0 +1,70 @@
+key: dpdp
+display_name: Digital Personal Data Protection Act
+current_version: "2023"
+source_url: https://www.meity.gov.in/writereaddata/files/Digital%20Personal%20Data%20Protection%20Act%202023.pdf
+versions:
+  - version: "2023"
+    display_name: "DPDP Act 2023"
+    published_at: "2023-08-11"
+    is_current: true
+controls:
+  - external_id: Sec.4
+    name: Grounds for Processing Personal Data
+    category: lawful_processing
+    description: "Personal data may be processed only for a lawful purpose for which the Data Principal has given consent, or for certain legitimate uses specified under the Act. Processing must be limited to what is necessary for the stated purpose."
+  - external_id: Sec.6
+    name: Consent
+    category: lawful_processing
+    description: "Consent must be free, specific, informed, unconditional, and unambiguous, given through a clear affirmative action. A notice must be provided before seeking consent describing the personal data to be processed and the purpose. Consent can be withdrawn at any time."
+  - external_id: Sec.7
+    name: Certain Legitimate Uses
+    category: lawful_processing
+    description: "Personal data may be processed without consent for specified legitimate uses including: performance of a function of the State, compliance with law or court order, medical emergencies, employment purposes, or public interest functions."
+  - external_id: Sec.8
+    name: Obligations of Data Fiduciary
+    category: data_fiduciary_obligations
+    description: "The Data Fiduciary must ensure completeness, accuracy, and consistency of personal data; implement appropriate technical and organisational measures; implement reasonable security safeguards to prevent personal data breaches; notify the Board and affected Data Principals in the event of a breach; and erase data when the purpose has been met or consent is withdrawn."
+  - external_id: Sec.9
+    name: Processing of Personal Data of Children
+    category: special_categories
+    description: "Before processing personal data of a child (under 18), the Data Fiduciary must obtain verifiable consent from the parent or lawful guardian. Data Fiduciaries must not process personal data likely to cause detrimental effects on the well-being of a child and must not undertake tracking, behavioural monitoring, or targeted advertising directed at children."
+  - external_id: Sec.10
+    name: Additional Obligations of Significant Data Fiduciary
+    category: data_fiduciary_obligations
+    description: "Significant Data Fiduciaries (as notified by the Central Government) must appoint a Data Protection Officer based in India, appoint an independent data auditor, undertake periodic Data Protection Impact Assessments, and comply with additional measures prescribed by the Government."
+  - external_id: Sec.11
+    name: Right to Access Information
+    category: data_principal_rights
+    description: "A Data Principal is entitled to obtain from the Data Fiduciary: a summary of personal data being processed, identities of all Data Fiduciaries with whom data has been shared, and any other prescribed information."
+  - external_id: Sec.12
+    name: Right to Correction and Erasure
+    category: data_principal_rights
+    description: "A Data Principal has the right to correct inaccurate or misleading personal data, complete incomplete personal data, and erase personal data which is no longer necessary for the purpose for which it was collected, subject to the Data Fiduciary's legal obligations to retain data."
+  - external_id: Sec.13
+    name: Right to Grievance Redressal
+    category: data_principal_rights
+    description: "A Data Principal has the right to have their grievances addressed by the Data Fiduciary in accordance with the provisions of the Act. The Data Fiduciary must establish an effective mechanism for the redressal of grievances."
+  - external_id: Sec.14
+    name: Right to Nominate
+    category: data_principal_rights
+    description: "A Data Principal has the right to nominate another individual who shall, in the event of death or incapacity of the Data Principal, exercise the rights of the Data Principal in accordance with prescribed rules."
+  - external_id: Sec.17
+    name: Duties of Data Principal
+    category: data_principal_rights
+    description: "Every Data Principal must not impersonate another person when providing personal data, must not suppress material information when providing personal data for a specified purpose, and must only register legitimate grievances with the Board."
+  - external_id: Sec.8.6
+    name: Personal Data Breach Notification
+    category: breach_notification
+    description: "In the event of a personal data breach, the Data Fiduciary must notify the Data Protection Board of India and each affected Data Principal in the prescribed form and manner, within the prescribed time period."
+  - external_id: Sec.8.3
+    name: Data Erasure and Retention Limits
+    category: data_fiduciary_obligations
+    description: "A Data Fiduciary must erase personal data upon withdrawal of consent or when the specified purpose is no longer being served, and must not retain personal data beyond what is necessary. The Data Principal or their nominee must be enabled to erase data through a Data Fiduciary's platform."
+  - external_id: Sec.16
+    name: Transfer of Personal Data Outside India
+    category: cross_border_transfers
+    description: "The Central Government may restrict the transfer of personal data by a Data Fiduciary for processing to countries notified in the negative list. Subject to this, Data Fiduciaries may transfer personal data outside India to countries not restricted by the Government."
+  - external_id: Sec.5
+    name: Notice to Data Principal
+    category: lawful_processing
+    description: "Before requesting consent, a Data Fiduciary must provide the Data Principal with a notice in clear and plain language describing the personal data to be collected, the purpose of processing, the manner in which they may exercise their rights, and the manner in which they may make a complaint to the Board."

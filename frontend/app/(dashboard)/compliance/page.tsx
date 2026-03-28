@@ -42,6 +42,8 @@ const FRAMEWORKS = [
   { value: "pci_dss",  label: "PCI DSS",   description: "Payment Card Security"          },
   { value: "ccpa",     label: "CCPA",      description: "California Privacy"             },
   { value: "nist_csf", label: "NIST CSF",  description: "Cybersecurity Framework"        },
+  { value: "dpdp",     label: "DPDP Act",  description: "India Data Protection 2023"     },
+  { value: "cert_in",  label: "CERT-In",   description: "India Cybersecurity Directions" },
 ];
 
 type Status = "pending" | "compliant" | "not_applicable";

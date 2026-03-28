@@ -1003,6 +1003,25 @@ SIMULATION_META: dict[str, dict] = {
         ],
         "data_categories": ["hr_data"],
     },
+    # ── India-focused HR & ITSM ───────────────────────────────────────────────
+    "zoho_people": {
+        "label": "Zoho People",
+        "description": "Employee directory, departments, and employment status from Zoho People HRMS.",
+        "evidence_types": [
+            {"type": "zoho_employees", "label": "Employee records", "control": "hr_security", "typical_count": 80},
+            {"type": "zoho_departments", "label": "Departments", "control": "hr_security", "typical_count": 12},
+        ],
+        "data_categories": ["hr_data", "user_identity"],
+    },
+    "freshdesk": {
+        "label": "Freshdesk",
+        "description": "Support agent accounts and ticket activity for access control and change management evidence.",
+        "evidence_types": [
+            {"type": "freshdesk_agents", "label": "Support agents", "control": "access_control", "typical_count": 20},
+            {"type": "freshdesk_tickets", "label": "Support tickets", "control": "change_management", "typical_count": 150},
+        ],
+        "data_categories": ["user_identity", "audit_logs"],
+    },
 }
 
 

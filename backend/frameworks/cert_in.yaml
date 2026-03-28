@@ -1,0 +1,58 @@
+key: cert_in
+display_name: CERT-In Cybersecurity Directions
+current_version: "2022"
+source_url: https://www.cert-in.org.in/PDF/CERT-In_Directions_70B_28.04.2022.pdf
+versions:
+  - version: "2022"
+    display_name: "CERT-In Directions 2022"
+    published_at: "2022-04-28"
+    is_current: true
+controls:
+  - external_id: Dir.1
+    name: Mandatory Incident Reporting within 6 Hours
+    category: incident_reporting
+    description: "Service providers, intermediaries, data centres, body corporates, and government organisations must mandatorily report cyber incidents to CERT-In within 6 hours of noticing or being brought to notice of such incidents. Reportable incidents include: data breaches, unauthorised access, ransomware attacks, identity theft, phishing, DDoS attacks, compromise of IT systems, and malicious code attacks."
+  - external_id: Dir.2
+    name: ICT Infrastructure Maintenance and Synchronisation
+    category: it_infrastructure
+    description: "All entities must connect their ICT infrastructure to the Network Time Protocol (NTP) server of National Informatics Centre (NIC) or National Physical Laboratory (NPL) or with NTP servers traceable to these organisations, to ensure accurate timestamps and log synchronisation across all systems."
+  - external_id: Dir.3
+    name: Mandatory Log Retention for 180 Days
+    category: log_management
+    description: "All entities must maintain logs of all ICT systems for a rolling period of 180 days. These logs must be maintained within the Indian jurisdiction and must be provided to CERT-In along with any incident report or when directed. Logs include: server logs, network logs, application logs, database logs, and security device logs."
+  - external_id: Dir.4
+    name: KYC for Subscribers and Customers by Service Providers
+    category: identity_verification
+    description: "Data centres, Virtual Private Server (VPS) providers, cloud service providers, and Virtual Private Network (VPN) service providers must register accurate customer information including: names, validated addresses, contact numbers, email IDs, IPs allotted, IP used by members, registration and expiration dates, and the purpose of service. This data must be maintained for 5 years or longer duration as mandated by law."
+  - external_id: Dir.5
+    name: Designated Point of Contact with CERT-In
+    category: incident_reporting
+    description: "All entities must designate a point of contact for interaction with CERT-In and provide accurate contact information. This Point of Contact must be capable of receiving and responding to cybersecurity incident reports and advisories from CERT-In in a timely manner."
+  - external_id: Dir.6
+    name: Cyber Incident Response Mechanism
+    category: incident_response
+    description: "Entities must establish a mechanism to receive, respond to, and recover from cyber incidents. This includes maintaining an incident response plan, defining roles and responsibilities, and ensuring that the plan is tested and updated regularly."
+  - external_id: Dir.7
+    name: Vulnerability Management and Patching
+    category: vulnerability_management
+    description: "Entities must undertake regular vulnerability assessments and penetration testing of their systems and infrastructure. Critical vulnerabilities must be remediated promptly. Entities must stay updated on CERT-In advisories and apply patches within the timelines specified in the advisories."
+  - external_id: Dir.8
+    name: Access Control and Privileged Access Management
+    category: access_control
+    description: "Entities must implement strong access controls including multi-factor authentication for all administrative and privileged accounts. Access must be granted on a need-to-know and least-privilege basis. Privileged access sessions must be logged and monitored."
+  - external_id: Dir.9
+    name: Data Backup and Business Continuity
+    category: resilience
+    description: "Entities must maintain regular backups of critical data and systems. Backups must be stored securely and tested for restorability periodically. Business continuity and disaster recovery plans must be documented and tested to ensure the entity can resume operations after a cyber incident."
+  - external_id: Dir.10
+    name: Network Monitoring and Threat Detection
+    category: monitoring
+    description: "Entities must deploy adequate network monitoring mechanisms to detect anomalous activities, potential attacks, and indicators of compromise. Security alerts from monitoring systems must be reviewed and responded to in a timely manner."
+  - external_id: Dir.11
+    name: Endpoint Security and Device Management
+    category: endpoint_security
+    description: "All endpoints including workstations, servers, and mobile devices must be protected with up-to-date security software. Unauthorised devices must not be allowed to connect to organisational networks. Device management policies must enforce encryption on all endpoints storing sensitive data."
+  - external_id: Dir.12
+    name: Secure Configuration and Hardening
+    category: it_infrastructure
+    description: "All ICT systems, network devices, servers, and applications must be configured according to security best practices. Default credentials must be changed before deployment. Unused ports, services, and protocols must be disabled. Systems must be hardened against known attack vectors."
