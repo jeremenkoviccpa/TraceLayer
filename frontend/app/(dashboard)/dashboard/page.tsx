@@ -17,7 +17,7 @@ import {
   TrendingUp, Activity, AlertTriangle, ArrowRight, X,
   PartyPopper, Database, Target, GraduationCap, Building2,
   UserCheck, ShieldAlert, BookOpen, ClipboardList, Zap,
-  FileText, Globe, ChevronRight, Lock,
+  FileText, Globe, ChevronRight, ChevronLeft, Lock,
 } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
 import { useUpgrade } from "@/components/plan-gate";
@@ -232,13 +232,15 @@ const QUICK_LINKS = [
 ];
 
 const FRAMEWORKS = [
-  { value: "soc2",     label: "SOC 2"     },
-  { value: "iso27001", label: "ISO 27001" },
-  { value: "hipaa",    label: "HIPAA"     },
-  { value: "gdpr",     label: "GDPR"      },
-  { value: "pci_dss",  label: "PCI DSS"   },
-  { value: "ccpa",     label: "CCPA"      },
-  { value: "nist_csf", label: "NIST CSF"  },
+  { value: "soc2",     label: "SOC 2",     region: "US"     },
+  { value: "iso27001", label: "ISO 27001", region: "INTL"   },
+  { value: "hipaa",    label: "HIPAA",     region: "US"     },
+  { value: "gdpr",     label: "GDPR",      region: "EU"     },
+  { value: "pci_dss",  label: "PCI DSS",   region: "INTL"   },
+  { value: "ccpa",     label: "CCPA",      region: "US"     },
+  { value: "nist_csf", label: "NIST CSF",  region: "US"     },
+  { value: "dpdp",     label: "DPDP Act",  region: "IN"     },
+  { value: "cert_in",  label: "CERT-In",   region: "IN"     },
 ];
 
 function timeAgo(dateStr: string) {
@@ -390,6 +392,7 @@ export default function DashboardPage() {
   const [tmLoading, setTmLoading] = useState(false);
   const [tmPickerOpen, setTmPickerOpen] = useState(false);
   const [tmInputDate, setTmInputDate] = useState("");
+  const [allScores, setAllScores] = useState<Record<string, number>>({});
   const [onboardingStatus, setOnboardingStatus] = useState<{
     has_integration: boolean; has_evidence: boolean; has_vendor: boolean;
     has_member: boolean; has_training: boolean; has_report: boolean; has_risk: boolean;
@@ -413,6 +416,7 @@ export default function DashboardPage() {
         setIntegrations(ints);
         setEvidenceTotal(ev.total);
         setCompliance(score);
+        setAllScores(prev => ({ ...prev, soc2: score.overall_score }));
         setScoreHistory(history);
         setEvidenceActivity(activity);
         setReports(rpts.items);
@@ -449,6 +453,7 @@ export default function DashboardPage() {
         api.getReadiness(fw),
       ]);
       setCompliance(score);
+      setAllScores(prev => ({ ...prev, [fw]: score.overall_score }));
       setScoreHistory(history);
       setReadiness(readinessData);
     } catch { /* ignore */ }
@@ -476,6 +481,18 @@ export default function DashboardPage() {
     setTmInputDate("");
     setTmPickerOpen(false);
   };
+
+  // Background: load overview scores for all frameworks after initial load
+  useEffect(() => {
+    if (loading) return;
+    for (const fw of FRAMEWORKS) {
+      if (fw.value === "soc2") continue;
+      api.getComplianceScore(fw.value)
+        .then(s => setAllScores(prev => ({ ...prev, [fw.value]: s.overall_score })))
+        .catch(() => {});
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   if (loading) {
     return (
@@ -511,6 +528,7 @@ export default function DashboardPage() {
   const passingControls = compliance?.controls.filter((c) => c.status === "passing").length ?? 0;
   const failingControls = compliance?.controls.filter((c) => c.status === "failing" || c.status === "warning") ?? [];
   const score = compliance?.overall_score ?? 0;
+  const frameworkIdx = FRAMEWORKS.findIndex(f => f.value === framework);
 
   // Time machine: override ALL display values when viewing a historical date
   const activeCompliance: ComplianceScore | null = tmData ? tmData.historical : compliance;
@@ -693,49 +711,57 @@ export default function DashboardPage() {
                 </div>
                 <p className="text-3xl sm:text-4xl font-black text-white mb-3">{activeScore}<span className="text-xl text-white/30">%</span></p>
 
-                {/* Framework tabs — desktop: scrollable pill row; mobile: active chip + swipe dots */}
-                <div className="hidden sm:block overflow-x-auto no-scrollbar">
-                  <div className="flex gap-1 bg-white/10 rounded-xl p-1 w-max">
-                    {FRAMEWORKS.map((fw) => {
+                {/* Framework navigation — prev/next carousel */}
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => { if (frameworkIdx > 0) { const fw = FRAMEWORKS[frameworkIdx - 1]; if (!isPro && fw.value !== "soc2") triggerUpgrade(); else if (!scoreLoading) handleFrameworkChange(fw.value); } }}
+                      disabled={frameworkIdx === 0 || scoreLoading}
+                      aria-label="Previous framework"
+                      className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center disabled:opacity-20 transition-colors shrink-0"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5 text-white" />
+                    </button>
+                    <div className="flex-1 min-w-0 px-0.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-sm font-bold text-white leading-tight">
+                          {FRAMEWORKS[frameworkIdx].label}
+                        </span>
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded leading-none uppercase tracking-wide ${
+                          FRAMEWORKS[frameworkIdx].region === "IN"   ? "bg-orange-500/25 text-orange-300" :
+                          FRAMEWORKS[frameworkIdx].region === "EU"   ? "bg-sky-500/25 text-sky-300" :
+                          FRAMEWORKS[frameworkIdx].region === "INTL" ? "bg-purple-500/25 text-purple-300" :
+                          "bg-brand-500/25 text-brand-300"
+                        }`}>
+                          {FRAMEWORKS[frameworkIdx].region}
+                        </span>
+                        {!isPro && framework !== "soc2" && (
+                          <Lock className="w-3 h-3 text-amber-400 shrink-0" />
+                        )}
+                      </div>
+                      <p className="text-[10px] text-white/30 mt-0.5 tabular-nums">{frameworkIdx + 1} / {FRAMEWORKS.length}</p>
+                    </div>
+                    <button
+                      onClick={() => { if (frameworkIdx < FRAMEWORKS.length - 1) { const fw = FRAMEWORKS[frameworkIdx + 1]; if (!isPro && fw.value !== "soc2") triggerUpgrade(); else if (!scoreLoading) handleFrameworkChange(fw.value); } }}
+                      disabled={frameworkIdx === FRAMEWORKS.length - 1 || scoreLoading}
+                      aria-label="Next framework"
+                      className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center disabled:opacity-20 transition-colors shrink-0"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5 text-white" />
+                    </button>
+                  </div>
+                  {/* Dot strip */}
+                  <div className="flex items-center gap-1 pl-9">
+                    {FRAMEWORKS.map((fw, i) => {
                       const locked = !isPro && fw.value !== "soc2";
                       return (
                         <button
                           key={fw.value}
                           onClick={() => locked ? triggerUpgrade() : handleFrameworkChange(fw.value)}
                           disabled={scoreLoading}
-                          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 whitespace-nowrap ${
-                            framework === fw.value
-                              ? "bg-white text-slate-900 shadow-sm"
-                              : locked
-                              ? "text-white/30 hover:text-white/50"
-                              : "text-white/50 hover:text-white/80"
-                          }`}
-                        >
-                          {locked && <Lock className="w-2.5 h-2.5 text-amber-400 shrink-0" />}
-                          {fw.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                {/* Mobile: active framework chip + position dots */}
-                <div className="sm:hidden">
-                  <div className="flex items-center gap-2 mb-2 min-w-0 flex-nowrap">
-                    <span className="bg-white text-slate-900 text-[11px] font-bold px-2.5 py-1.5 rounded-lg shadow-sm max-w-[140px] truncate">
-                      {FRAMEWORKS.find((f) => f.value === framework)?.label}
-                    </span>
-                    <span className="text-[10px] text-white/30 shrink-0">← swipe →</span>
-                  </div>
-                  <div className="flex gap-1">
-                    {FRAMEWORKS.map((fw) => {
-                      const locked = !isPro && fw.value !== "soc2";
-                      return (
-                        <button
-                          key={fw.value}
-                          onClick={() => locked ? triggerUpgrade() : handleFrameworkChange(fw.value)}
-                          disabled={scoreLoading}
-                          className={`h-1 rounded-full transition-all duration-300 disabled:opacity-50 ${
-                            framework === fw.value ? "bg-white w-4" : locked ? "bg-amber-400/40 w-1.5" : "bg-white/25 w-1.5"
+                          title={fw.label}
+                          className={`rounded-full transition-all duration-300 disabled:opacity-50 ${
+                            i === frameworkIdx ? "bg-white w-5 h-1.5" : locked ? "bg-amber-400/40 w-1.5 h-1 hover:bg-amber-400/60" : "bg-white/25 w-1.5 h-1 hover:bg-white/40"
                           }`}
                         />
                       );
@@ -995,40 +1021,51 @@ export default function DashboardPage() {
           </div>
           <Link href="/compliance" className="text-xs text-brand-600 font-semibold hover:text-brand-700 transition-colors">View all →</Link>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2">
           {FRAMEWORKS.map((fw) => {
             const locked = !isPro && fw.value !== "soc2";
             const isActive = fw.value === framework;
+            const displayScore = isActive ? activeScore : allScores[fw.value];
+            const regionClass =
+              fw.region === "IN"   ? "bg-orange-50 text-orange-400 border-orange-100" :
+              fw.region === "EU"   ? "bg-sky-50 text-sky-400 border-sky-100" :
+              fw.region === "INTL" ? "bg-purple-50 text-purple-400 border-purple-100" :
+              "bg-brand-50 text-brand-500 border-brand-100";
             return (
               <button
                 key={fw.value}
                 onClick={() => locked ? triggerUpgrade() : handleFrameworkChange(fw.value)}
                 disabled={scoreLoading}
-                className={`relative flex flex-col items-start gap-1.5 p-3 rounded-xl border text-left transition-all disabled:opacity-60 ${
+                className={`relative flex flex-col items-start gap-1 p-2.5 rounded-xl border text-left transition-all disabled:opacity-60 ${
                   isActive
-                    ? "border-brand-200 bg-brand-50"
+                    ? "border-brand-200 bg-brand-50 ring-1 ring-brand-200"
                     : locked
                     ? "border-gray-100 bg-gray-50"
                     : "border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50"
                 }`}
               >
-                {locked && <Lock className="absolute top-2 right-2 w-3 h-3 text-gray-300" />}
-                <span className={`text-[10px] font-bold uppercase tracking-wide truncate w-full ${isActive ? "text-brand-600" : "text-gray-400"}`}>
-                  {fw.label}
-                </span>
-                {isActive ? (
+                <div className="flex items-start justify-between w-full gap-1">
+                  <span className={`text-[9px] font-bold uppercase tracking-wide leading-tight ${isActive ? "text-brand-600" : "text-gray-500"}`}>
+                    {fw.label}
+                  </span>
+                  {locked
+                    ? <Lock className="w-2.5 h-2.5 text-gray-300 shrink-0 mt-px" />
+                    : <span className={`text-[8px] font-bold px-1 py-px rounded border leading-none shrink-0 ${regionClass}`}>{fw.region}</span>
+                  }
+                </div>
+                {locked ? (
+                  <span className="text-[9px] text-amber-500 font-semibold mt-0.5">Upgrade</span>
+                ) : displayScore !== undefined ? (
                   <>
-                    <span className={`text-lg font-black leading-none ${activeScore >= 80 ? "text-emerald-600" : activeScore >= 50 ? "text-amber-600" : "text-gray-900"}`}>
-                      {activeScore}%
+                    <span className={`text-base font-black leading-none mt-0.5 ${displayScore >= 80 ? "text-emerald-600" : displayScore >= 50 ? "text-amber-600" : "text-gray-800"}`}>
+                      {displayScore}<span className="text-[10px] font-bold text-gray-400">%</span>
                     </span>
-                    <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full ${scoreBarColor(activeScore)}`} style={{ width: `${activeScore}%` }} />
+                    <div className="w-full h-0.5 bg-gray-100 rounded-full overflow-hidden mt-1">
+                      <div className={`h-full rounded-full transition-all duration-700 ${scoreBarColor(displayScore)}`} style={{ width: `${displayScore}%` }} />
                     </div>
                   </>
-                ) : locked ? (
-                  <span className="text-[10px] text-amber-500 font-semibold">Upgrade →</span>
                 ) : (
-                  <span className="text-xs font-bold text-gray-300 leading-none">—</span>
+                  <span className="text-xs font-bold text-gray-200 leading-none mt-0.5">—</span>
                 )}
               </button>
             );
