@@ -54,6 +54,8 @@ const FRAMEWORKS = [
   { value: "pci_dss",  label: "PCI DSS" },
   { value: "ccpa",     label: "CCPA" },
   { value: "nist_csf", label: "NIST CSF" },
+  { value: "dpdp",     label: "DPDP Act" },
+  { value: "cert_in",  label: "CERT-In" },
 ];
 
 // Per-framework accent colours for report cards
@@ -65,6 +67,8 @@ const FRAMEWORK_ACCENT: Record<string, { bar: string; icon: string; badge: strin
   pci_dss:  { bar: "bg-orange-500",  icon: "text-orange-500 bg-orange-50",   badge: "bg-orange-50 text-orange-700 border-orange-200"   },
   ccpa:     { bar: "bg-teal-500",    icon: "text-teal-500 bg-teal-50",       badge: "bg-teal-50 text-teal-700 border-teal-200"         },
   nist_csf: { bar: "bg-cyan-500",    icon: "text-cyan-500 bg-cyan-50",       badge: "bg-cyan-50 text-cyan-700 border-cyan-200"         },
+  dpdp:     { bar: "bg-orange-500",  icon: "text-orange-500 bg-orange-50",   badge: "bg-orange-50 text-orange-700 border-orange-200"   },
+  cert_in:  { bar: "bg-red-500",     icon: "text-red-500 bg-red-50",         badge: "bg-red-50 text-red-700 border-red-200"             },
 };
 
 function defaultAccent() {

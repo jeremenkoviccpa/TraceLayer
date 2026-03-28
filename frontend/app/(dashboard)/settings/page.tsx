@@ -1653,6 +1653,8 @@ export default function SettingsPage() {
                     { id: "pci_dss", label: "PCI DSS" },
                     { id: "ccpa", label: "CCPA" },
                     { id: "nist_csf", label: "NIST CSF" },
+                    { id: "dpdp", label: "DPDP Act" },
+                    { id: "cert_in", label: "CERT-In" },
                   ].map((fw) => {
                     const active = trustSettings.frameworks.includes(fw.id);
                     return (

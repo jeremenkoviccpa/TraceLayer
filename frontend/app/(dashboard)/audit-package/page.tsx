@@ -34,7 +34,10 @@ const FRAMEWORKS = [
   { value: "hipaa",    label: "HIPAA",            desc: "Health Insurance Portability and Accountability Act" },
   { value: "gdpr",     label: "GDPR",             desc: "General Data Protection Regulation" },
   { value: "pci_dss",  label: "PCI DSS",          desc: "Payment Card Industry Data Security Standard" },
+  { value: "ccpa",     label: "CCPA",             desc: "California Consumer Privacy Act" },
   { value: "nist_csf", label: "NIST CSF",         desc: "NIST Cybersecurity Framework" },
+  { value: "dpdp",     label: "DPDP Act",         desc: "India Digital Personal Data Protection Act 2023" },
+  { value: "cert_in",  label: "CERT-In",          desc: "India Cybersecurity Directions 2022" },
 ];
 
 const WHAT_IS_INCLUDED = [

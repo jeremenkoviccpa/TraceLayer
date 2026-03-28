@@ -24,6 +24,8 @@ const FRAMEWORKS = [
   { id: "pci_dss",  label: "PCI DSS"   },
   { id: "ccpa",     label: "CCPA"      },
   { id: "nist_csf", label: "NIST CSF"  },
+  { id: "dpdp",     label: "DPDP Act"  },
+  { id: "cert_in",  label: "CERT-In"   },
 ];
 
 const ACTION_ITEMS: { stage: string; items: { href: string; label: string; desc: string; icon: React.ElementType }[] }[] = [
