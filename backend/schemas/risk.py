@@ -13,6 +13,7 @@ class RiskCreate(BaseModel):
     status: str = "open"
     owner_user_id: Optional[str] = None
     notes: Optional[str] = None
+    due_date: Optional[datetime] = None
 
     @field_validator("likelihood", "impact")
     @classmethod
@@ -31,6 +32,7 @@ class RiskUpdate(BaseModel):
     status: Optional[str] = None
     owner_user_id: Optional[str] = None
     notes: Optional[str] = None
+    due_date: Optional[datetime] = None
 
     @field_validator("likelihood", "impact", mode="before")
     @classmethod
@@ -52,6 +54,7 @@ class RiskResponse(BaseModel):
     owner_user_id: Optional[str]
     owner_name: Optional[str] = None
     notes: Optional[str]
+    due_date: Optional[datetime] = None
     auto_detected: bool = False
     detection_key: Optional[str] = None
     created_at: datetime

@@ -123,6 +123,7 @@ export interface DownloadResponse {
 export interface Member {
   id: string;
   email: string;
+  full_name: string | null;
   role: string;
 }
 
@@ -246,6 +247,7 @@ export interface Risk {
   owner_user_id: string | null;
   owner_name: string | null;
   notes: string | null;
+  due_date: string | null;
   auto_detected: boolean;
   detection_key: string | null;
   risk_level: "critical" | "high" | "medium" | "low";

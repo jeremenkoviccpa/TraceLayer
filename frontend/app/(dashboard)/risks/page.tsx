@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Member, Risk } from "@/lib/types";
-import { AlertTriangle, Plus, Trash2, X, ChevronDown, ChevronUp, Sparkles, RefreshCw } from "lucide-react";
+import { AlertTriangle, Plus, Trash2, X, ChevronDown, ChevronUp, Sparkles, RefreshCw, Calendar } from "lucide-react";
 import { DocumentUpload } from "@/components/document-upload";
 import { toast } from "@/lib/toast";
 
@@ -63,6 +63,7 @@ const EMPTY: Partial<Risk> = {
   status: "open",
   notes: "",
   owner_user_id: null,
+  due_date: null,
 };
 
 export default function RisksPage() {
@@ -146,6 +147,9 @@ export default function RisksPage() {
   risks.forEach((r) => { counts[r.risk_level]++; });
   const openCount      = risks.filter((r) => r.status === "open").length;
   const mitigatedCount = risks.filter((r) => r.status === "mitigated").length;
+
+  const isOverdue = (r: Risk) =>
+    !!r.due_date && new Date(r.due_date) < new Date() && r.status === "open";
 
   const SortIcon = ({ col }: { col: typeof sortCol }) =>
     sortCol === col
@@ -326,6 +330,7 @@ export default function RisksPage() {
                     Status <SortIcon col="status" />
                   </th>
                   <th className="hidden px-4 py-3 text-left text-xs font-semibold text-gray-500 lg:table-cell">Owner</th>
+                  <th className="hidden px-4 py-3 text-left text-xs font-semibold text-gray-500 xl:table-cell">Due</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
@@ -356,6 +361,14 @@ export default function RisksPage() {
                       <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${STATUS_STYLES[r.status]}`}>{r.status}</span>
                     </td>
                     <td className="hidden px-4 py-3.5 lg:table-cell"><span className="text-xs text-gray-400">{r.owner_name ?? "Unassigned"}</span></td>
+                    <td className="hidden px-4 py-3.5 xl:table-cell">
+                      {r.due_date ? (
+                        <span className={`flex items-center gap-1 text-xs font-medium ${isOverdue(r) ? "text-red-500" : "text-gray-500"}`}>
+                          {isOverdue(r) && <AlertTriangle className="h-3 w-3" />}
+                          {new Date(r.due_date).toLocaleDateString()}
+                        </span>
+                      ) : <span className="text-xs text-gray-300">—</span>}
+                    </td>
                     <td className="px-4 py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
                       {deletingId === r.id ? (
                         <div className="flex items-center gap-1 justify-end">
@@ -487,19 +500,32 @@ export default function RisksPage() {
                 </div>
               )}
 
-              {members.length > 0 && (
+              <div className="grid grid-cols-2 gap-4">
+                {members.length > 0 && (
+                  <div>
+                    <label className="mb-1.5 block text-xs font-medium text-gray-600">Owner</label>
+                    <select
+                      value={form.owner_user_id ?? ""}
+                      onChange={(e) => setForm((f) => ({ ...f, owner_user_id: e.target.value || null }))}
+                      className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                    >
+                      <option value="">Unassigned</option>
+                      {members.map((m) => <option key={m.id} value={m.id}>{m.full_name || m.email}</option>)}
+                    </select>
+                  </div>
+                )}
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600">Owner</label>
-                  <select
-                    value={form.owner_user_id ?? ""}
-                    onChange={(e) => setForm((f) => ({ ...f, owner_user_id: e.target.value || null }))}
+                  <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600">
+                    <Calendar className="h-3 w-3" /> Due date
+                  </label>
+                  <input
+                    type="date"
+                    value={form.due_date ? form.due_date.substring(0, 10) : ""}
+                    onChange={(e) => setForm((f) => ({ ...f, due_date: e.target.value || null }))}
                     className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30"
-                  >
-                    <option value="">Unassigned</option>
-                    {members.map((m) => <option key={m.id} value={m.id}>{m.email}</option>)}
-                  </select>
+                  />
                 </div>
-              )}
+              </div>
 
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-600">Notes / Mitigation plan</label>

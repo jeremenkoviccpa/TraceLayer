@@ -8,6 +8,7 @@ from pydantic import BaseModel, EmailStr
 class MemberResponse(BaseModel):
     id: uuid.UUID
     email: str
+    full_name: Optional[str] = None
     role: str
     created_at: datetime
 

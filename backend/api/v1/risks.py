@@ -32,6 +32,7 @@ def _to_response(risk: Risk, owner_map: dict[uuid.UUID, str]) -> RiskResponse:
         owner_user_id=str(owner_id) if owner_id else None,
         owner_name=owner_name,
         notes=risk.notes,
+        due_date=risk.due_date,
         auto_detected=risk.auto_detected,
         detection_key=risk.detection_key,
         created_at=risk.created_at,
@@ -94,6 +95,7 @@ async def create_risk(
         status=body.status,
         owner_user_id=owner_user_id,
         notes=body.notes,
+        due_date=body.due_date,
     )
     db.add(risk)
     await db.commit()

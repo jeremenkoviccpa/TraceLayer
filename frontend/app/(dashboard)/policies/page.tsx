@@ -1,9 +1,172 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import type { Policy } from "@/lib/types";
-import { BookOpen, Save, CheckCircle2, Clock, FileText } from "lucide-react";
+import { BookOpen, Save, CheckCircle2, Clock, FileText, Sparkles, Send, Loader2, User as UserIcon } from "lucide-react";
+
+type ChatMessage = { role: "bot" | "user"; content: string };
+
+const POLICY_SUGGESTED: string[] = [
+  "Is this policy complete for SOC 2?",
+  "What's missing from this policy?",
+  "How can I strengthen it?",
+  "What controls does this policy cover?",
+];
+
+const POLICY_FOLLOWUP: string[] = [
+  "Give me example language to add",
+  "What else should I update?",
+  "Which framework requires this policy?",
+];
+
+function PolicyAdvisorChat({ policy }: { policy: Policy | null }) {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMessages([]);
+    if (!policy) return;
+    setSending(true);
+    const initMsg = `I'm looking at the "${policy.title}" policy. Give me a brief assessment: is it comprehensive for SOC 2 and ISO 27001 compliance? Name 2-3 specific things that could be added or improved.`;
+    api.advisorChat("soc2", initMsg, [])
+      .then(({ reply }) => setMessages([{ role: "bot", content: reply }]))
+      .catch(() => setMessages([{ role: "bot", content: "Ask me anything about this policy and I'll help you improve it." }]))
+      .finally(() => setSending(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [policy?.slug]);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages, sending]);
+
+  const sendMessage = async (text: string) => {
+    const msg = text.trim();
+    if (!msg || sending) return;
+    setInput("");
+    const history = messages.map(m => ({ role: m.role === "bot" ? "assistant" : "user", content: m.content }));
+    const policyCtx = policy ? `[Context: we're reviewing the "${policy.title}" policy] ` : "";
+    setMessages(prev => [...prev, { role: "user", content: msg }]);
+    setSending(true);
+    try {
+      const { reply } = await api.advisorChat("soc2", policyCtx + msg, history);
+      setMessages(prev => [...prev, { role: "bot", content: reply }]);
+    } catch {
+      setMessages(prev => [...prev, { role: "bot", content: "Sorry, I had trouble responding. Please try again." }]);
+    } finally {
+      setSending(false);
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  };
+
+  const suggested = messages.length <= 1 && !sending ? POLICY_SUGGESTED : messages.length > 1 && !sending ? POLICY_FOLLOWUP : [];
+
+  return (
+    <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col">
+      <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-4 py-3 flex items-center gap-3 shrink-0">
+        <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center shrink-0">
+          <Sparkles className="w-3.5 h-3.5 text-violet-300" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-white leading-none">Policy Advisor</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">
+            {policy ? policy.title : "Select a policy"} · Ask how to improve it
+          </p>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="text-xs text-slate-400">Llama 3.3 · Groq</span>
+        </div>
+      </div>
+
+      <div ref={scrollRef} className="overflow-y-auto bg-white px-4 py-4 space-y-3" style={{ minHeight: 160, maxHeight: 300 }}>
+        {messages.length === 0 && sending && (
+          <div className="flex items-start gap-2.5">
+            <div className="w-7 h-7 rounded-xl bg-slate-900 flex items-center justify-center shrink-0 mt-0.5">
+              <Sparkles className="w-3.5 h-3.5 text-violet-300" />
+            </div>
+            <div className="flex flex-col gap-2 flex-1">
+              <div className="inline-flex items-center gap-1 bg-slate-50 border border-slate-100 rounded-2xl rounded-tl-sm px-4 py-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0ms]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:150ms]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:300ms]" />
+              </div>
+              <p className="text-[11px] text-gray-400 ml-1">Reviewing policy…</p>
+            </div>
+          </div>
+        )}
+        {messages.map((msg, i) => (
+          <div key={i} className={`flex items-end gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+            {msg.role === "bot" ? (
+              <div className="w-7 h-7 rounded-xl bg-slate-900 flex items-center justify-center shrink-0 mb-0.5">
+                <Sparkles className="w-3.5 h-3.5 text-violet-300" />
+              </div>
+            ) : (
+              <div className="w-7 h-7 rounded-xl bg-violet-600 flex items-center justify-center shrink-0 mb-0.5">
+                <UserIcon className="w-3.5 h-3.5 text-white" />
+              </div>
+            )}
+            <div className={`max-w-[84%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
+              msg.role === "bot"
+                ? "bg-slate-50 border border-slate-100 rounded-bl-sm text-gray-800"
+                : "bg-violet-600 text-white rounded-br-sm"
+            }`}>
+              <p className="whitespace-pre-line">{msg.content}</p>
+            </div>
+          </div>
+        ))}
+        {sending && messages.length > 0 && (
+          <div className="flex items-end gap-2.5">
+            <div className="w-7 h-7 rounded-xl bg-slate-900 flex items-center justify-center shrink-0 mb-0.5">
+              <Sparkles className="w-3.5 h-3.5 text-violet-300" />
+            </div>
+            <div className="bg-slate-50 border border-slate-100 rounded-2xl rounded-bl-sm px-4 py-3">
+              <div className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0ms]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:150ms]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:300ms]" />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {suggested.length > 0 && (
+        <div className="px-4 py-2.5 bg-gray-50 border-t border-gray-100 flex flex-wrap gap-1.5 shrink-0">
+          {suggested.map((q) => (
+            <button key={q} onClick={() => sendMessage(q)} disabled={sending}
+              className="text-[11px] font-medium text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-100 px-2.5 py-1 rounded-full transition-colors disabled:opacity-40 whitespace-nowrap">
+              {q}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="px-4 py-3 bg-white border-t border-gray-100 flex items-center gap-2 shrink-0">
+        <input
+          ref={inputRef}
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
+          placeholder={policy ? `Ask about ${policy.title}…` : "Select a policy first…"}
+          disabled={sending || !policy}
+          className="flex-1 text-sm border border-gray-200 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500/25 focus:border-violet-400 bg-white transition-all disabled:opacity-50 placeholder:text-gray-400"
+        />
+        <button
+          onClick={() => sendMessage(input)}
+          disabled={!input.trim() || sending || !policy}
+          className="w-9 h-9 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center shrink-0 transition-colors"
+        >
+          {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function PoliciesPage() {
   const [policies, setPolicies] = useState<Policy[]>([]);
@@ -123,7 +286,7 @@ export default function PoliciesPage() {
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
         </div>
       ) : (
-        <div className="flex flex-col md:flex-row min-h-0 flex-1 gap-5 md:h-[calc(100vh-22rem)]">
+        <div className="flex flex-col md:flex-row min-h-0 flex-1 gap-5 md:h-[calc(100vh-26rem)]">
 
           {/* ── Left sidebar: policy list (desktop only) ── */}
           <div className="hidden md:flex w-64 shrink-0 flex-col overflow-y-auto rounded-2xl border border-gray-100 bg-white p-2 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
@@ -243,6 +406,9 @@ export default function PoliciesPage() {
             </div>
           )}
         </div>
+
+        {/* ── Policy Advisor Chatbot ── */}
+        <PolicyAdvisorChat policy={selected} />
       )}
     </div>
   );

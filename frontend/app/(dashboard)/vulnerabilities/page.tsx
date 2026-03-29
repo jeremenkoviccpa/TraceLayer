@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import type { Vulnerability } from "@/lib/types";
+import type { Member, Vulnerability } from "@/lib/types";
 import { Bug, Plus, Trash2, X, Sparkles, RefreshCw } from "lucide-react";
 import { toast } from "@/lib/toast";
 
@@ -30,6 +30,7 @@ const EMPTY: Partial<Vulnerability> = {
 
 export default function VulnerabilitiesPage() {
   const [vulns, setVulns]         = useState<Vulnerability[]>([]);
+  const [members, setMembers]     = useState<Member[]>([]);
   const [loading, setLoading]     = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing]     = useState<Vulnerability | null>(null);
@@ -38,7 +39,9 @@ export default function VulnerabilitiesPage() {
   const [detecting, setDetecting] = useState(false);
 
   useEffect(() => {
-    api.getVulnerabilities().then(setVulns).finally(() => setLoading(false));
+    Promise.all([api.getVulnerabilities(), api.getMembers()])
+      .then(([v, m]) => { setVulns(v); setMembers(m); })
+      .finally(() => setLoading(false));
   }, []);
 
   const handleAutoDetect = async () => {
@@ -143,6 +146,7 @@ export default function VulnerabilitiesPage() {
                       <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Vulnerability</th>
                       <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Severity</th>
                       <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Status</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Owner</th>
                       <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Due</th>
                       <th className="px-4 py-3" />
                     </tr>
@@ -162,6 +166,9 @@ export default function VulnerabilitiesPage() {
                         </td>
                         <td className="px-4 py-3 hidden sm:table-cell">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[v.status]}`}>{v.status.replace("_", " ")}</span>
+                        </td>
+                        <td className="px-4 py-3 hidden md:table-cell">
+                          <span className="text-xs text-gray-500">{v.owner_name ?? "—"}</span>
                         </td>
                         <td className="px-4 py-3 hidden md:table-cell">
                           {v.due_date ? (
@@ -261,6 +268,15 @@ export default function VulnerabilitiesPage() {
                   <input type="date" className="input" value={form.due_date ? form.due_date.substring(0, 10) : ""} onChange={e => setForm(p => ({ ...p, due_date: e.target.value || null }))} />
                 </div>
               </div>
+              {members.length > 0 && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Assignee</label>
+                  <select className="input" value={form.owner_user_id ?? ""} onChange={e => setForm(p => ({ ...p, owner_user_id: e.target.value || null }))}>
+                    <option value="">Unassigned</option>
+                    {members.map(m => <option key={m.id} value={m.id}>{m.full_name || m.email}</option>)}
+                  </select>
+                </div>
+              )}
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
                 <textarea className="input min-h-[70px]" value={form.description ?? ""} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
