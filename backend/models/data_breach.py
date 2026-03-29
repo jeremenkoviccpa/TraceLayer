@@ -24,6 +24,8 @@ class DataBreach(Base):
     notification_required: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     dpa_notified_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     individuals_notified_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    dpbi_notified_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    dpbi_ref_number: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     root_cause: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     remediation: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     reporter_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)

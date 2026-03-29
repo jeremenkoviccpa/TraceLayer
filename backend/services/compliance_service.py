@@ -50,41 +50,48 @@ EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
         },
     },
     "dpdp": {
-        # Sec.4-7: Lawful basis, notice, consent — user directory & DLP evidence
+        # Sec.4-7: Lawful basis, consent records, notice — India-specific consent
+        # management tools are primary evidence; DLP + IAM as supporting evidence
         "lawful_processing": {
-            "slack_users", "workspace_users",
-            "okta_users", "azure_users",
+            "leegality_documents", "leegality_templates",
+            "digilocker_documents", "digilocker_issued_documents",
+            "signzy_verifications",
             "nightfall_policies", "nightfall_detectors",
+            "okta_users", "azure_users", "workspace_users",
             "iam_policies",
         },
-        # Sec.8, 8.3, 10: Security safeguards, data erasure, SDF obligations
+        # Sec.8, 8.3, 10: Security safeguards, data erasure, processor agreements
         "data_fiduciary_obligations": {
             "cloudtrail_logs",
             "iam_policies", "iam_users",
             "nightfall_policies", "nightfall_detectors",
             "wiz_issues",
             "crowdstrike_policies", "sentinelone_agents",
+            "github_repositories",
         },
-        # Sec.9: Children's data — DLP & access controls on special categories
+        # Sec.9: Children's data — DLP + identity/age-verification integrations
         "special_categories": {
             "nightfall_policies", "nightfall_detectors",
             "iam_policies", "okta_policies",
+            "signzy_verifications",
         },
-        # Sec.11-14, 17: Access, correction, erasure, nomination rights
+        # Sec.11-14, 17: DSR records are primary evidence — auto-generated
+        # from Subject Requests module completions; supplemented by ticketing
         "data_principal_rights": {
+            "dsr_records",
             "jira_projects", "servicenow_incidents",
-            "okta_users", "workspace_users",
-            "azure_users",
+            "okta_users", "workspace_users", "azure_users",
         },
-        # Sec.8.6: Personal data breach notification to DPBI & data principals
+        # Sec.8.6: DPBI breach notification records + detection capabilities
         "breach_notification": {
+            "dpbi_notifications",
             "pagerduty_incidents", "pagerduty_escalation_policies",
             "servicenow_incidents",
             "opsgenie_alerts", "opsgenie_escalations",
             "sentinelone_threats", "wiz_issues",
             "cloudtrail_logs",
         },
-        # Sec.16: Cross-border transfer controls
+        # Sec.16: Cross-border transfer controls — network policies + cloud region
         "cross_border_transfers": {
             "cloudflare_security_settings", "cloudflare_zones",
             "tailscale_acl",

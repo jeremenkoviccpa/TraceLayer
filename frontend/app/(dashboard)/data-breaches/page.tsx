@@ -77,10 +77,11 @@ function TimelineDot({ done, label }: { done: boolean; label: string }) {
 
 function TimelineRow({ b }: { b: DataBreach }) {
   const steps = [
-    { done: !!b.occurred_at,           label: "Occurred" },
-    { done: !!b.discovered_at,         label: "Discovered" },
-    { done: !!b.dpa_notified_at,       label: "DPA Notified" },
-    { done: !!b.individuals_notified_at, label: "Individuals" },
+    { done: !!b.occurred_at,              label: "Occurred"   },
+    { done: !!b.discovered_at,            label: "Discovered" },
+    { done: !!b.dpa_notified_at,          label: "DPA / GDPR" },
+    { done: !!b.dpbi_notified_at,         label: "DPBI 🇮🇳"   },
+    { done: !!b.individuals_notified_at,  label: "Individuals"},
     { done: b.status === "resolved" || b.status === "closed", label: "Resolved" },
   ];
 
@@ -174,7 +175,7 @@ export default function DataBreachesPage() {
         <div className="flex items-center gap-3 bg-red-600 text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-sm">
           <AlertOctagon className="w-4 h-4 shrink-0" />
           <span>
-            ⚠ {overdueBreaches.length} breach{overdueBreaches.length > 1 ? "es" : ""} past GDPR 72-hour DPA notification deadline
+            ⚠ {overdueBreaches.length} breach{overdueBreaches.length > 1 ? "es" : ""} past 72-hour DPA / DPBI notification deadline
           </span>
         </div>
       )}
@@ -361,9 +362,18 @@ export default function DataBreachesPage() {
                           </div>
                           <div>
                             <p className="text-[10px] text-gray-400 mb-0.5 flex items-center gap-1">
-                              <Bell className="w-2.5 h-2.5" /> DPA Notified
+                              <Bell className="w-2.5 h-2.5" /> DPA / GDPR
                             </p>
                             <p className="text-xs text-gray-700">{fmt(b.dpa_notified_at)}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-gray-400 mb-0.5 flex items-center gap-1">
+                              <Bell className="w-2.5 h-2.5" /> DPBI 🇮🇳
+                            </p>
+                            <p className="text-xs text-gray-700">{fmt(b.dpbi_notified_at)}</p>
+                            {b.dpbi_ref_number && (
+                              <p className="text-[10px] text-orange-600 font-medium mt-0.5">{b.dpbi_ref_number}</p>
+                            )}
                           </div>
                           <div>
                             <p className="text-[10px] text-gray-400 mb-0.5 flex items-center gap-1">
@@ -555,7 +565,7 @@ export default function DataBreachesPage() {
                   {form.notification_required && (
                     <>
                       <div>
-                        <label className="text-xs font-medium text-gray-500 block mb-1">DPA Notified At</label>
+                        <label className="text-xs font-medium text-gray-500 block mb-1">DPA / GDPR Notified At</label>
                         <input
                           type="datetime-local"
                           value={form.dpa_notified_at ? new Date(form.dpa_notified_at).toISOString().slice(0, 16) : ""}
@@ -571,6 +581,30 @@ export default function DataBreachesPage() {
                           onChange={(e) => setForm((f) => ({ ...f, individuals_notified_at: e.target.value ? new Date(e.target.value).toISOString() : null }))}
                           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                         />
+                      </div>
+                      <div className="col-span-2 border-t border-gray-100 pt-3">
+                        <p className="text-xs font-semibold text-orange-700 mb-2">🇮🇳 DPDP Act — DPBI Notification (Sec. 8.6)</p>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs font-medium text-gray-500 block mb-1">DPBI Notified At <span className="text-gray-400 font-normal">(72h deadline)</span></label>
+                            <input
+                              type="datetime-local"
+                              value={form.dpbi_notified_at ? new Date(form.dpbi_notified_at).toISOString().slice(0, 16) : ""}
+                              onChange={(e) => setForm((f) => ({ ...f, dpbi_notified_at: e.target.value ? new Date(e.target.value).toISOString() : null }))}
+                              className="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-medium text-gray-500 block mb-1">DPBI Reference Number</label>
+                            <input
+                              type="text"
+                              placeholder="e.g. DPBI-2024-001234"
+                              value={form.dpbi_ref_number ?? ""}
+                              onChange={(e) => setForm((f) => ({ ...f, dpbi_ref_number: e.target.value || null }))}
+                              className="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                            />
+                          </div>
+                        </div>
                       </div>
                     </>
                   )}

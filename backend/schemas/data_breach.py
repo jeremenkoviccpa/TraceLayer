@@ -17,6 +17,8 @@ class DataBreachCreate(BaseModel):
     notification_required: bool = False
     dpa_notified_at: Optional[datetime] = None
     individuals_notified_at: Optional[datetime] = None
+    dpbi_notified_at: Optional[datetime] = None
+    dpbi_ref_number: Optional[str] = None
     root_cause: Optional[str] = None
     remediation: Optional[str] = None
     reporter_name: Optional[str] = None

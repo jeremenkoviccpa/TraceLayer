@@ -19,13 +19,23 @@ import {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const STATUSES = ["pending", "in_progress", "completed", "refused", "extended"] as const;
-const REQUEST_TYPES = ["access", "deletion", "rectification", "portability", "objection", "restriction"] as const;
-const REGULATIONS = ["gdpr", "ccpa", "other"] as const;
+const REQUEST_TYPES = ["access", "deletion", "rectification", "portability", "objection", "restriction", "nomination", "grievance"] as const;
+const REGULATIONS = ["gdpr", "ccpa", "dpdp", "other"] as const;
 
 const SLA_DAYS: Record<string, number> = {
   gdpr: 30,
   ccpa: 45,
+  dpdp: 30,
   other: 30,
+};
+
+// DPDP-specific request types (Sec. 11-14)
+const DPDP_TYPE_LABELS: Record<string, string> = {
+  access:        "Access (Sec. 11)",
+  deletion:      "Erasure (Sec. 12)",
+  rectification: "Correction (Sec. 12)",
+  nomination:    "Nomination (Sec. 14)",
+  grievance:     "Grievance (Sec. 13)",
 };
 
 // ─── Style maps ──────────────────────────────────────────────────────────────
@@ -37,6 +47,8 @@ const TYPE_STYLES: Record<string, string> = {
   portability:   "bg-blue-50 text-blue-600",
   objection:     "bg-gray-100 text-gray-600",
   restriction:   "bg-gray-100 text-gray-600",
+  nomination:    "bg-violet-100 text-violet-700",
+  grievance:     "bg-orange-100 text-orange-700",
 };
 
 const STATUS_STYLES: Record<string, string> = {
@@ -50,6 +62,7 @@ const STATUS_STYLES: Record<string, string> = {
 const REG_STYLES: Record<string, string> = {
   gdpr:  "bg-purple-100 text-purple-700",
   ccpa:  "bg-blue-100 text-blue-700",
+  dpdp:  "bg-orange-100 text-orange-700",
   other: "bg-gray-100 text-gray-500",
 };
 
@@ -386,12 +399,14 @@ export default function SubjectRequestsPage() {
                     <span
                       className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${TYPE_STYLES[r.request_type] ?? "bg-gray-100 text-gray-500"}`}
                     >
-                      {r.request_type}
+                      {r.regulation === "dpdp" && DPDP_TYPE_LABELS[r.request_type]
+                        ? DPDP_TYPE_LABELS[r.request_type]
+                        : r.request_type}
                     </span>
                     <span
                       className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium uppercase ${REG_STYLES[r.regulation] ?? "bg-gray-100 text-gray-500"}`}
                     >
-                      {r.regulation}
+                      {r.regulation === "dpdp" ? "DPDP Act" : r.regulation}
                     </span>
                     <StatusDropdown req={r} onStatusChange={handleQuickStatus} />
                   </div>
@@ -502,9 +517,16 @@ export default function SubjectRequestsPage() {
                     {...sf("request_type")}
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                   >
-                    {REQUEST_TYPES.map((t) => (
-                      <option key={t} value={t} className="capitalize">{t}</option>
-                    ))}
+                    <optgroup label="Universal">
+                      {(["access", "deletion", "rectification", "portability", "objection", "restriction"] as const).map((t) => (
+                        <option key={t} value={t} className="capitalize">{t.charAt(0).toUpperCase() + t.slice(1)}</option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="DPDP Act (India)">
+                      {(["nomination", "grievance"] as const).map((t) => (
+                        <option key={t} value={t}>{DPDP_TYPE_LABELS[t] ?? t}</option>
+                      ))}
+                    </optgroup>
                   </select>
                 </div>
                 <div>
@@ -514,7 +536,7 @@ export default function SubjectRequestsPage() {
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                   >
                     {REGULATIONS.map((reg) => (
-                      <option key={reg} value={reg}>{reg.toUpperCase()}</option>
+                      <option key={reg} value={reg}>{reg === "dpdp" ? "DPDP Act (India)" : reg.toUpperCase()}</option>
                     ))}
                   </select>
                 </div>
