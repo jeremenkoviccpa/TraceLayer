@@ -578,8 +578,15 @@ async def advisor_chat(
     _: User = Depends(require_growth),
 ):
     score_data = await get_compliance_score(current_user.company_id, body.framework, db)
+    integrations_result = await db.execute(
+        select(Integration.integration_type).where(
+            Integration.company_id == current_user.company_id,
+            Integration.status == "active",
+        )
+    )
+    connected_integrations = [row[0] for row in integrations_result.all()]
     try:
-        reply = await chat_with_advisor(body.framework, score_data, body.message, body.history)
+        reply = await chat_with_advisor(body.framework, score_data, body.message, body.history, connected_integrations)
     except ValueError as exc:
         raise HTTPException(status_code=503, detail=str(exc))
     except Exception:

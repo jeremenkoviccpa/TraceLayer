@@ -23,6 +23,177 @@ FRAMEWORK_LABELS_FULL = {
     "cert_in":  "CERT-In Directions 2022 (India)",
 }
 
+# Groups of integrations that are interchangeable for compliance purposes
+INTEGRATION_ALTERNATIVES: dict[str, dict] = {
+    "cloud_infra": {
+        "label": "Cloud Infrastructure",
+        "integrations": ["aws", "azure", "gcp"],
+        "evidence": "infrastructure logs, IAM policies, config snapshots, storage bucket policies, network flow logs",
+    },
+    "identity": {
+        "label": "Identity & SSO",
+        "integrations": ["okta", "azure_ad", "google_workspace"],
+        "evidence": "user provisioning/deprovisioning, MFA enforcement, access logs, group memberships",
+    },
+    "source_control": {
+        "label": "Source Control & CI/CD",
+        "integrations": ["github", "gitlab", "bitbucket"],
+        "evidence": "code review records, branch protection rules, deployment history, PR approval audit trail",
+    },
+    "hrms": {
+        "label": "HR & People Management",
+        "integrations": ["rippling", "bamboohr", "workday", "gusto"],
+        "evidence": "employee onboarding/offboarding records, employment status, org structure, background check tracking",
+    },
+    "monitoring": {
+        "label": "Monitoring & Incident Management",
+        "integrations": ["datadog", "pagerduty", "sentry", "newrelic"],
+        "evidence": "uptime metrics, alert history, incident timelines, performance dashboards",
+    },
+    "communication": {
+        "label": "Team Communication",
+        "integrations": ["slack", "teams"],
+        "evidence": "incident communication audit trail, access logs",
+    },
+    "project_mgmt": {
+        "label": "Project & Issue Tracking",
+        "integrations": ["jira", "linear", "asana"],
+        "evidence": "vulnerability tracking tickets, change management records, remediation timelines",
+    },
+    "payment": {
+        "label": "Payment Processing",
+        "integrations": ["stripe"],
+        "evidence": "payment processing logs, cardholder data environment scope",
+    },
+}
+
+# Per framework: which integration categories are required vs recommended
+FRAMEWORK_INTEGRATION_REQUIREMENTS: dict[str, dict] = {
+    "soc2": {
+        "required": ["cloud_infra", "identity", "source_control", "monitoring", "hrms"],
+        "recommended": ["project_mgmt", "communication"],
+        "context": (
+            "SOC 2 centers on the Trust Service Criteria. Access control (CC6) needs identity + cloud IAM evidence. "
+            "Change management (CC8) needs source control. Availability (A1) needs monitoring. "
+            "Logical & physical access (CC6.2/CC6.3) needs HR for onboarding/offboarding."
+        ),
+    },
+    "iso27001": {
+        "required": ["cloud_infra", "identity", "source_control", "hrms", "monitoring"],
+        "recommended": ["project_mgmt"],
+        "context": (
+            "ISO 27001 Annex A covers asset management (A.8 — cloud), access control (A.9 — identity), "
+            "operations security (A.12 — monitoring), and personnel security (A.7 — HR). "
+            "Source control covers A.12.1 change management and A.14 secure development."
+        ),
+    },
+    "hipaa": {
+        "required": ["cloud_infra", "identity", "monitoring", "hrms"],
+        "recommended": ["source_control", "communication"],
+        "context": (
+            "HIPAA Technical Safeguards require audit controls (monitoring), access management (identity), "
+            "and transmission security (cloud). Administrative Safeguards require workforce training/sanctions (HR). "
+            "Cloud infra must be HIPAA BAA-eligible (AWS, Azure, GCP all qualify)."
+        ),
+    },
+    "gdpr": {
+        "required": ["cloud_infra", "identity", "hrms"],
+        "recommended": ["monitoring", "source_control"],
+        "context": (
+            "GDPR evidence covers data processing records (RoPA), access controls for personal data (identity + cloud), "
+            "and data subject request handling. Cloud infra determines data residency — EU region selection is critical. "
+            "HR provides employee data subject access evidence."
+        ),
+    },
+    "pci_dss": {
+        "required": ["cloud_infra", "identity", "monitoring", "source_control"],
+        "recommended": ["payment", "project_mgmt"],
+        "context": (
+            "PCI DSS Req 1-2 need network segmentation evidence (cloud). Req 7-8 need access control (identity + MFA). "
+            "Req 10 needs logging (cloud + monitoring). Req 6 needs code review (source control). "
+            "Req 11 needs vulnerability scanning which can be evidenced via monitoring tools."
+        ),
+    },
+    "ccpa": {
+        "required": ["cloud_infra", "identity"],
+        "recommended": ["hrms", "monitoring"],
+        "context": (
+            "CCPA focuses on consumer rights: access, deletion, and opt-out. Cloud infra shows where data is stored "
+            "and provides deletion capability evidence. Identity shows who has access to consumer data."
+        ),
+    },
+    "nist_csf": {
+        "required": ["cloud_infra", "identity", "monitoring", "source_control"],
+        "recommended": ["hrms", "project_mgmt"],
+        "context": (
+            "NIST CSF maps to five functions: Identify (asset inventory via cloud), Protect (access control via identity, "
+            "change management via source control), Detect (monitoring), Respond & Recover (incident management via monitoring + project mgmt)."
+        ),
+    },
+    "dpdp": {
+        "required": ["cloud_infra", "identity"],
+        "recommended": ["hrms", "monitoring"],
+        "context": (
+            "DPDP Act 2023 (India) focuses on consent, data localisation (cloud region — must be India), "
+            "access to personal data (identity), and breach notification within 72 hours (monitoring for detection)."
+        ),
+    },
+    "cert_in": {
+        "required": ["cloud_infra", "monitoring", "identity"],
+        "recommended": ["source_control", "project_mgmt"],
+        "context": (
+            "CERT-In Directions require: 180-day log retention (cloud + monitoring), NTP synchronisation "
+            "(cloud config evidence), vulnerability management (monitoring/scanning), and 6-hour incident reporting. "
+            "Identity provides access audit trails required by Dir. 5."
+        ),
+    },
+}
+
+
+def _build_integration_gap_analysis(framework: str, connected: list[str]) -> str:
+    """Produce a structured integration gap analysis for the given framework and connected integrations."""
+    reqs = FRAMEWORK_INTEGRATION_REQUIREMENTS.get(framework, {})
+    required_cats = reqs.get("required", [])
+    recommended_cats = reqs.get("recommended", [])
+    framework_context = reqs.get("context", "")
+
+    connected_lower = {c.lower() for c in connected}
+
+    lines = []
+    if framework_context:
+        lines.append(f"Framework note: {framework_context}")
+    lines.append("")
+    lines.append("INTEGRATION STATUS:")
+
+    missing_required = []
+    for category in required_cats:
+        cat = INTEGRATION_ALTERNATIVES.get(category, {})
+        connected_in_cat = [i for i in cat.get("integrations", []) if i in connected_lower]
+        all_options = cat.get("integrations", [])
+        if connected_in_cat:
+            lines.append(f"  ✓ [REQUIRED] {cat.get('label', category)}: {', '.join(connected_in_cat)} — covers: {cat.get('evidence', '')}")
+        else:
+            missing_required.append(cat.get("label", category))
+            lines.append(f"  ✗ [REQUIRED] {cat.get('label', category)}: NOT CONNECTED")
+            lines.append(f"    → Missing evidence: {cat.get('evidence', '')}")
+            lines.append(f"    → Connect any one of: {', '.join(all_options)} (they are equivalent for compliance)")
+
+    for category in recommended_cats:
+        cat = INTEGRATION_ALTERNATIVES.get(category, {})
+        connected_in_cat = [i for i in cat.get("integrations", []) if i in connected_lower]
+        all_options = cat.get("integrations", [])
+        if connected_in_cat:
+            lines.append(f"  ✓ [RECOMMENDED] {cat.get('label', category)}: {', '.join(connected_in_cat)}")
+        else:
+            lines.append(f"  ○ [RECOMMENDED] {cat.get('label', category)}: not connected — options: {', '.join(all_options)}")
+
+    if missing_required:
+        lines.append(f"\nCRITICAL GAPS: {len(missing_required)} required integration categories missing — {', '.join(missing_required)}")
+    else:
+        lines.append("\nAll required integration categories are covered.")
+
+    return "\n".join(lines)
+
 
 def _build_prompt(framework: str, score_data: dict) -> str:
     label = FRAMEWORK_LABELS.get(framework, framework.upper())
@@ -89,6 +260,7 @@ async def chat_with_advisor(
     score_data: dict,
     message: str,
     history: list[dict],
+    connected_integrations: list[str] | None = None,
 ) -> str:
     """Multi-turn compliance advisor chat powered by Groq."""
     if not settings.groq_api_key:
@@ -100,6 +272,7 @@ async def chat_with_advisor(
         raise RuntimeError("groq package not installed") from exc
 
     label = FRAMEWORK_LABELS_FULL.get(framework, framework.upper())
+    connected = connected_integrations or []
 
     controls_lines = []
     for c in score_data["controls"]:
@@ -114,22 +287,39 @@ async def chat_with_advisor(
     failing = [c for c in score_data["controls"] if c["status"] in ("failing", "no_evidence")]
     top_gap = failing[0]["name"] if failing else "—"
 
+    integration_gap_text = _build_integration_gap_analysis(framework, connected)
+    connected_str = ", ".join(connected) if connected else "none"
+
     system_prompt = f"""You are TraceLayer's AI Compliance Advisor — a direct, expert guide helping an engineering team achieve {label} compliance.
 
 CURRENT POSTURE (live data):
 - Framework: {label}
 - Overall score: {score_data["overall_score"]}%
+- Connected integrations: {connected_str}
 - Controls:
 {controls_text}
-- Top priority gap: {top_gap}
+- Top priority control gap: {top_gap}
+
+{integration_gap_text}
+
+INTEGRATION KNOWLEDGE:
+- AWS, Azure, and GCP are interchangeable for cloud infrastructure evidence — recommend the one they already use
+- Okta, Azure AD, and Google Workspace are interchangeable for identity/SSO evidence
+- GitHub, GitLab, and Bitbucket are interchangeable for source control evidence
+- Rippling, BambooHR, Workday, and Gusto are interchangeable for HR evidence
+- Datadog, PagerDuty, Sentry, and New Relic are interchangeable for monitoring evidence
+- Slack and Microsoft Teams are interchangeable for communication evidence
+- Jira, Linear, and Asana are interchangeable for issue tracking evidence
+- When recommending an integration, always check if they already have an equivalent connected and prefer it
 
 RULES:
-- Give numbered, specific action steps grounded in the data above — never generic advice
+- When asked "where to start" or for a plan: assess their current integrations, name exactly which categories are missing, and give a prioritized numbered list of integrations to connect (required gaps first, then recommended)
+- Always offer alternatives — if they don't have AWS, mention Azure or GCP; if not Okta, mention Azure AD or Google Workspace
 - Reference actual control names and missing evidence types from the data
-- For failing/no_evidence controls, name exactly what integrations or manual steps fix them
-- Be concise (≤150 words) unless the user asks to elaborate
-- Tone: friendly, direct, no jargon unless asked
-- If asked about integrations, match missing evidence types to the integrations that collect them"""
+- For failing/no_evidence controls, explain which specific integration(s) would fix them and why
+- Be concise (≤200 words) unless the user asks to elaborate
+- Tone: friendly, direct, expert — like a senior compliance engineer on their team
+- Never give generic advice — every recommendation must be grounded in their specific stack and gaps"""
 
     msgs: list[dict] = [{"role": "system", "content": system_prompt}]
     for h in history[-14:]:
@@ -141,7 +331,7 @@ RULES:
         model="llama-3.3-70b-versatile",
         messages=msgs,
         temperature=0.35,
-        max_tokens=400,
+        max_tokens=500,
     )
     return completion.choices[0].message.content.strip()
 
