@@ -34,6 +34,7 @@ import {
   Sparkles,
   Zap,
   ArrowRight,
+  RefreshCw,
 } from "lucide-react";
 
 const FRAMEWORKS = [
