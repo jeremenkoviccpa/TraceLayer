@@ -15,6 +15,8 @@ class IncidentCreate(BaseModel):
     root_cause: Optional[str] = None
     lessons_learned: Optional[str] = None
     reporter_user_id: Optional[str] = None
+    certin_reported_at: Optional[datetime] = None
+    certin_ref_number: Optional[str] = None
 
 
 class IncidentUpdate(BaseModel):
@@ -28,6 +30,8 @@ class IncidentUpdate(BaseModel):
     root_cause: Optional[str] = None
     lessons_learned: Optional[str] = None
     reporter_user_id: Optional[str] = None
+    certin_reported_at: Optional[datetime] = None
+    certin_ref_number: Optional[str] = None
 
 
 class IncidentResponse(BaseModel):
@@ -46,5 +50,7 @@ class IncidentResponse(BaseModel):
     reporter_name: Optional[str]
     auto_detected: bool = False
     detection_key: Optional[str] = None
+    certin_reported_at: Optional[datetime] = None
+    certin_ref_number: Optional[str] = None
     created_at: datetime
     updated_at: datetime

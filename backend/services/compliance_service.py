@@ -100,50 +100,61 @@ EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
         },
     },
     "cert_in": {
-        # Dir.1, 5: Mandatory 6-hour incident reporting + CERT-In point of contact
+        # Dir.1, 5: 6-hour incident reporting — ticketing and on-call platforms
+        # are primary evidence; certin_incidents is a native evidence type
+        # generated when incidents are filed with CERT-In from the Incidents module
         "incident_reporting": {
+            "certin_incidents",
             "pagerduty_services", "pagerduty_incidents",
             "pagerduty_escalation_policies",
             "servicenow_incidents",
             "opsgenie_alerts", "opsgenie_escalations", "opsgenie_schedules",
         },
-        # Dir.2, 12: NTP sync (timestamped audit logs), secure configuration & hardening
+        # Dir.2, 12: NTP sync evidenced through timestamped audit logs;
+        # cloud posture + hardening evidenced through security tools
         "it_infrastructure": {
             "cloudtrail_logs",
             "iam_policies",
             "network_policies", "pods",
             "wiz_issues",
             "crowdstrike_policies",
+            "github_repositories",
         },
-        # Dir.3: Mandatory 180-day log retention in Indian jurisdiction
+        # Dir.3: 180-day log retention — SIEM + CloudTrail are primary evidence;
+        # Indian jurisdiction confirmed through storage region configuration
         "log_management": {
             "cloudtrail_logs",
             "splunk_saved_searches", "splunk_alerts",
             "datadog_monitors",
+            "datadog_logs",
         },
-        # Dir.4: KYC / validated customer information for VPS/VPN/cloud providers
+        # Dir.4: KYC for VPS/VPN/cloud/DC providers — India-specific identity
+        # verification tools are primary; IAM user records as supporting evidence
         "identity_verification": {
+            "signzy_verifications",
             "okta_users", "azure_users",
             "workspace_users", "jira_users",
             "iam_users",
         },
-        # Dir.6: Incident response plan, roles, testing
+        # Dir.6: Incident response plan — escalation policies, schedules, and
+        # change records demonstrate a documented and tested IRP
         "incident_response": {
             "pagerduty_escalation_policies", "pagerduty_schedules", "pagerduty_services",
             "servicenow_incidents", "servicenow_changes",
             "opsgenie_schedules", "opsgenie_escalations",
         },
-        # Dir.7: VA/PT, patch management, CERT-In advisory compliance
+        # Dir.7: VA/PT + advisory response — scan results and exploit management
         "vulnerability_management": {
-            "github_members", "repositories",
             "snyk_projects",
             "vulnerability_scans", "assets",
             "wiz_issues",
             "hackerone_reports", "hackerone_programs",
             "detectify_findings", "detectify_scan_profiles",
             "crowdstrike_detections",
+            "github_repositories",
         },
-        # Dir.8: MFA on all admin accounts, least-privilege, PAM
+        # Dir.8: MFA + PAM — all identity platforms with MFA/policy evidence;
+        # vault for privileged access session logging
         "access_control": {
             "iam_users", "iam_policies",
             "okta_users", "okta_groups", "okta_policies",
@@ -153,24 +164,26 @@ EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
             "mfa_policies", "mfa_enrollments",
             "vault_auth_method", "vault_policy",
         },
-        # Dir.9: Regular backups, BCP/DR tested and documented
+        # Dir.9: Backups + BCP/DR — uptime monitoring and change records
+        # demonstrate backup and continuity posture
         "resilience": {
             "pagerduty_services",
             "servicenow_changes",
             "vault_secrets_engine",
             "datadog_monitors",
+            "datadog_slos",
         },
-        # Dir.10: Network monitoring, anomaly detection, SOC alerting
+        # Dir.10: Continuous monitoring — SIEM, EDR, and cloud posture tools
         "monitoring": {
             "cloudtrail_logs",
-            "datadog_monitors",
+            "datadog_monitors", "datadog_logs",
             "splunk_alerts",
             "crowdstrike_detections",
             "sentinelone_threats",
             "wiz_issues",
             "network_policies",
         },
-        # Dir.11: Endpoint protection, MDM, encryption on all devices
+        # Dir.11: Endpoint protection + MDM + encryption enforcement
         "endpoint_security": {
             "crowdstrike_devices", "crowdstrike_policies",
             "sentinelone_agents",
