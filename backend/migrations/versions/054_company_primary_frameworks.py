@@ -24,7 +24,7 @@ def upgrade() -> None:
         sa.Column(
             "primary_frameworks",
             postgresql.JSONB(),
-            server_default="'[]'::jsonb",
+            server_default=sa.text("'[]'::jsonb"),
             nullable=False,
         ),
     )
