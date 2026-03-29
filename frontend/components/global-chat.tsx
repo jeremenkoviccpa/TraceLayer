@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Bot,
-  ChevronRight,
   Edit2,
   MessageSquare,
   MoreHorizontal,
+  PanelRightClose,
   Plus,
   Send,
   Sparkles,
@@ -149,13 +149,26 @@ export default function GlobalChat() {
     }
   };
 
+  // Close menu when clicking outside (safer than a fixed backdrop which can intercept button clicks)
+  useEffect(() => {
+    if (!menuId) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Element;
+      if (!target.closest("[data-menu]")) setMenuId(null);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuId]);
+
   const handleDelete = async (id: string) => {
     setMenuId(null);
+    // Snapshot remaining BEFORE the async gap to avoid stale closure
+    const remaining = conversations.filter((c) => c.id !== id);
+    const wasActive = activeId === id;
     try {
       await api.deleteConversation(id);
-      const remaining = conversations.filter((c) => c.id !== id);
       setConversations(remaining);
-      if (activeId === id) {
+      if (wasActive) {
         setActiveId(null);
         setMessages([]);
         if (remaining.length > 0) loadConversation(remaining[0].id);
@@ -208,10 +221,11 @@ export default function GlobalChat() {
           </div>
           <button
             onClick={() => setOpen(false)}
-            className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors shrink-0"
-            title="Close"
+            title="Collapse"
+            className="flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors shrink-0 text-xs font-medium"
           >
-            <ChevronRight className="w-4 h-4" />
+            <PanelRightClose className="w-4 h-4" />
+            <span className="hidden sm:inline">Close</span>
           </button>
         </div>
 
@@ -276,6 +290,7 @@ export default function GlobalChat() {
                         {conv.title}
                       </span>
                       <button
+                        data-menu
                         onClick={(e) => { e.stopPropagation(); setMenuId(menuId === conv.id ? null : conv.id); }}
                         className="shrink-0 opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded-md hover:bg-gray-200 transition-all"
                       >
@@ -284,28 +299,29 @@ export default function GlobalChat() {
                     </div>
                   )}
 
-                  {/* Dropdown */}
+                  {/* Dropdown — data-menu marks it so the outside-click handler ignores it */}
                   {menuId === conv.id && (
-                    <>
-                      <div className="fixed inset-0 z-10" onClick={() => setMenuId(null)} />
-                      <div className="absolute right-1 top-8 z-20 w-36 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); startRename(conv); }}
-                          className="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
-                        >
-                          <Edit2 className="w-3 h-3 text-gray-400" />
-                          Rename
-                        </button>
-                        <div className="border-t border-gray-50" />
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleDelete(conv.id); }}
-                          className="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs text-red-500 hover:bg-red-50 transition-colors"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                          Delete
-                        </button>
-                      </div>
-                    </>
+                    <div
+                      data-menu
+                      className="absolute right-1 top-8 z-[200] w-36 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        onClick={() => startRename(conv)}
+                        className="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <Edit2 className="w-3 h-3 text-gray-400" />
+                        Rename
+                      </button>
+                      <div className="border-t border-gray-50" />
+                      <button
+                        onClick={() => handleDelete(conv.id)}
+                        className="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs text-red-500 hover:bg-red-50 transition-colors"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        Delete
+                      </button>
+                    </div>
                   )}
                 </div>
               ))

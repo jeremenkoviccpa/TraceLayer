@@ -565,8 +565,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Toaster />
       <GlobalChat />
 
-      {/* Desktop notification bell — fixed top-right */}
-      <div className="hidden md:block fixed top-4 right-4 z-50">
+      {/* Desktop notification bell — moved to top-right but offset left of AI panel tab */}
+      <div className="hidden md:block fixed top-4 right-14 z-50">
         <button
           onClick={() => setNotifOpen((o) => !o)}
           className="relative bg-white border border-gray-100 text-gray-500 hover:text-gray-900 p-2 rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
