@@ -6,6 +6,7 @@ type Plan = "free" | "growth";
 
 const CACHE_KEY = "billing_plan";
 const CACHE_AT_KEY = "billing_plan_at";
+const CACHE_USER_KEY = "billing_plan_uid";
 const CACHE_TTL = 30 * 1000; // 30 seconds
 
 // Internal accounts always have full Growth access
@@ -23,6 +24,14 @@ export function usePlan(): { plan: Plan; loading: boolean; isPro: boolean } {
     if (isInternalAdmin) { setLoading(false); return; }
     if (typeof window === "undefined") return;
 
+    // Invalidate cache if a different user is now logged in
+    const cachedUid = sessionStorage.getItem(CACHE_USER_KEY);
+    if (cachedUid && cachedUid !== user.id) {
+      sessionStorage.removeItem(CACHE_KEY);
+      sessionStorage.removeItem(CACHE_AT_KEY);
+      sessionStorage.removeItem(CACHE_USER_KEY);
+    }
+
     const cached = sessionStorage.getItem(CACHE_KEY);
     const cachedAt = Number(sessionStorage.getItem(CACHE_AT_KEY) || 0);
 
@@ -37,21 +46,26 @@ export function usePlan(): { plan: Plan; loading: boolean; isPro: boolean } {
       .then((billing) => {
         const p = (billing.plan === "growth" ? "growth" : "free") as Plan;
         setPlan(p);
+        setLoading(false);
         sessionStorage.setItem(CACHE_KEY, p);
         sessionStorage.setItem(CACHE_AT_KEY, String(Date.now()));
+        sessionStorage.setItem(CACHE_USER_KEY, user.id);
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => {
+        // On error, keep loading=true so PlanGate renders children rather
+        // than locking Growth users out due to a transient API failure.
+      });
   }, [user?.id, isInternalAdmin]); // re-run when user resolves (null → real user)
 
   if (isInternalAdmin) return { plan: "growth", loading: false, isPro: true };
   return { plan, loading, isPro: plan === "growth" };
 }
 
-/** Call this after a successful upgrade to bust the cached plan. */
+/** Call this after a successful upgrade or on logout to bust the cached plan. */
 export function invalidatePlanCache() {
   if (typeof window !== "undefined") {
     sessionStorage.removeItem(CACHE_KEY);
     sessionStorage.removeItem(CACHE_AT_KEY);
+    sessionStorage.removeItem(CACHE_USER_KEY);
   }
 }

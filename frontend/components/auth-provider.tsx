@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { invalidatePlanCache } from "@/hooks/usePlan";
 import type { PartnerSwitchResponse, User } from "@/lib/types";
 
 interface AuthCtx {
@@ -44,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     api.restorePartnerToken(); // clean up any client context
     await api.logout();
+    invalidatePlanCache();
     setUser(null);
   };
 
