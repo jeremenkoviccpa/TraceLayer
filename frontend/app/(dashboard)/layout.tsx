@@ -431,13 +431,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     className="w-full flex items-center gap-2 px-3 py-1.5 rounded-xl transition-colors hover:bg-white/5 group/sec"
                   >
                     {section.number && (
-                      <span className={`text-[9px] font-bold w-4 h-4 rounded flex items-center justify-center shrink-0 leading-none transition-colors
+                      <span className={`text-[10px] font-bold w-5 h-5 rounded-md flex items-center justify-center shrink-0 leading-none transition-colors
                         ${hasActive ? "bg-brand-600 text-white" : "bg-white/10 text-slate-500 group-hover/sec:bg-white/15"}`}>
                         {section.number}
                       </span>
                     )}
-                    <span className={`text-[10px] font-semibold uppercase tracking-widest flex-1 text-left transition-colors
-                      ${hasActive ? "text-slate-300" : "text-slate-500 group-hover/sec:text-slate-400"}`}>
+                    <span className={`text-[13px] font-semibold flex-1 text-left transition-colors
+                      ${hasActive ? "text-slate-200" : "text-slate-400 group-hover/sec:text-slate-300"}`}>
                       {section.title}
                     </span>
                     <ChevronDown className={`w-3 h-3 shrink-0 transition-transform duration-200
@@ -449,7 +449,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         const active = pathname === href;
                         return (
                           <Link key={href} href={href} id={tourId}
-                            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150
+                            className={`flex items-center gap-3 px-3 py-1.5 rounded-xl text-[12px] font-medium transition-all duration-150
                               ${active ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}
                           >
                             <Icon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-slate-500"}`} />
