@@ -7,7 +7,7 @@ from core.database import get_db
 from core.deps import get_current_admin, get_current_user
 from models.user import User
 from schemas.auth import TokenResponse
-from schemas.org import AcceptInviteRequest, CompanyResponse, InvitationResponse, InviteRequest, MemberResponse, UpdateCompanyRequest
+from schemas.org import AcceptInviteRequest, CompleteOnboardingRequest, CompanyResponse, InvitationResponse, InviteRequest, MemberResponse, UpdateCompanyRequest
 from models.company import Company
 from sqlalchemy import select
 from services.audit_service import log_action
@@ -81,15 +81,19 @@ async def get_onboarding_status(
 
 @router.post("/onboarding/complete", status_code=204)
 async def complete_onboarding(
+    body: CompleteOnboardingRequest = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Mark onboarding as completed for the current user's company."""
+    """Mark onboarding as completed. Optionally save the user's selected frameworks."""
+    from fastapi import Body
     result = await db.execute(select(Company).where(Company.id == current_user.company_id))
     company = result.scalar_one_or_none()
     if not company:
         raise HTTPException(status_code=404, detail="Company not found")
     company.onboarding_completed = True
+    if body and body.frameworks:
+        company.primary_frameworks = body.frameworks
     await db.commit()
 
 
@@ -106,6 +110,8 @@ async def update_company(
     company.name = body.name
     if body.gst_number is not None:
         company.gst_number = body.gst_number.strip() or None
+    if body.primary_frameworks is not None:
+        company.primary_frameworks = body.primary_frameworks
     await db.commit()
     await db.refresh(company)
     await log_action(db, current_user.company_id, "company.updated",

@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s | TraceLayer",
   },
   description:
-    "TraceLayer automates SOC 2 compliance evidence collection for startups. Connect AWS, GitHub, Okta and 120+ tools — evidence collects every 24h, audit report in one click. Start free, no credit card.",
+    "TraceLayer automates compliance evidence collection for startups — SOC 2, ISO 27001, DPDP Act, CERT-In, HIPAA, GDPR and more. Connect 120+ tools, evidence collects every 24h, audit report in one click. Start free, no credit card.",
   keywords: [
     "SOC 2 compliance software",
     "SOC 2 automation for startups",
@@ -38,6 +38,14 @@ export const metadata: Metadata = {
     "GDPR compliance automation",
     "PCI DSS compliance tool",
     "affordable SOC 2 software",
+    "DPDP Act compliance software",
+    "DPDP Act automation India",
+    "CERT-In compliance tool",
+    "India compliance automation",
+    "Indian SaaS compliance platform",
+    "DPDP compliance for startups",
+    "Vanta alternative India",
+    "Sprinto alternative",
     "Vanta alternative",
     "Drata alternative",
   ],
@@ -48,16 +56,16 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: BASE_URL,
     siteName: "TraceLayer",
-    title: "TraceLayer — SOC 2 Compliance Automation for Startups",
+    title: "TraceLayer — Full Compliance Platform for Startups",
     description:
-      "Stop losing enterprise deals over SOC 2. Automate evidence collection across GitHub, AWS, Slack & 20+ integrations. Get audit-ready in weeks.",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "TraceLayer — SOC 2 Compliance Automation for Startups" }],
+      "SOC 2, ISO 27001, DPDP Act, CERT-In, HIPAA & more — automated. Collect evidence across 120+ integrations every 24h. Get audit-ready in weeks, not months.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "TraceLayer — Full Compliance Platform for Startups" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "TraceLayer — SOC 2 Compliance Automation for Startups",
+    title: "TraceLayer — Full Compliance Platform for Startups",
     description:
-      "Stop losing enterprise deals over SOC 2. Automate evidence collection across GitHub, AWS, Slack & 20+ integrations. Get audit-ready in weeks.",
+      "SOC 2, ISO 27001, DPDP Act, CERT-In, HIPAA & more — automated. Collect evidence across 120+ integrations every 24h. Get audit-ready in weeks, not months.",
     images: ["/opengraph-image"],
   },
   robots: {
@@ -101,7 +109,7 @@ const jsonLd = [
         "@type": "Offer",
         price: "149",
         priceCurrency: "USD",
-        description: "Growth plan — all 7 frameworks, 120+ integrations, AI features, PDF reports",
+        description: "Growth plan — all 9 frameworks incl. DPDP Act & CERT-In, 120+ integrations, AI features, PDF reports",
       },
     ],
     creator: {
@@ -137,10 +145,10 @@ const jsonLd = [
       },
       {
         "@type": "Question",
-        name: "Is TraceLayer a Vanta alternative?",
+        name: "Is TraceLayer a Vanta or Sprinto alternative?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Yes. TraceLayer offers continuous SOC 2 compliance automation starting from $0 (free plan) to $149/mo — compared to Vanta's $15,000–$20,000/year. It supports SOC 2, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, and NIST CSF.",
+          text: "Yes. TraceLayer offers continuous compliance automation starting from $0 (free plan) to $149/mo — compared to Vanta's $15,000–$20,000/year or Sprinto's comparable pricing. TraceLayer supports SOC 2, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, NIST CSF, DPDP Act 2023, and CERT-In Directions 2022.",
         },
       },
       {
@@ -148,7 +156,7 @@ const jsonLd = [
         name: "Which compliance frameworks does TraceLayer support?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "TraceLayer supports SOC 2 Type I & II, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, and NIST CSF — all mapped simultaneously from a single set of integrations.",
+          text: "TraceLayer supports SOC 2 Type I & II, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, NIST CSF, DPDP Act 2023, and CERT-In Directions 2022 — all mapped simultaneously from a single set of integrations.",
         },
       },
       {

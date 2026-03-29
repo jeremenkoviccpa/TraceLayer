@@ -14,7 +14,7 @@ import { ToolEmailGate } from "@/components/tool-email-gate";
 
 type Step = 1 | 2 | 3 | "results";
 
-type Region = "us_ca" | "eu" | "apac" | "other" | "";
+type Region = "us_ca" | "eu" | "apac" | "india" | "other" | "";
 
 interface Inputs {
   arr: number;
@@ -63,17 +63,20 @@ const PIPELINE_OPTIONS = [
 ];
 
 const REGION_OPTIONS: { id: Region; label: string; flag: string; hint: string }[] = [
-  { id: "us_ca", flag: "🇺🇸", label: "United States / Canada", hint: "SOC 2 · HIPAA · CCPA" },
-  { id: "eu",    flag: "🇪🇺", label: "Europe (EU + UK)",        hint: "GDPR · ISO 27001 · UK GDPR" },
-  { id: "apac",  flag: "🌏", label: "Asia Pacific",             hint: "ISO 27001 · PDPA · SOC 2" },
-  { id: "other", flag: "🌍", label: "Rest of world",            hint: "ISO 27001 · SOC 2" },
+  { id: "us_ca",  flag: "🇺🇸", label: "United States / Canada", hint: "SOC 2 · HIPAA · CCPA" },
+  { id: "eu",     flag: "🇪🇺", label: "Europe (EU + UK)",        hint: "GDPR · ISO 27001 · UK GDPR" },
+  { id: "india",  flag: "🇮🇳", label: "India",                   hint: "DPDP Act · CERT-In · ISO 27001" },
+  { id: "apac",   flag: "🌏", label: "Asia Pacific (ex-India)",  hint: "ISO 27001 · PDPA · SOC 2" },
+  { id: "other",  flag: "🌍", label: "Rest of world",            hint: "ISO 27001 · SOC 2" },
 ];
 
 const FRAMEWORKS = [
   { id: "soc2",      label: "SOC 2",       desc: "Required by 78% of enterprise buyers" },
-  { id: "iso27001",  label: "ISO 27001",   desc: "EMEA procurement standard"             },
+  { id: "iso27001",  label: "ISO 27001",   desc: "EMEA & India procurement standard"     },
   { id: "gdpr",      label: "GDPR",        desc: "EU/UK data protection law"             },
   { id: "hipaa",     label: "HIPAA",       desc: "US healthcare data law"                },
+  { id: "dpdp",      label: "DPDP Act",    desc: "India personal data protection law"    },
+  { id: "cert_in",   label: "CERT-In",     desc: "India cyber security directions"       },
 ];
 
 // ── Calculation engine ────────────────────────────────────────────────────────
@@ -85,9 +88,11 @@ function calcRisk(inputs: Inputs) {
   // Enterprise deal fraction varies by region:
   //   US/CA: 72% of deals require SOC 2 or ISO 27001
   //   EU: 68% require ISO 27001 or GDPR evidence
+  //   India: 65% require ISO 27001 + DPDP Act + CERT-In (fast-growing requirement)
   //   APAC: 60% require ISO 27001
   //   Other: 55%
   const enterpriseFraction = region === "eu" ? 0.68
+    : region === "india" ? 0.65
     : region === "apac" ? 0.60
     : region === "other" ? 0.55
     : 0.72;
@@ -132,6 +137,29 @@ function calcRisk(inputs: Inputs) {
       : region === "eu" ? 160_000   // GDPR breach notification fines on top
       : 100_000;
     finesExposure += breachCost;
+  }
+
+  if (frameworks.includes("dpdp")) {
+    if (region === "india") {
+      // DPDP Act 2023: up to ₹250 crore (~$30M) per violation for large breaches
+      // Model at expected value: 1.5% ARR for uncertified, 0.3% for in-progress
+      const dpdpRate = complianceStatus === "none" ? 0.015
+        : complianceStatus === "inprogress" ? 0.003
+        : 0;
+      finesExposure += arr * dpdpRate;
+    } else {
+      // Indian company processing data outside India, or global company with India ops
+      finesExposure += arr * 0.005;
+    }
+  } else if (region === "india" && complianceStatus === "none") {
+    // Indian company not tracking DPDP at all: latent exposure
+    finesExposure += arr * 0.008;
+  }
+
+  if (frameworks.includes("cert_in") && complianceStatus === "none") {
+    // CERT-In non-compliance: criminal penalties under IT Act s70B(7) + operational disruption
+    // Model as flat $25K baseline + 0.3% ARR for incident response gaps
+    finesExposure += 25_000 + arr * 0.003;
   }
 
   // ── 4. Internal staff cost ───────────────────────────────────────────────

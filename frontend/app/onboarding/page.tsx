@@ -318,9 +318,11 @@ export default function OnboardingPage() {
   const handleComplete = async () => {
     setCompleting(true);
     try {
-      await api.completeOnboarding();
+      await api.completeOnboarding(frameworks);
       sessionStorage.setItem("onboarding_done", "true");
       sessionStorage.setItem("tl_show_tour", "1");
+      // Persist selected frameworks to sessionStorage so dashboard can read before API resolves
+      sessionStorage.setItem("tl_primary_frameworks", JSON.stringify(frameworks));
     } catch {
       // non-fatal
     }
@@ -417,25 +419,46 @@ export default function OnboardingPage() {
           {/* ── Step 1: Framework ────────────────────────────────────── */}
           {step === 1 && (
             <div>
-              <div className="text-center mb-7">
-                <h2 className="text-2xl font-bold text-white mb-2">Choose your framework</h2>
-                <p className="text-white/50 text-sm">Select one or more. You can add more frameworks later in Settings.</p>
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">Which frameworks do you need?</h2>
+                <p className="text-white/50 text-sm">These will be pinned to the top of your dashboard. You can change this any time.</p>
               </div>
 
-              <div className="space-y-2 mb-7 max-h-[420px] overflow-y-auto pr-1">
+              {/* Mini dashboard preview pill */}
+              {frameworks.length > 0 && (
+                <div className="flex items-center gap-2 bg-white/6 border border-white/10 rounded-2xl px-4 py-2.5 mb-5 overflow-hidden">
+                  <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest shrink-0">Dashboard →</span>
+                  <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                    {frameworks.map((id) => {
+                      const fw = FRAMEWORKS.find(f => f.id === id);
+                      if (!fw) return null;
+                      return (
+                        <span key={id} className={`shrink-0 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-gradient-to-r ${fw.color} text-white whitespace-nowrap`}>
+                          {fw.label}
+                        </span>
+                      );
+                    })}
+                    {frameworks.length < 9 && (
+                      <span className="shrink-0 text-[11px] text-white/20 px-1">+ more available</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2 mb-6 max-h-[380px] overflow-y-auto pr-1">
                 {FRAMEWORKS.map((fw) => {
                   const selected = frameworks.includes(fw.id);
                   return (
                     <button
                       key={fw.id}
                       onClick={() => toggleFramework(fw.id)}
-                      className={`w-full flex items-center gap-4 p-4 rounded-2xl border text-left transition-all ${
+                      className={`w-full flex items-center gap-4 p-4 rounded-2xl border text-left transition-all duration-150 ${
                         selected
-                          ? "bg-white/10 border-brand-400/50"
+                          ? "bg-white/10 border-brand-400/50 shadow-[0_0_0_1px_rgba(99,102,241,0.15)]"
                           : "bg-white/4 border-white/8 hover:bg-white/7 hover:border-white/15"
                       }`}
                     >
-                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${fw.color} flex items-center justify-center shrink-0`}>
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${fw.color} flex items-center justify-center shrink-0 transition-transform duration-150 ${selected ? "scale-110" : ""}`}>
                         <fw.icon className="w-5 h-5 text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -447,8 +470,8 @@ export default function OnboardingPage() {
                         </div>
                         <p className="text-xs text-white/40 leading-relaxed">{fw.description}</p>
                       </div>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                        selected ? "bg-brand-400 border-brand-400" : "border-white/25"
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-150 ${
+                        selected ? "bg-brand-400 border-brand-400 scale-110" : "border-white/25"
                       }`}>
                         {selected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
                       </div>
@@ -457,13 +480,22 @@ export default function OnboardingPage() {
                 })}
               </div>
 
+              <div className="flex items-center gap-2 bg-white/4 border border-white/8 rounded-xl px-4 py-2.5 mb-5">
+                <div className="w-1.5 h-1.5 rounded-full bg-brand-400 shrink-0" />
+                <p className="text-[11px] text-white/40 leading-snug">
+                  <span className="text-white/60 font-medium">{frameworks.length} selected</span>
+                  {" · "}These will appear first in your compliance dashboard and get dedicated score tracking.
+                </p>
+              </div>
+
               <div className="flex gap-3">
                 <button onClick={() => setStep(0)} className="flex items-center gap-2 px-5 py-3 text-white/50 hover:text-white transition-colors text-sm">
                   <ArrowLeft className="w-4 h-4" /> Back
                 </button>
                 <button
                   onClick={() => setStep(2)}
-                  className="flex-1 flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-semibold rounded-2xl px-6 py-3 text-sm transition-colors"
+                  disabled={frameworks.length === 0}
+                  className="flex-1 flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 disabled:opacity-40 text-white font-semibold rounded-2xl px-6 py-3 text-sm transition-colors"
                 >
                   Continue <ArrowRight className="w-4 h-4" />
                 </button>

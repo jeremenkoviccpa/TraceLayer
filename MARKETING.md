@@ -563,5 +563,140 @@ Use this in copy when you need specifics.
 
 ---
 
+---
+
+## Partner Program ICPs
+
+Three distinct partner types. Each has a different relationship with the platform, different motivations, and needs to be reached and spoken to differently.
+
+---
+
+### Partner ICP 1 — Compliance Consultants & vCISOs
+
+**Who they are**
+Freelance compliance consultants, boutique advisory firms, and fractional CISOs who manage SOC 2, ISO 27001, HIPAA, or GDPR programs for multiple client companies simultaneously. Typically 1–5 person operations. They bill hourly ($150–$300/hr) or on retainer ($3,000–$8,000/mo per client) for evidence gathering, control gap work, audit prep, and ongoing compliance maintenance. Clients are early-to-mid stage B2B SaaS companies (Series A–B) that need compliance but can't justify a full-time CISO.
+
+**The problem TraceLayer solves for them**
+Every client is a separate spreadsheet, a separate shared drive, a separate Zoom call every week explaining the same status. Evidence collection is manual — they're logging into each client's AWS console, GitHub, Okta, pulling screenshots, pasting into control matrices. This caps their capacity at 4–6 clients before they're fully booked. They can't grow revenue without hiring, but the work doesn't justify an employee.
+
+**How they use the platform**
+1. Register a partner account at `/register?type=partner` — one account, one login
+2. Create a client workspace per client ($99 once per client, first 3 free)
+3. Connect each client's integrations (GitHub, AWS, Okta, etc.) — evidence collects automatically every 24 hours
+4. Switch between client workspaces in one click from the partner dashboard
+5. Share each client's Trust Center URL with their board or prospective auditors
+6. When a client hits 75%+ readiness, generate a read-only audit access link and send it to the auditor — no auditor account needed
+7. Generate the AI Audit Package PDF for the client before the audit engagement begins
+8. Track payment status (which clients are on free vs. paid workspaces) from the Payments page
+
+**What they actually care about**
+- Capacity: can they take on more clients without burning out?
+- Margin: are they paying per seat/per month, or is it a fixed cost they can mark up?
+- Credibility: does the platform make them look more professional to their clients?
+- Speed: does it eliminate the manual evidence grinding that eats their hours?
+
+**How to reach them**
+- LinkedIn: search "vCISO," "fractional CISO," "compliance consultant," "SOC 2 consultant" — these people have those exact titles
+- Consulting communities: CISOs Connect, ISSA, (ISC)² local chapters, vCISO forums on Slack/Discord
+- Auditor referrals: certified auditors (Prescient, Johanson, A-LIGN) work with consultants constantly — a warm intro from an auditor partner lands here
+- Reddit: r/netsec, r/sysadmin — posts about "how do you manage multiple client compliance programs?" surface this pain point
+
+**Messaging that lands**
+> "You're capped at 6 clients. TraceLayer lets you run 20 from one dashboard — evidence collects automatically, you switch between clients in a click, and you're still the expert."
+
+> "Stop charging clients for time you spend copy-pasting from AWS console into a spreadsheet. Automate the grunt work. Bill for the strategic thinking."
+
+> "First 3 client workspaces are free. No monthly seat fees. Pay $99 per client — once — and keep the margin."
+
+**Objections and answers**
+- *"My clients won't want their data in a third-party tool"* → All evidence is encrypted at rest. Each client workspace is isolated. You control access — you can revoke at any time.
+- *"I already have my own process"* → TraceLayer runs alongside it. Connect the integrations, let evidence collect automatically, continue billing for the interpretation and advisory work.
+- *"$99/client feels like it eats my margin"* → If you're billing $3,000/mo per client and spending 20 hours/mo on evidence, $99 one-time saves you ~5 hours/mo at your rate. It pays for itself in the first week.
+
+---
+
+### Partner ICP 2 — Certified Auditors
+
+**Who they are**
+CPA firms and independent audit firms that perform SOC 2 Type I/II, ISO 27001, HIPAA, and PCI DSS audits. Think Prescient Assurance, Johanson Group, A-LIGN, BARR Advisory, Schellman. Typically work with 20–100+ clients per year. Revenue model: fixed-fee audit engagements ($15,000–$50,000 per audit depending on scope). The bottleneck is fieldwork time — the weeks spent requesting, chasing, and verifying evidence from clients.
+
+**The problem TraceLayer solves for them**
+Clients arrive disorganized. Evidence requests go unanswered for days. Control matrices are partially filled, sometimes wrong. The audit manager spends 30–40% of engagement time chasing artifacts that should already exist. This depresses the number of audits they can run per year and inflates costs they can't always pass on to the client.
+
+**How they experience the platform** *(they never log in — the customer does it for them)*
+1. Customer generates an Audit Access link from their TraceLayer dashboard and emails it to the auditor
+2. Auditor receives a branded email with the link and clicks it — no account, no registration
+3. The read-only `/audit/{token}` page loads: overall compliance score ring, full control breakdown (passing/failing/no evidence), evidence timestamps, manual attestations, gaps explicitly listed
+4. Auditor shares the URL with their team — it's a single link, no auth required, valid for 180 days
+5. Auditor uses the pre-organized evidence view during fieldwork, cross-referencing specific controls and their collection timestamps
+6. When a control shows missing types, the auditor knows immediately what to request from the client
+
+**What they actually care about**
+- Fieldwork efficiency: can they complete audits faster without cutting corners?
+- Lead quality: when a potential client comes in, are they already prepared or are they starting from zero?
+- Competitive differentiation: being listed on TraceLayer signals that they work with modern, well-prepared startups (not legacy PE portfolio companies who send ZIP files of screenshots)
+- Repeat business: if a client's annual evidence is collected automatically, they'll naturally return for the next audit cycle
+
+**How to reach them**
+- AICPA conferences and SOC 2 practitioner communities
+- LinkedIn: audit managers, audit partners, CPA firms with a technology/SOC 2 practice
+- Direct outreach from the TraceLayer team — listing in the partner directory is the pitch (free listing, warm leads)
+- Referral from consultant partners who already work with these firms
+
+**Messaging that lands**
+> "Your next client shows up with 12 months of continuous evidence already collected, controls mapped to SOC 2 criteria, and gaps explicitly listed. You start reviewing, not chasing."
+
+> "Free listing in our auditor directory. When a customer hits 75%+ compliance readiness, we show them your firm. You receive warm leads who are already prepared."
+
+> "Customers can share a read-only evidence link directly from their dashboard — no account needed on your end. Your team has everything before the engagement starts."
+
+**Objections and answers**
+- *"We have our own evidence request process"* → This doesn't replace it. It means clients arrive with evidence pre-collected. Your process runs the same way, just faster.
+- *"How do we know evidence quality is audit-grade?"* → Evidence is collected directly from source APIs (AWS, GitHub, Okta, etc.) with timestamps. It's not screenshots. You can verify provenance.
+- *"Our clients aren't tech startups"* → The auditor directory listing is tiered by framework. You show up for the frameworks you specialize in. If you work with larger enterprise clients, you still benefit from the prepared-client pipeline for whatever segment overlaps.
+
+---
+
+### Partner ICP 3 — Penetration Testing Firms
+
+**Who they are**
+Security testing companies that perform penetration tests, red team exercises, and vulnerability assessments for B2B software companies. Typically required by SOC 2, ISO 27001, and PCI DSS as an annual control. Market leaders include Cobalt (PtaaS model), NetSPI, Synack, and Rapid7. Revenue model: fixed-fee engagements starting at $15,000–$30,000 for a standard web app pen test. Their challenge is pipeline generation — qualified leads with budget and a compliance reason to act are rare and expensive to acquire.
+
+**The problem TraceLayer solves for them**
+Most pen test leads are cold. Prospects don't know they need a pen test, don't have a deadline, and don't have internal buy-in. The sales cycle is long and expensive. TraceLayer creates the opposite condition: the customer already knows they need a pen test (SOC 2 requires it), already has a framework deadline (their audit is scheduled), and is actively looking at their compliance gaps when they see the pen test partner recommendation.
+
+**How they experience the platform** *(directory listing + in-product referral — no login required)*
+1. Firm is listed in the TraceLayer partner directory (seeded by TraceLayer, or applied via `hello@tracelayer.it.com`)
+2. Any TraceLayer customer whose pen test control section is empty or whose last test is approaching 12 months old sees the pen test partner directory surfaced directly in their dashboard
+3. Customer sees the firm's name, specialties, and a direct link to the firm's site or a co-branded referral URL
+4. Customer clicks through to the firm's site with referral attribution
+5. After the pen test is completed, the customer uploads results as a manual control attestation in TraceLayer — embedding the firm in the customer's annual compliance cycle
+
+**What they actually care about**
+- Lead quality: are these prospects actually going to buy, and do they have a budget and a deadline?
+- Attribution: can they track which leads came from TraceLayer?
+- Annual recurrence: if a customer embeds their pen test findings into TraceLayer, they'll come back every year for the annual recertification
+- Cost of acquisition: what's the referral fee or partnership cost vs. the LTV of the lead?
+
+**How to reach them**
+- Direct BD outreach to Cobalt, NetSPI, Synack, Rapid7 partner programs — these firms have formal referral/channel programs
+- Smaller boutique pen test firms: LinkedIn, security conferences (DEF CON, Black Hat, RSA), CREST-accredited firm directories
+- r/netsec community — many boutique pen test founders are active there
+- CISO advisory connections — CISOs who recommend pen test firms to their companies also recommend them across clients
+
+**Messaging that lands**
+> "Your firm shows up the moment a startup realizes they need a pen test for SOC 2. That's a lead with a compliance deadline, a framework requirement, and a budget already allocated."
+
+> "Free listing in our pen test directory. No monthly fee, no platform commission. We surface your firm at exactly the right moment in the compliance journey."
+
+> "After the test, findings are tracked in TraceLayer as evidence. Your customers return every year for their annual recertification — you're embedded in their workflow, not a one-time vendor."
+
+**Objections and answers**
+- *"Our pipeline is already full"* → Then the listing costs you nothing and generates optionality. When capacity opens up, the leads are already warm.
+- *"We have our own referral partnerships"* → TraceLayer is complementary. This is a vertical-specific channel for compliance-driven demand — different from general security or enterprise channels you already have.
+- *"How do you track referrals?"* → Via referral URL attribution (UTM parameters or a co-branded landing page). Referral fee or rev-share terms are negotiated directly — contact `hello@tracelayer.it.com`.
+
+---
+
 *TraceLayer — tracelayer.it.com*
 *Contact: hello@tracelayer.it.com*

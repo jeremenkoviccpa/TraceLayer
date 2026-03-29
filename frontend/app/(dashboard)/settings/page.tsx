@@ -28,6 +28,7 @@ import {
   Key,
   AlertCircle,
   LogIn,
+  Star,
 } from "lucide-react";
 import React from "react";
 
@@ -376,6 +377,7 @@ export default function SettingsPage() {
   const [company, setCompany] = useState<Company | null>(null);
   const [companyName, setCompanyName] = useState("");
   const [gstNumber, setGstNumber] = useState("");
+  const [companyPrimaryFrameworks, setCompanyPrimaryFrameworks] = useState<string[]>([]);
   const [companySaving, setCompanySaving] = useState(false);
 
   useEffect(() => {
@@ -386,6 +388,7 @@ export default function SettingsPage() {
         setCompany(c);
         setCompanyName(c.name);
         setGstNumber((c as Company & { gst_number?: string }).gst_number ?? "");
+        setCompanyPrimaryFrameworks(c.primary_frameworks ?? []);
       })
       .catch(console.error);
   }, [isAdmin]);
@@ -394,8 +397,11 @@ export default function SettingsPage() {
     e.preventDefault();
     setCompanySaving(true);
     try {
-      const updated = await api.updateCompany(companyName, gstNumber || undefined);
+      const updated = await api.updateCompany(companyName, gstNumber || undefined, companyPrimaryFrameworks);
       setCompany(updated);
+      // Persist to sessionStorage so dashboard picks it up without a refetch
+      try { sessionStorage.setItem("tl_primary_frameworks", JSON.stringify(companyPrimaryFrameworks)); }
+      catch { /* ignore */ }
       showToast("Company settings saved");
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : "Failed to update company", "error");
@@ -1469,6 +1475,50 @@ export default function SettingsPage() {
                   className={inputCls}
                 />
                 <p className="text-[11px] text-gray-400 mt-1">Your 15-digit GSTIN will appear on Paddle invoices for GST input tax credit claims.</p>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Primary frameworks <span className="text-gray-400 font-normal">(pinned to top of dashboard)</span>
+                </label>
+                <p className="text-[11px] text-gray-400 mb-2">Select the frameworks your team is actively targeting — they'll appear first in the carousel and grid.</p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { value: "soc2",     label: "SOC 2",     region: "US"   },
+                    { value: "iso27001", label: "ISO 27001", region: "INTL" },
+                    { value: "hipaa",    label: "HIPAA",     region: "US"   },
+                    { value: "gdpr",     label: "GDPR",      region: "EU"   },
+                    { value: "pci_dss",  label: "PCI DSS",   region: "INTL" },
+                    { value: "ccpa",     label: "CCPA",      region: "US"   },
+                    { value: "nist_csf", label: "NIST CSF",  region: "US"   },
+                    { value: "dpdp",     label: "DPDP Act",  region: "IN"   },
+                    { value: "cert_in",  label: "CERT-In",   region: "IN"   },
+                  ].map((fw) => {
+                    const active = companyPrimaryFrameworks.includes(fw.value);
+                    return (
+                      <button
+                        key={fw.value}
+                        type="button"
+                        onClick={() => setCompanyPrimaryFrameworks(prev =>
+                          active ? prev.filter(v => v !== fw.value) : [...prev, fw.value]
+                        )}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                          active
+                            ? "bg-teal-50 border-teal-300 text-teal-700 shadow-sm"
+                            : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
+                        }`}
+                      >
+                        {active && <Star className="w-2.5 h-2.5 fill-teal-500 text-teal-500 shrink-0" />}
+                        {fw.label}
+                        <span className={`text-[9px] font-bold px-1 py-px rounded leading-none ${
+                          fw.region === "IN"   ? "bg-orange-100 text-orange-500" :
+                          fw.region === "EU"   ? "bg-sky-100 text-sky-500" :
+                          fw.region === "INTL" ? "bg-purple-100 text-purple-500" :
+                          "bg-brand-50 text-brand-500"
+                        }`}>{fw.region}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               <div className="flex justify-end">
                 <button

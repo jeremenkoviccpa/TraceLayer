@@ -11,6 +11,10 @@
 2. [Environment Variables](#environment-variables)
 3. [Backup Strategy](#backup-strategy)
 4. [Recovery Procedures](#recovery-procedures)
+
+
+
+
 5. [Uptime Monitoring Setup](#uptime-monitoring-setup)
 6. [Deployment Process](#deployment-process)
 7. [Incident Response Checklist](#incident-response-checklist)
