@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from core.database import get_db
-from core.security import get_current_user
+from core.deps import get_current_user
 from models.chat_conversation import ChatConversation
 from models.chat_message import ChatMessage
 from models.integration import Integration
