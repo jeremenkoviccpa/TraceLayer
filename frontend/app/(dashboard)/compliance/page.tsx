@@ -291,7 +291,7 @@ function SlaBadge({ due_date }: { due_date: string | null }) {
   if (days < 0)  return <span className="text-[10px] font-bold bg-red-100 text-red-700 px-1.5 py-0.5 rounded-md">Overdue {Math.abs(days)}d</span>;
   if (days <= 3) return <span className="text-[10px] font-bold bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-md">Due in {days}d</span>;
   if (days <= 7) return <span className="text-[10px] font-semibold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-md">Due in {days}d</span>;
-  return <span className="text-[10px] text-gray-400 px-1.5 py-0.5 rounded-md bg-gray-100">{new Date(due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>;
+  return <span className="text-[10px] text-gray-400 px-1.5 py-0.5 rounded-md bg-gray-100">{new Date(due_date!).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>;
 }
 
 // ── AI Remediation panel ──────────────────────────────────────────────────────
