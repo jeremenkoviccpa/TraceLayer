@@ -38,7 +38,7 @@ def _drop_fk(table: str, column: str) -> None:
             LIMIT 1;
 
             IF _cname IS NOT NULL THEN
-                EXECUTE format('ALTER TABLE {table} DROP CONSTRAINT %%I', _cname);
+                EXECUTE 'ALTER TABLE {table} DROP CONSTRAINT ' || quote_ident(_cname);
             END IF;
         END $$
     """)
