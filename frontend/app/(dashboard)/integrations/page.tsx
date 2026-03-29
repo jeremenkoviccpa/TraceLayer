@@ -59,22 +59,23 @@ const CHECKLISTS: Record<string, Checklist> = {
   dpdp: {
     label: "DPDP Act", color: "orange",
     areas: [
-      { area: "Consent & Lawful Basis",  control: "Sec. 6–7",  integrations: ["aws","google_workspace","okta"],            note: "Consent records and lawful basis documented for all processing" },
-      { area: "Data Security Safeguards",control: "Sec. 8",    integrations: ["aws","google_cloud","cloudflare","wiz"],     note: "Technical and organisational measures to prevent breaches" },
-      { area: "Access Control",          control: "Sec. 8",    integrations: ["okta","azure_ad","google_workspace"],        note: "Restrict personal data access to authorised personnel only" },
-      { area: "Breach Detection",        control: "Sec. 8.6",  integrations: ["datadog","sentry","crowdstrike"],            note: "Detect and notify DPBI and data principals within prescribed time" },
-      { area: "HR & Workforce Controls", control: "Sec. 8",    integrations: ["zoho_people","bamboohr","rippling"],         note: "Staff with access to personal data tracked and trained" },
+      { area: "Consent & Lawful Basis",  control: "Sec. 6–7",  integrations: ["leegality","digilocker","signzy","okta"],     note: "Consent records, e-signatures, and identity verification documented" },
+      { area: "Data Security Safeguards",control: "Sec. 8",    integrations: ["aws","google_cloud","cloudflare","wiz"],       note: "Technical and organisational measures to prevent breaches" },
+      { area: "Access Control",          control: "Sec. 8",    integrations: ["okta","azure_ad","google_workspace"],          note: "Restrict personal data access to authorised personnel only" },
+      { area: "Breach Detection",        control: "Sec. 8.6",  integrations: ["datadog","sentry","crowdstrike"],              note: "Detect and notify DPBI and data principals within prescribed time" },
+      { area: "HR & Workforce Controls", control: "Sec. 8",    integrations: ["keka","zoho_people","zoho_payroll","bamboohr"],note: "Staff with access to personal data tracked and trained" },
+      { area: "Financial Data Processing",control: "Sec. 8",   integrations: ["zoho_books","tally","razorpay","payu"],        note: "Financial processors handling personal data must maintain audit trails" },
     ],
   },
   cert_in: {
     label: "CERT-In", color: "amber",
     areas: [
-      { area: "Log Retention 180 Days", control: "Dir. 3",  integrations: ["aws","datadog","splunk","elastic"],         note: "All ICT logs retained 180 days within Indian jurisdiction" },
-      { area: "NTP Synchronisation",    control: "Dir. 2",  integrations: ["aws","google_cloud","cloudflare"],           note: "Clocks synced to NIC/NPL NTP servers across all systems" },
-      { area: "MFA & Privileged Access",control: "Dir. 8",  integrations: ["okta","azure_ad","duo","google_workspace"],  note: "MFA on all admin accounts; privileged sessions logged" },
-      { area: "Vulnerability Mgmt",     control: "Dir. 7",  integrations: ["snyk","tenable","crowdstrike","wiz"],        note: "Regular VA/PT; CERT-In advisories applied within timelines" },
-      { area: "Monitoring & Detection", control: "Dir. 10", integrations: ["datadog","sentry","pagerduty","new_relic"],   note: "Anomaly detection and alert response in place" },
-      { area: "Endpoint Security",      control: "Dir. 11", integrations: ["jamf","kandji","crowdstrike","sentinelone"],  note: "All endpoints encrypted and managed" },
+      { area: "Log Retention 180 Days", control: "Dir. 3",  integrations: ["papertrail","aws","datadog","splunk","elastic"], note: "All ICT logs retained 180 days within Indian jurisdiction" },
+      { area: "NTP Synchronisation",    control: "Dir. 2",  integrations: ["aws","google_cloud","cloudflare"],               note: "Clocks synced to NIC/NPL NTP servers across all systems" },
+      { area: "MFA & Privileged Access",control: "Dir. 8",  integrations: ["okta","azure_ad","duo","google_workspace"],      note: "MFA on all admin accounts; privileged sessions logged" },
+      { area: "Vulnerability Mgmt",     control: "Dir. 7",  integrations: ["snyk","tenable","crowdstrike","wiz"],            note: "Regular VA/PT; CERT-In advisories applied within timelines" },
+      { area: "Monitoring & Detection", control: "Dir. 10", integrations: ["datadog","sentry","pagerduty","new_relic"],       note: "Anomaly detection and alert response in place" },
+      { area: "Endpoint Security",      control: "Dir. 11", integrations: ["jamf","kandji","crowdstrike","sentinelone"],      note: "All endpoints encrypted and managed" },
     ],
   },
 };
@@ -672,6 +673,135 @@ const LOGO_CONFIG: Record<string, LogoCfg> = {
       <>
         <text x={s/2} y={s*0.47} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.27}>ZOHO</text>
         <text x={s/2} y={s*0.73} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="600" fontSize={s*0.2}>People</text>
+      </>
+    ),
+  },
+  // ── India — Accounting & Finance ───────────────────────────────────────────
+  tally: {
+    bg: "#1C3F7C", label: "TL",
+    svg: (s) => (
+      <>
+        <text x={s/2} y={s*0.48} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="900" fontSize={s*0.33}>T</text>
+        <text x={s/2} y={s*0.78} textAnchor="middle" dominantBaseline="central" fill="#7FB3FF" fontFamily="system-ui" fontWeight="600" fontSize={s*0.18}>TALLY</text>
+      </>
+    ),
+  },
+  zoho_books: {
+    bg: "#E42527", label: "ZB",
+    svg: (s) => (
+      <>
+        <text x={s/2} y={s*0.47} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.27}>ZOHO</text>
+        <text x={s/2} y={s*0.73} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="600" fontSize={s*0.2}>Books</text>
+      </>
+    ),
+  },
+  payu: {
+    bg: "#002E6E", label: "PU",
+    svg: (s) => (
+      <>
+        <text x={s/2} y={s*0.47} textAnchor="middle" dominantBaseline="central" fill="#FF6B00" fontFamily="system-ui" fontWeight="900" fontSize={s*0.27}>Pay</text>
+        <text x={s/2} y={s*0.73} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="900" fontSize={s*0.27}>U</text>
+      </>
+    ),
+  },
+  razorpay: {
+    bg: "#072654", label: "RP",
+    svg: (s) => (
+      <>
+        <polygon points={`${s*0.5},${s*0.18} ${s*0.72},${s*0.55} ${s*0.58},${s*0.55} ${s*0.68},${s*0.82} ${s*0.45},${s*0.48} ${s*0.58},${s*0.48}`} fill="#2AAEF5"/>
+      </>
+    ),
+  },
+  zoho_payroll: {
+    bg: "#E42527", label: "ZPR",
+    svg: (s) => (
+      <>
+        <text x={s/2} y={s*0.47} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.27}>ZOHO</text>
+        <text x={s/2} y={s*0.73} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="600" fontSize={s*0.16}>Payroll</text>
+      </>
+    ),
+  },
+  // ── India — HR, KYC & Legal ────────────────────────────────────────────────
+  keka: {
+    bg: "#FF5A00", label: "KK",
+    svg: (s) => (
+      <>
+        <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="900" fontSize={s*0.42}>k</text>
+      </>
+    ),
+  },
+  leegality: {
+    bg: "#1A3A5C", label: "LG",
+    svg: (s) => (
+      <>
+        <text x={s/2} y={s*0.5} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="800" fontSize={s*0.28}>LEE</text>
+        <text x={s/2} y={s*0.76} textAnchor="middle" dominantBaseline="central" fill="#4DAAFF" fontFamily="system-ui" fontWeight="600" fontSize={s*0.18}>gality</text>
+      </>
+    ),
+  },
+  digilocker: {
+    bg: "#FF6600", label: "DL",
+    svg: (s) => (
+      <>
+        <rect x={s*0.28} y={s*0.25} width={s*0.44} height={s*0.32} rx={s*0.04} fill="white" opacity="0.9"/>
+        <rect x={s*0.36} y={s*0.5} width={s*0.28} height={s*0.25} rx={s*0.03} fill="white" opacity="0.7"/>
+        <circle cx={s*0.5} cy={s*0.63} r={s*0.06} fill="#FF6600"/>
+      </>
+    ),
+  },
+  signzy: {
+    bg: "#6200EA", label: "SZ",
+    svg: (s) => (
+      <>
+        <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="900" fontSize={s*0.38}>S</text>
+      </>
+    ),
+  },
+  // ── US — Accounting ────────────────────────────────────────────────────────
+  quickbooks: {
+    bg: "#2CA01C", label: "QB",
+    svg: (s) => (
+      <>
+        <circle cx={s/2} cy={s/2} r={s*0.34} fill="white"/>
+        <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="#2CA01C" fontFamily="system-ui" fontWeight="900" fontSize={s*0.32}>QB</text>
+      </>
+    ),
+  },
+  xero: {
+    bg: "#13B5EA", label: "XR",
+    svg: (s) => (
+      <>
+        <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="900" fontSize={s*0.46}>x</text>
+      </>
+    ),
+  },
+  // ── US — Legal & Contract ──────────────────────────────────────────────────
+  ironclad: {
+    bg: "#1C3554", label: "IC",
+    svg: (s) => (
+      <>
+        <polygon points={`${s*0.5},${s*0.2} ${s*0.72},${s*0.38} ${s*0.72},${s*0.62} ${s*0.5},${s*0.78} ${s*0.28},${s*0.62} ${s*0.28},${s*0.38}`} fill="none" stroke="white" strokeWidth={s*0.06}/>
+        <text x={s/2} y={s/2} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="900" fontSize={s*0.24}>IC</text>
+      </>
+    ),
+  },
+  // ── Logging & Data ─────────────────────────────────────────────────────────
+  papertrail: {
+    bg: "#25A768", label: "PT",
+    svg: (s) => (
+      <>
+        <rect x={s*0.22} y={s*0.3} width={s*0.56} height={s*0.08} rx={s*0.04} fill="white"/>
+        <rect x={s*0.22} y={s*0.46} width={s*0.44} height={s*0.08} rx={s*0.04} fill="white" opacity="0.8"/>
+        <rect x={s*0.22} y={s*0.62} width={s*0.34} height={s*0.08} rx={s*0.04} fill="white" opacity="0.6"/>
+      </>
+    ),
+  },
+  airtable: {
+    bg: "#FCB400", label: "AT",
+    svg: (s) => (
+      <>
+        <text x={s/2} y={s*0.47} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="900" fontSize={s*0.28}>Air</text>
+        <text x={s/2} y={s*0.73} textAnchor="middle" dominantBaseline="central" fill="white" fontFamily="system-ui" fontWeight="900" fontSize={s*0.28}>table</text>
       </>
     ),
   },
@@ -1707,6 +1837,139 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
           { key: "api_key",   label: "API Key",   placeholder: "••••••••••••••••••••", type: "password", hint: "Freshdesk → Profile Settings → Your API Key (bottom of the page)" },
         ],
       },
+      {
+        type: "tally", label: "Tally Solutions",
+        description: "Collect company financials, ledger entries, and balance sheet from TallyPrime for financial controls and DPDP Act audit trail evidence",
+        fields: [
+          { key: "tally_url", label: "Tally URL", placeholder: "http://localhost:9000", hint: "TallyPrime REST API URL. Default is http://localhost:9000. For TallyConnect cloud, use the provided endpoint." },
+          { key: "company",   label: "Company Name (optional)", placeholder: "My Company Ltd", hint: "Leave blank to fetch all companies. Must match the exact company name in TallyPrime." },
+        ],
+      },
+      {
+        type: "zoho_books", label: "Zoho Books",
+        description: "Collect invoices, contacts, and journal entries for financial controls and DPDP Act data-processor evidence",
+        fields: [
+          { key: "client_id",       label: "Client ID",       placeholder: "1000.••••••••••••••••", hint: "api-console.zoho.in → Add Client → Server-based Applications" },
+          { key: "client_secret",   label: "Client Secret",   placeholder: "••••••••••••••••••••",  type: "password" },
+          { key: "refresh_token",   label: "Refresh Token",   placeholder: "1000.••••••••••••••••", type: "password", hint: "Scope required: ZohoBooks.invoices.READ,ZohoBooks.contacts.READ,ZohoBooks.reports.READ" },
+          { key: "organization_id", label: "Organization ID", placeholder: "123456789", hint: "Zoho Books → Settings → Organization Profile → Organization ID" },
+          { key: "region",          label: "Region (optional)", placeholder: "in", hint: '"in" for India (default), "com" for global, "eu", "com.au", "jp"' },
+        ],
+      },
+      {
+        type: "payu", label: "PayU India",
+        description: "Collect payment transactions and merchant data for PCI DSS financial controls and DPDP Act payment-data evidence",
+        fields: [
+          { key: "merchant_key",  label: "Merchant Key",  placeholder: "gtKFFx",         hint: "PayU Dashboard → My Account → Profile → Merchant Key" },
+          { key: "merchant_salt", label: "Merchant Salt", placeholder: "eCwWELxi",        type: "password", hint: "PayU Dashboard → My Account → Profile → Merchant Salt" },
+          { key: "is_production", label: "Environment",   placeholder: "false",           hint: 'Use "true" for production, "false" for sandbox/test environment' },
+        ],
+      },
+      {
+        type: "razorpay", label: "Razorpay",
+        description: "Collect payments, refunds, and settlement records for PCI DSS and DPDP Act financial controls evidence",
+        fields: [
+          { key: "key_id",     label: "Key ID",     placeholder: "rzp_live_••••••••",  hint: "Razorpay Dashboard → Settings → API Keys → Generate Key" },
+          { key: "key_secret", label: "Key Secret", placeholder: "••••••••••••••••••", type: "password" },
+        ],
+      },
+      {
+        type: "zoho_payroll", label: "Zoho Payroll",
+        description: "Collect payroll runs, employee records, and tax declarations for DPDP Act HR security and financial controls evidence",
+        fields: [
+          { key: "client_id",       label: "Client ID",       placeholder: "1000.••••••••••••••••", hint: "api-console.zoho.in → Add Client → scope: ZohoPayroll.payroll.READ,ZohoPayroll.employees.READ" },
+          { key: "client_secret",   label: "Client Secret",   placeholder: "••••••••••••••••••••",  type: "password" },
+          { key: "refresh_token",   label: "Refresh Token",   placeholder: "1000.••••••••••••••••", type: "password" },
+          { key: "organization_id", label: "Organization ID", placeholder: "123456789" },
+          { key: "region",          label: "Region (optional)", placeholder: "in" },
+        ],
+      },
+      {
+        type: "keka", label: "Keka HR",
+        description: "Collect employee directory, departments, and attendance data for DPDP Act HR security and workforce controls evidence",
+        fields: [
+          { key: "client_id",     label: "Client ID",     placeholder: "••••••••••••••••••••", hint: "Keka → Settings → API → Create an API Client" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••••••••••", type: "password" },
+          { key: "subdomain",     label: "Subdomain",     placeholder: "mycompany",            hint: "The subdomain part of your Keka URL: mycompany.keka.com" },
+        ],
+      },
+      {
+        type: "leegality", label: "Leegality",
+        description: "Collect signed documents, templates, and audit trail for DPDP Act consent management and legal compliance evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••••••••••", type: "password", hint: "Leegality → Settings → Integrations → API Keys → Generate API Key" },
+        ],
+      },
+      {
+        type: "digilocker", label: "DigiLocker",
+        description: "Collect Aadhaar-linked verified documents and user profile for DPDP Act identity verification and consent management evidence",
+        fields: [
+          { key: "client_id",     label: "Client ID",     placeholder: "••••••••••••••••••••", hint: "DigiLocker Partner Portal → Register → API Credentials → Client ID" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••••••••••", type: "password" },
+          { key: "access_token",  label: "Access Token",  placeholder: "••••••••••••••••••••", type: "password", hint: "OAuth 2.0 access token obtained via DigiLocker authorization flow. Scope: files.issued files.uploaded profile" },
+        ],
+      },
+      {
+        type: "signzy", label: "Signzy",
+        description: "Collect KYC verifications, video KYC sessions, and bank account verification records for DPDP Act and RBI compliance evidence",
+        fields: [
+          { key: "username",  label: "Username",  placeholder: "your@email.com",        hint: "Signzy portal credentials" },
+          { key: "password",  label: "Password",  placeholder: "••••••••••••••••••••",  type: "password" },
+          { key: "base_url",  label: "API Base URL", placeholder: "https://preproduction.signzy.tech", hint: "Use preproduction for testing, https://api.signzy.app for production" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "US — Accounting & Legal",
+    integrations: [
+      {
+        type: "quickbooks", label: "QuickBooks Online",
+        description: "Collect invoices, vendors, chart of accounts, and employees for financial controls and SOC 2 audit trail evidence",
+        fields: [
+          { key: "client_id",     label: "Client ID",     placeholder: "AB••••••••••••••••••••••",  hint: "Intuit Developer Portal → My Apps → Keys & OAuth → Production Client ID" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••••••••••",       type: "password" },
+          { key: "refresh_token", label: "Refresh Token", placeholder: "AB11••••••••••••••••••••••", type: "password", hint: "OAuth 2.0 refresh token. Scope: com.intuit.quickbooks.accounting" },
+          { key: "realm_id",      label: "Company ID (Realm ID)", placeholder: "123456789012",       hint: "Found in the QuickBooks URL after /app/: company/{realm_id}/..." },
+        ],
+      },
+      {
+        type: "xero", label: "Xero",
+        description: "Collect invoices, contacts, bank transactions, and user access for financial controls and audit evidence",
+        fields: [
+          { key: "client_id",     label: "Client ID",     placeholder: "••••••••••••••••••••",  hint: "Xero Developer Portal → My Apps → OAuth 2.0 Credentials → Client ID" },
+          { key: "client_secret", label: "Client Secret", placeholder: "••••••••••••••••••••",  type: "password" },
+          { key: "refresh_token", label: "Refresh Token", placeholder: "••••••••••••••••••••",  type: "password", hint: "Scope: accounting.transactions.read accounting.contacts.read accounting.settings.read" },
+          { key: "tenant_id",     label: "Tenant ID",     placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", hint: "Xero → API connections → your organisation's Tenant ID" },
+        ],
+      },
+      {
+        type: "ironclad", label: "Ironclad",
+        description: "Collect contract workflows, signers, and executed agreements for legal compliance, vendor management, and SOC 2 CC9 evidence",
+        fields: [
+          { key: "api_key", label: "API Key", placeholder: "••••••••••••••••••••", type: "password", hint: "Ironclad → Settings → API Keys → Create API Key (requires Admin role)" },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Logging & Data",
+    integrations: [
+      {
+        type: "papertrail", label: "Papertrail",
+        description: "Collect log sources, groups, saved searches, and recent events for CERT-In 180-day log retention and monitoring controls evidence",
+        fields: [
+          { key: "api_token", label: "API Token", placeholder: "••••••••••••••••••••", type: "password", hint: "Papertrail → Profile → API Token" },
+        ],
+      },
+      {
+        type: "airtable", label: "Airtable",
+        description: "Collect tables, records, and collaborator access for data management and change management compliance evidence",
+        fields: [
+          { key: "personal_access_token", label: "Personal Access Token", placeholder: "pat••••••••••••••••", type: "password", hint: "Airtable → Account → Developer Hub → Personal access tokens → Create token (scope: data.records:read schema.bases:read)" },
+          { key: "base_id",               label: "Base ID",               placeholder: "app••••••••••••••",   hint: "Found in the Airtable URL: airtable.com/{base_id}/..." },
+        ],
+      },
     ],
   },
   {
@@ -2302,6 +2565,137 @@ const SETUP_GUIDES: Record<string, SetupGuide> = {
       "Click your avatar → Profile Settings",
       "Scroll to the bottom — copy the API Key",
       "Your subdomain is the part before .freshdesk.com in your URL",
+    ],
+  },
+  tally: {
+    url: "https://tallysolutions.com/tally/tally-prime/",
+    steps: [
+      "Ensure TallyPrime 2.1 or later is running on the machine you want to connect from",
+      "In TallyPrime: F1 → Features → Enable REST API Server (default port 9000)",
+      "If using TallyConnect for cloud access, obtain the TallyConnect endpoint URL",
+      "Enter the URL (e.g., http://localhost:9000 or your TallyConnect URL) and optionally the company name",
+      "Note: TraceLayer server must have network access to the Tally URL you provide",
+    ],
+  },
+  zoho_books: {
+    url: "https://api-console.zoho.in/",
+    steps: [
+      "Go to api-console.zoho.in → Add Client → Server-based Applications",
+      "Copy Client ID and Client Secret",
+      "Generate a refresh token with scope: ZohoBooks.invoices.READ,ZohoBooks.contacts.READ,ZohoBooks.reports.READ",
+      "Find your Organization ID: Zoho Books → Settings → Organization Profile",
+      "Set region to 'in' for Indian accounts",
+    ],
+  },
+  payu: {
+    url: "https://dashboard.payu.in/",
+    steps: [
+      "Log in to PayU Dashboard → My Account → Profile",
+      "Copy your Merchant Key and Merchant Salt from the profile page",
+      "Use 'false' for is_production if testing with sandbox credentials",
+      "Production keys require your PayU account to be fully verified",
+    ],
+  },
+  razorpay: {
+    url: "https://dashboard.razorpay.com/app/keys",
+    steps: [
+      "Log in to Razorpay Dashboard → Settings → API Keys",
+      "Click 'Generate Key' for Live mode (or Test mode for testing)",
+      "Copy the Key ID and Key Secret — the secret is shown only once",
+      "Ensure your Razorpay account has appropriate permissions for payments and settlements",
+    ],
+  },
+  zoho_payroll: {
+    url: "https://api-console.zoho.in/",
+    steps: [
+      "Go to api-console.zoho.in → Add Client → Server-based Applications",
+      "Copy Client ID and Client Secret",
+      "Generate a refresh token with scope: ZohoPayroll.payroll.READ,ZohoPayroll.employees.READ",
+      "Find your Organization ID in Zoho Payroll → Settings → Organization",
+      "Set region to 'in' for Indian Zoho Payroll",
+    ],
+  },
+  keka: {
+    url: "https://www.keka.com/api-integration",
+    steps: [
+      "Log in to Keka → Settings → API",
+      "Create a new API Client — copy Client ID and Client Secret",
+      "Your subdomain is the part before .keka.com in your URL",
+      "The integration uses client_credentials grant to obtain a Bearer token automatically",
+    ],
+  },
+  leegality: {
+    url: "https://app.leegality.com",
+    steps: [
+      "Log in to Leegality → Settings → Integrations → API Keys",
+      "Click 'Generate API Key' — copy the key",
+      "Ensure your Leegality plan includes API access (Business plan or above)",
+    ],
+  },
+  digilocker: {
+    url: "https://partners.digitallocker.gov.in/",
+    steps: [
+      "Register on DigiLocker Partner Portal and submit the integration request",
+      "Once approved, obtain Client ID and Client Secret from the portal",
+      "Implement the OAuth 2.0 authorization flow for your end users to grant access",
+      "Exchange the authorization code for an access token with scopes: files.issued files.uploaded profile",
+      "Paste the access token here — it expires periodically; re-authorize when needed",
+    ],
+  },
+  signzy: {
+    url: "https://docs.signzy.tech/",
+    steps: [
+      "Contact Signzy to obtain API access credentials for your organisation",
+      "Use the pre-production URL (https://preproduction.signzy.tech) for testing",
+      "For production, use https://api.signzy.app",
+      "Enter your Signzy portal username and password — the integration fetches a session token automatically",
+    ],
+  },
+  quickbooks: {
+    url: "https://developer.intuit.com/app/developer/qbo/docs/get-started",
+    steps: [
+      "Go to developer.intuit.com → My Apps → Create an app → QuickBooks Online and Payments",
+      "Under Keys & OAuth, copy the Client ID and Client Secret (Production)",
+      "Complete the OAuth 2.0 flow to get a refresh token with scope: com.intuit.quickbooks.accounting",
+      "Find your Company ID (Realm ID) in the QuickBooks URL after company/",
+    ],
+  },
+  xero: {
+    url: "https://developer.xero.com/app/manage",
+    steps: [
+      "Go to developer.xero.com → My Apps → New App",
+      "Set redirect URI to https://localhost (required, not used by TraceLayer)",
+      "Copy Client ID and Client Secret from OAuth 2.0 Credentials",
+      "Complete the OAuth 2.0 flow to get a refresh token with scopes: accounting.transactions.read accounting.contacts.read accounting.settings.read",
+      "Find your Tenant ID in Xero → API connections",
+    ],
+  },
+  ironclad: {
+    url: "https://developer.ironcladapp.com/",
+    steps: [
+      "Log in to Ironclad → Settings → API Keys",
+      "Click 'Create API Key' — requires Admin role",
+      "Copy the API key — it is shown only once",
+      "Ensure the key has read access to workflows and records",
+    ],
+  },
+  papertrail: {
+    url: "https://papertrailapp.com/user/edit",
+    steps: [
+      "Log in to Papertrail → Profile (top right)",
+      "Scroll to the API Token section",
+      "Copy or generate your API token",
+    ],
+  },
+  airtable: {
+    url: "https://airtable.com/create/tokens",
+    steps: [
+      "Go to Airtable → Account → Developer Hub → Personal access tokens",
+      "Click 'Create new token' — give it a name like 'TraceLayer'",
+      "Add scopes: data.records:read and schema.bases:read",
+      "Under Access, select the specific base(s) you want to connect or 'All workspaces'",
+      "Copy the token — it is shown only once",
+      "Find your Base ID in the Airtable URL: airtable.com/{base_id}/",
     ],
   },
 };

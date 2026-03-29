@@ -141,6 +141,25 @@ _REGISTRY: dict[str, str] = {
     # ── India-focused HR & ITSM ───────────────────────────────────────────────
     "zoho_people":       "integrations.zoho_people.adapter.ZohoPeopleIntegration",
     "freshdesk":         "integrations.freshdesk.adapter.FreshdeskIntegration",
+    # ── India — Accounting & Finance ──────────────────────────────────────────
+    "tally":             "integrations.tally.adapter.TallyIntegration",
+    "zoho_books":        "integrations.zoho_books.adapter.ZohoBooksIntegration",
+    "payu":              "integrations.payu.adapter.PayUIntegration",
+    "razorpay":          "integrations.razorpay.adapter.RazorpayIntegration",
+    "zoho_payroll":      "integrations.zoho_payroll.adapter.ZohoPayrollIntegration",
+    # ── India — HR, KYC & Legal ───────────────────────────────────────────────
+    "keka":              "integrations.keka.adapter.KekaIntegration",
+    "leegality":         "integrations.leegality.adapter.LeegalityIntegration",
+    "digilocker":        "integrations.digilocker.adapter.DigiLockerIntegration",
+    "signzy":            "integrations.signzy.adapter.SignzyIntegration",
+    # ── US — Accounting ───────────────────────────────────────────────────────
+    "quickbooks":        "integrations.quickbooks.adapter.QuickBooksIntegration",
+    "xero":              "integrations.xero.adapter.XeroIntegration",
+    # ── US — Legal & Contract Management ─────────────────────────────────────
+    "ironclad":          "integrations.ironclad.adapter.IroncladIntegration",
+    # ── Logging & Data Management ─────────────────────────────────────────────
+    "papertrail":        "integrations.papertrail.adapter.PapertrailIntegration",
+    "airtable":          "integrations.airtable.adapter.AirtableIntegration",
 }
 
 

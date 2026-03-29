@@ -1022,6 +1022,154 @@ SIMULATION_META: dict[str, dict] = {
         ],
         "data_categories": ["user_identity", "audit_logs"],
     },
+    # ── India — Accounting & Finance ──────────────────────────────────────────
+    "tally": {
+        "label": "Tally Solutions",
+        "description": "Company financials, ledger entries, and balance sheet from TallyPrime for financial controls and audit trail evidence.",
+        "evidence_types": [
+            {"type": "tally_company_info",  "label": "Company profile",   "control": "financial_controls", "typical_count": 1},
+            {"type": "tally_ledger_entry",  "label": "Ledger entries",    "control": "financial_controls", "typical_count": 200},
+            {"type": "tally_balance_sheet", "label": "Balance sheet",     "control": "financial_controls", "typical_count": 1},
+        ],
+        "data_categories": ["financial", "audit_logs"],
+    },
+    "zoho_books": {
+        "label": "Zoho Books",
+        "description": "Invoices, contacts, and journal entries from Zoho Books for financial controls and DPDP Act data-processor evidence.",
+        "evidence_types": [
+            {"type": "zoho_books_invoice",  "label": "Invoices",           "control": "financial_controls", "typical_count": 120},
+            {"type": "zoho_books_contact",  "label": "Contacts (clients)", "control": "data_protection",   "typical_count": 60},
+            {"type": "zoho_books_journal",  "label": "Journal entries",    "control": "financial_controls", "typical_count": 40},
+        ],
+        "data_categories": ["financial", "pii"],
+    },
+    "payu": {
+        "label": "PayU India",
+        "description": "Payment transactions and merchant account data for PCI DSS and DPDP Act financial controls evidence.",
+        "evidence_types": [
+            {"type": "payu_transaction",   "label": "Payment transactions", "control": "financial_controls", "typical_count": 500},
+            {"type": "payu_merchant_info", "label": "Merchant profile",     "control": "data_protection",   "typical_count": 1},
+        ],
+        "data_categories": ["financial", "pii"],
+    },
+    "razorpay": {
+        "label": "Razorpay",
+        "description": "Payment records, refunds, and settlement data for PCI DSS and DPDP Act financial controls evidence.",
+        "evidence_types": [
+            {"type": "razorpay_payment",    "label": "Payments",    "control": "financial_controls", "typical_count": 400},
+            {"type": "razorpay_refund",     "label": "Refunds",     "control": "financial_controls", "typical_count": 30},
+            {"type": "razorpay_settlement", "label": "Settlements", "control": "financial_controls", "typical_count": 20},
+        ],
+        "data_categories": ["financial", "pii"],
+    },
+    "zoho_payroll": {
+        "label": "Zoho Payroll",
+        "description": "Employee payroll runs, tax declarations, and workforce data for DPDP Act HR security and financial controls.",
+        "evidence_types": [
+            {"type": "zoho_payroll_employee",        "label": "Payroll employees",  "control": "hr_security",        "typical_count": 80},
+            {"type": "zoho_payroll_run",             "label": "Payroll runs",       "control": "financial_controls", "typical_count": 12},
+            {"type": "zoho_payroll_tax_declaration", "label": "Tax declarations",   "control": "data_protection",    "typical_count": 80},
+        ],
+        "data_categories": ["hr_data", "financial", "pii"],
+    },
+    # ── India — HR, KYC & Legal ───────────────────────────────────────────────
+    "keka": {
+        "label": "Keka HR",
+        "description": "Employee directory, departments, and attendance data for HR security and DPDP Act workforce controls.",
+        "evidence_types": [
+            {"type": "keka_employee",   "label": "Employees",   "control": "hr_security", "typical_count": 100},
+            {"type": "keka_department", "label": "Departments", "control": "hr_security", "typical_count": 12},
+            {"type": "keka_attendance", "label": "Attendance",  "control": "hr_security", "typical_count": 100},
+        ],
+        "data_categories": ["hr_data", "user_identity", "pii"],
+    },
+    "leegality": {
+        "label": "Leegality",
+        "description": "Signed documents, templates, and audit trail for legal compliance and DPDP Act consent management evidence.",
+        "evidence_types": [
+            {"type": "leegality_document",    "label": "Signed documents",  "control": "legal_compliance", "typical_count": 80},
+            {"type": "leegality_template",    "label": "Document templates", "control": "legal_compliance", "typical_count": 15},
+            {"type": "leegality_audit_event", "label": "Audit trail events", "control": "legal_compliance", "typical_count": 200},
+        ],
+        "data_categories": ["audit_logs", "pii"],
+    },
+    "digilocker": {
+        "label": "DigiLocker",
+        "description": "Aadhaar-linked verified documents and user profile for DPDP Act identity verification and consent evidence.",
+        "evidence_types": [
+            {"type": "digilocker_issued_document",   "label": "Issued documents",   "control": "identity_verification", "typical_count": 5},
+            {"type": "digilocker_uploaded_document", "label": "Uploaded documents", "control": "data_protection",       "typical_count": 3},
+            {"type": "digilocker_user_profile",      "label": "Verified profile",   "control": "identity_verification", "typical_count": 1},
+        ],
+        "data_categories": ["pii", "user_identity"],
+    },
+    "signzy": {
+        "label": "Signzy",
+        "description": "KYC verifications, video KYC, and bank account verification records for DPDP Act and RBI compliance evidence.",
+        "evidence_types": [
+            {"type": "signzy_kyc_record",        "label": "KYC verifications",   "control": "identity_verification", "typical_count": 150},
+            {"type": "signzy_digital_kyc",       "label": "Video KYC sessions",  "control": "identity_verification", "typical_count": 50},
+            {"type": "signzy_bank_verification", "label": "Bank verifications",  "control": "financial_controls",    "typical_count": 80},
+        ],
+        "data_categories": ["pii", "user_identity", "financial"],
+    },
+    # ── US — Accounting ───────────────────────────────────────────────────────
+    "quickbooks": {
+        "label": "QuickBooks Online",
+        "description": "Invoices, vendors, accounts, and employees from QuickBooks Online for financial controls and SOC 2 audit trail.",
+        "evidence_types": [
+            {"type": "qbo_invoice",  "label": "Invoices",         "control": "financial_controls", "typical_count": 150},
+            {"type": "qbo_vendor",   "label": "Vendors",          "control": "vendor_management",  "typical_count": 40},
+            {"type": "qbo_account",  "label": "Chart of accounts","control": "financial_controls", "typical_count": 30},
+            {"type": "qbo_employee", "label": "Employees",        "control": "hr_security",        "typical_count": 20},
+        ],
+        "data_categories": ["financial", "hr_data", "pii"],
+    },
+    "xero": {
+        "label": "Xero",
+        "description": "Invoices, contacts, bank transactions, and user access from Xero for financial controls and audit evidence.",
+        "evidence_types": [
+            {"type": "xero_invoice",          "label": "Invoices",          "control": "financial_controls", "typical_count": 120},
+            {"type": "xero_contact",          "label": "Contacts",          "control": "vendor_management",  "typical_count": 60},
+            {"type": "xero_bank_transaction", "label": "Bank transactions", "control": "financial_controls", "typical_count": 200},
+            {"type": "xero_user",             "label": "Xero users",        "control": "access_control",     "typical_count": 8},
+        ],
+        "data_categories": ["financial", "pii"],
+    },
+    # ── US — Legal & Contract Management ─────────────────────────────────────
+    "ironclad": {
+        "label": "Ironclad",
+        "description": "Contract workflows, signers, and executed agreements for legal compliance, vendor management, and SOC 2 CC9 evidence.",
+        "evidence_types": [
+            {"type": "ironclad_workflow", "label": "Contract workflows", "control": "legal_compliance", "typical_count": 60},
+            {"type": "ironclad_signer",   "label": "Contract signers",   "control": "legal_compliance", "typical_count": 80},
+        ],
+        "data_categories": ["audit_logs", "pii"],
+    },
+    # ── Logging ───────────────────────────────────────────────────────────────
+    "papertrail": {
+        "label": "Papertrail",
+        "description": "Log systems, groups, saved searches, and recent events for logging and monitoring controls.",
+        "evidence_types": [
+            {"type": "papertrail_system",       "label": "Log sources",       "control": "logging_monitoring", "typical_count": 15},
+            {"type": "papertrail_group",        "label": "Log groups",        "control": "logging_monitoring", "typical_count": 5},
+            {"type": "papertrail_saved_search", "label": "Saved searches",    "control": "logging_monitoring", "typical_count": 8},
+            {"type": "papertrail_log_event",    "label": "Recent log events", "control": "logging_monitoring", "typical_count": 100},
+            {"type": "papertrail_account",      "label": "Account settings",  "control": "logging_monitoring", "typical_count": 1},
+        ],
+        "data_categories": ["audit_logs"],
+    },
+    # ── Data Management ───────────────────────────────────────────────────────
+    "airtable": {
+        "label": "Airtable",
+        "description": "Tables, records, and collaborator access for data management and change management evidence.",
+        "evidence_types": [
+            {"type": "airtable_table",        "label": "Tables",        "control": "data_management",  "typical_count": 10},
+            {"type": "airtable_record",       "label": "Records",       "control": "change_management","typical_count": 150},
+            {"type": "airtable_collaborator", "label": "Collaborators", "control": "access_control",   "typical_count": 8},
+        ],
+        "data_categories": ["project_data", "user_identity"],
+    },
 }
 
 
