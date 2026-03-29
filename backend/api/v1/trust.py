@@ -305,15 +305,27 @@ async def public_trust_page(
 
     # Fallback for companies registered before trust pages were auto-created:
     # find the company whose name slugifies to this slug and create it on the fly.
+    # Also handles the case where a TrustPage exists for the company but with a
+    # different slug (e.g. due to slug collision suffix on first creation).
     if not tp:
         from models.company import Company
         companies_result = await db.execute(select(Company))
         for company in companies_result.scalars().all():
             if slugify(company.name) == slug:
-                tp = TrustPage(company_id=company.id, slug=slug)
-                db.add(tp)
-                await db.commit()
-                await db.refresh(tp)
+                # Check if this company already has a TrustPage with any slug
+                existing_result = await db.execute(
+                    select(TrustPage).where(TrustPage.company_id == company.id)
+                )
+                existing = existing_result.scalar_one_or_none()
+                if existing:
+                    # Company has a trust page (possibly with a different slug) — return it
+                    tp = existing
+                else:
+                    new_tp = TrustPage(company_id=company.id, slug=slug, is_enabled=True)
+                    db.add(new_tp)
+                    await db.commit()
+                    await db.refresh(new_tp)
+                    tp = new_tp
                 break
 
     if not tp:

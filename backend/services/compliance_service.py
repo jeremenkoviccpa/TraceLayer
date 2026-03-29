@@ -50,31 +50,126 @@ EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
         },
     },
     "dpdp": {
+        # Sec.4-7: Lawful basis, notice, consent — user directory & DLP evidence
         "lawful_processing": {
             "slack_users", "workspace_users",
+            "okta_users", "azure_users",
+            "nightfall_policies", "nightfall_detectors",
+            "iam_policies",
         },
+        # Sec.8, 8.3, 10: Security safeguards, data erasure, SDF obligations
         "data_fiduciary_obligations": {
             "cloudtrail_logs",
+            "iam_policies", "iam_users",
+            "nightfall_policies", "nightfall_detectors",
+            "wiz_issues",
+            "crowdstrike_policies", "sentinelone_agents",
         },
-        "access_control": {
-            "iam_users", "iam_policies",
-            "okta_users", "azure_users",
+        # Sec.9: Children's data — DLP & access controls on special categories
+        "special_categories": {
+            "nightfall_policies", "nightfall_detectors",
+            "iam_policies", "okta_policies",
+        },
+        # Sec.11-14, 17: Access, correction, erasure, nomination rights
+        "data_principal_rights": {
+            "jira_projects", "servicenow_incidents",
+            "okta_users", "workspace_users",
+            "azure_users",
+        },
+        # Sec.8.6: Personal data breach notification to DPBI & data principals
+        "breach_notification": {
+            "pagerduty_incidents", "pagerduty_escalation_policies",
+            "servicenow_incidents",
+            "opsgenie_alerts", "opsgenie_escalations",
+            "sentinelone_threats", "wiz_issues",
+            "cloudtrail_logs",
+        },
+        # Sec.16: Cross-border transfer controls
+        "cross_border_transfers": {
+            "cloudflare_security_settings", "cloudflare_zones",
+            "tailscale_acl",
+            "iam_policies",
+            "cloudtrail_logs",
         },
     },
     "cert_in": {
+        # Dir.1, 5: Mandatory 6-hour incident reporting + CERT-In point of contact
+        "incident_reporting": {
+            "pagerduty_services", "pagerduty_incidents",
+            "pagerduty_escalation_policies",
+            "servicenow_incidents",
+            "opsgenie_alerts", "opsgenie_escalations", "opsgenie_schedules",
+        },
+        # Dir.2, 12: NTP sync (timestamped audit logs), secure configuration & hardening
+        "it_infrastructure": {
+            "cloudtrail_logs",
+            "iam_policies",
+            "network_policies", "pods",
+            "wiz_issues",
+            "crowdstrike_policies",
+        },
+        # Dir.3: Mandatory 180-day log retention in Indian jurisdiction
         "log_management": {
             "cloudtrail_logs",
+            "splunk_saved_searches", "splunk_alerts",
+            "datadog_monitors",
         },
-        "access_control": {
-            "iam_users", "iam_policies",
+        # Dir.4: KYC / validated customer information for VPS/VPN/cloud providers
+        "identity_verification": {
             "okta_users", "azure_users",
-            "okta_mfa_factors",
+            "workspace_users", "jira_users",
+            "iam_users",
         },
+        # Dir.6: Incident response plan, roles, testing
+        "incident_response": {
+            "pagerduty_escalation_policies", "pagerduty_schedules", "pagerduty_services",
+            "servicenow_incidents", "servicenow_changes",
+            "opsgenie_schedules", "opsgenie_escalations",
+        },
+        # Dir.7: VA/PT, patch management, CERT-In advisory compliance
         "vulnerability_management": {
             "github_members", "repositories",
+            "snyk_projects",
+            "vulnerability_scans", "assets",
+            "wiz_issues",
+            "hackerone_reports", "hackerone_programs",
+            "detectify_findings", "detectify_scan_profiles",
+            "crowdstrike_detections",
         },
+        # Dir.8: MFA on all admin accounts, least-privilege, PAM
+        "access_control": {
+            "iam_users", "iam_policies",
+            "okta_users", "okta_groups", "okta_policies",
+            "azure_users", "azure_roles",
+            "github_members", "github_admin_members",
+            "workspace_users",
+            "mfa_policies", "mfa_enrollments",
+            "vault_auth_method", "vault_policy",
+        },
+        # Dir.9: Regular backups, BCP/DR tested and documented
+        "resilience": {
+            "pagerduty_services",
+            "servicenow_changes",
+            "vault_secrets_engine",
+            "datadog_monitors",
+        },
+        # Dir.10: Network monitoring, anomaly detection, SOC alerting
+        "monitoring": {
+            "cloudtrail_logs",
+            "datadog_monitors",
+            "splunk_alerts",
+            "crowdstrike_detections",
+            "sentinelone_threats",
+            "wiz_issues",
+            "network_policies",
+        },
+        # Dir.11: Endpoint protection, MDM, encryption on all devices
         "endpoint_security": {
-            "freshdesk_agents",
+            "crowdstrike_devices", "crowdstrike_policies",
+            "sentinelone_agents",
+            "jamf_computers", "jamf_policies",
+            "kandji_devices", "kandji_blueprints",
+            "tailscale_devices",
         },
     },
 }

@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, field_validator
 
-_VALID_FRAMEWORKS = {"soc2", "iso27001", "hipaa", "gdpr", "pci_dss", "ccpa", "nist_csf"}
+_VALID_FRAMEWORKS = {"soc2", "iso27001", "hipaa", "gdpr", "pci_dss", "ccpa", "nist_csf", "dpdp", "cert_in"}
 _FW_LABELS = {
     "soc2": "SOC 2",
     "iso27001": "ISO 27001",
@@ -12,6 +12,8 @@ _FW_LABELS = {
     "pci_dss": "PCI DSS",
     "ccpa": "CCPA",
     "nist_csf": "NIST CSF",
+    "dpdp": "DPDP Act",
+    "cert_in": "CERT-In",
 }
 
 

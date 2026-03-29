@@ -11,7 +11,7 @@ from sqlalchemy.types import TIMESTAMP
 
 from models.base import Base
 
-_DEFAULT_FRAMEWORKS = '["soc2","iso27001","hipaa","gdpr","pci_dss","ccpa","nist_csf"]'
+_DEFAULT_FRAMEWORKS = '["soc2","iso27001","hipaa","gdpr","pci_dss","ccpa","nist_csf","dpdp","cert_in"]'
 
 
 class TrustPage(Base):
@@ -22,7 +22,7 @@ class TrustPage(Base):
         UUID(as_uuid=True), ForeignKey("companies.id", ondelete="CASCADE"), unique=True, nullable=False
     )
     slug: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
-    is_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
+    is_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default="true")
     show_score: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
     show_policies: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
     show_integrations: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
