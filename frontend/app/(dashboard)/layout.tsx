@@ -28,6 +28,7 @@ import {
   Target,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Sparkles,
   Zap,
   ArrowLeftCircle,
@@ -56,29 +57,61 @@ import Toaster from "@/components/ui/Toaster";
 import GlobalChat from "@/components/global-chat";
 
 type NavItem = { href: string; label: string; icon: React.ElementType; tourId?: string };
-type NavGroup = { title?: string; items: NavItem[] };
+type NavSection = {
+  id: string;
+  type: "flat" | "collapsible";
+  number?: string;
+  title?: string;
+  tourNavId?: string;
+  items: NavItem[];
+};
 
-const NAV_GROUPS: NavGroup[] = [
+const NAV_SECTIONS: NavSection[] = [
   {
-    // Home — always visible, no section label
+    id: "top",
+    type: "flat",
     items: [
-      { href: "/dashboard", label: "Dashboard",  icon: LayoutDashboard },
-      { href: "/guide",     label: "Guide",       icon: Compass         },
+      { href: "/dashboard", label: "Dashboard",       icon: LayoutDashboard },
+      { href: "/guide",     label: "Getting Started", icon: Compass         },
     ],
   },
   {
-    // Step 1: connect tools → collect evidence → review controls → measure readiness
-    title: "Compliance",
+    id: "scope",
+    type: "collapsible",
+    number: "1",
+    title: "Scope & Setup",
+    tourNavId: "tour-nav-compliance",
     items: [
-      { href: "/integrations", label: "Integrations", icon: Plug,        tourId: "tour-integrations" },
-      { href: "/evidence",     label: "Evidence",     icon: Database     },
-      { href: "/compliance",   label: "Controls",     icon: ShieldCheck  },
-      { href: "/readiness",    label: "Readiness",    icon: Target       },
+      { href: "/integrations", label: "Integrations",  icon: Plug,      tourId: "tour-integrations" },
+      { href: "/soa",          label: "Applicability", icon: BookCheck  },
     ],
   },
   {
-    // Step 2: identify and manage security risks
+    id: "policies",
+    type: "collapsible",
+    number: "2",
+    title: "Policies",
+    items: [
+      { href: "/policies", label: "Policy Library", icon: BookOpen },
+    ],
+  },
+  {
+    id: "controls",
+    type: "collapsible",
+    number: "3",
+    title: "Controls & Evidence",
+    items: [
+      { href: "/compliance", label: "Controls",  icon: ShieldCheck },
+      { href: "/evidence",   label: "Evidence",  icon: Database    },
+      { href: "/readiness",  label: "Readiness", icon: Target      },
+    ],
+  },
+  {
+    id: "risk",
+    type: "collapsible",
+    number: "4",
     title: "Risk & Security",
+    tourNavId: "tour-nav-risk",
     items: [
       { href: "/risks",           label: "Risk Register",   icon: AlertTriangle },
       { href: "/incidents",       label: "Incidents",       icon: Siren         },
@@ -87,61 +120,71 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    // Step 3: operational controls auditors expect
+    id: "operations",
+    type: "collapsible",
+    number: "5",
     title: "Operations",
     items: [
       { href: "/assets",              label: "Asset Inventory",     icon: Server    },
       { href: "/devices",             label: "Device Monitoring",   icon: Monitor   },
-      { href: "/business-continuity", label: "Business Continuity", icon: RefreshCw },
-      { href: "/vendors",             label: "Vendor Risk",         icon: Building2 },
       { href: "/access-reviews",      label: "Access Reviews",      icon: UserCheck },
+      { href: "/vendors",             label: "Vendor Risk",         icon: Building2 },
+      { href: "/business-continuity", label: "Business Continuity", icon: RefreshCw },
     ],
   },
   {
-    // Step 4: people controls — hire to depart
+    id: "people",
+    type: "collapsible",
+    number: "6",
     title: "People",
     items: [
       { href: "/training",          label: "Training",          icon: GraduationCap },
-      { href: "/policies",          label: "Policies",          icon: BookOpen      },
       { href: "/background-checks", label: "Background Checks", icon: BadgeCheck    },
       { href: "/offboarding",       label: "Offboarding",       icon: UserMinus     },
     ],
   },
   {
-    // Step 5: GDPR/CCPA — map data first, then document, then handle requests
+    id: "privacy",
+    type: "collapsible",
+    number: "7",
     title: "Privacy",
     items: [
-      { href: "/data-flows",       label: "Data Flow Map",   icon: Workflow   },
-      { href: "/ropa",             label: "RoPA",            icon: Archive    },
-      { href: "/soa",              label: "Applicability",   icon: BookCheck  },
-      { href: "/data-breaches",    label: "Breach Register", icon: ShieldX    },
-      { href: "/subject-requests", label: "Subject Requests",icon: UserSearch },
+      { href: "/data-flows",       label: "Data Flow Map",    icon: Workflow   },
+      { href: "/ropa",             label: "RoPA",             icon: Archive    },
+      { href: "/data-breaches",    label: "Breach Register",  icon: ShieldX    },
+      { href: "/subject-requests", label: "Subject Requests", icon: UserSearch },
     ],
   },
   {
-    // Step 6: AI-powered tools — questionnaires and audit prep
-    title: "AI Tools",
+    id: "ai",
+    type: "collapsible",
+    number: "8",
+    title: "AI Governance",
     items: [
       { href: "/questionnaire", label: "AI Questionnaire", icon: ClipboardList },
       { href: "/audit-package", label: "AI Audit Package", icon: Sparkles      },
-      { href: "/ai-agents",     label: "AI Agent Monitor", icon: Bot            },
+      { href: "/ai-agents",     label: "Agent Monitor",    icon: Bot            },
     ],
   },
   {
-    // Step 7: formal outputs for leadership and auditors
-    title: "Reports",
+    id: "reports",
+    type: "collapsible",
+    title: "Audit & Reports",
+    tourNavId: "tour-nav-reporting",
     items: [
-      { href: "/reports",            label: "Reports",            icon: FileText       },
-      { href: "/management-reviews", label: "Management Reviews", icon: ClipboardCheck },
+      { href: "/reports",            label: "Reports",         icon: FileText       },
+      { href: "/management-reviews", label: "Mgmt Reviews",    icon: ClipboardCheck },
+      { href: "/portal",             label: "Auditor Portal",  icon: UserCheck      },
     ],
   },
   {
+    id: "account",
+    type: "collapsible",
     title: "Account",
     items: [
-      { href: "/team",      label: "Team",      icon: Users     },
+      { href: "/team",      label: "Team",      icon: Users      },
       { href: "/audit-log", label: "Audit Log", icon: ScrollText },
-      { href: "/portal",    label: "My Portal", icon: UserCheck  },
-      { href: "/settings",  label: "Settings",  icon: Settings  },
+      { href: "/settings",  label: "Settings",  icon: Settings   },
     ],
   },
 ];
@@ -152,6 +195,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
   const [resendSent, setResendSent] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
@@ -168,10 +212,49 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (stored === "true") setCollapsed(true);
   }, []);
 
+  // Load persisted open sections + auto-open the section containing the active route
+  useEffect(() => {
+    const stored = localStorage.getItem("nav-open-sections");
+    const initial: Set<string> = stored ? new Set(JSON.parse(stored)) : new Set();
+    for (const s of NAV_SECTIONS) {
+      if (s.items.some((item) => item.href === pathname)) {
+        initial.add(s.id);
+        break;
+      }
+    }
+    setOpenSections(initial);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-open section when navigating to a new route
+  useEffect(() => {
+    setOpenSections((prev) => {
+      for (const s of NAV_SECTIONS) {
+        if (s.items.some((item) => item.href === pathname) && !prev.has(s.id)) {
+          const next = new Set(prev);
+          next.add(s.id);
+          localStorage.setItem("nav-open-sections", JSON.stringify([...next]));
+          return next;
+        }
+      }
+      return prev;
+    });
+  }, [pathname]);
+
   const toggleCollapsed = () => {
     setCollapsed((c) => {
       localStorage.setItem("sidebar-collapsed", String(!c));
       return !c;
+    });
+  };
+
+  const toggleSection = (id: string) => {
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      localStorage.setItem("nav-open-sections", JSON.stringify([...next]));
+      return next;
     });
   };
 
@@ -282,60 +365,100 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 py-4 overflow-y-auto overflow-x-hidden">
-          <div className={`space-y-0.5 ${collapsed ? "px-2" : "px-3"}`}>
-            {NAV_GROUPS.map((group, gi) => {
-              return (
-                <div key={gi}>
-                  {/* Section label — static when expanded, divider when collapsed */}
-                  {group.title && !collapsed && (
-                    <p
-                      id={
-                        group.title === "Compliance" ? "tour-nav-compliance" :
-                        group.title === "Risk & Security" ? "tour-nav-risk" :
-                        group.title === "Reports" ? "tour-nav-reporting" :
-                        undefined
-                      }
-                      className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-3 pt-4 pb-1"
-                    >
-                      {group.title}
-                    </p>
-                  )}
-                  {group.title && collapsed && gi > 0 && (
-                    <div className="border-t border-white/5 mb-1" />
-                  )}
-                  <div className="space-y-0.5">
-                    {group.items.map(({ href, label, icon: Icon, tourId }) => {
+        <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden">
+          <div className={collapsed ? "px-2" : "px-3"}>
+            {NAV_SECTIONS.map((section, si) => {
+              const hasActive = section.items.some((item) => pathname === item.href);
+
+              // ── Icon-only (collapsed sidebar) mode ──
+              if (collapsed) {
+                return (
+                  <div key={section.id}>
+                    {si > 0 && <div className="border-t border-white/5 my-1" />}
+                    <div className="space-y-0.5">
+                      {section.items.map(({ href, label, icon: Icon, tourId }) => {
                         const active = pathname === href;
                         return (
                           <div key={href} className="relative group/item">
-                            <Link
-                              href={href}
-                              id={tourId}
-                              className={`flex items-center rounded-xl text-sm font-medium transition-all duration-150
-                                ${collapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 py-2"}
-                                ${active
-                                  ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20"
-                                  : "text-slate-400 hover:bg-white/5 hover:text-white"
-                                }`}
+                            <Link href={href} id={tourId}
+                              className={`flex items-center justify-center w-10 h-10 mx-auto rounded-xl transition-all duration-150
+                                ${active ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}
                             >
                               <Icon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-slate-500"}`} />
-                              {!collapsed && label}
                             </Link>
-                            {/* Tooltip for collapsed mode */}
-                            {collapsed && (
-                              <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-3 z-50
-                                opacity-0 group-hover/item:opacity-100 transition-opacity duration-150">
-                                <div className="bg-gray-900 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
-                                  {label}
-                                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900" />
-                                </div>
+                            <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-3 z-50
+                              opacity-0 group-hover/item:opacity-100 transition-opacity duration-150">
+                              <div className="bg-gray-900 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+                                {label}
+                                <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900" />
                               </div>
-                            )}
+                            </div>
                           </div>
                         );
                       })}
                     </div>
+                  </div>
+                );
+              }
+
+              // ── Flat (always-visible) section ──
+              if (section.type === "flat") {
+                return (
+                  <div key={section.id} className="space-y-0.5 mb-2">
+                    {section.items.map(({ href, label, icon: Icon, tourId }) => {
+                      const active = pathname === href;
+                      return (
+                        <Link key={href} href={href} id={tourId}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150
+                            ${active ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}
+                        >
+                          <Icon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-slate-500"}`} />
+                          {label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                );
+              }
+
+              // ── Collapsible section ──
+              const isOpen = openSections.has(section.id);
+              return (
+                <div key={section.id} className="mb-0.5">
+                  <button
+                    id={section.tourNavId}
+                    onClick={() => toggleSection(section.id)}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 rounded-xl transition-colors hover:bg-white/5 group/sec"
+                  >
+                    {section.number && (
+                      <span className={`text-[9px] font-bold w-4 h-4 rounded flex items-center justify-center shrink-0 leading-none transition-colors
+                        ${hasActive ? "bg-brand-600 text-white" : "bg-white/10 text-slate-500 group-hover/sec:bg-white/15"}`}>
+                        {section.number}
+                      </span>
+                    )}
+                    <span className={`text-[10px] font-semibold uppercase tracking-widest flex-1 text-left transition-colors
+                      ${hasActive ? "text-slate-300" : "text-slate-500 group-hover/sec:text-slate-400"}`}>
+                      {section.title}
+                    </span>
+                    <ChevronDown className={`w-3 h-3 shrink-0 transition-transform duration-200
+                      ${isOpen ? "rotate-180" : ""} ${hasActive ? "text-slate-400" : "text-slate-600"}`} />
+                  </button>
+                  <div className={`overflow-hidden transition-all duration-200 ease-in-out ${isOpen ? "max-h-[400px]" : "max-h-0"}`}>
+                    <div className="space-y-0.5 mt-0.5 pb-1 pl-2">
+                      {section.items.map(({ href, label, icon: Icon, tourId }) => {
+                        const active = pathname === href;
+                        return (
+                          <Link key={href} href={href} id={tourId}
+                            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150
+                              ${active ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}
+                          >
+                            <Icon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-slate-500"}`} />
+                            {label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               );
             })}

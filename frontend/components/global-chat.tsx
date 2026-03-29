@@ -149,7 +149,7 @@ export default function GlobalChat() {
     }
   };
 
-  // Close menu when clicking outside (safer than a fixed backdrop which can intercept button clicks)
+  // Close menu when clicking outside
   useEffect(() => {
     if (!menuId) return;
     const handler = (e: MouseEvent) => {
@@ -162,7 +162,6 @@ export default function GlobalChat() {
 
   const handleDelete = async (id: string) => {
     setMenuId(null);
-    // Snapshot remaining BEFORE the async gap to avoid stale closure
     const remaining = conversations.filter((c) => c.id !== id);
     const wasActive = activeId === id;
     try {
@@ -186,8 +185,9 @@ export default function GlobalChat() {
       <button
         onClick={() => setOpen(true)}
         className={`fixed right-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center justify-center gap-2
-          w-9 bg-brand-600 hover:bg-brand-700 text-white rounded-l-2xl py-5
-          shadow-lg shadow-brand-600/25 transition-all duration-300 hover:w-10
+          w-9 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-l-2xl py-5
+          shadow-lg shadow-black/30 border-l border-t border-b border-white/5
+          transition-all duration-300 hover:w-10
           ${open ? "opacity-0 pointer-events-none translate-x-2" : "opacity-100"}`}
         title="Open AI Advisor"
       >
@@ -202,27 +202,27 @@ export default function GlobalChat() {
 
       {/* ── Side panel ── */}
       <div
-        className={`fixed top-0 right-0 bottom-0 z-50 flex flex-col bg-white border-l border-gray-200
-          shadow-[−4px_0_24px_rgba(0,0,0,0.08)]
+        className={`fixed top-0 right-0 bottom-0 z-50 flex flex-col bg-slate-900 border-l border-white/5
+          shadow-[-4px_0_32px_rgba(0,0,0,0.4)]
           transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]
           ${open ? "translate-x-0" : "translate-x-full"}
           w-[380px] max-w-[100vw]`}
       >
         {/* ── Header ── */}
-        <div className="shrink-0 h-14 flex items-center gap-3 px-4 border-b border-gray-100">
+        <div className="shrink-0 h-14 flex items-center gap-3 px-4 border-b border-white/5">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shrink-0 shadow-sm shadow-brand-600/30">
             <Sparkles className="w-3.5 h-3.5 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-semibold text-gray-900 leading-none truncate">
+            <p className="text-[13px] font-semibold text-white leading-none truncate">
               {activeConv?.title ?? "AI Compliance Advisor"}
             </p>
-            <p className="text-[10px] text-gray-400 mt-0.5">Powered by Llama 3.3 · Groq</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Powered by Llama 3.3 · Groq</p>
           </div>
           <button
             onClick={() => setOpen(false)}
             title="Collapse"
-            className="flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors shrink-0 text-xs font-medium"
+            className="flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors shrink-0 text-xs font-medium"
           >
             <PanelRightClose className="w-4 h-4" />
             <span className="hidden sm:inline">Close</span>
@@ -230,20 +230,18 @@ export default function GlobalChat() {
         </div>
 
         {/* ── Conversation list ── */}
-        <div className="shrink-0 border-b border-gray-100 bg-gray-50/50">
-          {/* List header */}
+        <div className="shrink-0 border-b border-white/5 bg-white/[0.02]">
           <div className="flex items-center justify-between px-4 pt-3 pb-1.5">
-            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Conversations</span>
+            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Conversations</span>
             <button
               onClick={handleNewConversation}
-              className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-600 hover:text-brand-700 transition-colors"
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-400 hover:text-brand-300 transition-colors"
             >
               <Plus className="w-3 h-3" />
               New
             </button>
           </div>
 
-          {/* Items */}
           <div className="overflow-y-auto max-h-[168px] px-2 pb-2 space-y-0.5">
             {loadingConvs ? (
               <div className="flex justify-center py-4">
@@ -251,11 +249,11 @@ export default function GlobalChat() {
               </div>
             ) : conversations.length === 0 ? (
               <div className="flex flex-col items-center py-5 gap-1.5">
-                <MessageSquare className="w-5 h-5 text-gray-300" />
-                <p className="text-xs text-gray-400">No conversations yet</p>
+                <MessageSquare className="w-5 h-5 text-slate-600" />
+                <p className="text-xs text-slate-500">No conversations yet</p>
                 <button
                   onClick={handleNewConversation}
-                  className="text-xs text-brand-600 hover:text-brand-700 font-medium mt-0.5"
+                  className="text-xs text-brand-400 hover:text-brand-300 font-medium mt-0.5"
                 >
                   Start one →
                 </button>
@@ -267,8 +265,8 @@ export default function GlobalChat() {
                   onClick={() => { if (renamingId !== conv.id) loadConversation(conv.id); }}
                   className={`group relative flex items-center rounded-lg cursor-pointer transition-all
                     ${activeId === conv.id
-                      ? "bg-brand-50 border border-brand-100"
-                      : "hover:bg-white border border-transparent hover:border-gray-100 hover:shadow-sm"
+                      ? "bg-brand-600/15 border border-brand-500/25"
+                      : "hover:bg-white/5 border border-transparent hover:border-white/10"
                     }`}
                 >
                   {renamingId === conv.id ? (
@@ -282,41 +280,41 @@ export default function GlobalChat() {
                         if (e.key === "Escape") setRenamingId(null);
                       }}
                       onClick={(e) => e.stopPropagation()}
-                      className="w-full px-3 py-2 text-xs bg-transparent outline-none text-gray-900 border-b border-brand-400"
+                      className="w-full px-3 py-2 text-xs bg-transparent outline-none text-white border-b border-brand-400"
                     />
                   ) : (
                     <div className="flex items-center w-full px-2.5 py-2 gap-1.5 min-w-0">
-                      <span className={`flex-1 text-xs truncate leading-snug ${activeId === conv.id ? "font-medium text-brand-700" : "text-gray-600"}`}>
+                      <span className={`flex-1 text-xs truncate leading-snug ${activeId === conv.id ? "font-medium text-brand-300" : "text-slate-400"}`}>
                         {conv.title}
                       </span>
                       <button
                         data-menu
                         onClick={(e) => { e.stopPropagation(); setMenuId(menuId === conv.id ? null : conv.id); }}
-                        className="shrink-0 opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded-md hover:bg-gray-200 transition-all"
+                        className="shrink-0 opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded-md hover:bg-white/10 transition-all"
                       >
-                        <MoreHorizontal className="w-3 h-3 text-gray-500" />
+                        <MoreHorizontal className="w-3 h-3 text-slate-400" />
                       </button>
                     </div>
                   )}
 
-                  {/* Dropdown — data-menu marks it so the outside-click handler ignores it */}
+                  {/* Dropdown */}
                   {menuId === conv.id && (
                     <div
                       data-menu
-                      className="absolute right-1 top-8 z-[200] w-36 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden"
+                      className="absolute right-1 top-8 z-[200] w-36 bg-slate-800 border border-white/10 rounded-xl shadow-xl overflow-hidden"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <button
                         onClick={() => startRename(conv)}
-                        className="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs text-slate-300 hover:bg-white/5 transition-colors"
                       >
-                        <Edit2 className="w-3 h-3 text-gray-400" />
+                        <Edit2 className="w-3 h-3 text-slate-500" />
                         Rename
                       </button>
-                      <div className="border-t border-gray-50" />
+                      <div className="border-t border-white/5" />
                       <button
                         onClick={() => handleDelete(conv.id)}
-                        className="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs text-red-500 hover:bg-red-50 transition-colors"
+                        className="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs text-red-400 hover:bg-red-500/10 transition-colors"
                       >
                         <Trash2 className="w-3 h-3" />
                         Delete
@@ -333,12 +331,12 @@ export default function GlobalChat() {
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
           {!activeId ? (
             <div className="flex flex-col items-center justify-center h-full text-center gap-4 px-6">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center">
-                <Bot className="w-7 h-7 text-brand-500" />
+              <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center">
+                <Bot className="w-7 h-7 text-brand-400" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-800">Ask me anything</p>
-                <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                <p className="text-sm font-semibold text-white">Ask me anything</p>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
                   Frameworks, evidence gaps, audit prep, policies — I know your compliance stack.
                 </p>
               </div>
@@ -356,8 +354,8 @@ export default function GlobalChat() {
             </div>
           ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-2 text-center">
-              <MessageSquare className="w-6 h-6 text-gray-200" />
-              <p className="text-xs text-gray-400">Send a message to get started</p>
+              <MessageSquare className="w-6 h-6 text-slate-600" />
+              <p className="text-xs text-slate-500">Send a message to get started</p>
             </div>
           ) : (
             messages.map((msg) => (
@@ -371,7 +369,7 @@ export default function GlobalChat() {
                   className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed whitespace-pre-wrap
                     ${msg.role === "user"
                       ? "bg-brand-600 text-white rounded-br-sm shadow-sm shadow-brand-600/20"
-                      : "bg-gray-100 text-gray-800 rounded-bl-sm"
+                      : "bg-slate-800 text-slate-200 rounded-bl-sm border border-white/5"
                     }`}
                 >
                   {msg.content}
@@ -385,13 +383,13 @@ export default function GlobalChat() {
               <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shrink-0 mt-0.5 mr-2 shadow-sm shadow-brand-600/20">
                 <Sparkles className="w-3 h-3 text-white" />
               </div>
-              <div className="bg-gray-100 rounded-2xl rounded-bl-sm px-3.5 py-2.5 flex items-center gap-1.5">
-                <span className="text-[13px] text-gray-400">Thinking</span>
+              <div className="bg-slate-800 border border-white/5 rounded-2xl rounded-bl-sm px-3.5 py-2.5 flex items-center gap-1.5">
+                <span className="text-[13px] text-slate-400">Thinking</span>
                 <span className="flex gap-0.5 ml-0.5">
                   {[0, 1, 2].map((i) => (
                     <span
                       key={i}
-                      className="w-1 h-1 bg-gray-400 rounded-full animate-bounce"
+                      className="w-1 h-1 bg-slate-500 rounded-full animate-bounce"
                       style={{ animationDelay: `${i * 160}ms` }}
                     />
                   ))}
@@ -404,9 +402,9 @@ export default function GlobalChat() {
 
         {/* ── Input ── */}
         {activeId && (
-          <div className="shrink-0 p-3 border-t border-gray-100 bg-white">
-            <div className="flex items-end gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2
-              focus-within:border-brand-400 focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-100
+          <div className="shrink-0 p-3 border-t border-white/5 bg-slate-900">
+            <div className="flex items-end gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2
+              focus-within:border-brand-500/50 focus-within:bg-white/8 focus-within:ring-2 focus-within:ring-brand-600/20
               transition-all duration-150">
               <textarea
                 ref={inputRef}
@@ -421,7 +419,7 @@ export default function GlobalChat() {
                 placeholder="Ask about compliance, gaps, frameworks…"
                 rows={1}
                 disabled={thinking}
-                className="flex-1 bg-transparent text-[13px] text-gray-900 placeholder-gray-400 resize-none outline-none
+                className="flex-1 bg-transparent text-[13px] text-white placeholder-slate-500 resize-none outline-none
                   leading-relaxed disabled:opacity-50 max-h-[120px]"
               />
               <button
@@ -433,17 +431,17 @@ export default function GlobalChat() {
                 <Send className="w-3.5 h-3.5" />
               </button>
             </div>
-            <p className="text-[10px] text-gray-300 text-center mt-2">Enter to send · Shift+Enter for new line</p>
+            <p className="text-[10px] text-slate-700 text-center mt-2">Enter to send · Shift+Enter for new line</p>
           </div>
         )}
 
-        {/* ── No active conversation input ── */}
+        {/* ── No active conversation footer ── */}
         {!activeId && !loadingConvs && (
-          <div className="shrink-0 p-3 border-t border-gray-100">
+          <div className="shrink-0 p-3 border-t border-white/5">
             <button
               onClick={handleNewConversation}
-              className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200
-                hover:border-brand-300 hover:bg-brand-50/30 text-gray-400 hover:text-brand-600
+              className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-white/10
+                hover:border-brand-500/40 hover:bg-brand-600/5 text-slate-500 hover:text-brand-400
                 py-3 text-xs font-medium transition-all duration-150"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -456,7 +454,7 @@ export default function GlobalChat() {
       {/* ── Backdrop (mobile) ── */}
       {open && (
         <div
-          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px] md:hidden"
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] md:hidden"
           onClick={() => setOpen(false)}
         />
       )}
