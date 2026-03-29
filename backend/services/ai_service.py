@@ -9,7 +9,7 @@ from core.config import settings
 
 logger = logging.getLogger(__name__)
 
-FRAMEWORK_LABELS = {"soc2": "SOC 2", "iso27001": "ISO 27001", "hipaa": "HIPAA"}
+FRAMEWORK_LABELS = {"soc2": "SOC 2", "iso27001": "ISO 27001", "hipaa": "HIPAA", "dpdp": "DPDP Act", "cert_in": "CERT-In"}
 
 FRAMEWORK_LABELS_FULL = {
     "soc2":     "SOC 2 Type II",

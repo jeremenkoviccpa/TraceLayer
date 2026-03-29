@@ -50,8 +50,13 @@ Analyze the document and return a JSON object with this exact structure:
 }
 
 Rules:
-- external_id must exactly match the official control numbering in the document (e.g. CC6.1, A.5.1, 164.308(a)(1))
-- category must be a lowercase_underscore slug
+- external_id must exactly match the official control numbering in the document (e.g. CC6.1, A.5.1, 164.308(a)(1), Sec.8, Dir.3)
+- category must be a lowercase_underscore slug chosen from the known category set for the framework:
+    dpdp: lawful_processing, data_fiduciary_obligations, special_categories, data_principal_rights, breach_notification, cross_border_transfers
+    cert_in: incident_reporting, it_infrastructure, log_management, identity_verification, incident_response, vulnerability_management, access_control, resilience, monitoring, endpoint_security
+    soc2: access_control, logging_monitoring, change_management
+    iso27001: access_control, operations_security, communications_security, change_management
+    hipaa: access_control, audit_controls, workforce_security
 - Be precise about what changed vs what is new vs what was removed
 - If you cannot determine the version, use null for detected_version
 - Return ONLY the JSON object, no other text
@@ -119,18 +124,39 @@ async def extract_controls_from_content(
 
 
 async def fetch_document_content(url: str) -> str:
-    """Fetch the text content of a URL (HTML or plain text)."""
+    """Fetch the text content of a URL (HTML, PDF, or plain text)."""
     async with httpx.AsyncClient(timeout=60, follow_redirects=True) as client:
         response = await client.get(url, headers={"User-Agent": "TraceLayer-Compliance-Monitor/1.0"})
         response.raise_for_status()
         content_type = response.headers.get("content-type", "")
+
+        if "pdf" in content_type or url.lower().endswith(".pdf"):
+            return _extract_text_from_pdf(response.content)
+
         if "html" in content_type:
-            # Strip HTML tags for cleaner text
             import re
             text = re.sub(r"<[^>]+>", " ", response.text)
             text = re.sub(r"\s+", " ", text).strip()
             return text
+
         return response.text
+
+
+def _extract_text_from_pdf(pdf_bytes: bytes) -> str:
+    """Extract plain text from a PDF binary using pypdf."""
+    import io
+    try:
+        from pypdf import PdfReader
+        reader = PdfReader(io.BytesIO(pdf_bytes))
+        pages = []
+        for page in reader.pages:
+            text = page.extract_text() or ""
+            pages.append(text)
+        return "\n\n".join(pages)
+    except Exception as exc:
+        logger.warning("PDF text extraction failed: %s", exc)
+        # Return raw bytes decoded loosely — better than nothing for hashing context
+        return pdf_bytes.decode("latin-1", errors="replace")
 
 
 def format_extraction_result_for_review(result: dict) -> str:
