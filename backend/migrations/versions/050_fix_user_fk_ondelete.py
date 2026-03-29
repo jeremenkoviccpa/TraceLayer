@@ -11,102 +11,114 @@ down_revision = "049_add_chat_conversations"
 branch_labels = None
 depends_on = None
 
+# SQL helper: find and drop any FK on (table, column) pointing at users.id,
+# then recreate it with the desired ondelete action.
+_DROP_AND_RECREATE = """
+DO $$
+DECLARE
+    _cname text;
+BEGIN
+    SELECT tc.constraint_name INTO _cname
+    FROM information_schema.table_constraints tc
+    JOIN information_schema.key_column_usage kcu
+        ON tc.constraint_name = kcu.constraint_name
+        AND tc.table_schema    = kcu.table_schema
+    JOIN information_schema.referential_constraints rc
+        ON tc.constraint_name = rc.constraint_name
+        AND tc.table_schema    = rc.constraint_schema
+    JOIN information_schema.table_constraints tc2
+        ON rc.unique_constraint_name  = tc2.constraint_name
+        AND rc.unique_constraint_schema = tc2.table_schema
+    WHERE tc.constraint_type = 'FOREIGN KEY'
+      AND tc.table_schema    = 'public'
+      AND tc.table_name      = {table!r}
+      AND kcu.column_name    = {column!r}
+      AND tc2.table_name     = 'users'
+    LIMIT 1;
+
+    IF _cname IS NOT NULL THEN
+        EXECUTE format('ALTER TABLE {table} DROP CONSTRAINT %%I', _cname);
+    END IF;
+END $$;
+
+ALTER TABLE {table}
+    ADD CONSTRAINT {new_name} FOREIGN KEY ({column})
+    REFERENCES users(id) ON DELETE {action};
+"""
+
+
+def _fix(table: str, column: str, action: str) -> None:
+    new_name = f"{table}_{column}_fkey"
+    op.execute(
+        _DROP_AND_RECREATE.format(
+            table=table, column=column, action=action, new_name=new_name
+        )
+    )
+
 
 def upgrade() -> None:
-    # email_verification_tokens.user_id → CASCADE
-    op.drop_constraint(
-        "email_verification_tokens_user_id_fkey",
-        "email_verification_tokens",
-        type_="foreignkey",
-    )
-    op.create_foreign_key(
-        "email_verification_tokens_user_id_fkey",
-        "email_verification_tokens",
-        "users",
-        ["user_id"],
-        ["id"],
-        ondelete="CASCADE",
-    )
+    _fix("email_verification_tokens", "user_id", "CASCADE")
+    _fix("password_reset_tokens", "user_id", "CASCADE")
 
-    # password_reset_tokens.user_id → CASCADE
-    op.drop_constraint(
-        "password_reset_tokens_user_id_fkey",
-        "password_reset_tokens",
-        type_="foreignkey",
-    )
-    op.create_foreign_key(
-        "password_reset_tokens_user_id_fkey",
-        "password_reset_tokens",
-        "users",
-        ["user_id"],
-        ["id"],
-        ondelete="CASCADE",
-    )
+    # invitations.invited_by must become nullable before SET NULL can work
+    op.execute("""
+DO $$
+DECLARE
+    _cname text;
+BEGIN
+    SELECT tc.constraint_name INTO _cname
+    FROM information_schema.table_constraints tc
+    JOIN information_schema.key_column_usage kcu
+        ON tc.constraint_name = kcu.constraint_name
+        AND tc.table_schema    = kcu.table_schema
+    JOIN information_schema.referential_constraints rc
+        ON tc.constraint_name = rc.constraint_name
+        AND tc.table_schema    = rc.constraint_schema
+    JOIN information_schema.table_constraints tc2
+        ON rc.unique_constraint_name  = tc2.constraint_name
+        AND rc.unique_constraint_schema = tc2.table_schema
+    WHERE tc.constraint_type = 'FOREIGN KEY'
+      AND tc.table_schema    = 'public'
+      AND tc.table_name      = 'invitations'
+      AND kcu.column_name    = 'invited_by'
+      AND tc2.table_name     = 'users'
+    LIMIT 1;
 
-    # invitations.invited_by → SET NULL (column must also become nullable)
-    op.drop_constraint(
-        "invitations_invited_by_fkey",
-        "invitations",
-        type_="foreignkey",
-    )
-    op.alter_column("invitations", "invited_by", nullable=True)
-    op.create_foreign_key(
-        "invitations_invited_by_fkey",
-        "invitations",
-        "users",
-        ["invited_by"],
-        ["id"],
-        ondelete="SET NULL",
-    )
+    IF _cname IS NOT NULL THEN
+        EXECUTE format('ALTER TABLE invitations DROP CONSTRAINT %%I', _cname);
+    END IF;
+END $$;
 
-    # audit_logs.user_id → SET NULL
-    op.drop_constraint(
-        "audit_logs_user_id_fkey",
-        "audit_logs",
-        type_="foreignkey",
-    )
-    op.create_foreign_key(
-        "audit_logs_user_id_fkey",
-        "audit_logs",
-        "users",
-        ["user_id"],
-        ["id"],
-        ondelete="SET NULL",
-    )
+ALTER TABLE invitations ALTER COLUMN invited_by DROP NOT NULL;
+
+ALTER TABLE invitations
+    ADD CONSTRAINT invitations_invited_by_fkey FOREIGN KEY (invited_by)
+    REFERENCES users(id) ON DELETE SET NULL;
+    """)
+
+    _fix("audit_logs", "user_id", "SET NULL")
 
 
 def downgrade() -> None:
-    op.drop_constraint("audit_logs_user_id_fkey", "audit_logs", type_="foreignkey")
-    op.create_foreign_key(
-        "audit_logs_user_id_fkey", "audit_logs", "users", ["user_id"], ["id"]
-    )
-
-    op.drop_constraint("invitations_invited_by_fkey", "invitations", type_="foreignkey")
-    op.alter_column("invitations", "invited_by", nullable=False)
-    op.create_foreign_key(
-        "invitations_invited_by_fkey", "invitations", "users", ["invited_by"], ["id"]
-    )
-
-    op.drop_constraint(
-        "password_reset_tokens_user_id_fkey", "password_reset_tokens", type_="foreignkey"
-    )
-    op.create_foreign_key(
-        "password_reset_tokens_user_id_fkey",
-        "password_reset_tokens",
-        "users",
-        ["user_id"],
-        ["id"],
-    )
-
-    op.drop_constraint(
-        "email_verification_tokens_user_id_fkey",
-        "email_verification_tokens",
-        type_="foreignkey",
-    )
-    op.create_foreign_key(
-        "email_verification_tokens_user_id_fkey",
-        "email_verification_tokens",
-        "users",
-        ["user_id"],
-        ["id"],
-    )
+    # Restore without ondelete (default RESTRICT)
+    op.execute("""
+        ALTER TABLE audit_logs DROP CONSTRAINT IF EXISTS audit_logs_user_id_fkey;
+        ALTER TABLE audit_logs ADD CONSTRAINT audit_logs_user_id_fkey
+            FOREIGN KEY (user_id) REFERENCES users(id);
+    """)
+    op.execute("""
+        ALTER TABLE invitations DROP CONSTRAINT IF EXISTS invitations_invited_by_fkey;
+        ALTER TABLE invitations ALTER COLUMN invited_by SET NOT NULL;
+        ALTER TABLE invitations ADD CONSTRAINT invitations_invited_by_fkey
+            FOREIGN KEY (invited_by) REFERENCES users(id);
+    """)
+    op.execute("""
+        ALTER TABLE password_reset_tokens DROP CONSTRAINT IF EXISTS password_reset_tokens_user_id_fkey;
+        ALTER TABLE password_reset_tokens ADD CONSTRAINT password_reset_tokens_user_id_fkey
+            FOREIGN KEY (user_id) REFERENCES users(id);
+    """)
+    op.execute("""
+        ALTER TABLE email_verification_tokens DROP CONSTRAINT IF EXISTS email_verification_tokens_user_id_fkey;
+        ALTER TABLE email_verification_tokens ADD CONSTRAINT email_verification_tokens_user_id_fkey
+            FOREIGN KEY (user_id) REFERENCES users(id);
+    """)
