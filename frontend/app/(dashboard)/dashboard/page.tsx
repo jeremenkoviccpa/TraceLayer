@@ -17,7 +17,7 @@ import {
   TrendingUp, Activity, AlertTriangle, ArrowRight, X,
   PartyPopper, Database, Target, GraduationCap, Building2,
   UserCheck, ShieldAlert, BookOpen, ClipboardList, Zap,
-  FileText, Globe, ChevronRight, ChevronLeft, Lock,
+  FileText, Globe, ChevronRight, ChevronLeft, Lock, Sparkles,
 } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
 import { useUpgrade } from "@/components/plan-gate";
@@ -678,13 +678,13 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ── Hero row: Score card + mini stats ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* ── Hero row: Score card + Quick Actions ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
         {/* Score hero card */}
         <div
           id="tour-score"
-          className="md:col-span-2 lg:col-span-2 relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-4 sm:p-6 overflow-hidden min-h-[220px] sm:min-h-[200px]"
+          className="lg:col-span-2 relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-4 sm:p-6 overflow-hidden min-h-[220px] sm:min-h-[200px]"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
@@ -824,41 +824,95 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Mini stat cards */}
-        <div className="flex flex-col gap-3">
-          <MiniStat
-            icon={Database}
-            label="Evidence records"
-            value={activeEvidenceTotal.toLocaleString()}
-            sub={tmData ? `collected by ${tmDate}` : "across all integrations"}
-            color="brand"
-            tooltip="Total pieces of evidence collected from your connected tools"
-          />
-          <MiniStat
-            icon={Plug}
-            label="Active integrations"
-            value={activeIntegrationCount}
-            sub={activeIntegrationSub}
-            color={activeIntegrationCount > 0 ? "green" : "brand"}
-            tooltip="Integrations currently collecting evidence on schedule"
-          />
-          <MiniStat
-            icon={Activity}
-            label="Controls monitored"
-            value={activeCompliance?.controls.length ?? 0}
-            sub={`${FRAMEWORKS.find(f => f.value === framework)?.label ?? framework} framework`}
-            color="brand"
-            tooltip="Number of compliance controls being tracked for this framework"
-          />
-          <MiniStat
-            icon={AlertTriangle}
-            label="Action items"
-            value={activeFailingControls.length}
-            sub={activeFailingControls.length > 0 ? "controls need attention" : "All controls passing"}
-            color={activeFailingControls.length > 0 ? "amber" : "green"}
-            tooltip="Controls that are failing or missing evidence and need your attention"
-          />
+        {/* Quick Actions panel */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col">
+          <div className="px-5 py-4 border-b border-gray-100">
+            <p className="text-sm font-bold text-gray-900">Quick Actions</p>
+            <p className="text-xs text-gray-400 mt-0.5">Jump to key tasks</p>
+          </div>
+          <div className="p-3 space-y-1 flex-1">
+            <Link href="/audit-package"
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-violet-50 group transition-colors">
+              <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center shrink-0 group-hover:bg-violet-100 transition-colors">
+                <Sparkles className="w-4 h-4 text-violet-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-800 group-hover:text-violet-700 transition-colors">Run AI Audit Package</p>
+                <p className="text-xs text-gray-400">Generate full audit prep docs</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-violet-400 shrink-0 transition-colors" />
+            </Link>
+            <Link href="/reports"
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-sky-50 group transition-colors">
+              <div className="w-9 h-9 rounded-xl bg-sky-50 flex items-center justify-center shrink-0 group-hover:bg-sky-100 transition-colors">
+                <FileText className="w-4 h-4 text-sky-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-800 group-hover:text-sky-700 transition-colors">Generate Report</p>
+                <p className="text-xs text-gray-400">SOC 2, ISO 27001 &amp; more</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-sky-400 shrink-0 transition-colors" />
+            </Link>
+            <Link href="/integrations"
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-emerald-50 group transition-colors">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0 group-hover:bg-emerald-100 transition-colors">
+                <Plug className="w-4 h-4 text-emerald-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-800 group-hover:text-emerald-700 transition-colors">Connect Integration</p>
+                <p className="text-xs text-gray-400">GitHub, AWS, GCP &amp; more</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-emerald-400 shrink-0 transition-colors" />
+            </Link>
+            <Link href="/compliance"
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-50 group transition-colors">
+              <div className="w-9 h-9 rounded-xl bg-brand-50 flex items-center justify-center shrink-0 group-hover:bg-brand-100 transition-colors">
+                <ShieldCheck className="w-4 h-4 text-brand-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-800 group-hover:text-brand-700 transition-colors">Review Controls</p>
+                <p className="text-xs text-gray-400">Check control health &amp; gaps</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-brand-400 shrink-0 transition-colors" />
+            </Link>
+          </div>
         </div>
+      </div>
+
+      {/* ── Stat cards row ── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <MiniStat
+          icon={Database}
+          label="Evidence records"
+          value={activeEvidenceTotal.toLocaleString()}
+          sub={tmData ? `collected by ${tmDate}` : "across all integrations"}
+          color="brand"
+          tooltip="Total pieces of evidence collected from your connected tools"
+        />
+        <MiniStat
+          icon={Plug}
+          label="Active integrations"
+          value={activeIntegrationCount}
+          sub={activeIntegrationSub}
+          color={activeIntegrationCount > 0 ? "green" : "brand"}
+          tooltip="Integrations currently collecting evidence on schedule"
+        />
+        <MiniStat
+          icon={Activity}
+          label="Controls monitored"
+          value={activeCompliance?.controls.length ?? 0}
+          sub={`${FRAMEWORKS.find(f => f.value === framework)?.label ?? framework} framework`}
+          color="brand"
+          tooltip="Number of compliance controls being tracked for this framework"
+        />
+        <MiniStat
+          icon={AlertTriangle}
+          label="Action items"
+          value={activeFailingControls.length}
+          sub={activeFailingControls.length > 0 ? "controls need attention" : "All controls passing"}
+          color={activeFailingControls.length > 0 ? "amber" : "green"}
+          tooltip="Controls that are failing or missing evidence and need your attention"
+        />
       </div>
 
       {/* ── Charts ── */}

@@ -253,14 +253,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 bg-white border-r border-gray-100 flex flex-col
+        className={`fixed inset-y-0 left-0 z-40 bg-slate-900 border-r border-white/5 flex flex-col
           transition-all duration-200 ease-in-out
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0
           ${collapsed ? "md:w-16" : "md:w-60"}
           w-60`}
       >
         {/* Logo */}
-        <div className={`h-16 border-b border-gray-100 flex items-center shrink-0 transition-all duration-200 ${collapsed ? "justify-center px-0" : "justify-between px-4"}`}>
+        <div className={`h-16 border-b border-white/5 flex items-center shrink-0 transition-all duration-200 ${collapsed ? "justify-center px-0" : "justify-between px-4"}`}>
           {collapsed ? (
             <Link href="/dashboard" className="flex items-center justify-center">
               <Image src="/logo-icon.png" alt="TraceLayer" width={30} height={30} className="rounded-lg" />
@@ -269,11 +269,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <>
               <Link href="/dashboard" className="flex items-center gap-2.5">
                 <Image src="/logo-icon.png" alt="TraceLayer" width={30} height={30} className="rounded-lg" />
-                <span className="text-base font-bold text-gray-900 tracking-tight">TraceLayer</span>
+                <span className="text-base font-bold text-white tracking-tight">TraceLayer</span>
               </Link>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="md:hidden text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+                className="md:hidden text-white/40 hover:text-white/70 p-1 rounded-lg hover:bg-white/5 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -296,13 +296,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         group.title === "Reports" ? "tour-nav-reporting" :
                         undefined
                       }
-                      className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 px-3 pt-4 pb-1"
+                      className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-3 pt-4 pb-1"
                     >
                       {group.title}
                     </p>
                   )}
                   {group.title && collapsed && gi > 0 && (
-                    <div className="border-t border-gray-100 mb-1" />
+                    <div className="border-t border-white/5 mb-1" />
                   )}
                   <div className="space-y-0.5">
                     {group.items.map(({ href, label, icon: Icon, tourId }) => {
@@ -316,10 +316,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 ${collapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 py-2"}
                                 ${active
                                   ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20"
-                                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                                  : "text-slate-400 hover:bg-white/5 hover:text-white"
                                 }`}
                             >
-                              <Icon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-gray-400"}`} />
+                              <Icon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-slate-500"}`} />
                               {!collapsed && label}
                             </Link>
                             {/* Tooltip for collapsed mode */}
@@ -343,7 +343,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* Super-admin link — only visible to internal admins */}
           {user && (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS ?? "").split(",").map(e => e.trim()).filter(Boolean).includes(user.email) && (
-            <div className={`mt-4 pt-4 border-t border-gray-100 ${collapsed ? "px-2" : "px-3"}`}>
+            <div className={`mt-4 pt-4 border-t border-white/5 ${collapsed ? "px-2" : "px-3"}`}>
               <div className="relative group/item">
                 <Link
                   href="/superadmin"
@@ -351,7 +351,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     ${collapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 py-2"}
                     ${pathname === "/superadmin"
                       ? "bg-purple-600 text-white shadow-sm"
-                      : "text-purple-500 hover:bg-purple-50 hover:text-purple-700"
+                      : "text-purple-400 hover:bg-purple-500/10 hover:text-purple-300"
                     }`}
                 >
                   <ShieldHalf className={`w-4 h-4 shrink-0 ${pathname === "/superadmin" ? "text-white" : "text-purple-400"}`} />
@@ -393,11 +393,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
 
         {/* Help & Support */}
-        <div className={`border-t border-gray-100 pt-2 pb-1 shrink-0 ${collapsed ? "px-2" : "px-3"}`}>
+        <div className={`border-t border-white/5 pt-2 pb-1 shrink-0 ${collapsed ? "px-2" : "px-3"}`}>
           <div className="relative group/help">
             <a
               href="mailto:support@tracelayer.it.com"
-              className={`flex items-center rounded-xl text-sm text-gray-400 hover:bg-gray-50 hover:text-gray-700 transition-all duration-150
+              className={`flex items-center rounded-xl text-sm text-slate-500 hover:bg-white/5 hover:text-slate-300 transition-all duration-150
                 ${collapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 py-2 w-full"}`}
             >
               <LifeBuoy className="w-4 h-4 shrink-0" />
@@ -416,11 +416,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Collapse toggle — desktop only */}
-        <div className={`hidden md:flex border-t border-gray-100 py-2 shrink-0 ${collapsed ? "justify-center px-2" : "px-3"}`}>
+        <div className={`hidden md:flex border-t border-white/5 py-2 shrink-0 ${collapsed ? "justify-center px-2" : "px-3"}`}>
           <button
             onClick={toggleCollapsed}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className={`flex items-center gap-2 text-xs text-gray-400 hover:text-gray-700 hover:bg-gray-50 rounded-xl transition-all duration-150
+            className={`flex items-center gap-2 text-xs text-slate-500 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-150
               ${collapsed ? "w-10 h-8 justify-center" : "px-3 py-2 w-full"}`}
           >
             {collapsed
@@ -431,24 +431,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* User */}
-        <div className={`border-t border-gray-100 py-3 shrink-0 space-y-0.5 ${collapsed ? "px-2" : "px-3"}`}>
+        <div className={`border-t border-white/5 py-3 shrink-0 space-y-0.5 ${collapsed ? "px-2" : "px-3"}`}>
           {/* Avatar row */}
           <div className={`flex items-center rounded-xl py-2 ${collapsed ? "justify-center" : "gap-3 px-3"}`}>
-            <div className="w-7 h-7 rounded-lg bg-brand-100 flex items-center justify-center shrink-0">
-              <span className="text-xs font-bold text-brand-700">{initials}</span>
+            <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+              <span className="text-xs font-bold text-white/80">{initials}</span>
             </div>
             {!collapsed && (
-              <span className="text-xs text-gray-500 truncate flex-1">{user.email}</span>
+              <span className="text-xs text-slate-500 truncate flex-1">{user.email}</span>
             )}
           </div>
           {/* Sign out */}
           <div className="relative group/logout">
             <button
               onClick={handleLogout}
-              className={`flex items-center rounded-xl text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-900 w-full transition-all duration-150
+              className={`flex items-center rounded-xl text-sm text-slate-400 hover:bg-white/5 hover:text-white w-full transition-all duration-150
                 ${collapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 py-2"}`}
             >
-              <LogOut className="w-4 h-4 text-gray-400 shrink-0" />
+              <LogOut className="w-4 h-4 text-slate-500 shrink-0" />
               {!collapsed && "Sign out"}
             </button>
             {collapsed && (
