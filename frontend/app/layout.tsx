@@ -20,7 +20,7 @@ const BASE_URL = "https://tracelayer.it.com";
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "TraceLayer — SOC 2 Compliance Automation for Startups",
+    default: "TraceLayer — Run Compliance Yourself",
     template: "%s | TraceLayer",
   },
   description:
