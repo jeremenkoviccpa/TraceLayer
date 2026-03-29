@@ -294,8 +294,8 @@ function SlaBadge({ due_date }: { due_date: string | null }) {
   return <span className="text-[10px] text-gray-400 px-1.5 py-0.5 rounded-md bg-gray-100">{new Date(due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>;
 }
 
-// ── Remediation panel ─────────────────────────────────────────────────────────
-function RemediationPanel({ suggestion, onClose }: { suggestion: RemediationSuggestion; onClose: () => void }) {
+// ── AI Remediation panel ──────────────────────────────────────────────────────
+function AiRemediationPanel({ suggestion, onClose }: { suggestion: RemediationSuggestion; onClose: () => void }) {
   const priorityColors = {
     critical: "bg-red-100 text-red-700",
     high:     "bg-orange-100 text-orange-700",
@@ -572,7 +572,7 @@ function ManualControlRow({
                   : <><Sparkles className="w-3.5 h-3.5"/> AI Fix</>
                 }
               </button>
-              {remediation && <RemediationPanel suggestion={remediation} onClose={() => setRemediation(null)} />}
+              {remediation && <AiRemediationPanel suggestion={remediation} onClose={() => setRemediation(null)} />}
             </div>
           )}
 
