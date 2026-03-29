@@ -1101,3 +1101,116 @@ def send_audit_invitation_email(
       </p>
     """
     _send(to, subject, _layout(body))
+
+
+# ── Policy expiry notifications ───────────────────────────────────────────────
+
+_AMBER     = "#d97706"
+_AMBER_BG  = "#fffbeb"
+_AMBER_BOR = "#fde68a"
+_ORANGE    = "#ea580c"
+_ORANGE_BG = "#fff7ed"
+_ORANGE_BOR= "#fed7aa"
+
+
+def send_policy_expiry_email(
+    to: str,
+    company_name: str,
+    policies: list[dict],
+    frontend_url: str,
+) -> None:
+    """Notify an admin that one or more policies are expiring soon or have expired.
+
+    Each item in *policies* must have keys:
+      - title (str)
+      - slug  (str)
+      - days_remaining (int)  — negative = already expired
+    """
+    expired  = [p for p in policies if p["days_remaining"] < 0]
+    critical = [p for p in policies if 0 <= p["days_remaining"] <= 7]
+    warning  = [p for p in policies if 8 <= p["days_remaining"] <= 30]
+
+    total = len(policies)
+    if total == 0:
+        return
+
+    # Subject line tuned to urgency
+    if expired:
+        subject = f"⚠️ {len(expired)} policy expired — action required · {company_name}"
+    elif critical:
+        subject = f"🔴 Policy expiring in {critical[0]['days_remaining']} day{'s' if critical[0]['days_remaining'] != 1 else ''} · {company_name}"
+    else:
+        subject = f"Policy renewal reminder · {company_name}"
+
+    def _policy_row(p: dict) -> str:
+        days = p["days_remaining"]
+        if days < 0:
+            badge_bg, badge_color, badge_text = _RED_BG, _RED, f"Expired {abs(days)} day{'s' if abs(days) != 1 else ''} ago"
+        elif days == 0:
+            badge_bg, badge_color, badge_text = _RED_BG, _RED, "Expires today"
+        elif days <= 7:
+            badge_bg, badge_color, badge_text = _ORANGE_BG, _ORANGE, f"Expires in {days} day{'s' if days != 1 else ''}"
+        else:
+            badge_bg, badge_color, badge_text = _AMBER_BG, _AMBER, f"Expires in {days} days"
+
+        policy_url = f"{frontend_url}/policies"
+        return f"""
+        <tr>
+          <td style="padding:10px 0;border-bottom:1px solid #f1f5f9;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="vertical-align:middle;">
+                  <a href="{policy_url}" style="font-size:14px;font-weight:600;color:{_TEXT_HEAD};text-decoration:none;">{p['title']}</a>
+                </td>
+                <td align="right" style="vertical-align:middle;white-space:nowrap;">
+                  <span style="display:inline-block;background:{badge_bg};color:{badge_color};
+                    font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;
+                    border:1px solid {badge_bg};">{badge_text}</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>"""
+
+    rows_html = "".join(_policy_row(p) for p in policies)
+
+    summary_color = _RED if expired else (_ORANGE if critical else _AMBER)
+    summary_bg    = _RED_BG if expired else (_ORANGE_BG if critical else _AMBER_BG)
+    summary_border= _RED_BORDER if expired else (_ORANGE_BOR if critical else _AMBER_BOR)
+
+    summary_parts = []
+    if expired:
+        summary_parts.append(f"<strong>{len(expired)}</strong> expired")
+    if critical:
+        summary_parts.append(f"<strong>{len(critical)}</strong> expiring within 7 days")
+    if warning:
+        summary_parts.append(f"<strong>{len(warning)}</strong> expiring within 30 days")
+    summary_text = ", ".join(summary_parts)
+
+    body = f"""
+      <h2 style="margin:0 0 8px;color:{_TEXT_HEAD};font-size:22px;">Policy renewal required</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 20px;font-size:15px;line-height:1.6;">
+        {company_name} has policies that need attention.
+      </p>
+
+      <!-- Summary banner -->
+      <div style="background:{summary_bg};border:1.5px solid {summary_border};border-radius:10px;
+                  padding:12px 16px;margin-bottom:24px;">
+        <p style="margin:0;font-size:13px;font-weight:600;color:{summary_color};">
+          {summary_text}
+        </p>
+      </div>
+
+      <!-- Policy table -->
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+        {rows_html}
+      </table>
+
+      {_btn(frontend_url + "/policies", "Review policies")}
+
+      <p style="color:{_TEXT_MUTED};font-size:12px;margin:24px 0 0;line-height:1.6;">
+        Keeping your policies current is required for SOC&nbsp;2 CC1.4, ISO&nbsp;27001 A.5, and most
+        other frameworks. Update them in TraceLayer under <strong>Policies</strong>.
+      </p>
+    """
+    _send(to, subject, _layout(body, footer_note=f"TraceLayer &nbsp;&middot;&nbsp; Policy renewal reminder for {company_name}"))

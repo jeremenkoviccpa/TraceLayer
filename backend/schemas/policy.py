@@ -10,9 +10,14 @@ class PolicyResponse(BaseModel):
     category: str
     content: str
     updated_at: Optional[datetime] = None
+    expires_at: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
 
 
 class PolicySaveRequest(BaseModel):
     content: str
+
+
+class PolicySetExpiryRequest(BaseModel):
+    expires_at: Optional[datetime] = None

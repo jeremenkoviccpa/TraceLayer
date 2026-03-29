@@ -465,6 +465,10 @@ class ApiClient {
     return this.request<Policy>("PUT", `/policies/${slug}`, { content });
   }
 
+  async setPolicyExpiry(slug: string, expires_at: string | null): Promise<Policy> {
+    return this.request<Policy>("PATCH", `/policies/${slug}/expiry`, { expires_at });
+  }
+
   // ── Questionnaire ─────────────────────────────────────────────────────────
 
   async getQuestionnaireTypes(): Promise<QuestionnaireType[]> {

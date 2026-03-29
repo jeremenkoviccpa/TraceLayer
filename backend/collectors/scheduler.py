@@ -213,3 +213,19 @@ def schedule_framework_monitor() -> None:
         misfire_grace_time=3600,
     )
     logger.info("Scheduled framework source monitor (Mon 09:00 UTC)")
+
+
+def schedule_policy_expiry_checks() -> None:
+    """Daily check for expiring policies — sends admin email digests at 08:30 UTC."""
+    from services.policy_expiry_service import run_policy_expiry_all_companies
+
+    scheduler.add_job(
+        run_policy_expiry_all_companies,
+        "cron",
+        hour=8,
+        minute=30,
+        id="policy_expiry_checks",
+        replace_existing=True,
+        misfire_grace_time=3600,
+    )
+    logger.info("Scheduled policy expiry checks (08:30 UTC)")

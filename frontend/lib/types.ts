@@ -262,6 +262,7 @@ export interface Policy {
   category: string;
   content: string;
   updated_at: string | null;
+  expires_at: string | null;
 }
 
 export interface QuestionnaireType {

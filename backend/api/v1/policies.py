@@ -9,7 +9,7 @@ from core.database import get_db
 from core.deps import get_current_user
 from models.policy import Policy
 from models.user import User
-from schemas.policy import PolicyResponse, PolicySaveRequest
+from schemas.policy import PolicyResponse, PolicySaveRequest, PolicySetExpiryRequest
 
 logger = logging.getLogger(__name__)
 
@@ -175,6 +175,7 @@ def _build_response(slug: str, saved: Policy | None) -> PolicyResponse:
         category=template["category"],
         content=saved.content if saved else template["default_content"],
         updated_at=saved.updated_at if saved else None,
+        expires_at=saved.expires_at if saved else None,
     )
 
 
@@ -239,6 +240,46 @@ async def save_policy(
             slug=slug,
             content=body.content,
             updated_by_id=current_user.id,
+        )
+        db.add(policy)
+
+    await db.commit()
+    await db.refresh(policy)
+    return _build_response(slug, policy)
+
+
+@router.patch("/{slug}/expiry", response_model=PolicyResponse)
+async def set_policy_expiry(
+    slug: str,
+    body: PolicySetExpiryRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Set or clear the expiry date for a policy. Creates the policy row if it doesn't exist yet."""
+    if slug not in POLICY_TEMPLATES:
+        raise HTTPException(status_code=404, detail="Policy not found")
+
+    result = await db.execute(
+        select(Policy).where(
+            Policy.company_id == current_user.company_id,
+            Policy.slug == slug,
+        )
+    )
+    policy = result.scalar_one_or_none()
+
+    if policy:
+        policy.expires_at = body.expires_at
+        # Reset notification flag so the new expiry date triggers fresh notifications
+        policy.expiry_notified_at = None
+    else:
+        template = POLICY_TEMPLATES[slug]
+        policy = Policy(
+            id=uuid.uuid4(),
+            company_id=current_user.company_id,
+            slug=slug,
+            content=template["default_content"],
+            updated_by_id=current_user.id,
+            expires_at=body.expires_at,
         )
         db.add(policy)
 
