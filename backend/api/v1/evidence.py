@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.config import settings
 from core.database import get_db
 from core.deps import get_current_user
+from models.associations import evidence_controls
 from models.evidence import Evidence
 from models.user import User
 from schemas.evidence import EvidenceResponse
@@ -168,6 +169,12 @@ async def delete_evidence_bulk(
     """Delete multiple evidence records by ID. Only deletes records owned by the caller's company."""
     if not body.ids:
         return
+    # Delete junction rows first to avoid FK violation
+    await db.execute(
+        delete(evidence_controls).where(
+            evidence_controls.c.evidence_id.in_(body.ids)
+        )
+    )
     await db.execute(
         delete(Evidence).where(
             Evidence.id.in_(body.ids),
