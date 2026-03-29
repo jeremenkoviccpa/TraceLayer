@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import type { AuditComment, AuditEngagement, ComplianceScore, ControlScore, ManualControl, Member, Document } from "@/lib/types";
+import type { ActionPlan, AuditComment, AuditEngagement, ComplianceScore, ControlScore, ManualControl, Member, Document, RemediationSuggestion } from "@/lib/types";
 import { useRef } from "react";
 import { PlanGate, useUpgrade } from "@/components/plan-gate";
 import { usePlan } from "@/hooks/usePlan";
@@ -30,6 +30,10 @@ import {
   Link as LinkIcon,
   Loader2,
   MessageCircle,
+  CalendarDays,
+  Sparkles,
+  Zap,
+  ArrowRight,
 } from "lucide-react";
 
 const FRAMEWORKS = [
@@ -274,6 +278,68 @@ function ControlDocuments({ controlId, framework }: { controlId: string; framewo
 }
 
 // ── Manual control row ────────────────────────────────────────────────────────
+// ── SLA helpers ───────────────────────────────────────────────────────────────
+function slaDaysRemaining(due_date: string | null): number | null {
+  if (!due_date) return null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  return Math.ceil((new Date(due_date).getTime() - today.getTime()) / 86_400_000);
+}
+
+function SlaBadge({ due_date }: { due_date: string | null }) {
+  const days = slaDaysRemaining(due_date);
+  if (days === null) return null;
+  if (days < 0)  return <span className="text-[10px] font-bold bg-red-100 text-red-700 px-1.5 py-0.5 rounded-md">Overdue {Math.abs(days)}d</span>;
+  if (days <= 3) return <span className="text-[10px] font-bold bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-md">Due in {days}d</span>;
+  if (days <= 7) return <span className="text-[10px] font-semibold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-md">Due in {days}d</span>;
+  return <span className="text-[10px] text-gray-400 px-1.5 py-0.5 rounded-md bg-gray-100">{new Date(due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>;
+}
+
+// ── Remediation panel ─────────────────────────────────────────────────────────
+function RemediationPanel({ suggestion, onClose }: { suggestion: RemediationSuggestion; onClose: () => void }) {
+  const priorityColors = {
+    critical: "bg-red-100 text-red-700",
+    high:     "bg-orange-100 text-orange-700",
+    medium:   "bg-amber-100 text-amber-700",
+    low:      "bg-gray-100 text-gray-600",
+  };
+  return (
+    <div className="mt-3 rounded-xl border border-brand-100 bg-brand-50/40 p-4">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-3.5 h-3.5 text-brand-600 shrink-0" />
+          <span className="text-xs font-semibold text-brand-700">AI Remediation Plan</span>
+          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${priorityColors[suggestion.priority]}`}>
+            {suggestion.priority}
+          </span>
+          <span className="text-[10px] text-gray-500">· suggested SLA: {suggestion.suggested_sla_days}d</span>
+        </div>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-0.5"><X className="w-3.5 h-3.5"/></button>
+      </div>
+
+      <ol className="space-y-2.5 mb-3">
+        {suggestion.steps.map((s) => (
+          <li key={s.step} className="flex gap-2.5">
+            <span className="w-5 h-5 rounded-full bg-brand-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{s.step}</span>
+            <div>
+              <p className="text-xs font-semibold text-gray-800">{s.action}</p>
+              <p className="text-[11px] text-gray-500 leading-relaxed">{s.detail}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      {suggestion.missing_integrations.length > 0 && (
+        <div className="flex items-start gap-2 bg-white rounded-lg border border-amber-200 px-3 py-2">
+          <Zap className="w-3 h-3 text-amber-500 shrink-0 mt-0.5"/>
+          <p className="text-[11px] text-amber-700">
+            <strong>Connect to automate:</strong> {suggestion.missing_integrations.join(", ")}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ManualControlRow({
   control,
   framework,
@@ -289,6 +355,11 @@ function ManualControlRow({
   const [notes, setNotes] = useState(control.notes ?? "");
   const [saving, setSaving] = useState(false);
   const [assigning, setAssigning] = useState(false);
+  const [editingDue, setEditingDue] = useState(false);
+  const [dueValue, setDueValue] = useState(control.due_date ?? "");
+  const [savingDue, setSavingDue] = useState(false);
+  const [remediation, setRemediation] = useState<RemediationSuggestion | null>(null);
+  const [loadingRemediation, setLoadingRemediation] = useState(false);
 
   const cycleStatus = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -315,6 +386,24 @@ function ManualControlRow({
       const updated = await api.assignManualControl(control.control_id, framework, ownerUserId);
       onUpdate(updated);
     } catch { /* ignore */ } finally { setAssigning(false); }
+  };
+
+  const saveDueDate = async () => {
+    setSavingDue(true);
+    try {
+      const updated = await api.setControlDueDate(control.control_id, framework, dueValue || null);
+      onUpdate(updated);
+      setEditingDue(false);
+    } catch { /* ignore */ } finally { setSavingDue(false); }
+  };
+
+  const handleGetRemediation = async () => {
+    if (remediation) { setRemediation(null); return; }
+    setLoadingRemediation(true);
+    try {
+      const result = await api.getControlRemediation(control.control_id, framework);
+      setRemediation(result);
+    } catch { /* ignore */ } finally { setLoadingRemediation(false); }
   };
 
   const statusColors: Record<Status, string> = {
@@ -344,6 +433,7 @@ function ManualControlRow({
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          <SlaBadge due_date={control.due_date} />
           <span className={`text-xs font-semibold hidden sm:block ${statusColors[control.status as Status]}`}>
             {statusLabel(control.status as Status)}
           </span>
@@ -428,6 +518,62 @@ function ManualControlRow({
             <p className="text-xs text-gray-400 mt-2">
               Updated {new Date(control.updated_at).toLocaleString()}
             </p>
+          )}
+
+          {/* Due date / SLA */}
+          <div className="mt-3 flex items-center gap-2 flex-wrap">
+            <CalendarDays className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <span className="text-xs text-gray-500 font-medium">SLA due date:</span>
+            {!editingDue ? (
+              <>
+                {control.due_date
+                  ? <span className="text-xs text-gray-700">{new Date(control.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                  : <span className="text-xs text-gray-400 italic">Not set</span>
+                }
+                <SlaBadge due_date={control.due_date} />
+                <button onClick={() => setEditingDue(true)} className="text-xs text-brand-600 hover:text-brand-700 font-semibold">
+                  {control.due_date ? "Change" : "Set"}
+                </button>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={dueValue}
+                  onChange={(e) => setDueValue(e.target.value)}
+                  min={new Date().toISOString().slice(0, 10)}
+                  className="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                />
+                <button onClick={saveDueDate} disabled={savingDue}
+                  className="text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 px-2.5 py-1 rounded-lg disabled:opacity-50">
+                  {savingDue ? "…" : "Save"}
+                </button>
+                {control.due_date && (
+                  <button onClick={async () => { setDueValue(""); setSavingDue(true); try { const u = await api.setControlDueDate(control.control_id, framework, null); onUpdate(u); setEditingDue(false); } finally { setSavingDue(false); } }}
+                    className="text-xs text-red-500 hover:text-red-700">Clear</button>
+                )}
+                <button onClick={() => { setEditingDue(false); setDueValue(control.due_date ?? ""); }} className="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
+              </div>
+            )}
+          </div>
+
+          {/* AI Fix */}
+          {control.status !== "compliant" && (
+            <div className="mt-3">
+              <button
+                onClick={handleGetRemediation}
+                disabled={loadingRemediation}
+                className="flex items-center gap-1.5 text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-100 px-3 py-1.5 rounded-xl transition-colors disabled:opacity-50"
+              >
+                {loadingRemediation
+                  ? <><Loader2 className="w-3.5 h-3.5 animate-spin"/> Analysing…</>
+                  : remediation
+                  ? <><X className="w-3.5 h-3.5"/> Hide AI plan</>
+                  : <><Sparkles className="w-3.5 h-3.5"/> AI Fix</>
+                }
+              </button>
+              {remediation && <RemediationPanel suggestion={remediation} onClose={() => setRemediation(null)} />}
+            </div>
           )}
 
           <ControlDocuments controlId={control.control_id} framework={framework} />
@@ -724,6 +870,24 @@ export default function CompliancePage() {
   const manualCompliant = manualControls.filter((c) => c.status === "compliant").length;
   const manualTotal     = manualControls.filter((c) => c.status !== "not_applicable").length;
 
+  // ── Action Plan state ──────────────────────────────────────────────────────
+  const [actionPlan, setActionPlan] = useState<ActionPlan | null>(null);
+  const [loadingPlan, setLoadingPlan] = useState(false);
+  const [planOpen, setPlanOpen] = useState(false);
+
+  const handleGetActionPlan = async () => {
+    if (actionPlan) { setPlanOpen((o) => !o); return; }
+    setLoadingPlan(true);
+    setPlanOpen(true);
+    try {
+      const plan = await api.getActionPlan(framework);
+      setActionPlan(plan);
+    } catch { /* ignore */ } finally { setLoadingPlan(false); }
+  };
+
+  // Reset plan when framework changes
+  useEffect(() => { setActionPlan(null); setPlanOpen(false); }, [framework]);
+
   return (
     <div className="animate-fade-in">
       {/* Page header */}
@@ -761,6 +925,80 @@ export default function CompliancePage() {
           })}
         </div>
       </div>
+
+      {/* ── AI Action Plan ── */}
+      {!loading && (
+        <div className="mb-5 bg-white border border-gray-100 shadow-card rounded-2xl overflow-hidden">
+          <button
+            onClick={handleGetActionPlan}
+            className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-gray-50/60 transition-colors"
+          >
+            <div className="flex items-center gap-2.5">
+              <Sparkles className="w-4 h-4 text-brand-600 shrink-0" />
+              <span className="text-sm font-semibold text-gray-800">AI Action Plan</span>
+              <span className="text-xs text-gray-400">— top gaps and exactly what to do</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {actionPlan && <span className="text-xs text-gray-400">{actionPlan.items.length} actions</span>}
+              {loadingPlan
+                ? <Loader2 className="w-4 h-4 text-brand-500 animate-spin" />
+                : planOpen
+                ? <ChevronUp className="w-4 h-4 text-gray-400" />
+                : <ChevronDown className="w-4 h-4 text-gray-400" />
+              }
+            </div>
+          </button>
+
+          {planOpen && (
+            <div className="border-t border-gray-50 px-5 pb-5">
+              {loadingPlan && !actionPlan && (
+                <div className="flex items-center gap-3 py-6 justify-center text-gray-400">
+                  <Loader2 className="w-5 h-5 animate-spin text-brand-500" />
+                  <span className="text-sm">Analysing your compliance posture…</span>
+                </div>
+              )}
+              {actionPlan && (
+                <div className="mt-4 space-y-3">
+                  {actionPlan.items.map((item) => {
+                    const effortColor = item.effort === "quick" ? "bg-emerald-100 text-emerald-700" : item.effort === "medium" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700";
+                    const impactColor = item.impact === "high" ? "text-brand-600 font-bold" : item.impact === "medium" ? "text-amber-600" : "text-gray-400";
+                    return (
+                      <div key={item.rank} className="flex gap-3 bg-gray-50/60 border border-gray-100 rounded-xl p-3.5">
+                        <span className="w-6 h-6 rounded-full bg-brand-600 text-white text-[11px] font-black flex items-center justify-center shrink-0 mt-0.5">{item.rank}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <span className="text-sm font-semibold text-gray-800">{item.title}</span>
+                            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${effortColor}`}>{item.effort}</span>
+                            <span className={`text-[10px] font-semibold ${impactColor}`}>{item.impact} impact</span>
+                          </div>
+                          <p className="text-xs text-gray-500 mb-2">{item.description}</p>
+                          <div className="flex items-start gap-1.5">
+                            <ArrowRight className="w-3 h-3 text-brand-500 shrink-0 mt-0.5" />
+                            <p className="text-xs font-medium text-brand-700">{item.suggested_action}</p>
+                          </div>
+                          {item.control_refs.length > 0 && (
+                            <div className="flex gap-1 mt-2 flex-wrap">
+                              {item.control_refs.map((ref) => (
+                                <span key={ref} className="text-[10px] font-mono bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{ref}</span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <button
+                    onClick={() => { setActionPlan(null); setLoadingPlan(true); setPlanOpen(true); api.getActionPlan(framework).then(setActionPlan).catch(() => {}).finally(() => setLoadingPlan(false)); }}
+                    className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1"
+                  >
+                    <RefreshCw className="w-3 h-3" /> Regenerate
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {loading ? (
         <div className="space-y-4">

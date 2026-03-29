@@ -15,15 +15,23 @@ from models.integration import Integration
 from models.manual_control import ManualControl
 from models.user import User
 from schemas.compliance import (
+    ActionPlanResponse,
     AISummaryResponse,
     AssignManualControlRequest,
     ComplianceScoreResponse,
     EvidenceActivityPoint,
     ManualControlItem,
+    RemediationResponse,
     ScoreHistoryPoint,
+    SetDueDateRequest,
     UpdateManualControlRequest,
 )
-from services.ai_service import chat_with_advisor, generate_compliance_summary
+from services.ai_service import (
+    chat_with_advisor,
+    generate_action_plan,
+    generate_compliance_summary,
+    suggest_control_remediation,
+)
 from services.compliance_service import get_compliance_score, get_compliance_score_at, get_evidence_activity, get_score_history
 
 logger = logging.getLogger(__name__)
@@ -310,6 +318,7 @@ async def get_manual_controls(
             updated_at=rec.updated_at.isoformat() if rec else None,
             owner_user_id=str(rec.owner_user_id) if rec and rec.owner_user_id else None,
             owner_name=(owner.full_name or owner.email) if owner else None,
+            due_date=rec.due_date.isoformat() if rec and rec.due_date else None,
         ))
     return items
 
@@ -367,6 +376,7 @@ async def update_manual_control(
         notes=rec.notes,
         updated_at=rec.updated_at.isoformat(),
         owner_user_id=str(rec.owner_user_id) if rec.owner_user_id else None,
+        due_date=rec.due_date.isoformat() if rec.due_date else None,
     )
 
 
@@ -430,7 +440,111 @@ async def assign_manual_control(
         updated_at=rec.updated_at.isoformat(),
         owner_user_id=str(rec.owner_user_id) if rec.owner_user_id else None,
         owner_name=(owner.full_name or owner.email) if owner else None,
+        due_date=rec.due_date.isoformat() if rec.due_date else None,
     )
+
+
+@router.patch("/manual-controls/{control_id}/due-date", response_model=ManualControlItem)
+async def set_control_due_date(
+    control_id: str,
+    body: SetDueDateRequest,
+    framework: str = Query("soc2"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Set or clear the SLA due date for a manual control."""
+    from datetime import date as date_type
+    definitions = _MANUAL_CONTROLS.get(framework, [])
+    defn = next((d for d in definitions if d["control_id"] == control_id), None)
+    if not defn:
+        raise HTTPException(status_code=404, detail="Control not found")
+
+    result = await db.execute(
+        select(ManualControl).where(
+            ManualControl.company_id == current_user.company_id,
+            ManualControl.framework == framework,
+            ManualControl.control_id == control_id,
+        )
+    )
+    rec = result.scalar_one_or_none()
+    if not rec:
+        rec = ManualControl(
+            id=uuid.uuid4(),
+            company_id=current_user.company_id,
+            framework=framework,
+            control_id=control_id,
+            status="pending",
+            updated_by_id=current_user.id,
+        )
+        db.add(rec)
+
+    if body.due_date:
+        try:
+            rec.due_date = date_type.fromisoformat(body.due_date)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="due_date must be YYYY-MM-DD")
+    else:
+        rec.due_date = None
+
+    await db.commit()
+    await db.refresh(rec)
+    return ManualControlItem(
+        control_id=control_id,
+        name=defn["name"],
+        description=defn["description"],
+        status=rec.status,
+        notes=rec.notes,
+        updated_at=rec.updated_at.isoformat(),
+        owner_user_id=str(rec.owner_user_id) if rec.owner_user_id else None,
+        due_date=rec.due_date.isoformat() if rec.due_date else None,
+    )
+
+
+@router.post("/manual-controls/{control_id}/remediate", response_model=RemediationResponse)
+async def remediate_control(
+    control_id: str,
+    framework: str = Query("soc2"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """AI-generated remediation steps for a pending/failing manual control."""
+    definitions = _MANUAL_CONTROLS.get(framework, [])
+    defn = next((d for d in definitions if d["control_id"] == control_id), None)
+    if not defn:
+        raise HTTPException(status_code=404, detail="Control not found")
+
+    # Fetch connected integrations
+    int_result = await db.execute(
+        select(Integration.integration_type).where(
+            Integration.company_id == current_user.company_id,
+            Integration.status == "active",
+        )
+    )
+    connected = [row[0] for row in int_result.all()]
+
+    try:
+        return await suggest_control_remediation(
+            control_id=control_id,
+            control_name=defn["name"],
+            control_description=defn["description"],
+            framework=framework,
+            connected_integrations=connected,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+
+
+@router.post("/action-plan", response_model=ActionPlanResponse)
+async def action_plan(
+    framework: str = Query("soc2"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """AI-generated prioritised action plan for the company's compliance posture."""
+    try:
+        return await generate_action_plan(current_user.company_id, framework, db)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
 
 
 @router.get("/readiness")
