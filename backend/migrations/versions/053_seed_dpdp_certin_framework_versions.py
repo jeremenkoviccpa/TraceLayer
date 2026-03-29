@@ -10,13 +10,13 @@ The extraction service now supports PDF URLs via pypdf, so the official
 government PDFs can be fetched, hashed, and sent to Claude for structured
 control diffs when a change is detected.
 
-Revision ID: 053_seed_dpdp_certin_framework_versions
+Revision ID: 053_dpdp_certin_fw_versions
 Revises: 052_seed_dpdp_certin_controls
 Create Date: 2026-03-29
 """
 from alembic import op
 
-revision = "053_seed_dpdp_certin_framework_versions"
+revision = "053_dpdp_certin_fw_versions"
 down_revision = "052_seed_dpdp_certin_controls"
 branch_labels = None
 depends_on = None
