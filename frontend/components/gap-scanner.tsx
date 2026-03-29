@@ -7,13 +7,22 @@ import { ToolEmailGate } from "@/components/tool-email-gate";
 
 // ── Control definitions ───────────────────────────────────────────────────────
 
-const CONTROLS = [
+type ControlDef = {
+  id: string;
+  category: string;
+  name: string;
+  question: string;
+  risk: "critical" | "high" | "medium";
+  audit_note: string;
+};
+
+const SOC2_CONTROLS: ControlDef[] = [
   {
     id: "mfa",
     category: "Access Control",
     name: "Multi-Factor Authentication",
     question: "MFA is enforced for all users and admin accounts across every critical system",
-    risk: "critical" as const,
+    risk: "critical",
     audit_note: "Auditors test this directly on day 1. Missing MFA on any admin account is an immediate, often fatal, audit finding.",
   },
   {
@@ -21,7 +30,7 @@ const CONTROLS = [
     category: "Monitoring",
     name: "Centralized Audit Logging",
     question: "All systems ship logs to a centralized, monitored, tamper-proof location",
-    risk: "critical" as const,
+    risk: "critical",
     audit_note: "No centralized logs = no evidence = no SOC 2. This directly fails CC7.1 and CC7.2.",
   },
   {
@@ -29,7 +38,7 @@ const CONTROLS = [
     category: "Data Protection",
     name: "Encryption at Rest & In Transit",
     question: "Sensitive data is encrypted at rest (databases, storage) and in transit (TLS 1.2+)",
-    risk: "critical" as const,
+    risk: "critical",
     audit_note: "Auditors review every database and API surface. Unencrypted data is a critical finding against C1.",
   },
   {
@@ -37,7 +46,7 @@ const CONTROLS = [
     category: "Access Control",
     name: "Quarterly Access Reviews",
     question: "User access is formally reviewed every quarter with dated, signed records",
-    risk: "high" as const,
+    risk: "high",
     audit_note: "Doing reviews without records doesn't count. Auditors need dated, evidence-backed documentation.",
   },
   {
@@ -45,7 +54,7 @@ const CONTROLS = [
     category: "Risk Management",
     name: "Vulnerability Scanning",
     question: "Automated vulnerability scans run on a schedule with tracked remediation",
-    risk: "high" as const,
+    risk: "high",
     audit_note: "You need scan results AND evidence that critical findings were patched on time. 'We scan sometimes' fails.",
   },
   {
@@ -53,7 +62,7 @@ const CONTROLS = [
     category: "Operations",
     name: "Incident Response Plan",
     question: "A documented, versioned IR plan exists with evidence of a tabletop exercise",
-    risk: "high" as const,
+    risk: "high",
     audit_note: "'We have a Notion doc' doesn't satisfy CC9. You need a versioned document with a dated exercise record.",
   },
   {
@@ -61,7 +70,7 @@ const CONTROLS = [
     category: "Change Management",
     name: "Code Review & Deployment Gates",
     question: "All code is peer-reviewed and production deployments require a formal approval",
-    risk: "high" as const,
+    risk: "high",
     audit_note: "Auditors pull your git history. Any unreviewed commit to production is a direct CC8 failure.",
   },
   {
@@ -69,7 +78,7 @@ const CONTROLS = [
     category: "Availability",
     name: "Backup & Recovery Testing",
     question: "Backups run automatically, success is monitored, and recovery is tested annually",
-    risk: "medium" as const,
+    risk: "medium",
     audit_note: "You need backup success logs AND a documented recovery test result. 'We assume it works' fails.",
   },
   {
@@ -77,7 +86,7 @@ const CONTROLS = [
     category: "Vendor Risk",
     name: "Vendor Security Assessments",
     question: "Key vendors are assessed annually — SOC 2 reports collected, questionnaires reviewed",
-    risk: "medium" as const,
+    risk: "medium",
     audit_note: "SOC 2 CC9 requires documented vendor risk. Collect your critical vendors' SOC 2 reports each year.",
   },
   {
@@ -85,24 +94,165 @@ const CONTROLS = [
     category: "Human Resources",
     name: "Annual Security Training",
     question: "Every team member completed documented security awareness training in the past 12 months",
-    risk: "medium" as const,
+    risk: "medium",
     audit_note: "Auditors ask for completion records with names and dates. 'We discussed it in a meeting' fails CC1.4.",
+  },
+];
+
+const DPDP_CONTROLS: ControlDef[] = [
+  {
+    id: "consent_management",
+    category: "Lawful Processing",
+    name: "Consent Management",
+    question: "Valid, specific, informed consent is obtained before processing personal data, with a clear withdrawal mechanism",
+    risk: "critical",
+    audit_note: "Section 6 of DPDP Act 2023 requires free, specific, informed, and unambiguous consent. Bundled or pre-ticked consent boxes are non-compliant and can attract a penalty of up to ₹250 crore.",
+  },
+  {
+    id: "breach_notification_dpdp",
+    category: "Breach Notification",
+    name: "Personal Data Breach Notification",
+    question: "A documented process exists to detect personal data breaches and notify the Data Protection Board and affected individuals within 72 hours",
+    risk: "critical",
+    audit_note: "Section 8(6) requires prompt notification to the Board AND data principals. Failure to notify is one of the most penalized obligations — up to ₹200 crore per breach notification failure.",
+  },
+  {
+    id: "data_retention",
+    category: "Data Fiduciary Obligations",
+    name: "Data Retention & Erasure",
+    question: "Personal data is deleted once the purpose of processing is fulfilled, with documented retention periods per data category",
+    risk: "critical",
+    audit_note: "Section 8(7) mandates erasure when purpose is complete. Retaining data indefinitely 'just in case' directly violates the storage limitation principle — regulators flag this immediately.",
+  },
+  {
+    id: "data_principal_rights",
+    category: "Data Principal Rights",
+    name: "Data Principal Rights Mechanism",
+    question: "Processes exist for data principals to access, correct, erase, and nominate for their personal data within statutory timelines",
+    risk: "high",
+    audit_note: "Sections 11–13 grant access, correction, erasure, and grievance rights. No working mechanism to honor these requests is a direct violation — grievance redressal must be provided within 48 hours.",
+  },
+  {
+    id: "cross_border_transfers",
+    category: "Cross-Border Transfers",
+    name: "Cross-Border Transfer Controls",
+    question: "Personal data is only transferred to countries on the Government's approved whitelist, with transfer controls documented",
+    risk: "high",
+    audit_note: "Section 16 restricts international transfers. Transferring personal data to blacklisted or unreviewed countries without government approval exposes you to penalties up to ₹250 crore.",
+  },
+  {
+    id: "sdf_obligations",
+    category: "Significant Data Fiduciary",
+    name: "Significant Data Fiduciary (SDF) Obligations",
+    question: "If classified as a Significant Data Fiduciary by the government, a Data Protection Officer is appointed and annual DPIA is conducted",
+    risk: "high",
+    audit_note: "SDFs face additional obligations under Section 10 — DPO appointment, annual DPIA, and algorithmic audits. Classification is based on data volume/sensitivity; failing to self-identify is a compounding risk.",
+  },
+  {
+    id: "grievance_officer",
+    category: "Data Fiduciary Obligations",
+    name: "Grievance Officer & Privacy Notice",
+    question: "A Grievance Officer is designated, contact details are published, and a privacy notice exists in all supported languages",
+    risk: "medium",
+    audit_note: "Section 8(1) requires a published Grievance Officer with a defined contact. Privacy notices must be available in all languages listed in the 8th Schedule if you serve those populations.",
+  },
+  {
+    id: "children_data",
+    category: "Special Categories",
+    name: "Children's Data Controls",
+    question: "Verifiable parental consent is obtained before processing personal data of children under 18, with no targeted advertising or behavioral monitoring",
+    risk: "medium",
+    audit_note: "Section 9 bans tracking, behavioral monitoring, or targeted advertising to minors. Processing children's data without verified parental consent triggers one of the highest penalty tiers — up to ₹200 crore.",
+  },
+];
+
+const CERTIN_CONTROLS: ControlDef[] = [
+  {
+    id: "incident_reporting_6h",
+    category: "Incident Reporting",
+    name: "6-Hour Incident Reporting to CERT-In",
+    question: "A documented process ensures all qualifying cybersecurity incidents are reported to CERT-In within 6 hours of detection",
+    risk: "critical",
+    audit_note: "Para 3(i) of CERT-In Directions 2022: reporting within 6 hours is mandatory — no exceptions. Failure to report is a criminal offense under section 70B(7) of IT Act. The list of 20 qualifying incident types must be known to all ops/security staff.",
+  },
+  {
+    id: "log_retention_180",
+    category: "Log Management",
+    name: "180-Day Log Retention in India",
+    question: "ICT system logs (network, application, security, DB) are retained for a rolling 180 days and stored in India-resident infrastructure",
+    risk: "critical",
+    audit_note: "Para 3(ii): logs must be preserved for 180 days within Indian jurisdiction. Cloud providers must be contractually bound to this. Non-compliant log storage (e.g., only in US-East) directly violates the Directions.",
+  },
+  {
+    id: "ntp_sync",
+    category: "IT Infrastructure",
+    name: "NTP Clock Synchronization",
+    question: "All ICT systems synchronize clocks with the NTP server of NIC, NPCI, or CERT-In (not public NTP pools)",
+    risk: "critical",
+    audit_note: "Para 3(iii): mandatory use of CERT-In/NIC/NPCI NTP servers. This seems minor but is directly auditable — logs from unsynchronized systems cannot be trusted as forensic evidence and CERT-In tests for this.",
+  },
+  {
+    id: "poc_registration",
+    category: "Identity Verification",
+    name: "Designated POC Registered with CERT-In",
+    question: "A designated Point of Contact for cyber incident reporting has been registered with CERT-In with current contact details",
+    risk: "high",
+    audit_note: "Para 4: you must designate and register a POC with CERT-In. An unregistered or outdated contact is an immediate compliance gap — CERT-In uses this contact to initiate incident response coordination.",
+  },
+  {
+    id: "vasp_kyc",
+    category: "Identity Verification",
+    name: "Customer KYC & Transaction Records (VASP/Crypto)",
+    question: "If operating as a Virtual Asset Service Provider, KYC records and all transaction histories are maintained for 5 years",
+    risk: "high",
+    audit_note: "Para 3(v): VASPs, crypto exchanges, and custodian wallets must maintain KYC and transaction records for 5 years. This applies to B2B SaaS handling crypto payments too — most teams miss this obligation.",
+  },
+  {
+    id: "vulnerability_mgmt_certin",
+    category: "Vulnerability Management",
+    name: "Vulnerability Assessment & Patch Management",
+    question: "Periodic vulnerability assessments and penetration tests are conducted with documented findings, remediation tracking, and timelines",
+    risk: "high",
+    audit_note: "CERT-In expects organizations to proactively identify and patch vulnerabilities — especially those listed in CERT-In advisories. No documented VA/PT schedule is a strong signal of poor security posture during audits.",
+  },
+  {
+    id: "data_localization",
+    category: "IT Infrastructure",
+    name: "Data Localization for Regulated Entities",
+    question: "If operating as a regulated entity (financial, telecom, government contractor), customer data is stored within India's borders",
+    risk: "medium",
+    audit_note: "Combined with RBI, SEBI, and TRAI requirements, CERT-In Directions strengthen data localization obligations for regulated sectors. Cloud configurations must explicitly route regulated data through India regions.",
+  },
+  {
+    id: "incident_response_certin",
+    category: "Incident Response",
+    name: "Incident Response & Forensic Readiness",
+    question: "An IR plan is in place, a forensic-capable CSIRT or retained vendor is designated, and runbooks exist for the 20 CERT-In reportable incident types",
+    risk: "medium",
+    audit_note: "CERT-In may request forensic logs and incident timelines during their inquiry. Without a retained CSIRT or documented IR capability, organizations often scramble to respond — delaying breach containment and compounding penalties.",
   },
 ];
 
 type Status = "yes" | "partial" | "no";
 type Answers = Record<string, Status>;
+type Framework = "soc2" | "dpdp" | "cert_in";
+
+const FRAMEWORK_OPTIONS: { id: Framework; label: string; flag: string; controls: ControlDef[]; desc: string }[] = [
+  { id: "soc2",     label: "SOC 2",     flag: "🇺🇸", controls: SOC2_CONTROLS,   desc: "10 critical controls — Type I & II" },
+  { id: "dpdp",     label: "DPDP Act",  flag: "🇮🇳", controls: DPDP_CONTROLS,   desc: "8 controls — India personal data law" },
+  { id: "cert_in",  label: "CERT-In",   flag: "🇮🇳", controls: CERTIN_CONTROLS, desc: "8 controls — India cyber security directions" },
+];
 
 // ── Scoring ───────────────────────────────────────────────────────────────────
 
-function computeResult(answers: Answers) {
+function computeResult(answers: Answers, controls: ControlDef[]) {
   let points = 0;
   let maxPoints = 0;
-  const criticalGaps: typeof CONTROLS = [];
-  const highGaps: typeof CONTROLS = [];
-  const partialControls: typeof CONTROLS = [];
+  const criticalGaps: ControlDef[] = [];
+  const highGaps: ControlDef[] = [];
+  const partialControls: ControlDef[] = [];
 
-  for (const ctrl of CONTROLS) {
+  for (const ctrl of controls) {
     const weight = ctrl.risk === "critical" ? 3 : ctrl.risk === "high" ? 2 : 1;
     maxPoints += weight;
     const ans = answers[ctrl.id];
@@ -124,7 +274,7 @@ function computeResult(answers: Answers) {
 
   if (score < 35) {
     riskLevel = "critical"; riskLabel = "Critical Risk";
-    headline = "Your audit would fail today";
+    headline = "You have critical gaps to fix";
   } else if (score < 60) {
     riskLevel = "high"; riskLabel = "High Risk";
     headline = "Significant gaps that auditors will find";
@@ -177,13 +327,17 @@ function GaugeRing({ score, riskLevel }: { score: number; riskLevel: string }) {
 
 export function GapScanner() {
   const [started, setStarted] = useState(false);
+  const [framework, setFramework] = useState<Framework>("soc2");
   const [answers, setAnswers] = useState<Answers>({});
   const [done, setDone] = useState(false);
   const [emailCaptured, setEmailCaptured] = useState(false);
 
+  const fwDef = FRAMEWORK_OPTIONS.find((f) => f.id === framework)!;
+  const CONTROLS = fwDef.controls;
+
   const answered = Object.keys(answers).length;
   const allAnswered = answered === CONTROLS.length;
-  const result = done ? computeResult(answers) : null;
+  const result = done ? computeResult(answers, CONTROLS) : null;
 
   const setAnswer = (id: string, status: Status) =>
     setAnswers((a) => ({ ...a, [id]: status }));
@@ -203,15 +357,36 @@ export function GapScanner() {
         <div className="w-16 h-16 bg-teal-50 border border-teal-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
           <Shield className="w-8 h-8 text-teal-600" />
         </div>
-        <h3 className="text-2xl font-extrabold text-gray-900 mb-3">SOC 2 Gap Scanner</h3>
+        <h3 className="text-2xl font-extrabold text-gray-900 mb-3">Compliance Gap Scanner</h3>
         <p className="text-gray-500 text-sm mb-6 leading-relaxed max-w-sm mx-auto">
-          Assess 10 critical SOC 2 controls in 2 minutes. See which gaps would fail your audit — and exactly what your auditor will say about each one.
+          Assess the critical controls for your target framework in 2 minutes. See which gaps would fail your audit — and exactly what the regulator will say about each one.
         </p>
+
+        {/* Framework selector */}
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Choose your framework</p>
+        <div className="grid grid-cols-3 gap-2 mb-7">
+          {FRAMEWORK_OPTIONS.map((fw) => (
+            <button
+              key={fw.id}
+              onClick={() => setFramework(fw.id)}
+              className={`flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl border-2 text-sm font-semibold transition-all ${
+                framework === fw.id
+                  ? "border-teal-600 bg-teal-50 text-teal-700"
+                  : "border-gray-200 text-gray-600 hover:border-teal-200 hover:bg-gray-50"
+              }`}
+            >
+              <span className="text-xl">{fw.flag}</span>
+              <span className="font-bold text-sm">{fw.label}</span>
+              <span className="text-[10px] text-gray-400 leading-tight">{fw.desc}</span>
+            </button>
+          ))}
+        </div>
+
         <div className="flex flex-wrap gap-3 justify-center mb-7 text-xs">
           {[
-            "10 SOC 2 controls",
+            `${CONTROLS.length} controls assessed`,
             "No signup needed",
-            "Real audit criteria",
+            "Real regulatory criteria",
           ].map((t) => (
             <div key={t} className="flex items-center gap-1.5 text-gray-500">
               <CheckCircle2 className="w-3.5 h-3.5 text-teal-500" /> {t}
@@ -222,7 +397,7 @@ export function GapScanner() {
           onClick={() => setStarted(true)}
           className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold px-8 py-3.5 rounded-xl transition-colors text-sm shadow-sm"
         >
-          Scan my compliance <ArrowRight className="w-4 h-4" />
+          Scan my {fwDef.label} compliance <ArrowRight className="w-4 h-4" />
         </button>
       </div>
     );
@@ -239,7 +414,7 @@ export function GapScanner() {
     const totalGaps = result.criticalGaps.length + result.highGaps.length;
     return (
       <ToolEmailGate
-        toolName="soc2-gap-scanner"
+        toolName={`${framework}-gap-scanner`}
         headline={result.headline}
         subline={
           totalGaps > 0
@@ -299,8 +474,8 @@ export function GapScanner() {
 
           {/* Control grid */}
           <div className="mb-6">
-            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">Control status overview</p>
-            <div className="grid grid-cols-10 gap-2">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">Control status overview — {fwDef.label}</p>
+            <div className="flex flex-wrap gap-2">
               {CONTROLS.map((ctrl) => {
                 const ans = answers[ctrl.id];
                 return (
@@ -382,7 +557,7 @@ export function GapScanner() {
               href="/register"
               className="flex-1 flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-xl transition-colors text-sm"
             >
-              Fix these gaps with TraceLayer <ArrowRight className="w-4 h-4" />
+              Fix these {fwDef.label} gaps with TraceLayer <ArrowRight className="w-4 h-4" />
             </Link>
             <button
               onClick={reset}

@@ -41,6 +41,8 @@ const QUESTIONS = [
       { label: "SOC 2", value: "soc2" },
       { label: "ISO 27001", value: "iso27001" },
       { label: "HIPAA", value: "hipaa" },
+      { label: "DPDP Act (India)", value: "dpdp" },
+      { label: "CERT-In (India)", value: "cert_in" },
       { label: "Multiple frameworks", value: "multiple" },
       { label: "Not sure yet", value: "unsure" },
     ],
@@ -98,6 +100,8 @@ function computeResult(answers: Answers) {
     soc2: "SOC 2",
     iso27001: "ISO 27001",
     hipaa: "HIPAA",
+    dpdp: "DPDP Act 2023",
+    cert_in: "CERT-In Directions 2022",
     multiple: "multiple frameworks",
     unsure: "your target framework",
   };
@@ -137,7 +141,17 @@ function computeResult(answers: Answers) {
     });
   }
 
-  if (urgency === "high") {
+  if (answers.framework === "dpdp") {
+    insights.push({
+      type: "info",
+      text: "DPDP Act 2023 requires consent management, breach notification within 72 hours, and data principal rights — TraceLayer maps your existing integrations to all six DPDP control categories automatically.",
+    });
+  } else if (answers.framework === "cert_in") {
+    insights.push({
+      type: "warn",
+      text: "CERT-In Directions 2022 mandate 6-hour incident reporting, 180-day log retention, and NTP synchronization. TraceLayer collects and timestamps this evidence continuously so you're never scrambling during a CERT-In inquiry.",
+    });
+  } else if (urgency === "high") {
     insights.push({
       type: "warn",
       text: "Your audit timeline is tight. Most teams are audit-ready within 2 weeks of connecting their first TraceLayer integration.",
