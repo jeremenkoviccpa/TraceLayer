@@ -19,6 +19,7 @@ export function usePlan(): { plan: Plan; loading: boolean; isPro: boolean } {
   const isInternalAdmin = INTERNAL_ADMINS.includes(user?.email ?? "");
 
   useEffect(() => {
+    if (!user) return; // wait for auth to resolve before fetching
     if (isInternalAdmin) { setLoading(false); return; }
     if (typeof window === "undefined") return;
 
@@ -41,7 +42,7 @@ export function usePlan(): { plan: Plan; loading: boolean; isPro: boolean } {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [isInternalAdmin]);
+  }, [user?.id, isInternalAdmin]); // re-run when user resolves (null → real user)
 
   if (isInternalAdmin) return { plan: "growth", loading: false, isPro: true };
   return { plan, loading, isPro: plan === "growth" };
