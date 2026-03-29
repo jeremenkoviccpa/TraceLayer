@@ -15,6 +15,7 @@ export interface Company {
   created_at: string;
   onboarding_completed: boolean;
   is_partner_account: boolean;
+  primary_frameworks: string[];
 }
 
 export interface PartnerClient {

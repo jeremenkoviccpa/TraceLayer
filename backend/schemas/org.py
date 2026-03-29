@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr
 
@@ -40,6 +40,11 @@ class AcceptInviteRequest(BaseModel):
 class UpdateCompanyRequest(BaseModel):
     name: str
     gst_number: Optional[str] = None
+    primary_frameworks: Optional[List[str]] = None
+
+
+class CompleteOnboardingRequest(BaseModel):
+    frameworks: List[str] = []
 
 
 class CompanyResponse(BaseModel):
@@ -50,5 +55,6 @@ class CompanyResponse(BaseModel):
     onboarding_completed: bool
     is_partner_account: bool = False
     gst_number: Optional[str] = None
+    primary_frameworks: List[str] = []
 
     model_config = {"from_attributes": True}

@@ -292,12 +292,16 @@ class ApiClient {
     return this.request("GET", "/org/onboarding-status");
   }
 
-  async updateCompany(name: string, gstNumber?: string): Promise<Company> {
-    return this.request<Company>("PATCH", "/org/company", { name, gst_number: gstNumber ?? null });
+  async updateCompany(name: string, gstNumber?: string, primaryFrameworks?: string[]): Promise<Company> {
+    return this.request<Company>("PATCH", "/org/company", {
+      name,
+      gst_number: gstNumber ?? null,
+      ...(primaryFrameworks !== undefined ? { primary_frameworks: primaryFrameworks } : {}),
+    });
   }
 
-  async completeOnboarding(): Promise<void> {
-    return this.request("POST", "/org/onboarding/complete");
+  async completeOnboarding(frameworks: string[] = []): Promise<void> {
+    return this.request("POST", "/org/onboarding/complete", { frameworks });
   }
 
   // ── Compliance ───────────────────────────────────────────────────────────

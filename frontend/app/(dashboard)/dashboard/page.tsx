@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AreaChart, Area, BarChart, Bar, LabelList,
   XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine,
@@ -17,7 +17,7 @@ import {
   TrendingUp, Activity, AlertTriangle, ArrowRight, X,
   PartyPopper, Database, Target, GraduationCap, Building2,
   UserCheck, ShieldAlert, BookOpen, ClipboardList, Zap,
-  FileText, Globe, ChevronRight, ChevronLeft, Lock, Sparkles,
+  FileText, Globe, ChevronRight, ChevronLeft, Lock, Sparkles, Star,
 } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
 import { useUpgrade } from "@/components/plan-gate";
@@ -377,7 +377,23 @@ export default function DashboardPage() {
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [evidenceTotal, setEvidenceTotal] = useState(0);
   const [compliance, setCompliance] = useState<ComplianceScore | null>(null);
-  const [framework, setFramework] = useState("soc2");
+  const [primaryFrameworks, setPrimaryFrameworks] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      try { return JSON.parse(sessionStorage.getItem("tl_primary_frameworks") ?? "[]"); }
+      catch { return []; }
+    }
+    return [];
+  });
+  const [framework, setFramework] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const prefs: string[] = JSON.parse(sessionStorage.getItem("tl_primary_frameworks") ?? "[]");
+        const first = prefs[0];
+        if (first && FRAMEWORKS.some(f => f.value === first)) return first;
+      } catch { /* ignore */ }
+    }
+    return "soc2";
+  });
   const [scoreHistory, setScoreHistory] = useState<ScoreHistoryPoint[]>([]);
   const [evidenceActivity, setEvidenceActivity] = useState<EvidenceActivityPoint[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
@@ -398,9 +414,28 @@ export default function DashboardPage() {
     has_member: boolean; has_training: boolean; has_report: boolean; has_risk: boolean;
   } | null>(null);
 
+  // Ordered frameworks: pinned ones first, then the rest in default order
+  const orderedFrameworks = useMemo(() => {
+    if (!primaryFrameworks.length) return FRAMEWORKS;
+    const pinnedSet = new Set(primaryFrameworks);
+    const primary = primaryFrameworks
+      .map(v => FRAMEWORKS.find(f => f.value === v))
+      .filter((f): f is NonNullable<typeof f> => f != null);
+    const rest = FRAMEWORKS.filter(f => !pinnedSet.has(f.value));
+    return [...primary, ...rest];
+  }, [primaryFrameworks]);
+
   useEffect(() => {
     api.getOnboardingStatus().then(setOnboardingStatus).catch(() => {});
     api.driftEvents(20).then(setDriftEvents).catch(() => {});
+    // Sync primary frameworks from DB (authoritative over sessionStorage)
+    api.getCompany().then(c => {
+      if (c.primary_frameworks?.length) {
+        setPrimaryFrameworks(c.primary_frameworks);
+        try { sessionStorage.setItem("tl_primary_frameworks", JSON.stringify(c.primary_frameworks)); }
+        catch { /* ignore */ }
+      }
+    }).catch(() => {});
 
     Promise.all([
       api.getIntegrations(),
@@ -416,7 +451,7 @@ export default function DashboardPage() {
         setIntegrations(ints);
         setEvidenceTotal(ev.total);
         setCompliance(score);
-        setAllScores(prev => ({ ...prev, soc2: score.overall_score }));
+        setAllScores(prev => ({ ...prev, [framework]: score.overall_score }));
         setScoreHistory(history);
         setEvidenceActivity(activity);
         setReports(rpts.items);
@@ -438,9 +473,9 @@ export default function DashboardPage() {
     const delta = e.changedTouches[0].clientX - touchStartX.current;
     touchStartX.current = null;
     if (Math.abs(delta) < 50) return;
-    const idx = FRAMEWORKS.findIndex((f) => f.value === framework);
-    if (delta < 0 && idx < FRAMEWORKS.length - 1) handleFrameworkChange(FRAMEWORKS[idx + 1].value);
-    else if (delta > 0 && idx > 0) handleFrameworkChange(FRAMEWORKS[idx - 1].value);
+    const idx = orderedFrameworks.findIndex((f) => f.value === framework);
+    if (delta < 0 && idx < orderedFrameworks.length - 1) handleFrameworkChange(orderedFrameworks[idx + 1].value);
+    else if (delta > 0 && idx > 0) handleFrameworkChange(orderedFrameworks[idx - 1].value);
   };
 
   const handleFrameworkChange = async (fw: string) => {
@@ -486,7 +521,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (loading) return;
     for (const fw of FRAMEWORKS) {
-      if (fw.value === "soc2") continue;
+      if (fw.value === framework) continue;
       api.getComplianceScore(fw.value)
         .then(s => setAllScores(prev => ({ ...prev, [fw.value]: s.overall_score })))
         .catch(() => {});
@@ -528,7 +563,8 @@ export default function DashboardPage() {
   const passingControls = compliance?.controls.filter((c) => c.status === "passing").length ?? 0;
   const failingControls = compliance?.controls.filter((c) => c.status === "failing" || c.status === "warning") ?? [];
   const score = compliance?.overall_score ?? 0;
-  const frameworkIdx = FRAMEWORKS.findIndex(f => f.value === framework);
+  const frameworkIdx = orderedFrameworks.findIndex(f => f.value === framework);
+  const isCurrentPinned = primaryFrameworks.includes(framework);
 
   // Time machine: override ALL display values when viewing a historical date
   const activeCompliance: ComplianceScore | null = tmData ? tmData.historical : compliance;
@@ -715,7 +751,7 @@ export default function DashboardPage() {
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => { if (frameworkIdx > 0) { const fw = FRAMEWORKS[frameworkIdx - 1]; if (!isPro && fw.value !== "soc2") triggerUpgrade(); else if (!scoreLoading) handleFrameworkChange(fw.value); } }}
+                      onClick={() => { if (frameworkIdx > 0) { const fw = orderedFrameworks[frameworkIdx - 1]; if (!isPro && fw.value !== "soc2") triggerUpgrade(); else if (!scoreLoading) handleFrameworkChange(fw.value); } }}
                       disabled={frameworkIdx === 0 || scoreLoading}
                       aria-label="Previous framework"
                       className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center disabled:opacity-20 transition-colors shrink-0"
@@ -725,25 +761,31 @@ export default function DashboardPage() {
                     <div className="min-w-0 px-0.5">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="text-sm font-bold text-white leading-tight">
-                          {FRAMEWORKS[frameworkIdx].label}
+                          {orderedFrameworks[frameworkIdx].label}
                         </span>
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded leading-none uppercase tracking-wide ${
-                          FRAMEWORKS[frameworkIdx].region === "IN"   ? "bg-orange-500/25 text-orange-300" :
-                          FRAMEWORKS[frameworkIdx].region === "EU"   ? "bg-sky-500/25 text-sky-300" :
-                          FRAMEWORKS[frameworkIdx].region === "INTL" ? "bg-purple-500/25 text-purple-300" :
-                          "bg-brand-500/25 text-brand-300"
-                        }`}>
-                          {FRAMEWORKS[frameworkIdx].region}
-                        </span>
+                        {isCurrentPinned ? (
+                          <span className="flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded leading-none uppercase tracking-wide bg-teal-500/25 text-teal-300">
+                            <Star className="w-2 h-2 fill-teal-300 shrink-0" /> Pinned
+                          </span>
+                        ) : (
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded leading-none uppercase tracking-wide ${
+                            orderedFrameworks[frameworkIdx].region === "IN"   ? "bg-orange-500/25 text-orange-300" :
+                            orderedFrameworks[frameworkIdx].region === "EU"   ? "bg-sky-500/25 text-sky-300" :
+                            orderedFrameworks[frameworkIdx].region === "INTL" ? "bg-purple-500/25 text-purple-300" :
+                            "bg-brand-500/25 text-brand-300"
+                          }`}>
+                            {orderedFrameworks[frameworkIdx].region}
+                          </span>
+                        )}
                         {!isPro && framework !== "soc2" && (
                           <Lock className="w-3 h-3 text-amber-400 shrink-0" />
                         )}
                       </div>
-                      <p className="text-[10px] text-white/30 mt-0.5 tabular-nums">{frameworkIdx + 1} / {FRAMEWORKS.length}</p>
+                      <p className="text-[10px] text-white/30 mt-0.5 tabular-nums">{frameworkIdx + 1} / {orderedFrameworks.length}</p>
                     </div>
                     <button
-                      onClick={() => { if (frameworkIdx < FRAMEWORKS.length - 1) { const fw = FRAMEWORKS[frameworkIdx + 1]; if (!isPro && fw.value !== "soc2") triggerUpgrade(); else if (!scoreLoading) handleFrameworkChange(fw.value); } }}
-                      disabled={frameworkIdx === FRAMEWORKS.length - 1 || scoreLoading}
+                      onClick={() => { if (frameworkIdx < orderedFrameworks.length - 1) { const fw = orderedFrameworks[frameworkIdx + 1]; if (!isPro && fw.value !== "soc2") triggerUpgrade(); else if (!scoreLoading) handleFrameworkChange(fw.value); } }}
+                      disabled={frameworkIdx === orderedFrameworks.length - 1 || scoreLoading}
                       aria-label="Next framework"
                       className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center disabled:opacity-20 transition-colors shrink-0"
                     >
@@ -752,8 +794,9 @@ export default function DashboardPage() {
                   </div>
                   {/* Dot strip */}
                   <div className="flex items-center gap-1 pl-9">
-                    {FRAMEWORKS.map((fw, i) => {
+                    {orderedFrameworks.map((fw, i) => {
                       const locked = !isPro && fw.value !== "soc2";
+                      const pinned = primaryFrameworks.includes(fw.value);
                       return (
                         <button
                           key={fw.value}
@@ -761,7 +804,10 @@ export default function DashboardPage() {
                           disabled={scoreLoading}
                           title={fw.label}
                           className={`rounded-full transition-all duration-300 disabled:opacity-50 ${
-                            i === frameworkIdx ? "bg-white w-5 h-1.5" : locked ? "bg-amber-400/40 w-1.5 h-1 hover:bg-amber-400/60" : "bg-white/25 w-1.5 h-1 hover:bg-white/40"
+                            i === frameworkIdx ? "bg-white w-5 h-1.5"
+                            : locked ? "bg-amber-400/40 w-1.5 h-1 hover:bg-amber-400/60"
+                            : pinned ? "bg-teal-400/70 w-2 h-1.5 hover:bg-teal-400"
+                            : "bg-white/25 w-1.5 h-1 hover:bg-white/40"
                           }`}
                         />
                       );
@@ -1076,9 +1122,10 @@ export default function DashboardPage() {
           <Link href="/compliance" className="text-xs text-brand-600 font-semibold hover:text-brand-700 transition-colors">View all →</Link>
         </div>
         <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2">
-          {FRAMEWORKS.map((fw) => {
+          {orderedFrameworks.map((fw) => {
             const locked = !isPro && fw.value !== "soc2";
             const isActive = fw.value === framework;
+            const isPinned = primaryFrameworks.includes(fw.value);
             const displayScore = isActive ? activeScore : allScores[fw.value];
             const regionClass =
               fw.region === "IN"   ? "bg-orange-50 text-orange-400 border-orange-100" :
@@ -1095,15 +1142,19 @@ export default function DashboardPage() {
                     ? "border-brand-200 bg-brand-50 ring-1 ring-brand-200"
                     : locked
                     ? "border-gray-100 bg-gray-50"
+                    : isPinned
+                    ? "border-teal-200 bg-teal-50/50 hover:border-teal-300 hover:bg-teal-50"
                     : "border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50"
                 }`}
               >
                 <div className="flex items-start justify-between w-full gap-1">
-                  <span className={`text-[9px] font-bold uppercase tracking-wide leading-tight ${isActive ? "text-brand-600" : "text-gray-500"}`}>
+                  <span className={`text-[9px] font-bold uppercase tracking-wide leading-tight ${isActive ? "text-brand-600" : isPinned ? "text-teal-600" : "text-gray-500"}`}>
                     {fw.label}
                   </span>
                   {locked
                     ? <Lock className="w-2.5 h-2.5 text-gray-300 shrink-0 mt-px" />
+                    : isPinned && !isActive
+                    ? <Star className="w-2 h-2 text-teal-400 fill-teal-400 shrink-0 mt-px" />
                     : <span className={`text-[8px] font-bold px-1 py-px rounded border leading-none shrink-0 ${regionClass}`}>{fw.region}</span>
                   }
                 </div>

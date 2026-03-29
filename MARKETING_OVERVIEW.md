@@ -83,6 +83,7 @@ Getting SOC 2 certified is a requirement for closing enterprise deals. But the p
 - Assign due dates and remediation notes
 
 - Status: open, in remediation, resolved, accepted risk
+
 - Live severity stats dashboard (count by severity)
 - Overdue flags for vulnerabilities past their due date
 
