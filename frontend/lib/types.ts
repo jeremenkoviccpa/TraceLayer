@@ -854,6 +854,8 @@ export interface DataBreach {
   notification_required: boolean;
   dpa_notified_at?: string | null;
   individuals_notified_at?: string | null;
+  dpbi_notified_at?: string | null;
+  dpbi_ref_number?: string | null;
   root_cause?: string | null;
   remediation?: string | null;
   reporter_name?: string | null;
