@@ -245,3 +245,36 @@ async def save_policy(
     await db.commit()
     await db.refresh(policy)
     return _build_response(slug, policy)
+
+
+@router.post("/{slug}/generate")
+async def generate_policy(
+    slug: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """AI-generate a full policy document for the given slug."""
+    if slug not in POLICY_TEMPLATES:
+        raise HTTPException(status_code=404, detail="Policy not found")
+
+    from models.company import Company
+    from models.integration import Integration
+    from services.ai_service import generate_policy_template
+
+    company_result = await db.execute(
+        select(Company).where(Company.id == current_user.company_id)
+    )
+    company = company_result.scalar_one_or_none()
+    company_name = company.name if company else "Our Company"
+
+    integrations_result = await db.execute(
+        select(Integration.integration_type).where(
+            Integration.company_id == current_user.company_id,
+            Integration.status == "active",
+        )
+    )
+    connected = [row[0] for row in integrations_result.all()]
+
+    policy_name = POLICY_TEMPLATES[slug]["title"]
+    content = await generate_policy_template(slug, policy_name, company_name, connected)
+    return {"content": content}

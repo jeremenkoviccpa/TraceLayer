@@ -55,6 +55,7 @@ import { usePlan } from "@/hooks/usePlan";
 import { api } from "@/lib/api";
 import AppTour from "@/components/AppTour";
 import Toaster from "@/components/ui/Toaster";
+import GlobalChat from "@/components/global-chat";
 
 type NavItem = { href: string; label: string; icon: React.ElementType; tourId?: string };
 type NavGroup = { title?: string; items: NavItem[] };
@@ -562,6 +563,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       <AppTour />
       <Toaster />
+      <GlobalChat />
 
       {/* Desktop notification bell — fixed top-right */}
       <div className="hidden md:block fixed top-4 right-4 z-50">

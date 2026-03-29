@@ -1,224 +1,112 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Policy } from "@/lib/types";
-import { BookOpen, Save, CheckCircle2, Clock, FileText, Sparkles, Send, Loader2, User as UserIcon, History } from "lucide-react";
+import { BookOpen, Save, CheckCircle2, Clock, FileText, Sparkles, Copy, Check, Loader2 } from "lucide-react";
 
-type ChatMessage = { role: "bot" | "user"; content: string };
-type SavedSession = { id: string; date: string; preview: string; messages: ChatMessage[] };
+function PolicyTemplateGenerator({ policy, onInsert }: { policy: Policy | null; onInsert: (content: string) => void }) {
+  const [generating, setGenerating] = useState(false);
+  const [generated, setGenerated] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
-
-function loadPolicySessions(key: string): SavedSession[] {
-  try { return JSON.parse(localStorage.getItem(key) ?? "[]"); } catch { return []; }
-}
-function persistPolicySession(key: string, msgs: ChatMessage[]) {
-  if (!msgs.some(m => m.role === "bot")) return;
-  const prev = loadPolicySessions(key);
-  const session: SavedSession = {
-    id: Date.now().toString(),
-    date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
-    preview: msgs.find(m => m.role === "bot")?.content.slice(0, 100) ?? "",
-    messages: msgs,
-  };
-  localStorage.setItem(key, JSON.stringify([session, ...prev].slice(0, 10)));
-}
-
-const POLICY_SUGGESTED: string[] = [
-  "Is this policy complete for SOC 2?",
-  "What's missing from this policy?",
-  "How can I strengthen it?",
-  "What controls does this policy cover?",
-];
-
-const POLICY_FOLLOWUP: string[] = [
-  "Give me example language to add",
-  "What else should I update?",
-  "Which framework requires this policy?",
-];
-
-function PolicyAdvisorChat({ policy }: { policy: Policy | null }) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState("");
-  const [thinking, setThinking] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
-  const [sessions, setSessions] = useState<SavedSession[]>([]);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const storageKey = `tl_policy_advisor_${policy?.slug ?? "general"}`;
-
+  // Reset when policy changes
   useEffect(() => {
-    setMessages([]);
-    setShowHistory(false);
-    if (!policy) return;
-    setThinking(true);
-    const initMsg = `I'm looking at the "${policy.title}" policy. Give me a brief assessment: is it comprehensive for SOC 2 and ISO 27001 compliance? Name 2-3 specific things that could be added or improved.`;
-    Promise.all([api.advisorChat("soc2", initMsg, []), sleep(3000)])
-      .then(([{ reply }]) => setMessages([{ role: "bot", content: reply }]))
-      .catch(() => setMessages([{ role: "bot", content: "Ask me anything about this policy and I'll help you improve it." }]))
-      .finally(() => setThinking(false));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setGenerated(null);
+    setError(null);
   }, [policy?.slug]);
 
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages, thinking]);
-
-  const sendMessage = async (text: string) => {
-    const msg = text.trim();
-    if (!msg || thinking) return;
-    setInput("");
-    const history = messages.map(m => ({ role: m.role === "bot" ? "assistant" : "user", content: m.content }));
-    const policyCtx = policy ? `[Context: reviewing "${policy.title}" policy] ` : "";
-    setMessages(prev => [...prev, { role: "user", content: msg }]);
-    setThinking(true);
+  const handleGenerate = async () => {
+    if (!policy || generating) return;
+    setGenerating(true);
+    setError(null);
     try {
-      const [{ reply }] = await Promise.all([api.advisorChat("soc2", policyCtx + msg, history), sleep(3000)]);
-      setMessages(prev => {
-        const updated = [...prev, { role: "bot", content: reply }];
-        persistPolicySession(storageKey, updated);
-        return updated;
-      });
+      const { content } = await api.generatePolicy(policy.slug);
+      setGenerated(content);
     } catch {
-      setMessages(prev => [...prev, { role: "bot", content: "Sorry, I had trouble responding. Please try again." }]);
+      setError("Generation failed. Please try again.");
     } finally {
-      setThinking(false);
-      setTimeout(() => inputRef.current?.focus(), 50);
+      setGenerating(false);
     }
   };
 
-  const toggleHistory = () => {
-    setSessions(loadPolicySessions(storageKey));
-    setShowHistory(v => !v);
+  const handleCopy = () => {
+    if (!generated) return;
+    navigator.clipboard.writeText(generated).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  const suggested = messages.length <= 1 && !thinking ? POLICY_SUGGESTED : messages.length > 1 && !thinking ? POLICY_FOLLOWUP : [];
+  if (!policy) return null;
 
   return (
-    <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col">
+    <div className="rounded-2xl border border-violet-100 bg-white shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-4 py-3 flex items-center gap-3 shrink-0">
-        <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center shrink-0">
-          <Sparkles className="w-3.5 h-3.5 text-violet-300" />
+      <div className="bg-gradient-to-r from-violet-600 to-violet-700 px-4 py-3 flex items-center gap-3">
+        <div className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center shrink-0">
+          <Sparkles className="w-3.5 h-3.5 text-white" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-white leading-none">Policy Advisor</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">
-            {policy ? policy.title : "Select a policy"} · Ask how to improve it
-          </p>
+          <p className="text-sm font-semibold text-white leading-none">AI Policy Template Generator</p>
+          <p className="text-[10px] text-violet-200 mt-0.5">Generate a full {policy.title} document tailored to your stack</p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button onClick={toggleHistory} title="Chat history"
-            className={`rounded-lg p-1.5 transition-colors ${showHistory ? "bg-white/20 text-white" : "text-slate-400 hover:text-white hover:bg-white/10"}`}>
-            <History className="w-3.5 h-3.5" />
-          </button>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          <span className="text-xs text-slate-400">Llama 3.3 · Groq</span>
-        </div>
+        <span className="text-xs text-violet-200">Llama 3.3 · Groq</span>
       </div>
 
-      {/* History panel */}
-      {showHistory ? (
-        <div className="overflow-y-auto bg-white px-4 py-4 space-y-2" style={{ minHeight: 160, maxHeight: 300 }}>
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-3">Previous conversations</p>
-          {sessions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <History className="w-7 h-7 text-gray-200 mb-2" />
-              <p className="text-sm text-gray-400">No saved conversations yet</p>
+      <div className="p-4 space-y-3">
+        {!generated && !generating && (
+          <div className="flex flex-col items-center text-center gap-3 py-4">
+            <FileText className="w-8 h-8 text-violet-200" />
+            <div>
+              <p className="text-sm font-medium text-gray-700">Generate a complete {policy.title}</p>
+              <p className="text-xs text-gray-400 mt-0.5">AI will write a full, framework-aligned policy document using your connected integrations</p>
             </div>
-          ) : sessions.map(s => (
-            <button key={s.id} onClick={() => { setMessages(s.messages); setShowHistory(false); }}
-              className="w-full text-left rounded-xl border border-gray-100 hover:border-violet-200 hover:bg-violet-50/30 p-3 transition-colors">
-              <p className="text-[10px] font-medium text-gray-400 mb-0.5">{s.date}</p>
-              <p className="text-sm text-gray-700 line-clamp-2">{s.preview}</p>
+            <button
+              onClick={handleGenerate}
+              className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Generate Policy Template
             </button>
-          ))}
-        </div>
-      ) : (
-        /* Messages */
-        <div ref={scrollRef} className="overflow-y-auto bg-white px-4 py-4 space-y-3" style={{ minHeight: 160, maxHeight: 300 }}>
-          {messages.length === 0 && thinking && (
-            <div className="flex items-start gap-2.5">
-              <div className="w-7 h-7 rounded-xl bg-slate-900 flex items-center justify-center shrink-0 mt-0.5">
-                <Sparkles className="w-3.5 h-3.5 text-violet-300" />
-              </div>
-              <div className="flex flex-col gap-1.5 flex-1">
-                <div className="inline-flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-2xl rounded-tl-sm px-4 py-2.5">
-                  <span className="text-xs font-medium text-slate-500">Thinking</span>
-                  <span className="w-1 h-1 rounded-full bg-slate-400 animate-bounce [animation-delay:0ms]" />
-                  <span className="w-1 h-1 rounded-full bg-slate-400 animate-bounce [animation-delay:150ms]" />
-                  <span className="w-1 h-1 rounded-full bg-slate-400 animate-bounce [animation-delay:300ms]" />
-                </div>
-                <p className="text-[11px] text-gray-400 ml-1">Reviewing policy…</p>
-              </div>
-            </div>
-          )}
-          {messages.map((msg, i) => (
-            <div key={i} className={`flex items-end gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
-              {msg.role === "bot" ? (
-                <div className="w-7 h-7 rounded-xl bg-slate-900 flex items-center justify-center shrink-0 mb-0.5">
-                  <Sparkles className="w-3.5 h-3.5 text-violet-300" />
-                </div>
-              ) : (
-                <div className="w-7 h-7 rounded-xl bg-violet-600 flex items-center justify-center shrink-0 mb-0.5">
-                  <UserIcon className="w-3.5 h-3.5 text-white" />
-                </div>
-              )}
-              <div className={`max-w-[84%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                msg.role === "bot"
-                  ? "bg-slate-50 border border-slate-100 rounded-bl-sm text-gray-800"
-                  : "bg-violet-600 text-white rounded-br-sm"
-              }`}>
-                <p className="whitespace-pre-line">{msg.content}</p>
-              </div>
-            </div>
-          ))}
-          {thinking && messages.length > 0 && (
-            <div className="flex items-end gap-2.5">
-              <div className="w-7 h-7 rounded-xl bg-slate-900 flex items-center justify-center shrink-0 mb-0.5">
-                <Sparkles className="w-3.5 h-3.5 text-violet-300" />
-              </div>
-              <div className="bg-slate-50 border border-slate-100 rounded-2xl rounded-bl-sm px-4 py-2.5 inline-flex items-center gap-2">
-                <span className="text-xs font-medium text-slate-500">Thinking</span>
-                <span className="w-1 h-1 rounded-full bg-slate-400 animate-bounce [animation-delay:0ms]" />
-                <span className="w-1 h-1 rounded-full bg-slate-400 animate-bounce [animation-delay:150ms]" />
-                <span className="w-1 h-1 rounded-full bg-slate-400 animate-bounce [animation-delay:300ms]" />
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+            {error && <p className="text-xs text-red-500">{error}</p>}
+          </div>
+        )}
 
-      {!showHistory && suggested.length > 0 && (
-        <div className="px-4 py-2.5 bg-gray-50 border-t border-gray-100 flex flex-wrap gap-1.5 shrink-0">
-          {suggested.map((q) => (
-            <button key={q} onClick={() => sendMessage(q)} disabled={thinking}
-              className="text-[11px] font-medium text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-100 px-2.5 py-1 rounded-full transition-colors disabled:opacity-40 whitespace-nowrap">
-              {q}
-            </button>
-          ))}
-        </div>
-      )}
+        {generating && (
+          <div className="flex flex-col items-center gap-3 py-6">
+            <Loader2 className="w-6 h-6 text-violet-400 animate-spin" />
+            <p className="text-sm text-gray-500">Writing your {policy.title}…</p>
+          </div>
+        )}
 
-      <div className="px-4 py-3 bg-white border-t border-gray-100 flex items-center gap-2 shrink-0">
-        <input
-          ref={inputRef}
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
-          placeholder={showHistory ? "Select a conversation above…" : policy ? `Ask about ${policy.title}…` : "Select a policy first…"}
-          disabled={thinking || !policy || showHistory}
-          className="flex-1 text-sm border border-gray-200 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500/25 focus:border-violet-400 bg-white transition-all disabled:opacity-50 placeholder:text-gray-400"
-        />
-        <button
-          onClick={() => sendMessage(input)}
-          disabled={!input.trim() || thinking || !policy || showHistory}
-          className="w-9 h-9 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center shrink-0 transition-colors"
-        >
-          {thinking ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-        </button>
+        {generated && !generating && (
+          <>
+            <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 max-h-64 overflow-y-auto">
+              <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">{generated}</pre>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => { onInsert(generated); setGenerated(null); }}
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-3 py-2 rounded-xl transition-colors"
+              >
+                Use this template
+              </button>
+              <button
+                onClick={handleCopy}
+                className="inline-flex items-center gap-1.5 border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium px-3 py-2 rounded-xl transition-colors"
+              >
+                {copied ? <><Check className="w-3.5 h-3.5 text-emerald-500" /> Copied</> : <><Copy className="w-3.5 h-3.5" /> Copy</>}
+              </button>
+              <button
+                onClick={() => setGenerated(null)}
+                className="inline-flex items-center gap-1.5 border border-gray-200 hover:bg-gray-50 text-gray-600 text-sm px-3 py-2 rounded-xl transition-colors"
+              >
+                Regenerate
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -464,8 +352,15 @@ export default function PoliciesPage() {
         </div>
       )}
 
-      {/* ── Policy Advisor Chatbot ── */}
-      {!loading && <PolicyAdvisorChat policy={selected} />}
+      {/* ── AI Policy Template Generator ── */}
+      {!loading && (
+        <PolicyTemplateGenerator
+          policy={selected}
+          onInsert={(content) => {
+            setContent(content);
+          }}
+        />
+      )}
     </div>
   );
 }

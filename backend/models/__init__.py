@@ -25,6 +25,8 @@ from models.trust_page_view import TrustPageView
 from models.questionnaire_session import QuestionnaireSession, QuestionnaireComment
 from models.policy_signature import PolicySignature
 from models.slack_config import SlackConfig
+from models.chat_conversation import ChatConversation
+from models.chat_message import ChatMessage
 
 __all__ = [
     "Base",
@@ -55,4 +57,6 @@ __all__ = [
     "QuestionnaireComment",
     "PolicySignature",
     "SlackConfig",
+    "ChatConversation",
+    "ChatMessage",
 ]

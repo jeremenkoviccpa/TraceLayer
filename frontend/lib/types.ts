@@ -994,3 +994,22 @@ export interface DataFlow {
   created_at: string;
   updated_at: string;
 }
+
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+}
+
+export interface ChatConversation {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  message_count: number;
+}
+
+export interface ChatConversationWithMessages extends ChatConversation {
+  messages: ChatMessage[];
+}

@@ -336,6 +336,120 @@ RULES:
     return completion.choices[0].message.content.strip()
 
 
+# ── General compliance advisor (global chat) ─────────────────────────────────
+
+async def chat_with_general_advisor(
+    message: str,
+    history: list[dict],
+    company_context: dict | None = None,
+) -> str:
+    """General-purpose compliance advisor chat for the global chatbot."""
+    if not settings.groq_api_key:
+        raise ValueError("GROQ_API_KEY is not configured on this server.")
+
+    try:
+        from groq import AsyncGroq
+    except ImportError as exc:
+        raise RuntimeError("groq package not installed") from exc
+
+    # Build context block from company data if available
+    ctx_lines = []
+    if company_context:
+        if company_context.get("company_name"):
+            ctx_lines.append(f"Company: {company_context['company_name']}")
+        if company_context.get("connected_integrations"):
+            ctx_lines.append(f"Connected integrations: {', '.join(company_context['connected_integrations'])}")
+        if company_context.get("active_frameworks"):
+            ctx_lines.append(f"Active compliance frameworks: {', '.join(company_context['active_frameworks'])}")
+        if company_context.get("scores"):
+            score_lines = [f"  - {fw}: {sc}%" for fw, sc in company_context["scores"].items()]
+            ctx_lines.append("Compliance scores:\n" + "\n".join(score_lines))
+
+    context_block = ("\n\nCOMPANY CONTEXT (live data):\n" + "\n".join(ctx_lines)) if ctx_lines else ""
+
+    system_prompt = f"""You are TraceLayer's AI Compliance Advisor — an expert guide helping teams achieve and maintain security compliance.
+
+You have deep knowledge of:
+- SOC 2 Type II (Trust Service Criteria)
+- ISO 27001 (ISMS, Annex A controls)
+- HIPAA (Technical, Administrative, and Physical Safeguards)
+- GDPR (data subject rights, RoPA, DPA, DPIA, breach notification)
+- PCI DSS (cardholder data environment, network segmentation, Req 1-12)
+- CCPA (consumer rights, data deletion, opt-out)
+- NIST CSF (Identify, Protect, Detect, Respond, Recover)
+- DPDP Act 2023 India (consent, data localisation, 72-hour breach notification)
+- CERT-In Directions 2022 (180-day log retention, NTP sync, 6-hour incident reporting)
+- Evidence collection, audit preparation, policy writing, vendor risk, penetration testing
+- Integration equivalencies: AWS ≈ Azure ≈ GCP, Okta ≈ Azure AD ≈ Google Workspace, GitHub ≈ GitLab ≈ Bitbucket, Rippling ≈ BambooHR ≈ Workday, Datadog ≈ PagerDuty ≈ Sentry, Slack ≈ Teams, Jira ≈ Linear ≈ Asana{context_block}
+
+RULES:
+- Be direct and specific — give concrete, actionable answers
+- Reference real framework requirements (control names, article numbers, requirement IDs)
+- When recommending integrations, always offer equivalent alternatives
+- Keep answers concise (≤250 words) unless asked to elaborate
+- Tone: expert, friendly, like a senior compliance engineer on the team
+- Never give generic boilerplate — ground everything in specifics"""
+
+    msgs: list[dict] = [{"role": "system", "content": system_prompt}]
+    for h in history[-20:]:
+        msgs.append({"role": h["role"], "content": h["content"]})
+    msgs.append({"role": "user", "content": message})
+
+    client = AsyncGroq(api_key=settings.groq_api_key)
+    completion = await client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=msgs,
+        temperature=0.35,
+        max_tokens=600,
+    )
+    return completion.choices[0].message.content.strip()
+
+
+# ── Policy template generator ─────────────────────────────────────────────────
+
+async def generate_policy_template(
+    slug: str,
+    policy_name: str,
+    company_name: str,
+    connected_integrations: list[str],
+) -> str:
+    """Generate a full policy document for the given policy type."""
+    if not settings.groq_api_key:
+        raise ValueError("GROQ_API_KEY is not configured on this server.")
+
+    try:
+        from groq import AsyncGroq
+    except ImportError as exc:
+        raise RuntimeError("groq package not installed") from exc
+
+    integrations_str = ", ".join(connected_integrations) if connected_integrations else "standard security tools"
+
+    prompt = f"""Generate a complete, professional {policy_name} for {company_name}.
+
+The company uses: {integrations_str}
+
+Requirements:
+- Write a full, production-ready policy document (600-900 words)
+- Use proper policy structure: Purpose, Scope, Policy Statement, Procedures, Roles & Responsibilities, Enforcement, Review Cycle
+- Reference the company's actual tools where relevant (e.g., "{integrations_str}")
+- Reference applicable compliance frameworks where relevant (SOC 2, ISO 27001, GDPR, HIPAA as appropriate for this policy type)
+- Use {company_name} as the company name throughout
+- Format in clean Markdown with headers (##), bullet points, and numbered lists where appropriate
+- Make it specific and actionable — not generic boilerplate
+- Include version: 1.0, effective date: {__import__('datetime').date.today().strftime('%B %d, %Y')}, and owner: Security Team in the header
+
+Output ONLY the Markdown policy document. No preamble or explanation."""
+
+    client = AsyncGroq(api_key=settings.groq_api_key)
+    completion = await client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.3,
+        max_tokens=2000,
+    )
+    return completion.choices[0].message.content.strip()
+
+
 # ── Questionnaire autofill ────────────────────────────────────────────────────
 
 _INT_LABELS = {

@@ -1,4 +1,4 @@
-import type { AccessReview, ApiKey, AppNotification, Asset, AuditComment, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, Company, ComplianceScore, DataBreach, Device, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PolicyContentResponse, PolicyTaskItem, PortalTasksResponse, PublicAuditView, PublicTrustPageView, QuestionnaireComment, QuestionnaireResult, QuestionnaireSession, QuestionnaireSessionAnswer, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SlackConfig, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingCertificate, TrainingQuiz, TrainingQuizResult, TrainingRecord, TrustAnalytics, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
+import type { AccessReview, ApiKey, AppNotification, Asset, AuditComment, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, ChatConversation, ChatConversationWithMessages, Company, ComplianceScore, DataBreach, Device, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PolicyContentResponse, PolicyTaskItem, PortalTasksResponse, PublicAuditView, PublicTrustPageView, QuestionnaireComment, QuestionnaireResult, QuestionnaireSession, QuestionnaireSessionAnswer, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SlackConfig, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingCertificate, TrainingQuiz, TrainingQuizResult, TrainingRecord, TrustAnalytics, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -1166,6 +1166,42 @@ class ApiClient {
 
   async sendSlackReminders(): Promise<{ ok: boolean; message: string }> {
     return this.request("POST", "/slack/send-reminders");
+  }
+
+  // ── Global Chat ──────────────────────────────────────────────────────────
+
+  async listConversations(): Promise<ChatConversation[]> {
+    return this.request("GET", "/chat/conversations");
+  }
+
+  async createConversation(): Promise<ChatConversation> {
+    return this.request("POST", "/chat/conversations");
+  }
+
+  async getConversation(id: string): Promise<ChatConversationWithMessages> {
+    return this.request("GET", `/chat/conversations/${id}`);
+  }
+
+  async renameConversation(id: string, title: string): Promise<ChatConversation> {
+    return this.request("PATCH", `/chat/conversations/${id}`, { title });
+  }
+
+  async deleteConversation(id: string): Promise<void> {
+    return this.request("DELETE", `/chat/conversations/${id}`);
+  }
+
+  async sendChatMessage(convId: string, content: string): Promise<{
+    user_message: { id: string; role: string; content: string; created_at: string };
+    assistant_message: { id: string; role: string; content: string; created_at: string };
+    conversation_title: string;
+  }> {
+    return this.request("POST", `/chat/conversations/${convId}/messages`, { content });
+  }
+
+  // ── Policy generation ────────────────────────────────────────────────────
+
+  async generatePolicy(slug: string): Promise<{ content: string }> {
+    return this.request("POST", `/policies/${slug}/generate`);
   }
 }
 
