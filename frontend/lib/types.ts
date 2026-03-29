@@ -206,6 +206,41 @@ export interface ManualControl {
   updated_at: string | null;
   owner_user_id: string | null;
   owner_name: string | null;
+  due_date: string | null;
+}
+
+export interface RemediationStep {
+  step: number;
+  action: string;
+  detail: string;
+}
+
+export interface RemediationSuggestion {
+  control_id: string;
+  control_name: string;
+  priority: "critical" | "high" | "medium" | "low";
+  suggested_sla_days: number;
+  steps: RemediationStep[];
+  helpful_integrations: string[];
+  missing_integrations: string[];
+}
+
+export interface ActionPlanItem {
+  rank: number;
+  category: string;
+  title: string;
+  description: string;
+  effort: "quick" | "medium" | "involved";
+  impact: "high" | "medium" | "low";
+  control_refs: string[];
+  suggested_action: string;
+}
+
+export interface ActionPlan {
+  framework: string;
+  overall_score: number;
+  items: ActionPlanItem[];
+  generated_at: string;
 }
 
 export interface AuditSession {

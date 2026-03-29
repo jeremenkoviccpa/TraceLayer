@@ -1,4 +1,4 @@
-import type { AccessReview, ApiKey, AppNotification, Asset, AuditComment, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, ChatConversation, ChatConversationWithMessages, Company, ComplianceScore, DataBreach, Device, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PolicyContentResponse, PolicyTaskItem, PortalTasksResponse, PublicAuditView, PublicTrustPageView, QuestionnaireComment, QuestionnaireResult, QuestionnaireSession, QuestionnaireSessionAnswer, QuestionnaireType, ReadinessData, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SlackConfig, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingCertificate, TrainingQuiz, TrainingQuizResult, TrainingRecord, TrustAnalytics, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
+import type { AccessReview, ActionPlan, ApiKey, AppNotification, Asset, AuditComment, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, ChatConversation, ChatConversationWithMessages, Company, ComplianceScore, DataBreach, Device, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PolicyContentResponse, PolicyTaskItem, PortalTasksResponse, PublicAuditView, PublicTrustPageView, QuestionnaireComment, QuestionnaireResult, QuestionnaireSession, QuestionnaireSessionAnswer, QuestionnaireType, ReadinessData, RemediationSuggestion, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SlackConfig, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingCertificate, TrainingQuiz, TrainingQuizResult, TrainingRecord, TrustAnalytics, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -467,6 +467,19 @@ class ApiClient {
 
   async setPolicyExpiry(slug: string, expires_at: string | null): Promise<Policy> {
     return this.request<Policy>("PATCH", `/policies/${slug}/expiry`, { expires_at });
+  }
+
+  // ── Agentic compliance ───────────────────────────────────────────────────
+  async setControlDueDate(controlId: string, framework: string, due_date: string | null): Promise<ManualControl> {
+    return this.request<ManualControl>("PATCH", `/compliance/manual-controls/${controlId}/due-date?framework=${framework}`, { due_date });
+  }
+
+  async getControlRemediation(controlId: string, framework: string): Promise<RemediationSuggestion> {
+    return this.request<RemediationSuggestion>("POST", `/compliance/manual-controls/${controlId}/remediate?framework=${framework}`);
+  }
+
+  async getActionPlan(framework: string): Promise<ActionPlan> {
+    return this.request<ActionPlan>("POST", `/compliance/action-plan?framework=${framework}`);
   }
 
   // ── Questionnaire ─────────────────────────────────────────────────────────

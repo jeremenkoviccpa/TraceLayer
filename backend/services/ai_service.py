@@ -894,3 +894,182 @@ async def autofill_questionnaire(
     }
 
     return answers, detected_type, context_summary
+
+
+# ── Agentic: Control Remediation ──────────────────────────────────────────────
+
+async def suggest_control_remediation(
+    control_id: str,
+    control_name: str,
+    control_description: str,
+    framework: str,
+    connected_integrations: list[str],
+) -> "RemediationResponse":
+    """Return AI-generated remediation steps for a specific pending/failing control."""
+    from schemas.compliance import RemediationResponse, RemediationStep
+
+    if not settings.groq_api_key:
+        raise ValueError("GROQ_API_KEY is not configured.")
+    try:
+        from groq import AsyncGroq
+    except ImportError as exc:
+        raise RuntimeError("groq package not installed") from exc
+
+    fw_label = FRAMEWORK_LABELS_FULL.get(framework, framework.upper())
+    connected_str = ", ".join(connected_integrations) if connected_integrations else "none"
+
+    prompt = f"""You are a compliance engineer specialising in {fw_label}.
+
+CONTROL: {control_name}
+DESCRIPTION: {control_description}
+FRAMEWORK: {fw_label}
+CONNECTED INTEGRATIONS: {connected_str}
+
+Your task: produce a concrete, step-by-step remediation plan so a small engineering/compliance team can mark this control compliant within a few weeks.
+
+Respond ONLY with a JSON object — no markdown, no explanation. Schema:
+{{
+  "priority": "critical|high|medium|low",
+  "suggested_sla_days": <integer — realistic calendar days to complete>,
+  "steps": [
+    {{"step": 1, "action": "<short imperative title>", "detail": "<1-2 sentence explanation of exactly what to do>"}},
+    ...
+  ],
+  "helpful_integrations": ["<integration slug already connected that directly supports this control>", ...],
+  "missing_integrations": ["<integration slug not yet connected that would automate evidence for this control>", ...]
+}}
+
+Rules:
+- 3–6 steps, ordered from most to least critical
+- Be specific: name tools, settings, and menu paths where applicable
+- helpful_integrations must be a subset of: {connected_str}
+- missing_integrations must be real integration names not in the connected list
+- suggested_sla_days: quick fixes = 3-7, moderate = 14-30, complex = 30-60"""
+
+    client = AsyncGroq(api_key=settings.groq_api_key)
+    completion = await client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.2,
+        max_tokens=1500,
+    )
+    content = completion.choices[0].message.content.strip()
+    match = re.search(r"\{.*\}", content, re.DOTALL)
+    if not match:
+        raise ValueError("AI response did not contain valid JSON")
+    data = json.loads(match.group(0))
+
+    steps = [RemediationStep(**s) for s in data.get("steps", [])]
+    return RemediationResponse(
+        control_id=control_id,
+        control_name=control_name,
+        priority=data.get("priority", "medium"),
+        suggested_sla_days=int(data.get("suggested_sla_days", 14)),
+        steps=steps,
+        helpful_integrations=data.get("helpful_integrations", []),
+        missing_integrations=data.get("missing_integrations", []),
+    )
+
+
+# ── Agentic: Company Action Plan ──────────────────────────────────────────────
+
+async def generate_action_plan(
+    company_id: uuid.UUID,
+    framework: str,
+    db: AsyncSession,
+) -> "ActionPlanResponse":
+    """Return a prioritised AI action plan for the company's compliance posture."""
+    from datetime import datetime, timezone
+    from schemas.compliance import ActionPlanItem, ActionPlanResponse
+    from services.compliance_service import get_compliance_score
+
+    if not settings.groq_api_key:
+        raise ValueError("GROQ_API_KEY is not configured.")
+    try:
+        from groq import AsyncGroq
+    except ImportError as exc:
+        raise RuntimeError("groq package not installed") from exc
+
+    fw_label = FRAMEWORK_LABELS_FULL.get(framework, framework.upper())
+
+    # Gather real-time compliance posture
+    score_data = await get_compliance_score(company_id, framework, db)
+    overall = score_data["overall_score"]
+    controls = score_data.get("controls", [])
+
+    failing = [c for c in controls if c["status"] in ("failing", "no_evidence")]
+    warning = [c for c in controls if c["status"] == "warning"]
+
+    # Gather connected integrations
+    from models.integration import Integration
+    from sqlalchemy import select
+    int_result = await db.execute(
+        select(Integration.integration_type).where(
+            Integration.company_id == company_id,
+            Integration.status == "active",
+        )
+    )
+    connected = [row[0] for row in int_result.all()]
+    connected_str = ", ".join(connected) if connected else "none"
+
+    # Integration gap analysis
+    gap_analysis = _build_integration_gap_analysis(framework, connected)
+
+    failing_names = [c["name"] for c in failing[:8]]
+    warning_names = [c["name"] for c in warning[:5]]
+
+    prompt = f"""You are a senior compliance advisor. Produce a prioritised action plan for a company working toward {fw_label} certification.
+
+CURRENT STATE:
+- Overall compliance score: {overall}%
+- Failing/no-evidence controls: {", ".join(failing_names) if failing_names else "none"}
+- Warning controls: {", ".join(warning_names) if warning_names else "none"}
+- Connected integrations: {connected_str}
+
+INTEGRATION GAP ANALYSIS:
+{gap_analysis}
+
+Respond ONLY with a JSON object — no markdown, no explanation:
+{{
+  "items": [
+    {{
+      "rank": 1,
+      "category": "<one of: access_control | monitoring | source_control | hr | vendor | policy | training | infrastructure | incident_response | other>",
+      "title": "<concise action title, max 60 chars>",
+      "description": "<1-2 sentences on why this matters and what's at risk>",
+      "effort": "<quick | medium | involved>",
+      "impact": "<high | medium | low>",
+      "control_refs": ["<framework control reference>", ...],
+      "suggested_action": "<one specific imperative sentence — exactly what to do first>"
+    }},
+    ...
+  ]
+}}
+
+Rules:
+- Return 5–7 items ranked by priority (most urgent first)
+- effort: quick = <1 day, medium = 1-5 days, involved = 1-2 weeks+
+- Focus on highest-impact gaps first: missing integrations > failing controls > missing policies
+- control_refs should use the framework's native numbering (e.g. CC6.1 for SOC 2, A.9.1 for ISO 27001)
+- Be specific — name tools, settings, and exact steps"""
+
+    client = AsyncGroq(api_key=settings.groq_api_key)
+    completion = await client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.3,
+        max_tokens=2500,
+    )
+    content = completion.choices[0].message.content.strip()
+    match = re.search(r"\{.*\}", content, re.DOTALL)
+    if not match:
+        raise ValueError("AI response did not contain valid JSON")
+    data = json.loads(match.group(0))
+
+    items = [ActionPlanItem(**item) for item in data.get("items", [])]
+    return ActionPlanResponse(
+        framework=framework,
+        overall_score=overall,
+        items=items,
+        generated_at=datetime.now(timezone.utc).isoformat(),
+    )
