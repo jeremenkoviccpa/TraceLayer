@@ -596,6 +596,11 @@ const FEATURES = [
     desc: "TraceLayer monitors official regulation sources weekly. When any of the 9 frameworks updates — including DPDP Act and CERT-In — AI extracts the changed controls and queues them for your review — so you're never caught off guard.",
   },
   {
+    icon: Sparkles,
+    title: "AI Control Remediation & Action Plan",
+    desc: "Every failing control gets a step-by-step AI fix guide — with a suggested SLA, prioritized effort, and the exact integrations needed to close the gap. Or generate a company-wide ranked action plan in one click, grounded in your live compliance posture.",
+  },
+  {
     icon: Plug,
     title: "120+ native integrations · simulate before you connect",
     desc: "Connect AWS, GitHub, Okta, Datadog, Snyk, and 95 more in minutes — no agents, no code. Before connecting anything, use the built-in simulation mode to see exactly what each integration adds to your score.",
@@ -726,7 +731,7 @@ const FAQ = [
   },
   {
     q: "What does the AI actually do?",
-    a: "Three things: (1) It watches your controls and fires an instant Slack or Teams alert the moment something regresses. (2) It reads your live evidence and drafts answers to any security questionnaire a prospect sends you. (3) It monitors regulation sources weekly and flags any framework changes before they affect your audit.",
+    a: "Five things: (1) It watches your controls and fires an instant Slack or Teams alert the moment something regresses. (2) It reads your live evidence and drafts answers to any security questionnaire a prospect sends you. (3) It monitors regulation sources weekly and flags any framework changes before they affect your audit. (4) For every failing control, it generates a step-by-step remediation plan with a suggested SLA and integration recommendations. (5) It produces a company-wide ranked action plan showing your top gaps, effort required, and exactly what to do — grounded in your real posture.",
   },
   {
     q: "Does the AI write my audit report?",
@@ -1556,6 +1561,8 @@ export default function LandingPage() {
               { icon: Workflow,      label: "Data Flow Map",        desc: "Auto-mapped, GDPR-ready" },
               { icon: Database,      label: "GDPR Privacy Suite",   desc: "RoPA, SoA, Breaches"     },
               { icon: ClipboardList, label: "AI Questionnaire",     desc: "17 data sources"         },
+              { icon: Sparkles,      label: "AI Remediation",       desc: "Per-control fix plan"    },
+              { icon: Zap,           label: "AI Action Plan",       desc: "Company-wide ranked gaps"},
               { icon: Globe,         label: "Trust Page",           desc: "Live public page"        },
               { icon: FileText,      label: "Audit Reports",        desc: "PDF & JSON"              },
               { icon: Sparkles,      label: "AI Audit Package",     desc: "AI narrative PDF"        },
@@ -2082,6 +2089,7 @@ export default function LandingPage() {
                   "AI Compliance Advisor",
                   "AI Questionnaire Autofill (17 data sources)",
                   "AI Audit Package",
+                  "AI Control Remediation + Action Plan",
                   "Data Flow Map (auto-mapped regulations & risk)",
                   "GDPR Privacy Suite (RoPA, SoA, Breach Register, SARs)",
                   "Incident, Vulnerability & Asset Management",
