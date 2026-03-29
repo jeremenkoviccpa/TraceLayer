@@ -1353,7 +1353,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-6">
           <p className="text-center text-xs font-bold text-[var(--muted)] uppercase tracking-widest mb-6">You&apos;re in the right place if…</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            [
+            {[
               {
                 icon: Building2,
                 heading: "An enterprise prospect asked for SOC 2, ISO 27001, or DPDP Act",
