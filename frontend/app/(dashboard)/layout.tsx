@@ -493,8 +493,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
         </nav>
 
-        {/* Free plan upgrade CTA — shown only when sidebar is expanded */}
-        {!isPro && !collapsed && (
+        {/* Free plan upgrade CTA — shown only to admins on free plan */}
+        {!isPro && !collapsed && user?.role === "admin" && (
           <div className="px-3 pb-3 shrink-0">
             <Link
               href="/settings#billing"
@@ -506,7 +506,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
                 <p className="text-xs font-bold text-white leading-none">Upgrade to Growth</p>
               </div>
-              <p className="text-[10px] text-white/70 leading-snug mb-2.5">Unlock AI features, PDF reports, all 7 frameworks &amp; more.</p>
+              <p className="text-[10px] text-white/70 leading-snug mb-2.5">Unlock AI features, PDF reports, all 9 frameworks &amp; more.</p>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold text-white/90">$149 / mo</span>
                 <span className="text-[10px] font-semibold text-brand-200 group-hover:text-white transition-colors">Upgrade →</span>

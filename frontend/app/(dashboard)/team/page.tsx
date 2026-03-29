@@ -166,8 +166,8 @@ export default function TeamPage() {
                   <p className="text-xs text-slate-400 mt-0.5">Members</p>
                 </div>
               </div>
-              {/* Free plan seat usage */}
-              {!isPro && !loading && (
+              {/* Free plan seat usage — admins only */}
+              {!isPro && !loading && isAdmin && (
                 <div className="mt-4 max-w-xs">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-[11px] text-slate-400">

@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 
 function AcceptInviteForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
 
@@ -32,7 +31,9 @@ function AcceptInviteForm() {
     setLoading(true);
     try {
       await api.acceptInvite(token, password);
-      router.push("/dashboard");
+      // Full reload so AuthProvider remounts and picks up the new token.
+      // A client-side router.push would leave user=null in context.
+      window.location.assign("/dashboard");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to accept invite");
     } finally {
