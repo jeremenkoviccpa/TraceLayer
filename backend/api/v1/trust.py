@@ -302,6 +302,20 @@ async def public_trust_page(
 ):
     result = await db.execute(select(TrustPage).where(TrustPage.slug == slug))
     tp = result.scalar_one_or_none()
+
+    # Fallback for companies registered before trust pages were auto-created:
+    # find the company whose name slugifies to this slug and create it on the fly.
+    if not tp:
+        from models.company import Company
+        companies_result = await db.execute(select(Company))
+        for company in companies_result.scalars().all():
+            if slugify(company.name) == slug:
+                tp = TrustPage(company_id=company.id, slug=slug)
+                db.add(tp)
+                await db.commit()
+                await db.refresh(tp)
+                break
+
     if not tp:
         raise HTTPException(status_code=404, detail="Trust page not found")
     if not tp.is_enabled:

@@ -21,6 +21,7 @@ from models.company import Company
 from models.email_verification_token import EmailVerificationToken
 from models.password_reset_token import PasswordResetToken
 from models.refresh_token import RefreshToken
+from models.trust_page import TrustPage, slugify
 from models.user import User
 from schemas.auth import ChangePasswordRequest, ForgotPasswordRequest, LoginRequest, RefreshRequest, RegisterRequest, ResetPasswordRequest, TokenResponse, TwoFABackupCodesRequest, TwoFADisableRequest, TwoFAEnableRequest, TwoFASetupResponse, TwoFAVerifyRequest, UpdateProfileRequest, UserResponse
 from services.audit_service import log_action
@@ -54,6 +55,17 @@ async def register(request: Request, body: RegisterRequest, db: AsyncSession = D
     )
     db.add(user)
     await db.flush()
+
+    # Create the trust page so the public URL works immediately
+    import secrets as _secrets
+    _base_slug = slugify(body.company_name) or "my-company"
+    _slug = _base_slug
+    for _ in range(10):
+        _existing = await db.execute(select(TrustPage).where(TrustPage.slug == _slug))
+        if not _existing.scalar_one_or_none():
+            break
+        _slug = f"{_base_slug}-{_secrets.token_hex(3)}"
+    db.add(TrustPage(company_id=company.id, slug=_slug))
 
     access_token = create_access_token(str(user.id), str(company.id))
     raw_refresh, refresh_hash = create_refresh_token()
