@@ -664,6 +664,8 @@ export interface Incident {
   reporter_name: string | null;
   auto_detected: boolean;
   detection_key: string | null;
+  certin_reported_at: string | null;
+  certin_ref_number: string | null;
   created_at: string;
   updated_at: string;
 }

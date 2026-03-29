@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Incident } from "@/lib/types";
-import { Siren, Plus, Trash2, X, ChevronDown, Sparkles, RefreshCw } from "lucide-react";
+import { Siren, Plus, Trash2, X, ChevronDown, Sparkles, RefreshCw, AlertOctagon } from "lucide-react";
 import { toast } from "@/lib/toast";
 
 const SEVERITIES = ["critical", "high", "medium", "low"] as const;
@@ -89,6 +89,11 @@ export default function IncidentsPage() {
 
   const open = incidents.filter(i => i.status === "open" || i.status === "investigating");
   const closed = incidents.filter(i => i.status === "resolved" || i.status === "closed");
+  const certinOverdue = open.filter(i =>
+    i.detected_at &&
+    !i.certin_reported_at &&
+    Math.floor((Date.now() - new Date(i.detected_at).getTime()) / 3600000) > 6
+  );
 
   return (
     <div className="space-y-6">
@@ -182,6 +187,15 @@ export default function IncidentsPage() {
           );
         })}
       </div>
+
+      {certinOverdue.length > 0 && (
+        <div className="flex items-center gap-3 bg-blue-700 text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-sm">
+          <AlertOctagon className="w-4 h-4 shrink-0" />
+          <span>
+            🇮🇳 {certinOverdue.length} incident{certinOverdue.length > 1 ? "s" : ""} past CERT-In 6-hour reporting deadline (Dir. 1) — log your CERT-In report reference in each incident
+          </span>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-12"><div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" /></div>
@@ -278,6 +292,19 @@ export default function IncidentsPage() {
                 <label className="block text-xs font-medium text-gray-600 mb-1">Lessons learned</label>
                 <textarea className="input min-h-[60px]" value={form.lessons_learned ?? ""} onChange={e => setForm(p => ({ ...p, lessons_learned: e.target.value }))} />
               </div>
+              <div className="border-t border-gray-100 pt-3">
+                <p className="text-xs font-semibold text-blue-700 mb-2">🇮🇳 CERT-In Reporting (Dir. 1) — 6-hour deadline</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Reported to CERT-In At</label>
+                    <input type="datetime-local" className="input" value={form.certin_reported_at ? form.certin_reported_at.substring(0, 16) : ""} onChange={e => setForm(p => ({ ...p, certin_reported_at: e.target.value || null }))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">CERT-In Reference Number</label>
+                    <input type="text" className="input" placeholder="e.g. CERTIN-2024-001234" value={form.certin_ref_number ?? ""} onChange={e => setForm(p => ({ ...p, certin_ref_number: e.target.value || null }))} />
+                  </div>
+                </div>
+              </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={closeModal} className="btn-secondary flex-1">Cancel</button>
                 <button type="submit" disabled={saving} className="btn-primary flex-1 justify-center">
@@ -334,6 +361,25 @@ function IncidentCard({ incident, expanded, onToggle, onEdit, onDelete }: {
           )}
           {incident.lessons_learned && (
             <div><p className="text-xs font-semibold text-gray-500 mb-1">Lessons learned</p><p className="text-sm text-gray-700">{incident.lessons_learned}</p></div>
+          )}
+          {(incident.certin_reported_at || incident.certin_ref_number) && (
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
+              <p className="text-xs font-semibold text-blue-700 mb-1.5">🇮🇳 CERT-In Reported (Dir. 1)</p>
+              <div className="flex flex-wrap gap-4">
+                {incident.certin_reported_at && (
+                  <div>
+                    <p className="text-[10px] text-blue-500 mb-0.5">Reported at</p>
+                    <p className="text-xs text-blue-800 font-medium">{new Date(incident.certin_reported_at).toLocaleString()}</p>
+                  </div>
+                )}
+                {incident.certin_ref_number && (
+                  <div>
+                    <p className="text-[10px] text-blue-500 mb-0.5">Reference</p>
+                    <p className="text-xs text-blue-800 font-medium">{incident.certin_ref_number}</p>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
           <div className="flex gap-2 pt-1">
             <button onClick={() => onEdit(incident)} className="btn-secondary text-xs py-1.5 px-3">Edit</button>
