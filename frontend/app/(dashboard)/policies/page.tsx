@@ -406,10 +406,10 @@ export default function PoliciesPage() {
             </div>
           )}
         </div>
-
-        {/* ── Policy Advisor Chatbot ── */}
-        <PolicyAdvisorChat policy={selected} />
       )}
+
+      {/* ── Policy Advisor Chatbot ── */}
+      {!loading && <PolicyAdvisorChat policy={selected} />}
     </div>
   );
 }
