@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { openPaddleCheckout } from "@/lib/paddle";
@@ -1991,6 +1991,33 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
 
 const ALL_DEFS: IntegrationDef[] = INTEGRATION_GROUPS.flatMap((g) => g.integrations);
 
+const TAB_SHORT: Record<string, string> = {
+  "Identity & Access":           "Identity",
+  "Cloud Infrastructure":        "Cloud",
+  "Source Control":              "Source Control",
+  "Project Management":          "Projects",
+  "Communication":               "Comms",
+  "Monitoring & Security":       "Monitoring",
+  "HR & People":                 "HR",
+  "CI/CD & DevOps":              "CI/CD",
+  "MFA & Authentication":        "MFA",
+  "Security Awareness Training": "Security Training",
+  "HR & Recruiting":             "Recruiting",
+  "Technical Assessments":       "Assessments",
+  "Time Tracking":               "Time Tracking",
+  "Communication & Meetings":    "Meetings",
+  "Data Security":               "Data Security",
+  "Device Management":           "Devices",
+  "Data & Analytics":            "Analytics",
+  "CRM & Marketing":             "CRM",
+  "Customer Data Platform":      "CDP",
+  "AI Vendor Compliance":        "AI Vendors",
+  "India \u2014 DPDP & CERT-In": "\uD83C\uDDEE\uD83C\uDDF3 India",
+  "US \u2014 Accounting & Legal": "\uD83C\uDDFA\uD83C\uDDF8 US",
+  "Logging & Data":              "Logging",
+  "Coming Soon":                 "Coming Soon",
+};
+
 // All integrations collect real evidence — no stubs
 const STUB_TYPES = new Set<string>();
 
@@ -3176,6 +3203,10 @@ export default function IntegrationsPage() {
   const [toast, setToast] = useState("");
   const [search, setSearch] = useState("");
   const [simulating, setSimulating] = useState<string | null>(null);
+  const [activeGroup, setActiveGroup] = useState<string | null>(null);
+  const [showOnlyConnected, setShowOnlyConnected] = useState(false);
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const tabsContainerRef = useRef<HTMLDivElement | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -3203,6 +3234,40 @@ export default function IntegrationsPage() {
       router.replace("/integrations");
     }
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-highlight active section via IntersectionObserver
+  useEffect(() => {
+    if (search) { setActiveGroup(null); return; }
+    const ratios = new Map<string, number>();
+    const observers: IntersectionObserver[] = [];
+    const updateActive = () => {
+      let best: string | null = null;
+      let bestRatio = -1;
+      INTEGRATION_GROUPS.forEach(({ title }) => {
+        const r = ratios.get(title) ?? 0;
+        if (r > bestRatio) { bestRatio = r; best = title; }
+      });
+      setActiveGroup(best);
+    };
+    INTEGRATION_GROUPS.forEach(({ title }) => {
+      const el = sectionRefs.current[title];
+      if (!el) return;
+      const obs = new IntersectionObserver(
+        ([entry]) => { ratios.set(title, entry.intersectionRatio); updateActive(); },
+        { rootMargin: "-5% 0px -65% 0px", threshold: [0, 0.1, 0.25, 0.5, 1] }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+    return () => observers.forEach((o) => o.disconnect());
+  }, [search]);
+
+  // Scroll active tab into view when activeGroup changes
+  useEffect(() => {
+    if (!activeGroup || !tabsContainerRef.current) return;
+    const btn = tabsContainerRef.current.querySelector(`[data-group="${CSS.escape(activeGroup)}"]`) as HTMLElement | null;
+    btn?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+  }, [activeGroup]);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 4000); };
 
@@ -3251,9 +3316,11 @@ export default function IntegrationsPage() {
   const query = search.toLowerCase();
   const filteredGroups = INTEGRATION_GROUPS.map((g) => ({
     ...g,
-    integrations: g.integrations.filter(
-      (d) => !query || d.label.toLowerCase().includes(query) || d.description.toLowerCase().includes(query)
-    ),
+    integrations: g.integrations.filter((d) => {
+      const matchesSearch = !query || d.label.toLowerCase().includes(query) || d.description.toLowerCase().includes(query);
+      const matchesConnected = !showOnlyConnected || integrations.some((i) => i.integration_type === d.type);
+      return matchesSearch && matchesConnected;
+    }),
   })).filter((g) => g.integrations.length > 0);
 
   if (loading) return (
@@ -3263,7 +3330,7 @@ export default function IntegrationsPage() {
   );
 
   return (
-    <div className="animate-fade-in overflow-x-hidden">
+    <div className="animate-fade-in overflow-x-clip">
       {toast && (
         <div className="fixed top-4 right-4 bg-gray-900 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg z-50">
           {toast}
@@ -3318,17 +3385,150 @@ export default function IntegrationsPage() {
         </div>
       )}
 
+      {/* Connected integrations tray */}
+      {integrations.length > 0 && !search && (
+        <div className="mb-5">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-2">Active connections</p>
+          <div className="overflow-x-auto no-scrollbar">
+            <div className="flex gap-2 pb-1">
+              {integrations.map((integ) => {
+                const def = ALL_DEFS.find((d) => d.type === integ.integration_type);
+                if (!def) return null;
+                return (
+                  <div key={integ.integration_type}
+                    className="flex items-center gap-2 bg-white border border-gray-100 shadow-sm rounded-xl px-3 py-2 shrink-0">
+                    <LogoBadge type={integ.integration_type} size={22}/>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-semibold text-gray-800 whitespace-nowrap">{def.label}</span>
+                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                          integ.status === "connected" ? "bg-emerald-400" :
+                          integ.status === "error" ? "bg-red-400" : "bg-amber-400"
+                        }`}/>
+                      </div>
+                      {integ.last_collected_at && (
+                        <p className="text-[10px] text-gray-400 whitespace-nowrap leading-none mt-0.5">
+                          {new Date(integ.last_collected_at).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleCollect(integ.integration_type)}
+                      disabled={collecting === integ.integration_type}
+                      title="Sync now"
+                      className="p-1 ml-0.5 text-gray-300 hover:text-brand-600 rounded-lg transition-colors disabled:opacity-40">
+                      <RefreshCw className={`w-3 h-3 ${collecting === integ.integration_type ? "animate-spin" : ""}`}/>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Search */}
-      <div className="relative mb-6">
+      <div className="relative mb-2">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"/>
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search integrations…"
+        <input value={search} onChange={(e) => { setSearch(e.target.value); setShowOnlyConnected(false); }}
+          placeholder="Search integrations…"
           className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30"/>
       </div>
 
+      {/* Sticky tab strip */}
+      {!search && (
+        <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100 -mx-5 px-5 md:-mx-8 md:px-8 mb-6">
+          <div ref={tabsContainerRef} className="overflow-x-auto no-scrollbar">
+            <div className="flex gap-1 py-2.5">
+
+              {/* All tab */}
+              <button
+                onClick={() => {
+                  setShowOnlyConnected(false);
+                  setActiveGroup(null);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                  !activeGroup && !showOnlyConnected
+                    ? "bg-gray-900 text-white shadow-sm"
+                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                All
+                <span className={`text-[10px] ${!activeGroup && !showOnlyConnected ? "opacity-60" : "text-gray-400"}`}>
+                  {ALL_DEFS.filter((d) => !d.comingSoon).length}
+                </span>
+              </button>
+
+              {/* Connected tab */}
+              {integrations.length > 0 && (
+                <button
+                  onClick={() => { setShowOnlyConnected((p) => !p); setActiveGroup(null); }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                    showOnlyConnected
+                      ? "bg-emerald-600 text-white shadow-sm"
+                      : "text-emerald-700 border border-emerald-200 hover:bg-emerald-50"
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${showOnlyConnected ? "bg-emerald-200" : "bg-emerald-400"}`}/>
+                  Connected
+                  <span className={`text-[10px] font-bold ${showOnlyConnected ? "opacity-80" : ""}`}>{integrations.length}</span>
+                </button>
+              )}
+
+              {/* Separator */}
+              <span className="w-px bg-gray-200 mx-0.5 my-1.5 shrink-0"/>
+
+              {/* Group tabs */}
+              {INTEGRATION_GROUPS.map((group) => {
+                const connectedCount = group.integrations.filter((d) =>
+                  integrations.some((i) => i.integration_type === d.type)
+                ).length;
+                const isActive = activeGroup === group.title && !showOnlyConnected;
+                const isIndia = group.title.includes("India");
+                const isUS = group.title.startsWith("US");
+                const activeStyle = isIndia
+                  ? "bg-orange-500 text-white shadow-sm"
+                  : isUS
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "bg-brand-600 text-white shadow-sm";
+                return (
+                  <button
+                    key={group.title}
+                    data-group={group.title}
+                    onClick={() => {
+                      setShowOnlyConnected(false);
+                      setActiveGroup(group.title);
+                      const el = sectionRefs.current[group.title];
+                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                      isActive ? activeStyle : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {TAB_SHORT[group.title] ?? group.title}
+                    {connectedCount > 0 && (
+                      <span className={`text-[10px] font-bold rounded-full px-1 min-w-[16px] text-center leading-none py-0.5 ${
+                        isActive ? "bg-white/25 text-white" : "bg-emerald-100 text-emerald-700"
+                      }`}>{connectedCount}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Groups */}
-      <div className="space-y-8">
+      <div className={search ? "mt-6 space-y-8" : "space-y-8"}>
         {filteredGroups.map((group) => (
-          <div key={group.title}>
+          <div
+            key={group.title}
+            id={group.title}
+            ref={(el) => { sectionRefs.current[group.title] = el; }}
+            className="scroll-mt-14"
+          >
             <h2 className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-3">{group.title}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {group.integrations.map((def) => {
@@ -3351,7 +3551,11 @@ export default function IntegrationsPage() {
         {filteredGroups.length === 0 && (
           <div className="text-center py-16 text-gray-400">
             <Search className="w-8 h-8 mx-auto mb-3 opacity-40"/>
-            <p className="text-sm">No integrations match &ldquo;{search}&rdquo;</p>
+            <p className="text-sm">
+              {showOnlyConnected
+                ? "No connected integrations yet. Connect one above."
+                : `No integrations match \u201c${search}\u201d`}
+            </p>
           </div>
         )}
       </div>
