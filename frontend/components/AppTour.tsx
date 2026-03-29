@@ -38,7 +38,7 @@ export default function AppTour() {
             popover: {
               title: "Welcome to TraceLayer 👋",
               description:
-                "You're 60 seconds away from understanding how compliance evidence works. Let's take a quick tour — you can skip at any time.",
+                "You're a few minutes away from having a living compliance program. Let's take a quick tour — you can skip at any time.",
               side: "over",
             },
           },
@@ -47,7 +47,7 @@ export default function AppTour() {
             popover: {
               title: "Your compliance score",
               description:
-                "This tells you how audit-ready you are right now, calculated across ~60 SOC 2 controls. The closer to 100%, the better. It updates automatically as you connect your tools.",
+                "This shows how audit-ready you are right now, calculated across your active framework controls. It updates automatically as you connect integrations and collect evidence.",
               side: "bottom",
               align: "start",
             },
@@ -55,9 +55,9 @@ export default function AppTour() {
           {
             element: "#tour-nav-compliance",
             popover: {
-              title: "The core compliance loop",
+              title: "Step 1 — Scope & Setup",
               description:
-                "Start by connecting an <b>Integration</b> (GitHub, AWS, Google Workspace…). We pull your security configs automatically. Those become <b>Evidence</b> — the proof auditors need to see. <b>Controls</b> shows which requirements are covered.",
+                "Start here. Connect an <b>Integration</b> (GitHub, AWS, Google Workspace, Slack…) and we automatically pull your security configurations as evidence. Use <b>Applicability</b> to declare which controls apply to your company.",
               side: "right",
               align: "start",
             },
@@ -65,28 +65,44 @@ export default function AppTour() {
           {
             element: "#tour-nav-risk",
             popover: {
-              title: "Auto-detected security gaps",
+              title: "Steps 4 — Risk & Security",
               description:
-                "Every night we scan your data and flag issues: open critical vulnerabilities, stale vendor reviews, no recent pen test. They show up here as <b>Risks</b> and <b>Incidents</b> — no manual hunting needed.",
+                "Manage your <b>Risk Register</b>, track <b>Incidents</b>, log <b>Vulnerabilities</b>, and record <b>Pen Tests</b>. TraceLayer flags gaps automatically so you don't have to hunt for them manually.",
               side: "right",
               align: "start",
+            },
+          },
+          {
+            popover: {
+              title: "Operations, People & Privacy",
+              description:
+                "Steps 5–7 cover your full compliance surface: <b>Asset Inventory</b>, <b>Device Monitoring</b>, <b>Access Reviews</b>, <b>Vendor Risk</b>, <b>Training</b>, <b>Offboarding</b>, <b>Data Flows</b>, <b>RoPA</b>, and <b>Subject Requests</b> — everything auditors look for.",
+              side: "over",
+            },
+          },
+          {
+            popover: {
+              title: "Step 8 — AI Governance",
+              description:
+                "If you use AI models in your product, complete the <b>AI Questionnaire</b>, generate an <b>AI Audit Package</b>, and monitor your AI agents — all in one place.",
+              side: "over",
             },
           },
           {
             element: "#tour-nav-reporting",
             popover: {
-              title: "Share proof with the world",
+              title: "Audit & Reports",
               description:
-                "Generate a <b>PDF audit report</b> covering all your evidence when you're ready for SOC 2. Or share your <b>public Trust Page</b> — a live security posture link you send to enterprise customers who ask 'are you SOC 2 compliant?'",
+                "Generate <b>PDF compliance reports</b> for any framework when you're ready for an audit. Run <b>Management Reviews</b>, and share access with your auditor via the <b>Auditor Portal</b> — no email chains needed.",
               side: "right",
               align: "start",
             },
           },
           {
             popover: {
-              title: "You're set — start here",
+              title: "You're all set — start here",
               description:
-                "Connect your first integration in <b>Integrations</b>. It takes 2 minutes and immediately populates your evidence and compliance score.",
+                "Go to <b>Integrations</b> under Scope & Setup and connect your first tool. It takes 2 minutes and immediately populates your evidence library and compliance score.",
               side: "over",
             },
           },

@@ -19,6 +19,11 @@ import {
   Sparkles,
   Users,
   Mail,
+  HeartPulse,
+  BookOpen,
+  Cpu,
+  FileCheck,
+  Scale,
 } from "lucide-react";
 
 // ── Frameworks ────────────────────────────────────────────────────────────────
@@ -40,6 +45,14 @@ const FRAMEWORKS = [
     popular: false,
   },
   {
+    id: "hipaa",
+    label: "HIPAA",
+    description: "US healthcare data privacy and security requirements",
+    icon: HeartPulse,
+    color: "from-rose-500 to-rose-600",
+    popular: false,
+  },
+  {
     id: "gdpr",
     label: "GDPR",
     description: "EU data protection and privacy regulation",
@@ -52,7 +65,39 @@ const FRAMEWORKS = [
     label: "PCI DSS",
     description: "Payment card industry data security standards",
     icon: CreditCard,
-    color: "from-rose-500 to-rose-600",
+    color: "from-amber-500 to-amber-600",
+    popular: false,
+  },
+  {
+    id: "ccpa",
+    label: "CCPA",
+    description: "California Consumer Privacy Act for data rights",
+    icon: Scale,
+    color: "from-sky-500 to-sky-600",
+    popular: false,
+  },
+  {
+    id: "nist_csf",
+    label: "NIST CSF",
+    description: "NIST Cybersecurity Framework for risk management",
+    icon: FileCheck,
+    color: "from-indigo-500 to-indigo-600",
+    popular: false,
+  },
+  {
+    id: "dpdp",
+    label: "DPDP Act",
+    description: "India's Digital Personal Data Protection Act",
+    icon: BookOpen,
+    color: "from-orange-500 to-orange-600",
+    popular: false,
+  },
+  {
+    id: "cert_in",
+    label: "CERT-In",
+    description: "India's CERT cybersecurity incident reporting rules",
+    icon: Cpu,
+    color: "from-teal-500 to-teal-600",
     popular: false,
   },
 ];
@@ -247,7 +292,6 @@ export default function OnboardingPage() {
       setConnectedTypes((p) => [...p, def.type]);
       setConnectingType(null);
       setConnectFields({});
-      // Auto-advance to next step after a short success pause
       setTimeout(() => setStep(3), 1200);
     } catch (err: unknown) {
       setConnectError(err instanceof Error ? err.message : "Connection failed");
@@ -326,15 +370,19 @@ export default function OnboardingPage() {
                 Under 2 minutes. You can skip any step.
               </p>
 
-              <div className="grid grid-cols-3 gap-3 mb-10">
+              <div className="grid grid-cols-2 gap-3 mb-10">
                 {[
-                  { icon: Shield, label: "Pick your framework" },
-                  { icon: Plug, label: "Connect tools" },
-                  { icon: Users, label: "Invite your team" },
-                ].map(({ icon: Icon, label }) => (
-                  <div key={label} className="bg-white/5 rounded-2xl p-4 flex flex-col items-center gap-2.5 border border-white/8">
+                  { icon: Shield, label: "Pick your framework", sub: "SOC 2, ISO 27001, GDPR & more" },
+                  { icon: Plug, label: "Connect your tools", sub: "GitHub, AWS, Slack & more" },
+                  { icon: Users, label: "Invite your team", sub: "Collaborate on controls" },
+                  { icon: Sparkles, label: "AI compliance advisor", sub: "Ask anything, get guidance" },
+                ].map(({ icon: Icon, label, sub }) => (
+                  <div key={label} className="bg-white/5 rounded-2xl p-4 flex flex-col items-start gap-2 border border-white/8">
                     <Icon className="w-5 h-5 text-brand-300" />
-                    <span className="text-xs text-brand-200/80 font-medium text-center leading-tight">{label}</span>
+                    <div>
+                      <p className="text-xs text-white font-semibold leading-tight">{label}</p>
+                      <p className="text-[11px] text-white/40 mt-0.5 leading-tight">{sub}</p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -371,10 +419,10 @@ export default function OnboardingPage() {
             <div>
               <div className="text-center mb-7">
                 <h2 className="text-2xl font-bold text-white mb-2">Choose your framework</h2>
-                <p className="text-white/50 text-sm">Select one or more. You can add more frameworks later.</p>
+                <p className="text-white/50 text-sm">Select one or more. You can add more frameworks later in Settings.</p>
               </div>
 
-              <div className="space-y-2.5 mb-7">
+              <div className="space-y-2 mb-7 max-h-[420px] overflow-y-auto pr-1">
                 {FRAMEWORKS.map((fw) => {
                   const selected = frameworks.includes(fw.id);
                   return (
@@ -428,7 +476,7 @@ export default function OnboardingPage() {
             <div>
               <div className="text-center mb-7">
                 <h2 className="text-2xl font-bold text-white mb-2">Connect your first tool</h2>
-                <p className="text-white/50 text-sm">TraceLayer collects evidence automatically. You can connect more from Settings later.</p>
+                <p className="text-white/50 text-sm">TraceLayer collects evidence automatically. You can connect more from Integrations later.</p>
               </div>
 
               {connectingDef ? (
