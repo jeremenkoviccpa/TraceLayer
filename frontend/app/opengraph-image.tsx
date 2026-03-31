@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "TraceLayer — Automated Compliance for Startups";
+export const alt = "TraceLayer — Stop chasing compliance. Let it run itself.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -10,34 +10,33 @@ export default function Image() {
     (
       <div
         style={{
-          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%)",
+          background: "#f7f3ed",
           width: "100%",
           height: "100%",
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-start",
           justifyContent: "center",
-          padding: "80px 88px",
+          padding: "80px 96px",
           fontFamily: "system-ui, -apple-system, sans-serif",
         }}
       >
         {/* Logo row */}
-        <div style={{ display: "flex", alignItems: "center", gap: "18px", marginBottom: "52px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "48px" }}>
           <div
             style={{
-              width: "60px",
-              height: "60px",
-              borderRadius: "14px",
+              width: "40px",
+              height: "40px",
+              borderRadius: "10px",
               background: "linear-gradient(135deg, #0d9488, #14b8a6)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 4px 24px rgba(13,148,136,0.4)",
             }}
           >
-            <span style={{ color: "white", fontSize: "30px", fontWeight: "800" }}>T</span>
+            <span style={{ color: "white", fontSize: "22px", fontWeight: "800" }}>T</span>
           </div>
-          <span style={{ color: "white", fontSize: "34px", fontWeight: "700", letterSpacing: "-0.5px" }}>
+          <span style={{ color: "#0f172a", fontSize: "26px", fontWeight: "700", letterSpacing: "-0.3px" }}>
             TraceLayer
           </span>
         </div>
@@ -45,39 +44,59 @@ export default function Image() {
         {/* Headline */}
         <div
           style={{
-            color: "white",
-            fontSize: "64px",
+            color: "#0f172a",
+            fontSize: "72px",
             fontWeight: "800",
             lineHeight: "1.05",
-            marginBottom: "28px",
-            maxWidth: "920px",
-            letterSpacing: "-1.5px",
+            marginBottom: "0px",
+            letterSpacing: "-2px",
           }}
         >
-          Automated Compliance for Startups
+          Stop chasing compliance.
+        </div>
+        <div
+          style={{
+            color: "#0d9488",
+            fontSize: "72px",
+            fontWeight: "800",
+            lineHeight: "1.05",
+            marginBottom: "32px",
+            letterSpacing: "-2px",
+          }}
+        >
+          Let it run itself.
         </div>
 
         {/* Subheading */}
-        <div style={{ color: "#94a3b8", fontSize: "26px", fontWeight: "400", marginBottom: "52px", maxWidth: "820px" }}>
-          Continuously collect evidence for SOC 2, ISO 27001, HIPAA, GDPR & PCI DSS — across 18+ integrations.
+        <div
+          style={{
+            color: "#475569",
+            fontSize: "24px",
+            fontWeight: "400",
+            marginBottom: "48px",
+            maxWidth: "860px",
+            lineHeight: "1.5",
+          }}
+        >
+          Connect your tools once — evidence collects across SOC 2, ISO 27001, DPDP Act, CERT-In & 5 more frameworks.
         </div>
 
-        {/* Framework pills */}
-        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-          {["SOC 2", "ISO 27001", "HIPAA", "GDPR", "PCI DSS"].map((fw) => (
+        {/* Pills */}
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          {["Seed & Series A/B CTOs", "Indian startups & SaaS", "DPDP Act compliance", "No $20K Vanta quotes"].map((label) => (
             <div
-              key={fw}
+              key={label}
               style={{
-                background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: "8px",
+                background: "rgba(13,148,136,0.08)",
+                border: "1px solid rgba(13,148,136,0.25)",
+                borderRadius: "100px",
                 padding: "8px 18px",
-                color: "#e2e8f0",
-                fontSize: "18px",
+                color: "#0f766e",
+                fontSize: "17px",
                 fontWeight: "600",
               }}
             >
-              {fw}
+              {label}
             </div>
           ))}
         </div>
