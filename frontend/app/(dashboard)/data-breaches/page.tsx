@@ -160,6 +160,13 @@ export default function DataBreachesPage() {
     hoursElapsed(b.discovered_at) > 72
   );
 
+  const poverenik72hOverdue = breaches.filter((b) =>
+    b.notification_required &&
+    !b.poverenik_notified_at &&
+    b.discovered_at &&
+    hoursElapsed(b.discovered_at) > 72
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -177,6 +184,15 @@ export default function DataBreachesPage() {
           <AlertOctagon className="w-4 h-4 shrink-0" />
           <span>
             ⚠ {overdueBreaches.length} breach{overdueBreaches.length > 1 ? "es" : ""} past 72-hour DPA / DPBI notification deadline
+          </span>
+        </div>
+      )}
+
+      {poverenik72hOverdue.length > 0 && (
+        <div className="flex items-center gap-3 bg-blue-700 text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-sm">
+          <AlertOctagon className="w-4 h-4 shrink-0" />
+          <span>
+            🇷🇸 {poverenik72hOverdue.length} breach{poverenik72hOverdue.length > 1 ? "es" : ""} past 72-hour Poverenik notification deadline (Art. 53 LPDP) — notify the Commissioner and log the reference
           </span>
         </div>
       )}

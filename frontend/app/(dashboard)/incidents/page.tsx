@@ -95,6 +95,12 @@ export default function IncidentsPage() {
     Math.floor((Date.now() - new Date(i.detected_at).getTime()) / 3600000) > 6
   );
 
+  const nis2Overdue = open.filter(i =>
+    i.detected_at &&
+    !i.nis2_early_warning_at &&
+    Math.floor((Date.now() - new Date(i.detected_at).getTime()) / 3600000) > 24
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
@@ -193,6 +199,15 @@ export default function IncidentsPage() {
           <AlertOctagon className="w-4 h-4 shrink-0" />
           <span>
             🇮🇳 {certinOverdue.length} incident{certinOverdue.length > 1 ? "s" : ""} past CERT-In 6-hour reporting deadline (Dir. 1) — log your CERT-In report reference in each incident
+          </span>
+        </div>
+      )}
+
+      {nis2Overdue.length > 0 && (
+        <div className="flex items-center gap-3 bg-indigo-700 text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-sm">
+          <AlertOctagon className="w-4 h-4 shrink-0" />
+          <span>
+            🇪🇺 {nis2Overdue.length} incident{nis2Overdue.length > 1 ? "s" : ""} past NIS2 24-hour early warning deadline (Art. 23) — file early warning with national CSIRT and log the timestamp
           </span>
         </div>
       )}

@@ -595,7 +595,7 @@ const FEATURES = [
   {
     icon: RefreshCw,
     title: "AI framework version monitor",
-    desc: "TraceLayer monitors official regulation sources weekly. When any of the 9 frameworks updates — including DPDP Act and CERT-In — AI extracts the changed controls and queues them for your review — so you're never caught off guard.",
+    desc: "TraceLayer monitors official regulation sources weekly. When any of the 11 frameworks updates — including DPDP Act, CERT-In, Serbian LPDP, and NIS2 — AI extracts the changed controls and queues them for your review — so you're never caught off guard.",
   },
   {
     icon: Sparkles,
@@ -697,7 +697,7 @@ const FAQ = [
   },
   {
     q: "Which compliance frameworks are supported?",
-    a: "SOC 2 Type I & II, ISO 27001 (2022), HIPAA, GDPR, PCI DSS v4.0, CCPA, NIST CSF 2.0, DPDP Act 2023, and CERT-In Directions 2022. The same evidence you collect maps to all nine at once — connect your tools once and switch between framework views without doing any extra work.",
+    a: "SOC 2 Type I & II, ISO 27001 (2022), HIPAA, GDPR, PCI DSS v4.0, CCPA, NIST CSF 2.0, DPDP Act 2023, CERT-In Directions 2022, Serbian LPDP 2018, and NIS2 Directive 2022. The same evidence you collect maps to all eleven at once — connect your tools once and switch between framework views without doing any extra work.",
   },
   {
     q: "Does TraceLayer support DPDP Act and CERT-In compliance for Indian companies?",
@@ -729,7 +729,7 @@ const FAQ = [
   },
   {
     q: "Is there really a free plan?",
-    a: "Yes — no credit card, no time limit. The free plan includes SOC 2, automated evidence collection, risk register, policy templates, training tracker, vendor hub, and JSON reports for up to 3 integrations and 3 team members. Upgrade to Growth ($149/mo) for all 9 frameworks incl. DPDP Act & CERT-In, PDF reports, AI features, and Trust Center.",
+    a: "Yes — no credit card, no time limit. The free plan includes SOC 2, automated evidence collection, risk register, policy templates, training tracker, vendor hub, and JSON reports for up to 3 integrations and 3 team members. Upgrade to Growth ($149/mo) for all 11 frameworks incl. DPDP Act, CERT-In, Serbian LPDP & NIS2, PDF reports, AI features, and Trust Center.",
   },
   {
     q: "What does the AI actually do?",
@@ -1141,7 +1141,7 @@ export default function LandingPage() {
             </span>
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-              SOC 2 free — upgrade for all 9 frameworks incl. DPDP Act & CERT-In
+              SOC 2 free — upgrade for all 11 frameworks incl. DPDP Act, CERT-In, Serbian LPDP & NIS2
             </span>
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -1470,8 +1470,8 @@ export default function LandingPage() {
                 bg: "bg-amber-900/20 border-amber-700/20",
                 title: "Framework Monitor",
                 subtitle: "Weekly, automated",
-                desc: "AI monitors official sources for SOC 2, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, NIST CSF, DPDP Act, and CERT-In every week. When a framework updates, AI extracts the changed controls, summarizes what changed, and queues a review — so you're always on the latest version.",
-                bullets: ["Monitors 9 regulatory sources", "AI-extracts control changes", "Human review before applying"],
+                desc: "AI monitors official sources for SOC 2, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, NIST CSF, DPDP Act, CERT-In, Serbian LPDP, and NIS2 every week. When a framework updates, AI extracts the changed controls, summarizes what changed, and queues a review — so you're always on the latest version.",
+                bullets: ["Monitors 11 regulatory sources", "AI-extracts control changes", "Human review before applying"],
               },
             ].map((engine, i) => (
               <div
@@ -1935,9 +1935,9 @@ export default function LandingPage() {
       <section className="max-w-6xl mx-auto px-6 py-14 md:py-22">
         <div data-animate className="text-center mb-10 md:mb-14">
           <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Frameworks</p>
-          <h2 className="text-2xl md:text-4xl font-extrabold">Nine frameworks, one platform</h2>
+          <h2 className="text-2xl md:text-4xl font-extrabold">Eleven frameworks, one platform</h2>
           <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto leading-relaxed">
-            Connect your tools once and your evidence maps to every framework simultaneously — SOC 2, ISO 27001, DPDP Act, CERT-In, GDPR, HIPAA, PCI DSS, CCPA, NIST CSF. Switch views without reconnecting anything.
+            Connect your tools once and your evidence maps to every framework simultaneously — SOC 2, ISO 27001, DPDP Act, CERT-In, Serbian LPDP, NIS2, GDPR, HIPAA, PCI DSS, CCPA, NIST CSF. Switch views without reconnecting anything.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -2021,7 +2021,7 @@ export default function LandingPage() {
               Start free. Upgrade when you&apos;re ready.
             </h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-xl mx-auto leading-relaxed">
-              Built for seed, Series A, and Series B startups — not enterprises with six-figure compliance budgets. Start free, upgrade when you need AI, PDF reports, and all 9 frameworks including DPDP Act and CERT-In. $149/mo is literally one hour with a compliance consultant.
+              Built for seed, Series A, and Series B startups — not enterprises with six-figure compliance budgets. Start free, upgrade when you need AI, PDF reports, and all 11 frameworks including DPDP Act, CERT-In, Serbian LPDP, and NIS2. $149/mo is literally one hour with a compliance consultant.
             </p>
           </div>
 
@@ -2082,11 +2082,11 @@ export default function LandingPage() {
               <div className="inline-flex items-center gap-1.5 bg-teal-500/15 text-teal-300 text-[10px] font-semibold px-2.5 py-1 rounded-full mb-3 border border-teal-500/20">
                 <TrendingUp className="w-3 h-3" /> ≈ 30 min with a $300/hr consultant
               </div>
-              <p className="text-xs mb-6 leading-relaxed text-white/45">AI features, PDF reports, all 9 frameworks incl. DPDP Act & CERT-In, Trust Center, unlimited integrations and team members.</p>
+              <p className="text-xs mb-6 leading-relaxed text-white/45">AI features, PDF reports, all 11 frameworks incl. DPDP Act, CERT-In, Serbian LPDP & NIS2, Trust Center, unlimited integrations and team members.</p>
               <div className="space-y-2.5 mb-7 flex-1">
                 {[
                   "Unlimited integrations (120+)",
-                  "All 9 frameworks (incl. GDPR, DPDP Act, CERT-In, PCI DSS, NIST CSF)",
+                  "All 11 frameworks (incl. GDPR, DPDP Act, CERT-In, Serbian LPDP, NIS2, PCI DSS, NIST CSF)",
                   "PDF & CSV audit reports",
                   "AI Compliance Advisor",
                   "AI Questionnaire Autofill (17 data sources)",
