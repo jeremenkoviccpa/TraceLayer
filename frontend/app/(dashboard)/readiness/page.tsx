@@ -117,35 +117,41 @@ export default function ReadinessPage() {
 
         <div className="relative">
           {/* Header row */}
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center shrink-0">
-                <Target className="w-5 h-5 text-teal-400"/>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white leading-tight">Readiness Timeline</h1>
-                <p className="text-sm text-slate-400">See how ready you are for certification.</p>
-              </div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center shrink-0">
+              <Target className="w-5 h-5 text-teal-400"/>
             </div>
-            {/* Framework selector */}
-            <div className="flex flex-wrap gap-1.5 justify-start sm:justify-end">
-              {FRAMEWORKS.map((fw) => {
-                const locked = !isPro && fw.id !== "soc2";
-                return (
-                  <button key={fw.id} onClick={() => locked ? triggerUpgrade() : setFramework(fw.id)}
-                    className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-                      framework === fw.id
-                        ? "bg-teal-500 text-white shadow-sm"
-                        : locked
-                        ? "bg-amber-500/15 text-amber-300 hover:bg-amber-500/25"
-                        : "bg-white/10 text-slate-300 hover:bg-white/20"
-                    }`}>
-                    {locked && <Lock className="w-2.5 h-2.5 shrink-0" />}
-                    {fw.label}
-                  </button>
-                );
-              })}
+            <div>
+              <h1 className="text-xl font-bold text-white leading-tight">Readiness Timeline</h1>
+              <p className="text-sm text-slate-400">See how ready you are for certification.</p>
             </div>
+          </div>
+
+          {/* Framework selector — single scrollable row */}
+          <div
+            className="flex gap-1.5 overflow-x-auto mb-6 pb-0.5"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {FRAMEWORKS.map((fw) => {
+              const locked = !isPro && fw.id !== "soc2";
+              const active = framework === fw.id;
+              return (
+                <button
+                  key={fw.id}
+                  onClick={() => locked ? triggerUpgrade() : setFramework(fw.id)}
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
+                    active
+                      ? "bg-teal-500 text-white shadow-md shadow-teal-500/30"
+                      : locked
+                      ? "bg-amber-500/15 text-amber-300 border border-amber-500/20 hover:bg-amber-500/25"
+                      : "bg-white/8 text-slate-400 border border-white/10 hover:bg-white/15 hover:text-white"
+                  }`}
+                >
+                  {locked && <Lock className="w-2.5 h-2.5 shrink-0" />}
+                  {fw.label}
+                </button>
+              );
+            })}
           </div>
 
           {/* SOC 2 Type selector */}
