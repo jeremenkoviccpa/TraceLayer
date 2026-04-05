@@ -661,17 +661,17 @@ const HOW_IT_WORKS = [
   {
     step: "01",
     title: "Connect your tools",
-    desc: "Paste an API key and evidence starts flowing immediately. No agents, no code, no week-long setup. Most teams are collecting evidence within 5 minutes — you can even simulate any integration first to preview your score before touching a credential.",
+    desc: "Paste an API key and evidence starts flowing. No agents, no code, no setup calls. Most teams are live in under 5 minutes.",
   },
   {
     step: "02",
     title: "We watch it for you",
-    desc: "Three AI engines run quietly in the background. They collect evidence every 24 hours, alert you the moment a control breaks, and track regulation changes before they catch you off guard.",
+    desc: "Evidence collects every 24 hours. Alerts fire the moment a control breaks. Regulation changes get flagged before they catch you off guard.",
   },
   {
     step: "03",
     title: "Share it with your auditor",
-    desc: "Your readiness score updates automatically. When you're ready, generate a complete audit PDF in one click and share a read-only link straight to your auditor. That's it.",
+    desc: "One click generates a complete audit PDF. Share a read-only link straight to your auditor. That's it.",
   },
 ];
 
