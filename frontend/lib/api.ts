@@ -238,6 +238,10 @@ class ApiClient {
     return this.request<Report>("POST", "/reports/audit-package", { framework });
   }
 
+  async generateSpecializedReport(reportType: string): Promise<Report> {
+    return this.request<Report>("POST", "/reports/specialized", { report_type: reportType });
+  }
+
   // ── Org ─────────────────────────────────────────────────────────────────
 
   async getMembers(): Promise<Member[]> {

@@ -67,6 +67,62 @@ class AuditPackageRequest(BaseModel):
     framework: str = "soc2"
 
 
+class SpecializedReportRequest(BaseModel):
+    report_type: str  # breach_notification | certin_incident | nis2_incident | dsar_log | management_review | vendor_risk | training_completion | access_review
+
+
+SPECIALIZED_REPORT_TYPES = {
+    "breach_notification", "certin_incident", "nis2_incident", "dsar_log",
+    "management_review", "vendor_risk", "training_completion", "access_review",
+}
+
+
+async def _run_specialized_generation(
+    report_id: uuid.UUID,
+    company_id: uuid.UUID,
+    report_type: str,
+) -> None:
+    from core.database import AsyncSessionLocal
+    from services.specialized_reports_service import generate_specialized_report
+    try:
+        async with AsyncSessionLocal() as db:
+            await generate_specialized_report(report_id, company_id, report_type, db)
+    except Exception:
+        logger.exception("Specialized report generation failed: report_id=%s type=%s", report_id, report_type)
+
+
+@router.post("/specialized", response_model=ReportResponse, status_code=202)
+async def generate_specialized_report_endpoint(
+    body: SpecializedReportRequest,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_growth),
+):
+    """Generate a specialized operational compliance report (PDF)."""
+    if body.report_type not in SPECIALIZED_REPORT_TYPES:
+        raise HTTPException(status_code=422, detail=f"Unknown report_type. Must be one of: {', '.join(sorted(SPECIALIZED_REPORT_TYPES))}")
+
+    from services.specialized_reports_service import REPORT_META
+    meta = REPORT_META[body.report_type]
+
+    report = await create_report(
+        company_id=current_user.company_id,
+        framework=meta["framework"],
+        report_type=body.report_type,
+        fmt="pdf",
+        db=db,
+    )
+    background_tasks.add_task(_run_specialized_generation, report.id, current_user.company_id, body.report_type)
+    await log_action(
+        db, current_user.company_id, "report.specialized_generated",
+        user_id=current_user.id, user_email=current_user.email,
+        resource_type="report", resource_id=str(report.id),
+        metadata={"report_type": body.report_type},
+    )
+    return report
+
+
 @router.post("/generate", response_model=ReportResponse, status_code=202)
 async def generate(
     body: GenerateReportRequest,

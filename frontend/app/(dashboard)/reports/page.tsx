@@ -16,6 +16,14 @@ import {
   CalendarDays,
   Lock,
   Braces,
+  ShieldAlert,
+  AlertTriangle,
+  Users,
+  BookOpen,
+  Building2,
+  UserCheck,
+  Globe,
+  MessageSquareWarning,
 } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
 
@@ -82,6 +90,81 @@ function defaultAccent() {
     badge: "bg-emerald-50 text-emerald-700 border-emerald-200",
   };
 }
+
+const SPECIALIZED_REPORTS = [
+  {
+    type: "breach_notification",
+    label: "Data Breach Notification",
+    desc: "All breaches with DPA, Poverenik, and DPBI notification timestamps and reference numbers.",
+    icon: ShieldAlert,
+    color: "text-red-600 bg-red-50 border-red-100",
+    bar: "bg-red-500",
+    frameworks: "GDPR · LPDP · DPDP",
+  },
+  {
+    type: "certin_incident",
+    label: "CERT-In 6-Hour Incident Report",
+    desc: "Incident log with CERT-In reporting timestamps and SLA compliance (6-hour window).",
+    icon: AlertTriangle,
+    color: "text-orange-600 bg-orange-50 border-orange-100",
+    bar: "bg-orange-500",
+    frameworks: "CERT-In",
+  },
+  {
+    type: "nis2_incident",
+    label: "NIS2 CSIRT Incident Report",
+    desc: "3-stage NIS2 reporting log: 24h early warning, 72h notification, 1-month final report.",
+    icon: Globe,
+    color: "text-indigo-600 bg-indigo-50 border-indigo-100",
+    bar: "bg-indigo-500",
+    frameworks: "NIS2 Directive",
+  },
+  {
+    type: "dsar_log",
+    label: "DSAR Response Log",
+    desc: "Data subject requests log with regulation, SLA compliance, and completion status.",
+    icon: MessageSquareWarning,
+    color: "text-violet-600 bg-violet-50 border-violet-100",
+    bar: "bg-violet-500",
+    frameworks: "GDPR · LPDP · DPDP · CCPA",
+  },
+  {
+    type: "management_review",
+    label: "Management Review Summary",
+    desc: "All management reviews with attendees, decisions, action items, and outcomes.",
+    icon: Building2,
+    color: "text-slate-600 bg-slate-50 border-slate-100",
+    bar: "bg-slate-500",
+    frameworks: "SOC 2 · ISO 27001",
+  },
+  {
+    type: "vendor_risk",
+    label: "Vendor Risk Report",
+    desc: "Full vendor inventory with risk levels, certifications, and review dates.",
+    icon: BookOpen,
+    color: "text-amber-600 bg-amber-50 border-amber-100",
+    bar: "bg-amber-500",
+    frameworks: "SOC 2 · ISO 27001 · NIS2",
+  },
+  {
+    type: "training_completion",
+    label: "Training Completion Report",
+    desc: "Per-employee security training status, quiz scores, and completion rates.",
+    icon: Users,
+    color: "text-teal-600 bg-teal-50 border-teal-100",
+    bar: "bg-teal-500",
+    frameworks: "SOC 2 · HIPAA · NIS2",
+  },
+  {
+    type: "access_review",
+    label: "Access Review Report",
+    desc: "Access reviews by period with users reviewed, access changes, and findings.",
+    icon: UserCheck,
+    color: "text-blue-600 bg-blue-50 border-blue-100",
+    bar: "bg-blue-500",
+    frameworks: "SOC 2 · ISO 27001",
+  },
+] as const;
 
 // ── Report card ─────────────────────────────────────────────────
 
@@ -245,6 +328,22 @@ export default function ReportsPage() {
       showToast(err instanceof Error ? err.message : "Failed to generate report");
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const [generatingSpecialized, setGeneratingSpecialized] = useState<string | null>(null);
+
+  const handleSpecialized = async (reportType: string) => {
+    if (!isPro) { handlePdfUpgrade(); return; }
+    setGeneratingSpecialized(reportType);
+    try {
+      await api.generateSpecializedReport(reportType);
+      await load();
+      showToast("Report generation started");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Failed to generate report");
+    } finally {
+      setGeneratingSpecialized(null);
     }
   };
 
@@ -415,6 +514,64 @@ export default function ReportsPage() {
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* ── Specialized Reports ── */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h2 className="text-sm font-bold text-gray-900">Specialized Reports</h2>
+            <p className="text-xs text-gray-400 mt-0.5">Regulatory-specific PDFs — breach notifications, incident logs, DSAR records, vendor risk, and more.</p>
+          </div>
+          {!isPro && (
+            <span className="inline-flex items-center gap-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg shadow-sm">
+              <Lock className="w-3 h-3" /> Growth Plan
+            </span>
+          )}
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {SPECIALIZED_REPORTS.map((r) => {
+            const Icon = r.icon;
+            const isGenerating = generatingSpecialized === r.type;
+            return (
+              <div key={r.type} className={`bg-white rounded-2xl border ${r.color} overflow-hidden flex hover:shadow-md transition-shadow duration-200`}>
+                <div className={`w-1.5 shrink-0 ${r.bar}`} />
+                <div className="flex-1 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${r.color} border`}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 leading-snug">{r.label}</p>
+                        <p className="text-xs text-gray-400 mt-0.5 leading-snug">{r.desc}</p>
+                        <span className="inline-block mt-1.5 text-[10px] font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md">{r.frameworks}</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleSpecialized(r.type)}
+                      disabled={isGenerating}
+                      className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors disabled:opacity-50 ${
+                        isPro
+                          ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm"
+                          : "bg-amber-500/10 text-amber-700 border border-amber-200 hover:bg-amber-500/20"
+                      }`}
+                    >
+                      {isGenerating ? (
+                        <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      ) : isPro ? (
+                        <Plus className="w-3.5 h-3.5" />
+                      ) : (
+                        <Lock className="w-3.5 h-3.5" />
+                      )}
+                      {isGenerating ? "Generating…" : "Generate PDF"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
