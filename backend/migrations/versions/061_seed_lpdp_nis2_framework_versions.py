@@ -16,14 +16,14 @@ def upgrade() -> None:
     # Serbian LPDP — framework version
     op.execute("""
         INSERT INTO framework_versions (id, framework_key, version, display_name, is_current, published_at)
-        SELECT gen_random_uuid(), 'lpdp', '2018', 'Serbian LPDP 2018', TRUE, '2018-11-09'
+        SELECT gen_random_uuid(), 'lpdp', '2018', 'Serbian LPDP 2018', TRUE, '2018-11-09'::date
         WHERE NOT EXISTS (SELECT 1 FROM framework_versions WHERE framework_key = 'lpdp')
     """)
 
     # NIS2 — framework version
     op.execute("""
         INSERT INTO framework_versions (id, framework_key, version, display_name, is_current, published_at)
-        SELECT gen_random_uuid(), 'nis2', '2022', 'NIS2 Directive 2022', TRUE, '2022-12-27'
+        SELECT gen_random_uuid(), 'nis2', '2022', 'NIS2 Directive 2022', TRUE, '2022-12-27'::date
         WHERE NOT EXISTS (SELECT 1 FROM framework_versions WHERE framework_key = 'nis2')
     """)
 
@@ -37,12 +37,12 @@ def upgrade() -> None:
         WHERE NOT EXISTS (SELECT 1 FROM framework_source_manifests WHERE framework_key = 'lpdp')
     """)
 
-    # NIS2 — source manifest
+    # NIS2 — source manifest (ELI canonical URL avoids '?' parameter-placeholder ambiguity)
     op.execute("""
         INSERT INTO framework_source_manifests (id, framework_key, source_url, current_version)
         SELECT gen_random_uuid(),
                'nis2',
-               'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2555',
+               'https://eur-lex.europa.eu/eli/dir/2022/2555/oj',
                '2022'
         WHERE NOT EXISTS (SELECT 1 FROM framework_source_manifests WHERE framework_key = 'nis2')
     """)
