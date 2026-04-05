@@ -8,6 +8,7 @@ import uuid
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 revision = "060_seed_lpdp_nis2_controls"
 down_revision = "059_add_tool_leads"
@@ -250,7 +251,7 @@ NIS2_CONTROLS = [
 def upgrade() -> None:
     controls_table = sa.table(
         "controls",
-        sa.column("id", sa.String),
+        sa.column("id", postgresql.UUID(as_uuid=True)),
         sa.column("name", sa.String),
         sa.column("framework", sa.String),
         sa.column("category", sa.String),
@@ -266,7 +267,7 @@ def upgrade() -> None:
     }
     to_insert = [
         {
-            "id": str(ctrl["id"]),
+            "id": ctrl["id"],  # uuid.UUID object — matches column type
             "name": ctrl["name"],
             "framework": ctrl["framework"],
             "category": ctrl["category"],
