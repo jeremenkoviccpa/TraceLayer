@@ -6,10 +6,13 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from fastapi import APIRouter
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends
+from pydantic import BaseModel, EmailStr
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.database import get_db
 from integrations.simulation_meta import DATA_CATEGORY_META, SIMULATION_META
+from models.tool_lead import ToolLead
 from services.compliance_service import EXPECTED_TYPES, _compute_score
 
 router = APIRouter(prefix="/public", tags=["public"])
@@ -25,6 +28,20 @@ CONTROL_LABELS = {
     "audit_controls": "Audit Controls",
     "workforce_security": "Workforce Security",
 }
+
+
+class ToolLeadRequest(BaseModel):
+    email: EmailStr
+    tool: str
+
+
+@router.post("/capture-lead", status_code=201)
+async def capture_lead(body: ToolLeadRequest, db: AsyncSession = Depends(get_db)) -> dict:
+    """Store a free tool lead email in the database."""
+    lead = ToolLead(email=body.email.lower().strip(), tool=body.tool)
+    db.add(lead)
+    await db.commit()
+    return {"ok": True}
 
 
 class StackSimulateRequest(BaseModel):

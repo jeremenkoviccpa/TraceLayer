@@ -99,6 +99,16 @@ export async function POST(req: NextRequest) {
     const normalizedEmail = email.toLowerCase().trim();
     const toolName = tool ?? "unknown";
 
+    // Save to our own DB
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
+    if (backendUrl) {
+      await fetch(`${backendUrl}/v1/public/capture-lead`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: normalizedEmail, tool: toolName }),
+      }).catch(() => {}); // fire-and-forget, never block the user
+    }
+
     // Add to Woodpecker
     if (WOODPECKER_API_KEY) {
       await fetch(`https://api.woodpecker.co/rest/v1/add_prospects_list?api_key=${WOODPECKER_API_KEY}`, {

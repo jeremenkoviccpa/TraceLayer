@@ -975,6 +975,7 @@ class ApiClient {
   async superAdminCreatePartnerEntry(data: Omit<PartnerDirectoryEntry, "id"> & { is_active?: boolean }): Promise<PartnerDirectoryEntry> { return this.request("POST", "/super-admin/partner-directory", data); }
   async superAdminPatchPartnerEntry(id: string, data: Partial<Omit<PartnerDirectoryEntry, "id"> & { is_active: boolean }>): Promise<PartnerDirectoryEntry> { return this.request("PATCH", `/super-admin/partner-directory/${id}`, data); }
   async superAdminDeletePartnerEntry(id: string): Promise<void> { return this.request("DELETE", `/super-admin/partner-directory/${id}`); }
+  async superAdminListToolLeads(): Promise<{ id: string; email: string; tool: string; created_at: string }[]> { return this.request("GET", "/super-admin/tool-leads"); }
 
   // ── Evidence Export ───────────────────────────────────────────────────────
   async exportEvidenceCsv(params?: { control?: string; integration?: string }): Promise<void> {

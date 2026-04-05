@@ -22,6 +22,7 @@ from models.company import Company
 from models.evidence import Evidence
 from models.integration import Integration
 from models.partner_directory import PartnerDirectoryEntry
+from models.tool_lead import ToolLead
 from models.user import User
 from schemas.partner_directory import PartnerDirectoryEntryResponse
 from services import audit_service
@@ -411,6 +412,27 @@ async def delete_partner_entry(
     await db.delete(entry)
     await db.commit()
     return Response(status_code=204)
+
+
+# ── Tool leads ────────────────────────────────────────────────────────────────
+
+class ToolLeadRow(BaseModel):
+    id: str
+    email: str
+    tool: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+@router.get("/tool-leads", response_model=list[ToolLeadRow])
+async def list_tool_leads(
+    _: User = Depends(require_super_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(ToolLead).order_by(ToolLead.created_at.desc()).limit(500))
+    return result.scalars().all()
 
 
 # ── Demo seed ─────────────────────────────────────────────────────────────────

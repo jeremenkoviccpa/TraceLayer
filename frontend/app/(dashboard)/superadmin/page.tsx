@@ -84,6 +84,9 @@ export default function SuperAdminPage() {
   const [userMenuOpen, setUserMenuOpen] = useState<string | null>(null);
   const [seeding, setSeeding] = useState<string | null>(null);
 
+  // Tool leads state
+  const [toolLeads, setToolLeads] = useState<{ id: string; email: string; tool: string; created_at: string }[]>([]);
+
   // Partner directory state
   const [partnerEntries, setPartnerEntries] = useState<PartnerDirectoryEntry[]>([]);
   const [partnerTab, setPartnerTab] = useState<"auditor" | "pen_test">("auditor");
@@ -99,6 +102,9 @@ export default function SuperAdminPage() {
       .finally(() => setLoading(false));
     api.superAdminListPartnerDirectory()
       .then(setPartnerEntries)
+      .catch(() => {});
+    api.superAdminListToolLeads()
+      .then(setToolLeads)
       .catch(() => {});
   }, []);
 
@@ -781,6 +787,49 @@ export default function SuperAdminPage() {
           </div>
         </div>
       )}
+
+      {/* ── Tool Leads ─────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <FileSearch className="w-4 h-4 text-teal-600" />
+            <h2 className="text-sm font-semibold text-slate-900">Tool Leads</h2>
+            <span className="ml-1 bg-teal-50 text-teal-700 text-xs font-semibold px-2 py-0.5 rounded-full border border-teal-100">
+              {toolLeads.length}
+            </span>
+          </div>
+        </div>
+        {toolLeads.length === 0 ? (
+          <div className="px-6 py-8 text-center text-sm text-slate-400">No leads yet.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Email</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Tool</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {toolLeads.map((lead) => (
+                  <tr key={lead.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-3 text-slate-800 font-medium">{lead.email}</td>
+                    <td className="px-6 py-3">
+                      <span className="bg-teal-50 text-teal-700 text-xs font-semibold px-2 py-0.5 rounded-full border border-teal-100">
+                        {lead.tool}
+                      </span>
+                    </td>
+                    <td className="px-6 py-3 text-slate-400 text-xs">
+                      {new Date(lead.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
     </div>
   );
