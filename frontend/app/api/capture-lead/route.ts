@@ -8,6 +8,8 @@ const TOOL_LABELS: Record<string, string> = {
   "gap-scanner": "Compliance Gap Scanner",
   "readiness": "SOC 2 Readiness Checker",
   "stack-scorer": "Tech Stack Compliance Scorer",
+  "compliance-stack-scorer": "Tech Stack Compliance Scorer",
+  "revenue-impact-calculator": "Revenue Impact Calculator",
 };
 
 function getThankYouHtml(tool: string): string {
