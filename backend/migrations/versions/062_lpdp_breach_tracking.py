@@ -6,14 +6,14 @@ their 72-hour breach notification obligation to the Serbian Commissioner
 per Art. 53 of the Serbian LPDP.
 
 Revision ID: 062_lpdp_breach_tracking
-Revises: 061_seed_lpdp_nis2_framework_versions
+Revises: 061_lpdp_nis2_fw_versions
 Create Date: 2026-04-05
 """
 import sqlalchemy as sa
 from alembic import op
 
 revision = "062_lpdp_breach_tracking"
-down_revision = "061_seed_lpdp_nis2_framework_versions"
+down_revision = "061_lpdp_nis2_fw_versions"
 branch_labels = None
 depends_on = None
 

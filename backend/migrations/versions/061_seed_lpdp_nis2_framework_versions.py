@@ -6,7 +6,7 @@ Create Date: 2026-04-05
 """
 from alembic import op
 
-revision = "061_seed_lpdp_nis2_framework_versions"
+revision = "061_lpdp_nis2_fw_versions"
 down_revision = "060_seed_lpdp_nis2_controls"
 branch_labels = None
 depends_on = None
