@@ -417,7 +417,7 @@ async def delete_partner_entry(
 # ── Tool leads ────────────────────────────────────────────────────────────────
 
 class ToolLeadRow(BaseModel):
-    id: str
+    id: uuid.UUID
     email: str
     tool: str
     created_at: datetime
