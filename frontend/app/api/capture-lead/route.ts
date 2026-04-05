@@ -102,13 +102,22 @@ export async function POST(req: NextRequest) {
     const toolName = tool ?? "unknown";
 
     // Save to our own DB
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
+    const backendUrl = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
     if (backendUrl) {
-      await fetch(`${backendUrl}/v1/public/capture-lead`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: normalizedEmail, tool: toolName }),
-      }).catch(() => {}); // fire-and-forget, never block the user
+      try {
+        const dbRes = await fetch(`${backendUrl}/v1/public/capture-lead`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: normalizedEmail, tool: toolName }),
+        });
+        if (!dbRes.ok) {
+          console.error("[capture-lead] backend returned", dbRes.status, await dbRes.text());
+        }
+      } catch (err) {
+        console.error("[capture-lead] backend save failed:", err);
+      }
+    } else {
+      console.warn("[capture-lead] NEXT_PUBLIC_API_URL not set, skipping DB save");
     }
 
     // Add to Woodpecker
