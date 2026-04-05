@@ -248,23 +248,36 @@ NIS2_CONTROLS = [
 
 
 def upgrade() -> None:
+    controls_table = sa.table(
+        "controls",
+        sa.column("id", sa.String),
+        sa.column("name", sa.String),
+        sa.column("framework", sa.String),
+        sa.column("category", sa.String),
+        sa.column("description", sa.Text),
+        sa.column("external_id", sa.String),
+    )
     conn = op.get_bind()
-    for ctrl in LPDP_CONTROLS + NIS2_CONTROLS:
-        conn.execute(
-            sa.text("""
-                INSERT INTO controls (id, name, framework, category, description, external_id)
-                SELECT :id, :name, :framework, :category, :description, :external_id
-                WHERE NOT EXISTS (SELECT 1 FROM controls WHERE id = :id)
-            """),
-            {
-                "id": str(ctrl["id"]),
-                "name": ctrl["name"],
-                "framework": ctrl["framework"],
-                "category": ctrl["category"],
-                "description": ctrl["description"],
-                "external_id": ctrl["external_id"],
-            },
+    existing_ids = {
+        str(row[0])
+        for row in conn.execute(
+            sa.text("SELECT id FROM controls WHERE framework IN ('lpdp', 'nis2')")
         )
+    }
+    to_insert = [
+        {
+            "id": str(ctrl["id"]),
+            "name": ctrl["name"],
+            "framework": ctrl["framework"],
+            "category": ctrl["category"],
+            "description": ctrl["description"],
+            "external_id": ctrl["external_id"],
+        }
+        for ctrl in LPDP_CONTROLS + NIS2_CONTROLS
+        if str(ctrl["id"]) not in existing_ids
+    ]
+    if to_insert:
+        op.bulk_insert(controls_table, to_insert)
 
 
 def downgrade() -> None:
