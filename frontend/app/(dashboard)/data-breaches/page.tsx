@@ -81,6 +81,7 @@ function TimelineRow({ b }: { b: DataBreach }) {
     { done: !!b.discovered_at,            label: "Discovered" },
     { done: !!b.dpa_notified_at,          label: "DPA / GDPR" },
     { done: !!b.dpbi_notified_at,         label: "DPBI 🇮🇳"   },
+    { done: !!b.poverenik_notified_at,    label: "Poverenik 🇷🇸" },
     { done: !!b.individuals_notified_at,  label: "Individuals"},
     { done: b.status === "resolved" || b.status === "closed", label: "Resolved" },
   ];
@@ -377,6 +378,15 @@ export default function DataBreachesPage() {
                           </div>
                           <div>
                             <p className="text-[10px] text-gray-400 mb-0.5 flex items-center gap-1">
+                              <Bell className="w-2.5 h-2.5" /> Poverenik 🇷🇸
+                            </p>
+                            <p className="text-xs text-gray-700">{fmt(b.poverenik_notified_at)}</p>
+                            {b.poverenik_ref_number && (
+                              <p className="text-[10px] text-blue-600 font-medium mt-0.5">{b.poverenik_ref_number}</p>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-gray-400 mb-0.5 flex items-center gap-1">
                               <Bell className="w-2.5 h-2.5" /> Individuals
                             </p>
                             <p className="text-xs text-gray-700">{fmt(b.individuals_notified_at)}</p>
@@ -602,6 +612,30 @@ export default function DataBreachesPage() {
                               value={form.dpbi_ref_number ?? ""}
                               onChange={(e) => setForm((f) => ({ ...f, dpbi_ref_number: e.target.value || null }))}
                               className="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-span-2 border-t border-gray-100 pt-3">
+                        <p className="text-xs font-semibold text-blue-700 mb-2">🇷🇸 Serbian LPDP — Poverenik Notification (Art. 53)</p>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs font-medium text-gray-500 block mb-1">Poverenik Notified At <span className="text-gray-400 font-normal">(72h deadline)</span></label>
+                            <input
+                              type="datetime-local"
+                              value={form.poverenik_notified_at ? new Date(form.poverenik_notified_at).toISOString().slice(0, 16) : ""}
+                              onChange={(e) => setForm((f) => ({ ...f, poverenik_notified_at: e.target.value ? new Date(e.target.value).toISOString() : null }))}
+                              className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-medium text-gray-500 block mb-1">Poverenik Reference Number</label>
+                            <input
+                              type="text"
+                              placeholder="e.g. POV-2024-001234"
+                              value={form.poverenik_ref_number ?? ""}
+                              onChange={(e) => setForm((f) => ({ ...f, poverenik_ref_number: e.target.value || null }))}
+                              className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                             />
                           </div>
                         </div>

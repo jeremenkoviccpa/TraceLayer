@@ -100,6 +100,22 @@ const FRAMEWORKS = [
     color: "from-teal-500 to-teal-600",
     popular: false,
   },
+  {
+    id: "lpdp",
+    label: "Serbian LPDP",
+    description: "Serbia's personal data protection law",
+    icon: Scale,
+    color: "from-blue-500 to-blue-600",
+    popular: false,
+  },
+  {
+    id: "nis2",
+    label: "NIS2 Directive",
+    description: "EU cybersecurity directive for essential entities",
+    icon: Globe,
+    color: "from-indigo-500 to-indigo-600",
+    popular: false,
+  },
 ];
 
 // ── Quick integrations ─────────────────────────────────────────────────────────

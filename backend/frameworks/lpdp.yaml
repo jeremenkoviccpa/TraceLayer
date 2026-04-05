@@ -1,0 +1,49 @@
+key: lpdp
+display_name: Serbian Law on Personal Data Protection
+current_version: "2018"
+source_url: https://www.poverenik.rs/images/stories/dokumentacija-nova/zakoni/ZZPLeng.pdf
+versions:
+  - version: "2018"
+    display_name: "Serbian LPDP 2018"
+    published_at: "2018-11-09"
+    is_current: true
+controls:
+  - external_id: Art.5-11
+    name: Lawful Processing Basis
+    category: lawful_processing
+    description: "Personal data may be processed only on one of six legal grounds: consent, contract, legal obligation, vital interests, public interest, or legitimate interests (Art. 5-11). Consent must be freely given, specific, informed, and unambiguous. Evidence includes user directory data, DLP policies, consent management records, and IAM policies."
+
+  - external_id: Art.26-39
+    name: Data Subject Rights
+    category: data_subject_rights
+    description: "Data subjects hold rights to access (Art. 26), rectification (Art. 29), erasure (Art. 30), restriction (Art. 31), portability (Art. 36), and objection (Art. 37-39). Controllers must respond within 30 days. Evidence includes subject request logs, documented procedures, and response records."
+
+  - external_id: Art.40-43
+    name: Controller Obligations and Records of Processing
+    category: controller_obligations
+    description: "Controllers must maintain Records of Processing Activities (ROPA), implement data protection by design and by default (Art. 43), and sign written data processing agreements with all processors (Art. 44-45). Evidence includes ROPA records, DPA contracts, and policy documentation."
+
+  - external_id: Art.54-56
+    name: Data Protection Impact Assessment
+    category: controller_obligations
+    description: "A DPIA is mandatory before high-risk processing, systematic profiling, or large-scale processing of special categories (Art. 54-56). Must consult Poverenik when residual risk remains high. Evidence includes DPIA documents and risk registers."
+
+  - external_id: Art.49
+    name: Technical and Organizational Security Measures
+    category: data_security
+    description: "Controllers and processors must implement appropriate technical and organizational measures considering risk level: pseudonymisation, encryption, ensuring ongoing confidentiality, integrity, availability, and resilience of systems (Art. 49). Evidence includes IAM policies, audit logs, encryption configs, and vulnerability scan results."
+
+  - external_id: Art.53
+    name: Personal Data Breach Notification to Poverenik
+    category: breach_notification
+    description: "Personal data breaches must be notified to the Poverenik (Commissioner) within 72 hours of becoming aware unless the breach is unlikely to result in risk to individuals (Art. 53). High-risk breaches must also be communicated to affected individuals without undue delay. Evidence includes breach records, notification timestamps, and Poverenik reference numbers."
+
+  - external_id: Art.57-61
+    name: Data Protection Officer
+    category: dpo_requirements
+    description: "A DPO is mandatory for public authorities, controllers/processors performing large-scale systematic monitoring, or processing special categories at scale (Art. 57). DPO must be registered with Poverenik. Evidence includes DPO appointment records, contact details, and Poverenik registration."
+
+  - external_id: Art.65-74
+    name: Cross-border Data Transfers
+    category: cross_border_transfers
+    description: "Transfers outside Serbia are permitted to countries on the Poverenik adequacy list, or using appropriate safeguards: standard contractual clauses, binding corporate rules, or approved codes of conduct (Art. 65-74). Evidence includes data flow records, transfer impact assessments, and SCCs."

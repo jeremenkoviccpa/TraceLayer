@@ -305,6 +305,27 @@ export default function IncidentsPage() {
                   </div>
                 </div>
               </div>
+              <div className="border-t border-gray-100 pt-3">
+                <p className="text-xs font-semibold text-indigo-700 mb-2">🇪🇺 NIS2 Reporting (Art. 23) — 3-stage deadline</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Early Warning At <span className="text-gray-400 font-normal">(24h)</span></label>
+                    <input type="datetime-local" className="input" value={form.nis2_early_warning_at ? form.nis2_early_warning_at.substring(0, 16) : ""} onChange={e => setForm(p => ({ ...p, nis2_early_warning_at: e.target.value || null }))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Incident Notification At <span className="text-gray-400 font-normal">(72h)</span></label>
+                    <input type="datetime-local" className="input" value={form.nis2_notified_at ? form.nis2_notified_at.substring(0, 16) : ""} onChange={e => setForm(p => ({ ...p, nis2_notified_at: e.target.value || null }))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Final Report At <span className="text-gray-400 font-normal">(1 month)</span></label>
+                    <input type="datetime-local" className="input" value={form.nis2_final_report_at ? form.nis2_final_report_at.substring(0, 16) : ""} onChange={e => setForm(p => ({ ...p, nis2_final_report_at: e.target.value || null }))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">CSIRT Reference Number</label>
+                    <input type="text" className="input" placeholder="e.g. CSIRT-2024-001234" value={form.nis2_ref_number ?? ""} onChange={e => setForm(p => ({ ...p, nis2_ref_number: e.target.value || null }))} />
+                  </div>
+                </div>
+              </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={closeModal} className="btn-secondary flex-1">Cancel</button>
                 <button type="submit" disabled={saving} className="btn-primary flex-1 justify-center">
@@ -376,6 +397,37 @@ function IncidentCard({ incident, expanded, onToggle, onEdit, onDelete }: {
                   <div>
                     <p className="text-[10px] text-blue-500 mb-0.5">Reference</p>
                     <p className="text-xs text-blue-800 font-medium">{incident.certin_ref_number}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          {(incident.nis2_early_warning_at || incident.nis2_notified_at || incident.nis2_final_report_at || incident.nis2_ref_number) && (
+            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-3">
+              <p className="text-xs font-semibold text-indigo-700 mb-1.5">🇪🇺 NIS2 Reporting (Art. 23)</p>
+              <div className="flex flex-wrap gap-4">
+                {incident.nis2_early_warning_at && (
+                  <div>
+                    <p className="text-[10px] text-indigo-500 mb-0.5">Early Warning (24h)</p>
+                    <p className="text-xs text-indigo-800 font-medium">{new Date(incident.nis2_early_warning_at).toLocaleString()}</p>
+                  </div>
+                )}
+                {incident.nis2_notified_at && (
+                  <div>
+                    <p className="text-[10px] text-indigo-500 mb-0.5">Notification (72h)</p>
+                    <p className="text-xs text-indigo-800 font-medium">{new Date(incident.nis2_notified_at).toLocaleString()}</p>
+                  </div>
+                )}
+                {incident.nis2_final_report_at && (
+                  <div>
+                    <p className="text-[10px] text-indigo-500 mb-0.5">Final Report (1 month)</p>
+                    <p className="text-xs text-indigo-800 font-medium">{new Date(incident.nis2_final_report_at).toLocaleString()}</p>
+                  </div>
+                )}
+                {incident.nis2_ref_number && (
+                  <div>
+                    <p className="text-[10px] text-indigo-500 mb-0.5">CSIRT Reference</p>
+                    <p className="text-xs text-indigo-800 font-medium">{incident.nis2_ref_number}</p>
                   </div>
                 )}
               </div>

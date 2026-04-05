@@ -26,6 +26,8 @@ const FRAMEWORKS = [
   { id: "nist_csf", label: "NIST CSF"  },
   { id: "dpdp",     label: "DPDP Act"  },
   { id: "cert_in",  label: "CERT-In"   },
+  { id: "lpdp",     label: "Serbian LPDP" },
+  { id: "nis2",     label: "NIS2 Directive" },
 ];
 
 const ACTION_ITEMS: { stage: string; items: { href: string; label: string; desc: string; icon: React.ElementType }[] }[] = [

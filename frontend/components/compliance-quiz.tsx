@@ -43,6 +43,8 @@ const QUESTIONS = [
       { label: "HIPAA", value: "hipaa" },
       { label: "DPDP Act (India)", value: "dpdp" },
       { label: "CERT-In (India)", value: "cert_in" },
+      { label: "Serbian LPDP", value: "lpdp" },
+      { label: "NIS2 Directive (EU)", value: "nis2" },
       { label: "Multiple frameworks", value: "multiple" },
       { label: "Not sure yet", value: "unsure" },
     ],
@@ -102,6 +104,8 @@ function computeResult(answers: Answers) {
     hipaa: "HIPAA",
     dpdp: "DPDP Act 2023",
     cert_in: "CERT-In Directions 2022",
+    lpdp: "Serbian LPDP 2018",
+    nis2: "NIS2 Directive 2022",
     multiple: "multiple frameworks",
     unsure: "your target framework",
   };

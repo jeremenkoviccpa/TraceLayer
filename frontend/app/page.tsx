@@ -572,6 +572,8 @@ const FRAMEWORKS = [
   { name: "NIST CSF", desc: "Framework 2.0",     detail: "Identify, protect, detect, respond, and recover — the cybersecurity lifecycle", color: "from-cyan-500 to-teal-500" },
   { name: "DPDP Act", desc: "India · 2023",      detail: "Digital Personal Data Protection Act — data fiduciary obligations, consent, breach notification, cross-border transfers", color: "from-orange-500 to-amber-500" },
   { name: "CERT-In",  desc: "Directions 2022",   detail: "CERT-In cyber security directions — incident reporting within 6 hours, log retention, IT infrastructure controls", color: "from-green-600 to-emerald-500" },
+  { name: "Serbian LPDP", desc: "Serbia · 2018", detail: "Serbian personal data protection law — Poverenik breach notification, ROPA, data subject rights, cross-border transfer safeguards", color: "from-blue-500 to-blue-600" },
+  { name: "NIS2",     desc: "EU · 2022",         detail: "EU cybersecurity directive — 10 security measures, 3-stage incident reporting to CSIRT, supply chain security", color: "from-indigo-500 to-violet-500" },
 ];
 
 const FEATURES = [

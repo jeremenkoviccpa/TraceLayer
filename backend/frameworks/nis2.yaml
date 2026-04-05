@@ -1,0 +1,59 @@
+key: nis2
+display_name: NIS2 Directive
+current_version: "2022"
+source_url: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2555
+versions:
+  - version: "2022"
+    display_name: "NIS2 Directive 2022"
+    published_at: "2022-12-27"
+    is_current: true
+controls:
+  - external_id: Art.21.2a
+    name: Risk Management Policy
+    category: risk_management
+    description: "Essential and important entities must adopt policies on risk analysis and information system security, approved by the management body (Art. 20, 21.2a). Evidence includes risk registers, security policies, management sign-off records, and vulnerability assessment results."
+
+  - external_id: Art.21.2b
+    name: Incident Handling
+    category: incident_handling
+    description: "Entities must implement incident handling procedures covering detection, analysis, containment, and recovery (Art. 21.2b). Must maintain on-call capabilities and incident response playbooks. Evidence includes incident records, response procedures, and on-call schedules."
+
+  - external_id: Art.21.2c
+    name: Business Continuity and Disaster Recovery
+    category: business_continuity
+    description: "Entities must implement backup management, disaster recovery, and crisis management (Art. 21.2c). Includes BCP testing and defined RTO/RPO objectives. Evidence includes BCP records, backup configuration audit, and DR test results."
+
+  - external_id: Art.21.2d
+    name: Supply Chain Security
+    category: supply_chain_security
+    description: "Entities must address security in supply chains including relationships with direct suppliers and service providers (Art. 21.2d). Requires vendor risk assessments and security requirements in supplier contracts. Evidence includes vendor assessments, supplier security questionnaires, and contract clauses."
+
+  - external_id: Art.21.2e
+    name: Network and System Security
+    category: network_security
+    description: "Entities must secure network and information systems including vulnerability handling, patch management, and security in acquisition, development, and maintenance of systems (Art. 21.2e). Evidence includes vulnerability scans, patch records, firewall configs, and security testing results."
+
+  - external_id: Art.21.2i
+    name: Access Control and Multi-Factor Authentication
+    category: access_control
+    description: "Entities must implement access control policies, privileged access management, and multi-factor authentication or continuous authentication solutions (Art. 21.2i). Evidence includes IAM user records, MFA configuration, access review reports, and privileged account audits."
+
+  - external_id: Art.21.2h
+    name: Cryptography and Encryption
+    category: cryptography
+    description: "Entities must maintain policies and procedures on the use of cryptography and, where appropriate, encryption of data at rest and in transit (Art. 21.2h). Evidence includes encryption configuration, certificate inventory, and cryptographic policy documentation."
+
+  - external_id: Art.21.2g
+    name: Cyber Hygiene and Security Training
+    category: cyber_hygiene
+    description: "Entities must maintain basic cyber hygiene practices and cybersecurity training programmes for staff (Art. 21.2g). Management body members must undertake training. Evidence includes training completion records, security awareness programmes, and background check results."
+
+  - external_id: Art.21.2e-mon
+    name: Security Monitoring and Audit Logging
+    category: logging_monitoring
+    description: "Entities must implement security event monitoring, audit logging, and intrusion detection capabilities as part of securing network and information systems (Art. 21.2e). Evidence includes SIEM/audit logs, CloudTrail records, log retention policies, and monitoring alert configs."
+
+  - external_id: Art.23
+    name: Significant Incident Reporting to CSIRT
+    category: incident_reporting
+    description: "Significant incidents must be reported in three stages: early warning within 24 hours, incident notification within 72 hours, and final report within 1 month (Art. 23). Reports go to national CSIRT or competent authority. Evidence includes incident records with NIS2 reporting timestamps and CSIRT reference numbers."

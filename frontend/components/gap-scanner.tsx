@@ -233,14 +233,166 @@ const CERTIN_CONTROLS: ControlDef[] = [
   },
 ];
 
+const LPDP_CONTROLS: ControlDef[] = [
+  {
+    id: "lpdp_lawful_basis",
+    category: "Lawful Processing",
+    name: "Lawful Basis for Processing",
+    question: "A documented lawful basis exists for every personal data processing activity (consent, contract, legal obligation, vital interests, public interest, or legitimate interests)",
+    risk: "critical",
+    audit_note: "Art. 5-11 LPDP. Poverenik audits frequently check that lawful basis is documented in ROPA. Processing without a legal ground is the most common LPDP violation.",
+  },
+  {
+    id: "lpdp_dsr",
+    category: "Data Subject Rights",
+    name: "Data Subject Rights Procedures",
+    question: "Written procedures exist for handling access, erasure, rectification, portability and objection requests, with a 30-day SLA tracked",
+    risk: "critical",
+    audit_note: "Art. 26-39 LPDP. The 30-day response deadline is strictly enforced. Failure to respond to a subject request is one of the top reasons Poverenik initiates an investigation.",
+  },
+  {
+    id: "lpdp_ropa",
+    category: "Controller Obligations",
+    name: "Records of Processing Activities (ROPA)",
+    question: "A ROPA is maintained listing all processing activities, purposes, legal bases, data categories, retention periods, and third-party processors",
+    risk: "high",
+    audit_note: "Art. 40-50 LPDP. ROPA is the first document requested by Poverenik during any audit. An absent or incomplete ROPA signals systemic non-compliance.",
+  },
+  {
+    id: "lpdp_dpa_contracts",
+    category: "Controller Obligations",
+    name: "Data Processing Agreements with Processors",
+    question: "Written data processing agreements (Art. 45 clauses) are signed with all third-party processors who handle personal data on your behalf",
+    risk: "high",
+    audit_note: "Art. 44-45 LPDP. Every cloud vendor, SaaS tool, or contractor who touches personal data needs a DPA. Missing DPAs are a straightforward violation with clear documentary evidence.",
+  },
+  {
+    id: "lpdp_security",
+    category: "Technical Security",
+    name: "Technical and Organizational Security Measures",
+    question: "Encryption at rest and in transit, access controls, audit logging, and vulnerability management are implemented and documented",
+    risk: "high",
+    audit_note: "Art. 49 LPDP. Security measures must be appropriate to the risk. Poverenik expects documented evidence: encryption configs, access control policies, and vulnerability scan results.",
+  },
+  {
+    id: "lpdp_breach",
+    category: "Breach Notification",
+    name: "72-hour Breach Notification to Poverenik",
+    question: "A breach response procedure exists and the team knows to notify the Poverenik (Commissioner) within 72 hours of becoming aware of a personal data breach",
+    risk: "critical",
+    audit_note: "Art. 53 LPDP. The 72-hour clock starts from when you 'become aware' — not when the breach occurred. High-risk breaches must also notify affected individuals. Missing notification is heavily fined.",
+  },
+  {
+    id: "lpdp_dpo",
+    category: "DPO",
+    name: "Data Protection Officer Appointment",
+    question: "If processing personal data at scale, a DPO is appointed, their contact details are published, and they are registered with the Poverenik",
+    risk: "medium",
+    audit_note: "Art. 57-61 LPDP. DPO registration with Poverenik is a public record. Mandatory for public bodies, large-scale systematic monitoring, and special category processing at scale.",
+  },
+  {
+    id: "lpdp_transfers",
+    category: "Cross-border Transfers",
+    name: "Cross-border Data Transfer Safeguards",
+    question: "Any transfer of personal data outside Serbia uses adequacy decisions, standard contractual clauses, or binding corporate rules as documented safeguards",
+    risk: "medium",
+    audit_note: "Art. 65-74 LPDP. Transfers to countries not on the Poverenik adequacy list require SCCs or BCRs. Cloud providers routing data through non-adequate countries are a common gap.",
+  },
+];
+
+const NIS2_CONTROLS: ControlDef[] = [
+  {
+    id: "nis2_risk_policy",
+    category: "Risk Management",
+    name: "Risk Management Policy Approved by Management",
+    question: "A formal cybersecurity risk management policy exists, is approved by the management body, and is reviewed at least annually",
+    risk: "critical",
+    audit_note: "Art. 20-21 NIS2. Management body accountability is a new NIS2 feature — individuals can be personally liable. Lack of management sign-off is a critical finding.",
+  },
+  {
+    id: "nis2_incident_handling",
+    category: "Incident Handling",
+    name: "Incident Handling Procedures",
+    question: "Documented incident response procedures covering detection, analysis, containment, eradication, and recovery are in place with defined on-call responsibilities",
+    risk: "critical",
+    audit_note: "Art. 21.2b NIS2. Competent authorities check that procedures exist and were actually followed during past incidents. Undocumented ad-hoc response is insufficient.",
+  },
+  {
+    id: "nis2_incident_reporting",
+    category: "Incident Reporting",
+    name: "3-Stage Significant Incident Reporting to CSIRT",
+    question: "The team knows the NIS2 3-stage reporting obligation: early warning within 24h, incident notification within 72h, and final report within 1 month, and incidents are tracked accordingly",
+    risk: "critical",
+    audit_note: "Art. 23 NIS2. Missing or late reports to national CSIRT carry heavy fines. The 24-hour early warning is the most commonly missed stage — it requires very fast triage.",
+  },
+  {
+    id: "nis2_mfa_access",
+    category: "Access Control",
+    name: "Multi-Factor Authentication and Access Control",
+    question: "MFA is enforced for all users, privileged access is managed separately, and access is reviewed regularly",
+    risk: "critical",
+    audit_note: "Art. 21.2i NIS2. MFA is explicitly mandated. Authorities test this directly. Privileged accounts without MFA are an automatic finding.",
+  },
+  {
+    id: "nis2_network_security",
+    category: "Network Security",
+    name: "Vulnerability Management and Patch Programme",
+    question: "A formal vulnerability management programme exists with defined SLAs for patching critical vulnerabilities, supported by regular scans",
+    risk: "high",
+    audit_note: "Art. 21.2e NIS2. Unpatched critical vulnerabilities are one of the leading causes of significant incidents. Authorities expect documented patch timelines and evidence.",
+  },
+  {
+    id: "nis2_supply_chain",
+    category: "Supply Chain Security",
+    name: "Supplier and Third-party Security Assessments",
+    question: "Direct suppliers and key service providers are assessed for cybersecurity risk, and security requirements are included in contracts",
+    risk: "high",
+    audit_note: "Art. 21.2d NIS2. Supply chain security is a new NIS2 emphasis. Authorities ask for vendor risk assessment records and evidence of security clauses in contracts.",
+  },
+  {
+    id: "nis2_backup_bcp",
+    category: "Business Continuity",
+    name: "Backup, Disaster Recovery, and BCP Testing",
+    question: "Backups are automated and tested, disaster recovery procedures exist with defined RTO/RPO, and the BCP has been tested in the past 12 months",
+    risk: "high",
+    audit_note: "Art. 21.2c NIS2. Untested BCPs are treated the same as no BCP by auditors. Backup restoration tests are specifically requested as evidence.",
+  },
+  {
+    id: "nis2_logging",
+    category: "Logging & Monitoring",
+    name: "Security Event Monitoring and Audit Logging",
+    question: "Security events are centrally logged with a minimum 12-month retention, alerts are configured for critical events, and logs are regularly reviewed",
+    risk: "high",
+    audit_note: "Art. 21.2e NIS2. Log retention and monitoring are the primary forensic tools after an incident. Missing logs make post-incident analysis impossible and indicate systemic gaps.",
+  },
+  {
+    id: "nis2_training",
+    category: "Cyber Hygiene",
+    name: "Security Awareness Training Programme",
+    question: "All staff complete annual security awareness training; management body members complete cybersecurity training as required by NIS2 Art. 20",
+    risk: "medium",
+    audit_note: "Art. 21.2g NIS2. NIS2 specifically requires management training — not just staff. Training completion records must show all employees and board members.",
+  },
+  {
+    id: "nis2_encryption",
+    category: "Cryptography",
+    name: "Encryption and Cryptography Policy",
+    question: "A cryptography policy exists covering encryption of data at rest and in transit, key management procedures, and certificate inventory",
+    risk: "medium",
+    audit_note: "Art. 21.2h NIS2. While not requiring specific algorithms, NIS2 expects a documented policy. Expired certificates and unencrypted sensitive data are common findings.",
+  },
+];
+
 type Status = "yes" | "partial" | "no";
 type Answers = Record<string, Status>;
-type Framework = "soc2" | "dpdp" | "cert_in";
+type Framework = "soc2" | "dpdp" | "cert_in" | "lpdp" | "nis2";
 
 const FRAMEWORK_OPTIONS: { id: Framework; label: string; flag: string; controls: ControlDef[]; desc: string }[] = [
-  { id: "soc2",     label: "SOC 2",     flag: "🇺🇸", controls: SOC2_CONTROLS,   desc: "10 critical controls — Type I & II" },
-  { id: "dpdp",     label: "DPDP Act",  flag: "🇮🇳", controls: DPDP_CONTROLS,   desc: "8 controls — India personal data law" },
-  { id: "cert_in",  label: "CERT-In",   flag: "🇮🇳", controls: CERTIN_CONTROLS, desc: "8 controls — India cyber security directions" },
+  { id: "soc2",     label: "SOC 2",        flag: "🇺🇸", controls: SOC2_CONTROLS,    desc: "10 critical controls — Type I & II" },
+  { id: "dpdp",     label: "DPDP Act",     flag: "🇮🇳", controls: DPDP_CONTROLS,    desc: "8 controls — India personal data law" },
+  { id: "cert_in",  label: "CERT-In",      flag: "🇮🇳", controls: CERTIN_CONTROLS,  desc: "8 controls — India cyber security directions" },
+  { id: "lpdp",     label: "Serbian LPDP", flag: "🇷🇸", controls: LPDP_CONTROLS,    desc: "8 controls — Serbia personal data law" },
+  { id: "nis2",     label: "NIS2",         flag: "🇪🇺", controls: NIS2_CONTROLS,    desc: "10 controls — EU cybersecurity directive" },
 ];
 
 // ── Scoring ───────────────────────────────────────────────────────────────────

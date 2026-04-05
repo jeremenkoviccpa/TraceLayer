@@ -56,6 +56,8 @@ const FRAMEWORKS = [
   { value: "nist_csf", label: "NIST CSF" },
   { value: "dpdp",     label: "DPDP Act" },
   { value: "cert_in",  label: "CERT-In" },
+  { value: "lpdp",     label: "Serbian LPDP" },
+  { value: "nis2",     label: "NIS2 Directive" },
 ];
 
 // Per-framework accent colours for report cards
@@ -69,6 +71,8 @@ const FRAMEWORK_ACCENT: Record<string, { bar: string; icon: string; badge: strin
   nist_csf: { bar: "bg-cyan-500",    icon: "text-cyan-500 bg-cyan-50",       badge: "bg-cyan-50 text-cyan-700 border-cyan-200"         },
   dpdp:     { bar: "bg-orange-500",  icon: "text-orange-500 bg-orange-50",   badge: "bg-orange-50 text-orange-700 border-orange-200"   },
   cert_in:  { bar: "bg-red-500",     icon: "text-red-500 bg-red-50",         badge: "bg-red-50 text-red-700 border-red-200"             },
+  lpdp:     { bar: "bg-blue-500",    icon: "text-blue-500 bg-blue-50",       badge: "bg-blue-50 text-blue-700 border-blue-200"           },
+  nis2:     { bar: "bg-indigo-500",  icon: "text-indigo-500 bg-indigo-50",   badge: "bg-indigo-50 text-indigo-700 border-indigo-200"     },
 };
 
 function defaultAccent() {

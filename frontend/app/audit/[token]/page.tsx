@@ -20,6 +20,10 @@ const FRAMEWORK_LABELS: Record<string, string> = {
   pci_dss: "PCI DSS",
   ccpa: "CCPA",
   nist_csf: "NIST CSF",
+  dpdp: "DPDP Act 2023",
+  cert_in: "CERT-In Directions 2022",
+  lpdp: "Serbian LPDP 2018",
+  nis2: "NIS2 Directive 2022",
 };
 
 const STATUS_CONFIG = {

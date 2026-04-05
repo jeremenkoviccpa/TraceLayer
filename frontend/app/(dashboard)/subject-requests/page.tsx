@@ -20,12 +20,13 @@ import {
 
 const STATUSES = ["pending", "in_progress", "completed", "refused", "extended"] as const;
 const REQUEST_TYPES = ["access", "deletion", "rectification", "portability", "objection", "restriction", "nomination", "grievance"] as const;
-const REGULATIONS = ["gdpr", "ccpa", "dpdp", "other"] as const;
+const REGULATIONS = ["gdpr", "ccpa", "dpdp", "lpdp", "other"] as const;
 
 const SLA_DAYS: Record<string, number> = {
   gdpr: 30,
   ccpa: 45,
   dpdp: 30,
+  lpdp: 30,
   other: 30,
 };
 
@@ -36,6 +37,16 @@ const DPDP_TYPE_LABELS: Record<string, string> = {
   rectification: "Correction (Sec. 12)",
   nomination:    "Nomination (Sec. 14)",
   grievance:     "Grievance (Sec. 13)",
+};
+
+// LPDP-specific request types (Art. 26-39)
+const LPDP_TYPE_LABELS: Record<string, string> = {
+  access:        "Access (Art. 26)",
+  deletion:      "Erasure (Art. 30)",
+  rectification: "Rectification (Art. 29)",
+  portability:   "Portability (Art. 36)",
+  objection:     "Objection (Art. 37)",
+  restriction:   "Restriction (Art. 31)",
 };
 
 // ─── Style maps ──────────────────────────────────────────────────────────────
@@ -63,6 +74,7 @@ const REG_STYLES: Record<string, string> = {
   gdpr:  "bg-purple-100 text-purple-700",
   ccpa:  "bg-blue-100 text-blue-700",
   dpdp:  "bg-orange-100 text-orange-700",
+  lpdp:  "bg-blue-100 text-blue-700",
   other: "bg-gray-100 text-gray-500",
 };
 

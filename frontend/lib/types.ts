@@ -666,6 +666,10 @@ export interface Incident {
   detection_key: string | null;
   certin_reported_at: string | null;
   certin_ref_number: string | null;
+  nis2_early_warning_at: string | null;
+  nis2_notified_at: string | null;
+  nis2_final_report_at: string | null;
+  nis2_ref_number: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -858,6 +862,8 @@ export interface DataBreach {
   individuals_notified_at?: string | null;
   dpbi_notified_at?: string | null;
   dpbi_ref_number?: string | null;
+  poverenik_notified_at?: string | null;
+  poverenik_ref_number?: string | null;
   root_cause?: string | null;
   remediation?: string | null;
   reporter_name?: string | null;

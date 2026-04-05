@@ -192,6 +192,136 @@ EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
             "tailscale_devices",
         },
     },
+    # ── Serbian LPDP (Law on Personal Data Protection, Official Gazette 87/2018) ──
+    "lpdp": {
+        # Art.5-11: Lawful basis — IAM and DLP tools demonstrate controlled access
+        # and data handling consistent with specified lawful processing grounds
+        "lawful_processing": {
+            "iam_users", "iam_policies",
+            "okta_users", "okta_policies",
+            "azure_users",
+            "workspace_users",
+            "dlp_policies",
+        },
+        # Art.26-39: DSR handling — subject request records are primary evidence;
+        # user directory data supports identity verification for access requests
+        "data_subject_rights": {
+            "iam_users",
+            "okta_users", "azure_users",
+            "workspace_users",
+        },
+        # Art.40-43, 54-56: ROPA, DPbD, DPIAs — policy documents and risk register
+        # are the primary evidence artefacts
+        "controller_obligations": {
+            "github_repositories",
+            "iam_policies",
+            "okta_policies",
+        },
+        # Art.49: Technical/organizational security — IAM policies, audit logs,
+        # and vulnerability tools demonstrate appropriate security measures
+        "data_security": {
+            "iam_policies",
+            "cloudtrail_logs",
+            "vulnerability_scans",
+            "wiz_issues",
+            "snyk_projects",
+            "crowdstrike_policies",
+            "okta_policies",
+        },
+        # Art.53: 72-hour Poverenik breach notification
+        "breach_notification": {
+            "cloudtrail_logs",
+            "datadog_monitors",
+            "pagerduty_incidents",
+        },
+        # Art.57-61: DPO appointment and registration with Poverenik
+        "dpo_requirements": {
+            "iam_users",
+            "okta_users",
+            "workspace_users",
+        },
+        # Art.65-74: Cross-border transfers — data flow configs and IAM policies
+        # demonstrate transfer controls and adequacy safeguards
+        "cross_border_transfers": {
+            "iam_policies",
+            "cloudtrail_logs",
+            "network_policies",
+        },
+    },
+    # ── NIS2 Directive (EU 2022/2555) ────────────────────────────────────────────
+    "nis2": {
+        # Art.21.2a: Risk management policy — vulnerability tools and risk register
+        "risk_management": {
+            "vulnerability_scans",
+            "wiz_issues",
+            "snyk_projects",
+            "github_repositories",
+            "iam_policies",
+        },
+        # Art.21.2b: Incident handling — on-call and ticketing platforms
+        "incident_handling": {
+            "pagerduty_incidents", "pagerduty_services", "pagerduty_escalation_policies",
+            "servicenow_incidents",
+            "opsgenie_alerts", "opsgenie_schedules",
+        },
+        # Art.21.2c: Business continuity — BCP and backup evidence
+        "business_continuity": {
+            "pagerduty_services",
+            "datadog_monitors", "datadog_slos",
+            "servicenow_changes",
+            "vault_secrets_engine",
+        },
+        # Art.21.2d: Supply chain security — vendor and dependency scanning
+        "supply_chain_security": {
+            "snyk_projects",
+            "github_repositories",
+            "wiz_issues",
+        },
+        # Art.21.2e: Network and system security — cloud posture + vuln management
+        "network_security": {
+            "cloudtrail_logs",
+            "iam_policies",
+            "network_policies",
+            "wiz_issues",
+            "vulnerability_scans",
+            "crowdstrike_policies",
+        },
+        # Art.21.2i: Access control and MFA
+        "access_control": {
+            "iam_users", "iam_policies",
+            "okta_users", "okta_policies",
+            "azure_users", "azure_roles",
+            "github_members", "github_admin_members",
+            "mfa_policies", "mfa_enrollments",
+        },
+        # Art.21.2h: Cryptography and encryption
+        "cryptography": {
+            "iam_policies",
+            "cloudtrail_logs",
+            "vault_secrets_engine", "vault_policy",
+        },
+        # Art.21.2g: Cyber hygiene and security training
+        "cyber_hygiene": {
+            "crowdstrike_devices", "crowdstrike_policies",
+            "sentinelone_agents",
+            "jamf_computers",
+            "kandji_devices",
+        },
+        # Art.21.2e (monitoring): Security event monitoring and audit logging
+        "logging_monitoring": {
+            "cloudtrail_logs",
+            "datadog_monitors", "datadog_logs",
+            "splunk_alerts", "splunk_saved_searches",
+            "crowdstrike_detections",
+            "sentinelone_threats",
+        },
+        # Art.23: 3-stage CSIRT incident reporting (24h, 72h, 1 month)
+        "incident_reporting": {
+            "pagerduty_incidents", "pagerduty_services",
+            "servicenow_incidents",
+            "opsgenie_alerts",
+        },
+    },
 }
 
 

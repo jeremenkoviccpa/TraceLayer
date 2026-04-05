@@ -38,6 +38,8 @@ const FRAMEWORKS = [
   { value: "nist_csf", label: "NIST CSF",         desc: "NIST Cybersecurity Framework" },
   { value: "dpdp",     label: "DPDP Act",         desc: "India Digital Personal Data Protection Act 2023" },
   { value: "cert_in",  label: "CERT-In",          desc: "India Cybersecurity Directions 2022" },
+  { value: "lpdp",     label: "Serbian LPDP",     desc: "Serbian Law on Personal Data Protection" },
+  { value: "nis2",     label: "NIS2 Directive",   desc: "EU cybersecurity directive for essential entities" },
 ];
 
 const WHAT_IS_INCLUDED = [
