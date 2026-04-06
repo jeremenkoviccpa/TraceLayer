@@ -66,7 +66,7 @@ class GoogleGeminiIntegration(IntegrationAdapter):
     def _norm_model(self, raw: dict) -> dict:
         return {
             "integration": "google_gemini",
-            "control": "vendor_management",
+            "control": "ai_supply_chain",
             "evidence_type": "gemini_models",
             "source_id": raw.get("name", "unknown"),
             "timestamp": datetime.now(timezone.utc).isoformat(),

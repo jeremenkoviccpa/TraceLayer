@@ -411,7 +411,21 @@ EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
             "cloudtrail_logs",
         },
         # A.10.1: Third-party AI supplier risk assessment and contractual controls
+        # Primary evidence: AI provider model inventory + org/project/key configuration.
+        # Supporting evidence: dependency scanning and cloud posture tools.
         "ai_supply_chain": {
+            # OpenAI — model inventory, org config, project structure, API key audit
+            "openai_models",
+            "openai_organization",
+            "openai_projects",
+            "openai_api_keys",
+            # Anthropic — Claude model inventory, workspaces, API key audit
+            "anthropic_models",
+            "anthropic_workspaces",
+            "anthropic_api_keys",
+            # Google Gemini — model inventory and configuration
+            "gemini_models",
+            # Supporting: dependency scanning + cloud posture for AI workloads
             "snyk_projects",
             "github_repositories",
             "wiz_issues",

@@ -99,7 +99,7 @@ class OpenAIIntegration(IntegrationAdapter):
         )
         return {
             "integration": "openai",
-            "control": "vendor_management",
+            "control": "ai_supply_chain",
             "evidence_type": "openai_models",
             "source_id": raw["id"],
             "timestamp": ts,
@@ -114,7 +114,7 @@ class OpenAIIntegration(IntegrationAdapter):
     def _norm_org(self, raw: dict) -> dict:
         return {
             "integration": "openai",
-            "control": "vendor_management",
+            "control": "ai_supply_chain",
             "evidence_type": "openai_organization",
             "source_id": raw.get("id", "org"),
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -136,7 +136,7 @@ class OpenAIIntegration(IntegrationAdapter):
         )
         return {
             "integration": "openai",
-            "control": "vendor_management",
+            "control": "ai_supply_chain",
             "evidence_type": "openai_projects",
             "source_id": raw["id"],
             "timestamp": ts,

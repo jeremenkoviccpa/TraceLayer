@@ -102,7 +102,7 @@ class AnthropicIntegration(IntegrationAdapter):
     def _norm_model(self, raw: dict) -> dict:
         return {
             "integration": "anthropic",
-            "control": "vendor_management",
+            "control": "ai_supply_chain",
             "evidence_type": "anthropic_models",
             "source_id": raw["id"],
             "timestamp": raw.get("created_at", datetime.now(timezone.utc).isoformat()),
@@ -135,7 +135,7 @@ class AnthropicIntegration(IntegrationAdapter):
     def _norm_workspace(self, raw: dict) -> dict:
         return {
             "integration": "anthropic",
-            "control": "vendor_management",
+            "control": "ai_supply_chain",
             "evidence_type": "anthropic_workspaces",
             "source_id": raw["id"],
             "timestamp": raw.get("created_at", datetime.now(timezone.utc).isoformat()),
