@@ -227,20 +227,20 @@ def upgrade() -> None:
 
     # ── Framework versions ────────────────────────────────────────────────────
     op.execute("""
-        INSERT INTO framework_versions (framework_key, version, display_name, published_at, is_current)
-        VALUES ('iso42001', '2023', 'ISO/IEC 42001:2023', '2023-12-18', true)
-        ON CONFLICT (framework_key, version) DO NOTHING;
+        INSERT INTO framework_versions (id, framework_key, version, display_name, published_at, is_current)
+        SELECT gen_random_uuid(), 'iso42001', '2023', 'ISO/IEC 42001:2023', '2023-12-18', true
+        WHERE NOT EXISTS (
+            SELECT 1 FROM framework_versions WHERE framework_key = 'iso42001'
+        );
     """)
 
     # ── Framework source manifests ─────────────────────────────────────────────
     op.execute("""
-        INSERT INTO framework_source_manifests (framework_key, source_url, version)
-        VALUES (
-            'iso42001',
-            'https://www.iso.org/standard/81230.html',
-            '2023'
-        )
-        ON CONFLICT DO NOTHING;
+        INSERT INTO framework_source_manifests (id, framework_key, source_url, current_version)
+        SELECT gen_random_uuid(), 'iso42001', 'https://www.iso.org/standard/81230.html', '2023'
+        WHERE NOT EXISTS (
+            SELECT 1 FROM framework_source_manifests WHERE framework_key = 'iso42001'
+        );
     """)
 
 
