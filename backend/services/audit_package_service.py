@@ -186,10 +186,11 @@ async def _gather_all_data(
             .order_by(ScoreSnapshot.snapshot_at.asc())
         )).scalars().all()
     )
-    score_history = [
-        {"date": s.snapshot_at.strftime("%Y-%m-%d"), "score": s.overall_score}
-        for s in score_history_rows
-    ]
+    # Deduplicate by date keeping the latest entry per day (rows are asc ordered)
+    _seen_dates: dict[str, float] = {}
+    for s in score_history_rows:
+        _seen_dates[s.snapshot_at.strftime("%Y-%m-%d")] = s.overall_score
+    score_history = [{"date": d, "score": sc} for d, sc in _seen_dates.items()]
 
     active_integration_types = {i.integration_type for i in integrations}
     connected_integrations_detail = sorted(
@@ -509,10 +510,11 @@ Assessment Period: {data.get('period_start', 'N/A')} through {data.get('period_e
 Framework: {data['framework_label']}
 Overall Compliance Score: {score_data['overall_score']}%
 Total Evidence Records: {data['total_evidence']}
+Active Integrations: {len(integrations_detail)}
 
 {framework_context}
 
-Connected Integrations: {int_summary}
+Connected Integrations ({len(integrations_detail)} total): {int_summary}
 
 Control Assessment:
 {control_lines}
@@ -536,14 +538,14 @@ Produce a formal audit package. Return valid JSON only with these exact keys:
   "recommendations": ["7 specific, actionable steps. Each: action verb + specific control/integration name from the data + max 35 words. Prioritize by severity."]
 }}
 
-Rules: Use ONLY names from the actual data. Do not invent tools, metrics, or dates. Write for an experienced auditor. Return only the JSON object with no other text."""
+Rules: Use ONLY names from the actual data. Use EXACTLY {len(integrations_detail)} integrations and {data['total_evidence']} evidence records — do not round or approximate these numbers. Do not invent tools, metrics, or dates. Write for an experienced auditor. Return only the JSON object with no other text."""
 
     from anthropic import AsyncAnthropic
     client = AsyncAnthropic(api_key=settings.anthropic_api_key)
     try:
         message = await client.messages.create(
             model="claude-sonnet-4-6",
-            max_tokens=2500,
+            max_tokens=3500,
             messages=[{"role": "user", "content": prompt}],
         )
         content = message.content[0].text.strip()

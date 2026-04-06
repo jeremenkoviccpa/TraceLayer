@@ -404,7 +404,7 @@ def _risk_heatmap(risks: list[dict], W: float, st: dict) -> Table:
         i = min(5, max(1, r.get("impact", 3)))
         cell_risks.setdefault((lh, i), []).append(r["title"])
 
-    cell_w = (W - 20 * mm) / 6
+    cell_w = (W - 8 * mm) / 6
 
     header = [Paragraph("L \\ I", ParagraphStyle("hm_corner", fontName="Helvetica-Bold", fontSize=7, textColor=GRAY_500, alignment=TA_CENTER))]
     for j in range(1, 6):
@@ -445,7 +445,7 @@ def _risk_heatmap(risks: list[dict], W: float, st: dict) -> Table:
     tbl.setStyle(TableStyle(style_cmds))
 
     x_label = Paragraph("← Impact →", ParagraphStyle("hm_xl", fontName="Helvetica", fontSize=7, textColor=GRAY_500, alignment=TA_CENTER))
-    wrapper = Table([[tbl], [x_label]], colWidths=[W - 20 * mm])
+    wrapper = Table([[tbl], [x_label]], colWidths=[W - 8 * mm])
     wrapper.setStyle(TableStyle([
         ("LEFTPADDING",   (0, 0), (-1, -1), 0),
         ("RIGHTPADDING",  (0, 0), (-1, -1), 0),
@@ -992,7 +992,7 @@ def render_audit_package_pdf(context: dict) -> bytes:
         Table([
             [Paragraph(str(score), ParagraphStyle("sc_n", fontName="Helvetica-Bold", fontSize=32, textColor=sc, alignment=TA_CENTER))],
             [Paragraph("/ 100",   ParagraphStyle("sc_s", fontName="Helvetica", fontSize=9, textColor=GRAY_500, alignment=TA_CENTER))],
-        ], colWidths=[30 * mm]),
+        ], colWidths=[36 * mm]),
         Table([
             [Paragraph("Overall Compliance Score", st["h3"])],
             [Paragraph(f"Evaluated across {len(context['control_scores'])} controls for {context['framework_label']}.", st["small"])],
