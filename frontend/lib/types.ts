@@ -448,6 +448,9 @@ export interface Vendor {
   soc2_certified: boolean;
   iso27001_certified: boolean;
   hipaa_certified: boolean;
+  pci_dss_certified: boolean;
+  gdpr_certified: boolean;
+  iso42001_certified: boolean;
   review_date: string | null;
   notes: string | null;
   report_file_url: string | null;
