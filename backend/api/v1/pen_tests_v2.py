@@ -29,6 +29,7 @@ class PenTestCreate(BaseModel):
     completed_at: Optional[str] = None
     report_url: Optional[str] = None
     executive_summary: Optional[str] = None
+    agency_company_id: Optional[str] = None  # link to a registered pen test agency
 
 
 class PenTestUpdate(BaseModel):
@@ -41,6 +42,7 @@ class PenTestUpdate(BaseModel):
     completed_at: Optional[str] = None
     report_url: Optional[str] = None
     executive_summary: Optional[str] = None
+    agency_company_id: Optional[str] = None  # link to a registered pen test agency
 
 
 class FindingCreate(BaseModel):
@@ -115,6 +117,7 @@ def _test_dict(pt: PenTestV2, findings: list, *, include_findings: bool = False)
         "report_url": pt.report_url,
         "executive_summary": pt.executive_summary,
         "created_by_id": str(pt.created_by_id) if pt.created_by_id else None,
+        "agency_company_id": str(pt.agency_company_id) if pt.agency_company_id else None,
         "created_at": pt.created_at.isoformat(),
         "updated_at": pt.updated_at.isoformat(),
         "severity_counts": severity_counts,
@@ -169,6 +172,7 @@ async def create_pen_test(
     db: AsyncSession = Depends(get_db),
 ):
     now = datetime.now(timezone.utc)
+    agency_id = uuid.UUID(body.agency_company_id) if body.agency_company_id else None
     pt = PenTestV2(
         id=uuid.uuid4(),
         company_id=current_user.company_id,
@@ -182,6 +186,7 @@ async def create_pen_test(
         report_url=body.report_url,
         executive_summary=body.executive_summary,
         created_by_id=current_user.id,
+        agency_company_id=agency_id,
         created_at=now,
         updated_at=now,
     )
@@ -218,6 +223,8 @@ async def update_pen_test(
     for field in ("started_at", "completed_at"):
         if field in update_data:
             update_data[field] = _parse_dt(update_data[field])
+    if "agency_company_id" in update_data and update_data["agency_company_id"]:
+        update_data["agency_company_id"] = uuid.UUID(update_data["agency_company_id"])
 
     for field, value in update_data.items():
         setattr(pt, field, value)

@@ -1,4 +1,4 @@
-import type { AccessReview, ActionPlan, ApiKey, AppNotification, Asset, AuditComment, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, ChatConversation, ChatConversationWithMessages, Company, ComplianceScore, DataBreach, Device, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, Policy, PolicyContentResponse, PolicyTaskItem, PortalTasksResponse, PublicAuditView, PublicTrustPageView, QuestionnaireComment, QuestionnaireResult, QuestionnaireSession, QuestionnaireSessionAnswer, QuestionnaireType, ReadinessData, RemediationSuggestion, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SlackConfig, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingCertificate, TrainingQuiz, TrainingQuizResult, TrainingRecord, TrustAnalytics, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
+import type { AccessReview, ActionPlan, AgencyAssignment, AgencyFinding, AgencyTask, ApiKey, AppNotification, Asset, AuditComment, AuditEngagement, AuditEngagementView, AutofillResult, AuditLog, AuditSession, BackgroundCheck, BcpRecord, BillingInfo, ChatConversation, ChatConversationWithMessages, Company, ComplianceScore, DataBreach, Device, Document, DownloadResponse, DriftEvent, Evidence, EvidenceActivityPoint, Incident, Integration, Invitation, ManagementReview, ManualControl, Member, NotificationSettings, Offboarding, Page, PartnerClient, PartnerDirectoryEntry, PartnerSwitchResponse, PartnerTrustCenterInfo, PenTest, PentestAgencyProfile, Policy, PolicyContentResponse, PolicyTaskItem, PortalTasksResponse, PublicAuditView, PublicTrustPageView, QuestionnaireComment, QuestionnaireResult, QuestionnaireSession, QuestionnaireSessionAnswer, QuestionnaireType, ReadinessData, RemediationSuggestion, Report, Risk, RopaRecord, ScoreHistoryPoint, SimulationResult, SlackConfig, SoaItem, SubjectRequest, SuperAdminCompany, SuperAdminUser, TimeMachineResult, TrainingCertificate, TrainingQuiz, TrainingQuizResult, TrainingRecord, TrustAnalytics, TrustPageSettings, User, Vendor, Vulnerability } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -81,6 +81,15 @@ class ApiClient {
     const data = await this.request<{ access_token: string; refresh_token: string }>(
       "POST", "/auth/register",
       { email, password, company_name: companyName, account_type: accountType },
+      false,
+    );
+    this.setTokens(data.access_token, data.refresh_token);
+  }
+
+  async registerAgency(email: string, password: string, companyName: string): Promise<void> {
+    const data = await this.request<{ access_token: string; refresh_token: string }>(
+      "POST", "/auth/register",
+      { email, password, company_name: companyName, account_type: "pentest_agency" },
       false,
     );
     this.setTokens(data.access_token, data.refresh_token);
@@ -1056,6 +1065,23 @@ class ApiClient {
   async superAdminPatchPartnerEntry(id: string, data: Partial<Omit<PartnerDirectoryEntry, "id"> & { is_active: boolean }>): Promise<PartnerDirectoryEntry> { return this.request("PATCH", `/super-admin/partner-directory/${id}`, data); }
   async superAdminDeletePartnerEntry(id: string): Promise<void> { return this.request("DELETE", `/super-admin/partner-directory/${id}`); }
   async superAdminListToolLeads(): Promise<{ id: string; email: string; tool: string; created_at: string }[]> { return this.request("GET", "/super-admin/tool-leads"); }
+
+  // ── Pen Test Agency Portal ────────────────────────────────────────────────
+  async getPentestAgencyProfile(): Promise<PentestAgencyProfile> { return this.request("GET", "/pentest-agency/profile"); }
+  async updatePentestAgencyProfile(data: Partial<Omit<PentestAgencyProfile, "id" | "company_id" | "is_verified" | "created_at" | "updated_at">>): Promise<PentestAgencyProfile> { return this.request("PATCH", "/pentest-agency/profile", data); }
+  async getAgencyAssignments(params?: { status?: string }): Promise<AgencyAssignment[]> {
+    const q = new URLSearchParams();
+    if (params?.status) q.set("status", params.status);
+    const qs = q.toString();
+    return this.request("GET", `/pentest-agency/assignments${qs ? `?${qs}` : ""}`);
+  }
+  async getAgencyAssignment(id: string): Promise<AgencyAssignment> { return this.request("GET", `/pentest-agency/assignments/${id}`); }
+  async updateAgencyAssignment(id: string, data: { status?: string; executive_summary?: string; report_url?: string; started_at?: string; completed_at?: string }): Promise<AgencyAssignment> { return this.request("PATCH", `/pentest-agency/assignments/${id}`, data); }
+  async addAgencyFinding(testId: string, data: { title: string; severity?: string; description?: string | null; recommendation?: string | null; cvss_score?: number | null; cve_id?: string | null; ticket_url?: string | null }): Promise<AgencyFinding> { return this.request("POST", `/pentest-agency/assignments/${testId}/findings`, data); }
+  async updateAgencyFinding(testId: string, findingId: string, data: Partial<AgencyFinding>): Promise<AgencyFinding> { return this.request("PATCH", `/pentest-agency/assignments/${testId}/findings/${findingId}`, data); }
+  async deleteAgencyFinding(testId: string, findingId: string): Promise<void> { return this.request("DELETE", `/pentest-agency/assignments/${testId}/findings/${findingId}`); }
+  async getAgencyTasks(): Promise<AgencyTask[]> { return this.request("GET", "/pentest-agency/tasks"); }
+  async getPentestAgencyDirectory(): Promise<PentestAgencyProfile[]> { return this.request("GET", "/pentest-agency/directory", undefined, false); }
 
   // ── Evidence Export ───────────────────────────────────────────────────────
   async exportEvidenceCsv(params?: { control?: string; integration?: string }): Promise<void> {

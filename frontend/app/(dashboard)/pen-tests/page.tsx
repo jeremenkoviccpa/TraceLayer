@@ -71,8 +71,16 @@ function LogTestModal({
     completed_at: initial?.completed_at ? initial.completed_at.slice(0, 10) : "",
     report_url: initial?.report_url ?? "",
     executive_summary: initial?.executive_summary ?? "",
+    agency_company_id: initial?.agency_company_id ?? "",
   });
+  const [agencies, setAgencies] = useState<{ id: string; display_name: string }[]>([]);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    api.getPentestAgencyDirectory()
+      .then((list) => setAgencies(list.map((a: any) => ({ id: a.company_id, display_name: a.display_name }))))
+      .catch(() => {});
+  }, []);
 
   const handleSave = async () => {
     if (!form.name.trim()) return;
@@ -87,6 +95,7 @@ function LogTestModal({
         completed_at: form.completed_at || undefined,
         report_url: form.report_url || undefined,
         executive_summary: form.executive_summary || undefined,
+        agency_company_id: form.agency_company_id || undefined,
       });
       onClose();
     } catch { } finally { setSaving(false); }
@@ -121,6 +130,15 @@ function LogTestModal({
               </select>
             </div>
           </div>
+          {agencies.length > 0 && (
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Assign to agency <span className="font-normal text-gray-400">(optional)</span></label>
+              <select value={form.agency_company_id} onChange={e => setForm(f => ({ ...f, agency_company_id: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30">
+                <option value="">— None —</option>
+                {agencies.map((a) => <option key={a.id} value={a.id}>{a.display_name}</option>)}
+              </select>
+            </div>
+          )}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">Scope</label>
             <textarea value={form.scope} onChange={e => setForm(f => ({ ...f, scope: e.target.value }))} rows={2} placeholder="e.g. All public-facing IP ranges, API endpoints…" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-rose-500/30" />

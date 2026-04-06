@@ -37,6 +37,9 @@ class Company(Base):
 
     # Partner tier
     is_partner_account: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+
+    # Pen test agency portal
+    is_pentest_agency: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
     partner_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("companies.id", ondelete="SET NULL"), nullable=True
     )

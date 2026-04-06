@@ -38,11 +38,13 @@ async def register(request: Request, body: RegisterRequest, db: AsyncSession = D
         raise HTTPException(status_code=400, detail="Email already registered")
 
     is_partner = body.account_type == "partner"
+    is_agency = body.account_type == "pentest_agency"
     company = Company(
         name=body.company_name,
-        onboarding_completed=is_partner,  # partners skip onboarding flow
+        onboarding_completed=is_partner or is_agency,
         is_partner_account=is_partner,
-        plan="partner" if is_partner else "free",
+        is_pentest_agency=is_agency,
+        plan="partner" if is_partner else ("agency" if is_agency else "free"),
     )
     db.add(company)
     await db.flush()
@@ -55,6 +57,26 @@ async def register(request: Request, body: RegisterRequest, db: AsyncSession = D
     )
     db.add(user)
     await db.flush()
+
+    # Auto-create pentest agency profile
+    if is_agency:
+        from models.pentest_agency_profile import PentestAgencyProfile, _slugify
+        import secrets as _sec
+        _base_slug = _slugify(body.company_name) or "agency"
+        _aslug = _base_slug
+        for _ in range(10):
+            _existing_a = await db.execute(
+                select(PentestAgencyProfile).where(PentestAgencyProfile.slug == _aslug)
+            )
+            if not _existing_a.scalar_one_or_none():
+                break
+            _aslug = f"{_base_slug}-{_sec.token_hex(3)}"
+        db.add(PentestAgencyProfile(
+            company_id=company.id,
+            display_name=body.company_name,
+            slug=_aslug,
+            contact_email=body.email,
+        ))
 
     # Create the trust page so the public URL works immediately
     import secrets as _secrets

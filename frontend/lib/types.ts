@@ -15,7 +15,79 @@ export interface Company {
   created_at: string;
   onboarding_completed: boolean;
   is_partner_account: boolean;
+  is_pentest_agency: boolean;
   primary_frameworks: string[];
+}
+
+export interface PentestAgencyProfile {
+  id: string;
+  company_id: string;
+  display_name: string;
+  slug: string;
+  description: string | null;
+  website: string | null;
+  contact_email: string | null;
+  certifications: string[];
+  specializations: string[];
+  logo_url: string | null;
+  is_verified: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AgencyFindingCount {
+  critical: number;
+  high: number;
+  medium: number;
+  low: number;
+  total: number;
+  open: number;
+}
+
+export interface AgencyAssignment {
+  id: string;
+  company_id: string;
+  name: string;
+  vendor_name: string | null;
+  test_type: string;
+  status: string;
+  scope: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  report_url: string | null;
+  executive_summary: string | null;
+  created_at: string;
+  updated_at: string;
+  finding_counts: AgencyFindingCount;
+  findings?: AgencyFinding[];
+}
+
+export interface AgencyFinding {
+  id: string;
+  pen_test_id: string;
+  title: string;
+  severity: string;
+  status: string;
+  description: string | null;
+  recommendation: string | null;
+  cvss_score: number | null;
+  cve_id: string | null;
+  remediation_notes: string | null;
+  ticket_url: string | null;
+  remediated_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AgencyTask {
+  type: string;
+  label: string;
+  description: string;
+  test_id: string;
+  test_name: string;
+  priority: "high" | "medium" | "low";
+  count?: number;
 }
 
 export interface PartnerClient {

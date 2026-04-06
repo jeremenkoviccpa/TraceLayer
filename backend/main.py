@@ -8,7 +8,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from sqlalchemy import select, text
 
-from api.v1 import access_reviews, access_reviews_v2, ai_agent_events, api_keys, assets, audit, audit_engagements, audit_sessions, auth, auth_google, auth_sso, background_checks, billing, business_continuity, change_requests, chat, compliance, custom_frameworks, data_breaches, data_flows, devices, devices_v2, documents, employee_portal, evidence, incidents, ingest, integrations, management_reviews, notifications, oauth_integrations, offboarding, onboarding, org, partner, partner_directory, pen_tests, pen_tests_v2, policies, public, questionnaire, reports, risks, ropa, slack_bot, soa, sso, subject_requests, subprocessors, superadmin, training, trust, vendor_questionnaires, vendors, vulnerabilities
+from api.v1 import access_reviews, access_reviews_v2, ai_agent_events, api_keys, assets, audit, audit_engagements, audit_sessions, auth, auth_google, auth_sso, background_checks, billing, business_continuity, change_requests, chat, compliance, custom_frameworks, data_breaches, data_flows, devices, devices_v2, documents, employee_portal, evidence, incidents, ingest, integrations, management_reviews, notifications, oauth_integrations, offboarding, onboarding, org, partner, partner_directory, pen_tests, pen_tests_v2, pentest_agency, policies, public, questionnaire, reports, risks, ropa, slack_bot, soa, sso, subject_requests, subprocessors, superadmin, training, trust, vendor_questionnaires, vendors, vulnerabilities
 from api.v1.admin.framework_updates import manifests_router as framework_manifests_router
 from api.v1.admin.framework_updates import router as framework_updates_router
 from collectors.scheduler import schedule_integration
@@ -210,6 +210,7 @@ app.include_router(vendor_questionnaires.router, prefix="/v1")
 app.include_router(access_reviews_v2.router, prefix="/v1")
 app.include_router(devices_v2.router, prefix="/v1")
 app.include_router(pen_tests_v2.router, prefix="/v1")
+app.include_router(pentest_agency.router, prefix="/v1")
 app.include_router(soa.router, prefix="/v1")
 app.include_router(ropa.router, prefix="/v1")
 app.include_router(data_breaches.router, prefix="/v1")
