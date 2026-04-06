@@ -35,6 +35,9 @@ function Modal({
     soc2_certified: initial?.soc2_certified ?? false,
     iso27001_certified: initial?.iso27001_certified ?? false,
     hipaa_certified: initial?.hipaa_certified ?? false,
+    pci_dss_certified: initial?.pci_dss_certified ?? false,
+    gdpr_certified: initial?.gdpr_certified ?? false,
+    iso42001_certified: initial?.iso42001_certified ?? false,
     review_date: initial?.review_date ? initial.review_date.slice(0, 10) : "",
     notes: initial?.notes ?? "",
   });
@@ -100,7 +103,7 @@ function Modal({
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-2">Certifications</label>
             <div className="flex flex-col gap-2">
-              {([["soc2_certified", "SOC 2 Type II"], ["iso27001_certified", "ISO 27001"], ["hipaa_certified", "HIPAA"]] as const).map(([key, label]) => (
+              {([["soc2_certified", "SOC 2 Type II"], ["iso27001_certified", "ISO 27001"], ["hipaa_certified", "HIPAA"], ["pci_dss_certified", "PCI DSS"], ["gdpr_certified", "GDPR"], ["iso42001_certified", "ISO 42001"]] as const).map(([key, label]) => (
                 <label key={key} className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={form[key]} onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.checked }))} className="rounded" />
                   <span className="text-sm text-gray-700">{label} certified</span>

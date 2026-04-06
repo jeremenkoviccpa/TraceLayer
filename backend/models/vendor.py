@@ -27,6 +27,9 @@ class Vendor(Base):
     soc2_certified: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     iso27001_certified: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     hipaa_certified: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    pci_dss_certified: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    gdpr_certified: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    iso42001_certified: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     # Date of last review
     review_date: Mapped[Optional[datetime]] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)

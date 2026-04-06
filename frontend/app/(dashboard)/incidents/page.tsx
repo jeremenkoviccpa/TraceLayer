@@ -95,11 +95,22 @@ export default function IncidentsPage() {
     Math.floor((Date.now() - new Date(i.detected_at).getTime()) / 3600000) > 6
   );
 
-  const nis2Overdue = open.filter(i =>
+  const nis2EarlyWarningOverdue = open.filter(i =>
     i.detected_at &&
     !i.nis2_early_warning_at &&
     Math.floor((Date.now() - new Date(i.detected_at).getTime()) / 3600000) > 24
   );
+  const nis2NotificationOverdue = open.filter(i =>
+    i.detected_at &&
+    !i.nis2_notified_at &&
+    Math.floor((Date.now() - new Date(i.detected_at).getTime()) / 3600000) > 72
+  );
+  const nis2FinalReportOverdue = open.filter(i =>
+    i.detected_at &&
+    !i.nis2_final_report_at &&
+    (Date.now() - new Date(i.detected_at).getTime()) > 30 * 24 * 3600000
+  );
+  const nis2Overdue = nis2EarlyWarningOverdue;
 
   return (
     <div className="space-y-6">
@@ -203,11 +214,27 @@ export default function IncidentsPage() {
         </div>
       )}
 
-      {nis2Overdue.length > 0 && (
+      {nis2EarlyWarningOverdue.length > 0 && (
         <div className="flex items-center gap-3 bg-indigo-700 text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-sm">
           <AlertOctagon className="w-4 h-4 shrink-0" />
           <span>
-            🇪🇺 {nis2Overdue.length} incident{nis2Overdue.length > 1 ? "s" : ""} past NIS2 24-hour early warning deadline (Art. 23) — file early warning with national CSIRT and log the timestamp
+            🇪🇺 {nis2EarlyWarningOverdue.length} incident{nis2EarlyWarningOverdue.length > 1 ? "s" : ""} past NIS2 24-hour early warning deadline (Art. 23) — file early warning with national CSIRT and log the timestamp
+          </span>
+        </div>
+      )}
+      {nis2NotificationOverdue.length > 0 && (
+        <div className="flex items-center gap-3 bg-indigo-600 text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-sm">
+          <AlertOctagon className="w-4 h-4 shrink-0" />
+          <span>
+            🇪🇺 {nis2NotificationOverdue.length} incident{nis2NotificationOverdue.length > 1 ? "s" : ""} past NIS2 72-hour notification deadline (Art. 23) — submit full incident notification to national CSIRT
+          </span>
+        </div>
+      )}
+      {nis2FinalReportOverdue.length > 0 && (
+        <div className="flex items-center gap-3 bg-indigo-500 text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-sm">
+          <AlertOctagon className="w-4 h-4 shrink-0" />
+          <span>
+            🇪🇺 {nis2FinalReportOverdue.length} incident{nis2FinalReportOverdue.length > 1 ? "s" : ""} past NIS2 1-month final report deadline (Art. 23) — submit final report to national CSIRT
           </span>
         </div>
       )}
