@@ -41,6 +41,10 @@ const QUESTIONS = [
       { label: "SOC 2", value: "soc2" },
       { label: "ISO 27001", value: "iso27001" },
       { label: "HIPAA", value: "hipaa" },
+      { label: "GDPR (EU)", value: "gdpr" },
+      { label: "PCI DSS", value: "pci_dss" },
+      { label: "CCPA / CPRA (California)", value: "ccpa" },
+      { label: "NIST CSF", value: "nist_csf" },
       { label: "DPDP Act (India)", value: "dpdp" },
       { label: "CERT-In (India)", value: "cert_in" },
       { label: "Serbian LPDP", value: "lpdp" },
@@ -103,6 +107,10 @@ function computeResult(answers: Answers) {
     soc2: "SOC 2",
     iso27001: "ISO 27001",
     hipaa: "HIPAA",
+    gdpr: "GDPR",
+    pci_dss: "PCI DSS",
+    ccpa: "CCPA / CPRA",
+    nist_csf: "NIST CSF 2.0",
     dpdp: "DPDP Act 2023",
     cert_in: "CERT-In Directions 2022",
     lpdp: "Serbian LPDP 2018",
@@ -147,7 +155,27 @@ function computeResult(answers: Answers) {
     });
   }
 
-  if (answers.framework === "dpdp") {
+  if (answers.framework === "gdpr") {
+    insights.push({
+      type: "warn",
+      text: "GDPR requires a documented lawful basis for every processing activity, a ROPA, DPAs with all processors, and 72-hour breach notification. TraceLayer maps your identity, cloud, and security tooling to all 10 GDPR control categories — and tracks your subject request SLA automatically.",
+    });
+  } else if (answers.framework === "pci_dss") {
+    insights.push({
+      type: "warn",
+      text: "PCI DSS v4.0 requires CDE network segmentation, daily log review, quarterly vulnerability scans by an ASV, and MFA for all CDE access. TraceLayer continuously collects evidence across all 12 PCI DSS control areas — so your QSA assessment pack is always ready.",
+    });
+  } else if (answers.framework === "ccpa") {
+    insights.push({
+      type: "info",
+      text: "CCPA / CPRA requires a privacy notice at collection, a Do Not Sell link, 45-day consumer request SLA, and updated service provider contracts. TraceLayer maps your data inventory, IAM, and access logs to all 6 CCPA control categories.",
+    });
+  } else if (answers.framework === "nist_csf") {
+    insights.push({
+      type: "info",
+      text: "NIST CSF 2.0 added a new Govern function covering cybersecurity strategy and leadership accountability. TraceLayer maps evidence across all 6 CSF functions — Govern, Identify, Protect, Detect, Respond, and Recover — using your existing tools.",
+    });
+  } else if (answers.framework === "dpdp") {
     insights.push({
       type: "info",
       text: "DPDP Act 2023 requires consent management, breach notification within 72 hours, and data principal rights — TraceLayer maps your existing integrations to all six DPDP control categories automatically.",
