@@ -291,9 +291,9 @@ export default function AuditPackagePage() {
     <div className="space-y-8 overflow-x-hidden">
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-800 to-teal-800 p-8 md:p-10 text-white shadow-xl">
-        {/* Background decoration */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="relative rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-800 to-teal-800 p-8 md:p-10 text-white shadow-xl">
+        {/* Background decoration — overflow-hidden here, not on parent, so dropdown escapes */}
+        <div className="pointer-events-none absolute inset-0 rounded-3xl overflow-hidden">
           <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/5 blur-3xl" />
           <div className="absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-teal-500/10 blur-3xl" />
         </div>

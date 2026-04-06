@@ -179,7 +179,7 @@ const NAV_SECTIONS: NavSection[] = [
     tourNavId: "tour-nav-reporting",
     items: [
       { href: "/reports",            label: "Reports",         icon: FileText       },
-      { href: "/management-reviews", label: "Mgmt Reviews",    icon: ClipboardCheck },
+      { href: "/management-reviews", label: "Management Reviews", icon: ClipboardCheck },
       { href: "/portal",             label: "Auditor Portal",  icon: UserCheck      },
     ],
   },

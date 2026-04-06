@@ -47,7 +47,7 @@ function ContextPanel({ ctx }: { ctx: AutofillContextSummary }) {
     { icon: Database,      label: "RoPA",               value: ctx.ropa_count,               active: ctx.ropa_count > 0 },
     { icon: ShieldX,       label: "Breach Register",    value: ctx.breaches_count,           active: true },
     { icon: UserSearch,    label: "Subject Requests",   value: ctx.subject_requests_count,   active: true },
-    { icon: ClipboardList, label: "Mgmt Reviews",       value: ctx.management_review ? 1 : 0, active: ctx.management_review },
+    { icon: ClipboardList, label: "Management Reviews",  value: ctx.management_review ? 1 : 0, active: ctx.management_review },
   ];
 
   const activeSources = sources.filter((s) => s.active).length;

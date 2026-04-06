@@ -485,7 +485,7 @@ export default function GuidePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
               {[
                 { href: "/reports",            label: "Reports",          icon: FileText,       description: "Export compliance reports by framework — PDF or shareable link." },
-                { href: "/management-reviews", label: "Mgmt Reviews",     icon: ClipboardCheck, description: "Document leadership sign-off and periodic security review records." },
+                { href: "/management-reviews", label: "Management Reviews", icon: ClipboardCheck, description: "Document leadership sign-off and periodic security review records." },
                 { href: "/portal",             label: "Auditor Portal",   icon: UserCheck,      description: "Secure read-only portal for your external auditor with time-limited access." },
               ].map(({ href, label, icon: Icon, description }) => (
                 <Link key={href} href={href}
