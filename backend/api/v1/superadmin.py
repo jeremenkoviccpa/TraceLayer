@@ -22,6 +22,7 @@ from models.company import Company
 from models.evidence import Evidence
 from models.integration import Integration
 from models.partner_directory import PartnerDirectoryEntry
+from models.score_snapshot import ScoreSnapshot
 from models.tool_lead import ToolLead
 from models.user import User
 from schemas.partner_directory import PartnerDirectoryEntryResponse
@@ -481,6 +482,13 @@ _DEMO_INTEGRATIONS = [
     ("rippling",         {"api_key": "DEMO"}),
     ("sentry",           {"auth_token": "DEMO", "org_slug": "acme-corp"}),
     ("google_cloud",     {"service_account_json": '{"type":"service_account","project_id":"acme-prod"}', "project_id": "acme-prod-123"}),
+    # Additional integrations for SOC 2 full coverage
+    ("vault",            {"address": "https://vault.acme.internal", "token": "hvs.DEMO"}),
+    ("sentinelone",      {"api_token": "DEMO_S1_TOKEN", "site_id": "DEMO-SITE-001"}),
+    ("kandji",           {"api_token": "DEMO_KANDJI", "subdomain": "acme"}),
+    ("servicenow",       {"instance": "acme.service-now.com", "username": "api-user", "password": "DEMO"}),
+    ("opsgenie",         {"api_key": "DEMO_OG_KEY"}),
+    ("hackerone",        {"api_token": "DEMO_H1_TOKEN", "program_handle": "acme-security"}),
 ]
 
 
@@ -917,6 +925,153 @@ def _build_demo_evidence(cid: uuid.UUID) -> list[dict]:
         "lastActivityAt": (now - timedelta(hours=2)).isoformat(),
     }, age_days=0))
 
+    # ── SOC 2 COMPLETENESS — covers all 12 control categories at 90%+ ─────────
+    # Ensures every expected evidence type in EXPECTED_TYPES["soc2"] is present
+    # with fresh timestamps (age_days=0/1) and 10+ records per category.
+
+    # control_environment: iam_policies, okta_policies, github_repositories, azure_roles
+    for n, name, admin in [(1,"AdministratorAccess",True),(2,"SecurityAudit",False),(3,"IAMReadOnly",False)]:
+        records.append(ev("aws","control_environment","iam_policies",f"ce_iam_{n}",{"policy_name":name,"admin_policy":admin,"scope":"governance"},age_days=1))
+    for n, name in [(1,"MFA-Enforcement"),(2,"Password-Complexity"),(3,"Session-Timeout")]:
+        records.append(ev("okta","control_environment","okta_policies",f"ce_okta_{n}",{"name":name,"status":"ACTIVE","type":"PASSWORD","priority":n},age_days=1))
+    for n, name in [(1,"backend"),(2,"infrastructure"),(3,"security-config")]:
+        records.append(ev("github","control_environment","github_repositories",f"ce_repo_{n}",{"name":name,"full_name":f"acme-corp/{name}","private":True,"branch_protection":True,"default_branch":"main"},age_days=1))
+    for n, name, count in [(1,"GlobalAdmin",2),(2,"SecurityReader",4),(3,"ComplianceManager",2),(4,"AuditReader",6)]:
+        records.append(ev("azure_ad","control_environment","azure_roles",f"ce_azr_{n}",{"displayName":name,"isBuiltIn":True,"isEnabled":True,"memberCount":count},age_days=1))
+
+    # risk_assessment: vulnerability_scans, wiz_issues, snyk_projects, iam_policies
+    for n, sev, title in [(1,"LOW","S3 public read (resolved)"),(2,"MEDIUM","IAM key rotation"),(3,"LOW","Security group egress"),(4,"LOW","CloudTrail gap")]:
+        records.append(ev("aws","risk_assessment","vulnerability_scans",f"ra_scan_{n}",{"finding_id":f"SCAN-{n:04d}","severity":sev,"title":title,"status":"resolved"},age_days=0))
+    for n, title, sev in [(1,"Overpermissive IAM role","HIGH"),(2,"Unencrypted S3 bucket","MEDIUM"),(3,"Missing MFA privileged","CRITICAL")]:
+        records.append(ev("wiz","risk_assessment","wiz_issues",f"ra_wiz_{n}",{"issue_id":f"WIZ-RA-{n:04d}","title":title,"severity":sev,"status":"RESOLVED"},age_days=0))
+    for n, pkg, sev in [(1,"lodash","HIGH"),(2,"express","MEDIUM"),(3,"axios","LOW"),(4,"react","LOW")]:
+        records.append(ev("snyk","risk_assessment","snyk_projects",f"ra_snyk_{n}",{"project_name":f"acme/{pkg}","severity":sev,"issue_count":n,"last_tested":now.isoformat()},age_days=0))
+    for n, name in [(1,"RiskAssessmentPolicy"),(2,"SecurityBaseline"),(3,"ComplianceControls")]:
+        records.append(ev("aws","risk_assessment","iam_policies",f"ra_iam_{n}",{"policy_name":name,"risk_reviewed":True,"last_reviewed":now.isoformat()},age_days=0))
+
+    # access_control additions: github_admin_members, workspace_admin_members, okta_policies, azure_roles
+    for n, login in enumerate(["carol","ivan"],1):
+        records.append(ev("github","access_control","github_admin_members",f"ac_admin_{n}",{"login":login,"id":abs(hash(login))%99999,"role":"admin","site_admin":False},age_days=0))
+    for n, email in enumerate(["alice@acme.com","carol@acme.com","ivan@acme.com"],1):
+        records.append(ev("google_workspace","access_control","workspace_admin_members",f"ac_wsadm_{n}",{"primaryEmail":email,"isAdmin":True,"isSuperAdmin":n==1},age_days=0))
+    for n, name in [(1,"MFA-Enforcement"),(2,"Password-Policy"),(3,"SSO-Policy")]:
+        records.append(ev("okta","access_control","okta_policies",f"ac_opol_{n}",{"name":name,"status":"ACTIVE","type":"PASSWORD"},age_days=0))
+    for n, name, count in [(1,"GlobalAdmin",2),(2,"Contributor",8),(3,"Reader",12)]:
+        records.append(ev("azure_ad","access_control","azure_roles",f"ac_azr_{n}",{"displayName":name,"isBuiltIn":True,"isEnabled":True,"memberCount":count},age_days=0))
+
+    # privileged_access: iam_policies, okta_groups, azure_roles, github_admin_members, vault_policy, vault_auth_method
+    for n, name in [(1,"AdministratorAccess"),(2,"IAMFullAccess")]:
+        records.append(ev("aws","privileged_access","iam_policies",f"pa_iam_{n}",{"policy_name":name,"admin_policy":True,"privileged":True,"attached_entities":2},age_days=0))
+    for n, name in [(1,"admins"),(2,"security-ops"),(3,"leadership")]:
+        records.append(ev("okta","privileged_access","okta_groups",f"pa_ogrp_{n}",{"id":f"pa_grp_{n}","name":name,"privileged":True,"member_count":n},age_days=0))
+    for n, name in [(1,"GlobalAdmin"),(2,"PrivilegedRoleAdmin")]:
+        records.append(ev("azure_ad","privileged_access","azure_roles",f"pa_azr_{n}",{"displayName":name,"isBuiltIn":True,"isEnabled":True,"memberCount":n},age_days=0))
+    records.append(ev("github","privileged_access","github_admin_members","pa_admin_carol",{"login":"carol","role":"admin","site_admin":False},age_days=0))
+    for n, name, path in [(1,"engineering","/secret/prod/*"),(2,"security","/secret/*"),(3,"readonly","/secret/+/config")]:
+        records.append(ev("vault","privileged_access","vault_policy",f"pa_vpol_{n}",{"name":name,"policies":[path],"capabilities":["read","list"]},age_days=0))
+    for n, method in [(1,"github"),(2,"kubernetes")]:
+        records.append(ev("vault","privileged_access","vault_auth_method",f"pa_vauth_{n}",{"type":method,"path":f"{method}/","enabled":True},age_days=0))
+
+    # logging_monitoring additions: datadog_logs, splunk_saved_searches, crowdstrike_detections, sentinelone_threats, wiz_issues
+    for n, svc, lvl in [(1,"api-server","INFO"),(2,"auth-service","WARN"),(3,"data-pipeline","INFO"),(4,"gateway","INFO"),(5,"worker","INFO")]:
+        records.append(ev("datadog","logging_monitoring","datadog_logs",f"lm_ddlog_{n}",{"service":svc,"status":lvl,"count_24h":n*1200,"indexed":True},age_days=0))
+    for n, name, schedule in [(1,"Security Event Summary","cron(0 */6 * * *)"),(2,"Auth Failures","cron(*/15 * * * *)"),(3,"Privilege Audit","cron(0 0 * * *)"),(4,"Data Exfil","cron(*/5 * * * *)")]:
+        records.append(ev("splunk","logging_monitoring","splunk_saved_searches",f"lm_spsearch_{n}",{"name":name,"search":"index=main | stats count","cron_schedule":schedule,"is_scheduled":True},age_days=0))
+    for n, host, sev in [(1,"web-server-01","medium"),(2,"worker-02","low"),(3,"db-replica-01","low"),(4,"api-server-03","low"),(5,"batch-01","low")]:
+        records.append(ev("crowdstrike","logging_monitoring","crowdstrike_detections",f"lm_csdet_{n}",{"detection_id":f"ldt:{n:04d}","hostname":host,"severity":sev,"status":"closed","resolved":True},age_days=0))
+    for n, host, threat in [(1,"endpoint-mac-001","PUP.Optional"),(2,"endpoint-mac-002","Adware.Gen"),(3,"endpoint-mac-003","Potentially.Unwanted")]:
+        records.append(ev("sentinelone","logging_monitoring","sentinelone_threats",f"lm_s1thr_{n}",{"threat_id":f"s1thr_{n}","agent_computer_name":host,"classification":threat,"mitigated":True},age_days=0))
+    for n, title, sev in [(1,"Public S3 (remediated)","HIGH"),(2,"Unpatched container image","MEDIUM"),(3,"Network exposure resolved","HIGH")]:
+        records.append(ev("wiz","logging_monitoring","wiz_issues",f"lm_wiz_{n}",{"issue_id":f"WIZ-LM-{n:04d}","title":title,"severity":sev,"status":"RESOLVED"},age_days=0))
+
+    # incident_response: pagerduty_incidents, pagerduty_services, pagerduty_escalation_policies,
+    #                    servicenow_incidents, opsgenie_alerts, opsgenie_schedules, opsgenie_escalations
+    for n, title, urgency in [(1,"API latency spike","low"),(2,"DB failover triggered","high"),(3,"Cert expiry warning","low"),(4,"Deploy failure auto-rollback","high"),(5,"Scheduled maintenance","low")]:
+        records.append(ev("pagerduty","incident_response","pagerduty_incidents",f"ir_pdinc_{n}",{"id":f"P{n:06d}","title":title,"urgency":urgency,"status":"resolved"},age_days=1))
+    for n, name, kind in [(1,"API Gateway","web"),(2,"Auth Service","web"),(3,"Background Workers","worker")]:
+        records.append(ev("pagerduty","incident_response","pagerduty_services",f"ir_pdsvc_{n}",{"id":f"SVC{n:04d}","name":name,"type":kind,"status":"active"},age_days=1))
+    for n, name in [(1,"Engineering On-Call"),(2,"Security Incident Response")]:
+        records.append(ev("pagerduty","incident_response","pagerduty_escalation_policies",f"ir_pdesc_{n}",{"id":f"ESC{n:04d}","name":name,"num_loops":3},age_days=1))
+    for n, short, cat in [(1,"INC0001234","inquiry"),(2,"INC0001235","security"),(3,"INC0001236","network"),(4,"INC0001237","application")]:
+        records.append(ev("servicenow","incident_response","servicenow_incidents",f"ir_sninc_{n}",{"number":short,"category":cat,"state":"closed","priority":"3 - Moderate"},age_days=1))
+    for n, msg, pri in [(1,"High CPU on api-server-01","P3"),(2,"Memory threshold exceeded","P4"),(3,"SSL cert expiry in 14d","P4"),(4,"Disk usage above 85%","P3")]:
+        records.append(ev("opsgenie","incident_response","opsgenie_alerts",f"ir_ogalert_{n}",{"id":f"og_alert_{n}","message":msg,"priority":pri,"status":"closed"},age_days=1))
+    for n, name in [(1,"Engineering Rotation"),(2,"Security On-Call")]:
+        records.append(ev("opsgenie","incident_response","opsgenie_schedules",f"ir_ogsched_{n}",{"id":f"og_sched_{n}","name":name,"enabled":True,"rotation_period":"weekly"},age_days=1))
+    for n, name in [(1,"Default Escalation"),(2,"Security Escalation")]:
+        records.append(ev("opsgenie","incident_response","opsgenie_escalations",f"ir_ogesc_{n}",{"id":f"og_esc_{n}","name":name,"rules":[{"condition":"if-not-acked","delay":10}]},age_days=1))
+
+    # change_management additions: github_repositories, gitlab_repositories, servicenow_changes
+    # (existing "repositories" type doesn't count — adding "github_repositories" and "gitlab_repositories")
+    for n, name, priv in [(1,"backend",True),(2,"frontend",True),(3,"infrastructure",True),(4,"data-platform",True),(5,"mobile-app",True)]:
+        records.append(ev("github","change_management","github_repositories",f"cm_ghrepo_{n}",{"name":name,"full_name":f"acme-corp/{name}","private":priv,"branch_protection_enabled":True,"default_branch":"main","updated_at":now.isoformat()},age_days=0))
+    for n, name in [(1,"ops-scripts"),(2,"legacy-api"),(3,"devops-tools")]:
+        records.append(ev("gitlab","change_management","gitlab_repositories",f"cm_glrepo_{n}",{"name":name,"path_with_namespace":f"acme-corp/{name}","visibility":"private","default_branch":"main","last_activity_at":now.isoformat()},age_days=0))
+    for n, number, cat in [(1,"CHG0000101","normal"),(2,"CHG0000102","standard"),(3,"CHG0000103","emergency"),(4,"CHG0000104","normal")]:
+        records.append(ev("servicenow","change_management","servicenow_changes",f"cm_snchg_{n}",{"number":number,"category":cat,"state":"closed","cab_approval":n!=3,"implemented_at":now.isoformat()},age_days=0))
+
+    # endpoint_security: crowdstrike_devices, crowdstrike_policies, sentinelone_agents,
+    #                    jamf_computers, jamf_policies, kandji_devices, kandji_blueprints
+    for n, host, os_type in [(1,"macbook-alice","macOS 14.4"),(2,"macbook-bob","macOS 14.4"),(3,"macbook-carol","macOS 14.4"),(4,"macbook-dave","macOS 14.3"),(5,"linux-server-01","Ubuntu 22.04"),(6,"linux-server-02","Ubuntu 22.04"),(7,"linux-worker-01","Ubuntu 22.04"),(8,"linux-worker-02","Ubuntu 22.04")]:
+        records.append(ev("crowdstrike","endpoint_security","crowdstrike_devices",f"ep_csdev_{n}",{"device_id":f"cs_{n:04d}","hostname":host,"status":"normal","os_version":os_type,"last_seen":now.isoformat(),"prevention_policy_applied":True},age_days=0))
+    for n, name in [(1,"Prevention Policy - Mac"),(2,"Prevention Policy - Linux"),(3,"Detection Policy")]:
+        records.append(ev("crowdstrike","endpoint_security","crowdstrike_policies",f"ep_cspol_{n}",{"id":f"csp_{n:04d}","name":name,"enabled":True},age_days=0))
+    for n, host in enumerate(["macbook-alice","macbook-bob","macbook-carol","macbook-dave","macbook-eve","macbook-frank","macbook-grace","macbook-ivan"],1):
+        records.append(ev("sentinelone","endpoint_security","sentinelone_agents",f"ep_s1agent_{n}",{"agent_id":f"s1_{n:04d}","computer_name":host,"os_type":"macos","agent_version":"23.4.2","is_active":True},age_days=0))
+    for n, serial in enumerate(["C02XDEMO0001","C02XDEMO0002","C02XDEMO0003","C02XDEMO0004","C02XDEMO0005","C02XDEMO0006","C02XDEMO0007","C02XDEMO0008"],1):
+        records.append(ev("jamf","endpoint_security","jamf_computers",serial,{"serialNumber":serial,"model":"MacBook Pro","managed":True,"lastContactTime":now.isoformat()},age_days=0))
+    for n, name in [(1,"Security Baseline"),(2,"Encryption Policy"),(3,"Screen Lock Policy")]:
+        records.append(ev("jamf","endpoint_security","jamf_policies",f"ep_jamfpol_{n}",{"id":n*100,"name":name,"enabled":True,"scope_all_computers":True},age_days=0))
+    for n, serial in enumerate(["KANDJI-001","KANDJI-002","KANDJI-003","KANDJI-004","KANDJI-005","KANDJI-006","KANDJI-007","KANDJI-008"],1):
+        records.append(ev("kandji","endpoint_security","kandji_devices",serial,{"device_id":serial,"serial_number":serial,"model":"MacBook Pro","blueprints":["Security Baseline"],"is_missing":False,"last_check_in":now.isoformat()},age_days=0))
+    for n, name in [(1,"Security Baseline"),(2,"Engineering Devices")]:
+        records.append(ev("kandji","endpoint_security","kandji_blueprints",f"ep_kbp_{n}",{"id":f"kbp_{n:04d}","name":name,"device_count":n*5,"is_default":n==1},age_days=0))
+
+    # vulnerability_management additions: snyk_projects, vulnerability_scans, crowdstrike_detections, hackerone_reports
+    # (wiz_issues already seeded above — reuse different source_ids)
+    for n, pkg, sev in [(1,"backend/api","LOW"),(2,"backend/worker","MEDIUM"),(3,"frontend/next","LOW"),(4,"infra/terraform","LOW")]:
+        records.append(ev("snyk","vulnerability_management","snyk_projects",f"vm_snyk_{n}",{"id":f"snyk_{n:04d}","name":f"acme/{pkg}","high_severity_count":0,"medium_severity_count":1 if sev=="MEDIUM" else 0,"last_tested_date":now.isoformat()},age_days=0))
+    for n, title, sev in [(1,"OpenSSL CVE-2023-xxxx","MEDIUM"),(2,"Log4j follow-up scan","LOW"),(3,"Container base layer scan","LOW"),(4,"EC2 infrastructure scan","LOW")]:
+        records.append(ev("aws","vulnerability_management","vulnerability_scans",f"vm_vscan_{n}",{"finding_id":f"VSCAN-{n:04d}","title":title,"severity":sev,"status":"resolved"},age_days=0))
+    for n, host, sev in [(1,"api-server-02","medium"),(2,"worker-03","low"),(3,"batch-server","low")]:
+        records.append(ev("crowdstrike","vulnerability_management","crowdstrike_detections",f"vm_csdet_{n}",{"detection_id":f"vm_ldt:{n:04d}","hostname":host,"severity":sev,"status":"closed","resolved":True},age_days=0))
+    for n, title, sev, state in [(1,"XSS admin panel (fixed)","medium","resolved"),(2,"Rate limiting bypass (fixed)","high","resolved"),(3,"SQL injection edge case (fixed)","critical","resolved")]:
+        records.append(ev("hackerone","vulnerability_management","hackerone_reports",f"vm_h1_{n}",{"id":n*100000,"title":title,"severity":sev,"state":state,"bounty_awarded_amount":n*500},age_days=0))
+
+    # vendor_risk: github_repositories, snyk_projects, wiz_issues, cloudtrail_logs
+    for n, name in [(1,"backend-vendor-sdk"),(2,"third-party-api-client"),(3,"analytics-module"),(4,"compliance-data-pipeline")]:
+        records.append(ev("github","vendor_risk","github_repositories",f"vr_ghrepo_{n}",{"name":name,"full_name":f"acme-corp/{name}","private":True,"vendor_owned":True},age_days=0))
+    for n, pkg in [(1,"vendor-sdk/payments"),(2,"vendor-sdk/auth"),(3,"vendor-sdk/data")]:
+        records.append(ev("snyk","vendor_risk","snyk_projects",f"vr_snyk_{n}",{"id":f"vr_snyk_{n:04d}","name":pkg,"last_tested_date":now.isoformat(),"high_severity_count":0,"vendor_dependency":True},age_days=0))
+    for n, title in [(1,"Third-party API excessive permissions"),(2,"Vendor container outdated image")]:
+        records.append(ev("wiz","vendor_risk","wiz_issues",f"vr_wiz_{n}",{"issue_id":f"WIZ-VR-{n:04d}","title":title,"severity":"MEDIUM","status":"RESOLVED"},age_days=0))
+    for n, event in [(1,"GetSecretValue_vendor"),(2,"AssumeRole_vendor"),(3,"ListBuckets_vendor"),(4,"PutObject_vendor")]:
+        records.append(ev("aws","vendor_risk","cloudtrail_logs",f"vr_ct_{n}",{"event_name":event.split("_")[0],"user_agent":"vendor-sdk/1.0","source_ip":"10.0.1.100","event_time":now.isoformat()},age_days=0))
+
+    # availability: pagerduty_services, datadog_slos, datadog_monitors, servicenow_changes, vault_secrets_engine
+    for n, name, kind in [(1,"API Gateway","web"),(2,"Auth Service","web"),(3,"Background Workers","worker")]:
+        records.append(ev("pagerduty","availability","pagerduty_services",f"av_pdsvc_{n}",{"id":f"AV_SVC{n:04d}","name":name,"type":kind,"status":"active","uptime_last_30d":99.95},age_days=0))
+    for n, name, slo in [(1,"API Availability SLO",99.9),(2,"Auth SLO",99.95),(3,"Data Pipeline SLO",99.5)]:
+        records.append(ev("datadog","availability","datadog_slos",f"av_ddslo_{n}",{"id":f"slo_{n:04d}","name":name,"target":slo,"current":slo+0.04,"status":"ok"},age_days=0))
+    for n, name in [(1,"API P99 Latency"),(2,"Error Rate"),(3,"Service Availability")]:
+        records.append(ev("datadog","availability","datadog_monitors",f"av_ddmon_{n}",{"id":n*2000,"name":name,"type":"metric alert","status":"OK"},age_days=0))
+    for n, number in [(1,"CHG0000201"),(2,"CHG0000202"),(3,"CHG0000203")]:
+        records.append(ev("servicenow","availability","servicenow_changes",f"av_snchg_{n}",{"number":number,"category":"normal","state":"closed","availability_impact":"none"},age_days=0))
+    for n, name in [(1,"database"),(2,"application"),(3,"certificates")]:
+        records.append(ev("vault","availability","vault_secrets_engine",f"av_vse_{n}",{"type":"kv-v2","path":f"{name}/","options":{"version":"2"},"seal_status":"unsealed","ha_enabled":True},age_days=0))
+
+    # confidentiality: iam_policies, vault_secrets_engine, vault_policy, cloudtrail_logs, wiz_issues
+    for n, name in [(1,"KMSFullAccess"),(2,"S3EncryptionEnforcement")]:
+        records.append(ev("aws","confidentiality","iam_policies",f"conf_iam_{n}",{"policy_name":name,"encryption_related":True,"admin_policy":False},age_days=0))
+    for n, path, t in [(1,"pki/","pki"),(2,"transit/","transit")]:
+        records.append(ev("vault","confidentiality","vault_secrets_engine",f"conf_vse_{n}",{"type":t,"path":path,"encryption_enabled":True,"auto_rotate":True},age_days=0))
+    for n, name in [(1,"encryption-policy"),(2,"tls-management")]:
+        records.append(ev("vault","confidentiality","vault_policy",f"conf_vpol_{n}",{"name":name,"policies":[f"/{name}/*"],"capabilities":["read","update","create"]},age_days=0))
+    for n, event in [(1,"PutBucketEncryption"),(2,"CreateKey"),(3,"EnableEncryption"),(4,"UpdateEncryption")]:
+        records.append(ev("aws","confidentiality","cloudtrail_logs",f"conf_ct_{n}",{"event_name":event,"encryption_event":True,"region":"us-east-1","event_time":now.isoformat()},age_days=0))
+    for n, title in [(1,"Unencrypted EBS volume (remediated)"),(2,"RDS encryption not enabled (remediated)")]:
+        records.append(ev("wiz","confidentiality","wiz_issues",f"conf_wiz_{n}",{"issue_id":f"WIZ-CONF-{n:04d}","title":title,"severity":"HIGH","status":"RESOLVED"},age_days=0))
+
     return records
 
 
@@ -984,6 +1139,28 @@ async def seed_demo_integrations(
         await db.execute(stmt)
         ev_count += 1
 
+    # Seed SOC 2 score history — 90-day upward trend ending at 100
+    from sqlalchemy import delete as sa_delete
+    await db.execute(
+        sa_delete(ScoreSnapshot).where(
+            ScoreSnapshot.company_id == company_id,
+            ScoreSnapshot.framework == "soc2",
+        )
+    )
+    soc2_trend = [
+        (90, 38), (83, 44), (76, 51), (69, 57), (62, 63),
+        (55, 68), (48, 72), (41, 78), (34, 83), (27, 88),
+        (20, 92), (13, 95), (7, 98), (3, 99), (1, 100),
+    ]
+    for days_ago, score in soc2_trend:
+        db.add(ScoreSnapshot(
+            id=uuid.uuid4(),
+            company_id=company_id,
+            framework="soc2",
+            overall_score=score,
+            snapshot_at=now - timedelta(days=days_ago),
+        ))
+
     await db.commit()
 
     return {
@@ -991,4 +1168,5 @@ async def seed_demo_integrations(
         "integrations_skipped": len(skipped),
         "evidence_upserted": ev_count,
         "added": added,
+        "soc2_score_snapshots": len(soc2_trend),
     }
