@@ -337,20 +337,32 @@ def _evidence_artifact_subsection(ev_records: list, evidence_stats: dict, catego
             ParagraphStyle(f"art_lbl_{et[:12]}", fontName="Helvetica-Bold", fontSize=7, textColor=GRAY_500, leading=11),
         ))
 
-        tbl_rows = [[Paragraph(h, ParagraphStyle(f"art_th_{et[:6]}_{i}", fontName="Helvetica-Bold", fontSize=7, textColor=TEAL, leading=10)) for i, h in enumerate(headers)]]
+        header_row = [Paragraph(h, ParagraphStyle(f"art_th_{et[:6]}_{i}", fontName="Helvetica-Bold", fontSize=7, textColor=TEAL, leading=10)) for i, h in enumerate(headers)]
+        tbl_rows = [header_row]
+        has_real_data = False
         for rec in sample_recs:
             data = rec.get("data", {})
             row_cells = []
+            row_has_data = False
             for key in keys:
                 val = data.get(key, "—")
                 if isinstance(val, bool):
                     val = "Yes" if val else "No"
+                    row_has_data = True
                 elif val is None:
                     val = "—"
                 else:
                     val = str(val)[:38]
+                    if val and val != "—":
+                        row_has_data = True
                 row_cells.append(Paragraph(val, ParagraphStyle(f"art_td_{et[:6]}", fontName="Helvetica", fontSize=7, textColor=GRAY_900, leading=10)))
-            tbl_rows.append(row_cells)
+            if row_has_data:
+                has_real_data = True
+                tbl_rows.append(row_cells)
+        if not has_real_data:
+            no_rec_cell = [Paragraph("(No records available for display)", ParagraphStyle(f"art_nr_{et[:6]}", fontName="Helvetica-Oblique", fontSize=7, textColor=GRAY_500, leading=10))]
+            no_rec_cell += [Paragraph("", ParagraphStyle(f"art_nr2_{et[:6]}", fontSize=7, leading=10)) for _ in range(n_cols - 1)]
+            tbl_rows.append(no_rec_cell)
 
         art_tbl = Table(tbl_rows, colWidths=[col_w] * n_cols, repeatRows=1)
         art_tbl.setStyle(TableStyle([
@@ -930,16 +942,32 @@ def render_audit_package_pdf(context: dict) -> bytes:
         story.append(Spacer(1, 5 * mm))
         story.append(Paragraph("Score History (90-day period)", st["h3"]))
         hist_rows = []
-        for snap in score_history[-10:]:
+        snaps = score_history[-10:]
+        for idx, snap in enumerate(snaps):
             sc = _score_color(snap["score"])
+            if idx == 0:
+                change_text = "—"
+                change_color = GRAY_500
+            else:
+                delta = snap["score"] - snaps[idx - 1]["score"]
+                if delta > 0:
+                    change_text = f"↑ +{delta}%"
+                    change_color = GREEN
+                elif delta < 0:
+                    change_text = f"↓ {delta}%"
+                    change_color = RED
+                else:
+                    change_text = "→ 0%"
+                    change_color = GRAY_500
             hist_rows.append([
                 Paragraph(snap["date"], st["small"]),
                 Paragraph(f"{snap['score']}%", ParagraphStyle(f"hs_{snap['date']}", fontName="Helvetica-Bold", fontSize=9, textColor=sc, leading=12)),
+                Paragraph(change_text, ParagraphStyle(f"hc_{snap['date']}", fontName="Helvetica-Bold", fontSize=9, textColor=change_color, leading=12)),
             ])
         hist_tbl = _data_table(
-            ["Date", "Score"],
+            ["Date", "Score", "Change"],
             hist_rows,
-            [W * 0.40, W * 0.60],
+            [W * 0.35, W * 0.33, W * 0.32],
             st,
         )
         story.append(hist_tbl)
@@ -1321,7 +1349,7 @@ def render_audit_package_pdf(context: dict) -> bytes:
                 c for flag, c in [
                     (v["soc2_certified"],     "SOC 2"),
                     (v["iso27001_certified"], "ISO 27001"),
-                    (v["hipaa_certified"],    "HIPAA"),
+                    (v["hipaa_certified"],    "HIPAA-aligned"),
                 ] if flag
             ]
             v_rows.append([
@@ -1394,16 +1422,18 @@ def render_audit_package_pdf(context: dict) -> bytes:
     except ImportError:
         crit_by_ctrl = {}
 
-    exception_controls = [c for c in context["control_scores"] if c["status"] in ("failing", "warning")]
+    exception_controls = [c for c in context["control_scores"] if c["status"] in ("failing", "warning", "no_evidence")]
 
     if exception_controls:
-        fail_count  = sum(1 for c in exception_controls if c["status"] == "failing")
-        warn_count  = sum(1 for c in exception_controls if c["status"] == "warning")
+        fail_count   = sum(1 for c in exception_controls if c["status"] == "failing")
+        warn_count   = sum(1 for c in exception_controls if c["status"] == "warning")
+        no_ev_count  = sum(1 for c in exception_controls if c["status"] == "no_evidence")
         story.append(_stats_row([
-            _stat_cell(str(len(exception_controls)), "Total Exceptions", AMBER,    W / 3),
-            _stat_cell(str(fail_count),              "Failing Controls", RED,      W / 3),
-            _stat_cell(str(warn_count),              "Exception Noted",  AMBER,    W / 3),
-        ], W / 3, W))
+            _stat_cell(str(len(exception_controls)), "Total Exceptions",       AMBER,    W / 4),
+            _stat_cell(str(fail_count),              "Failing Controls",       RED,      W / 4),
+            _stat_cell(str(warn_count),              "Exception Noted",        AMBER,    W / 4),
+            _stat_cell(str(no_ev_count),             "Insufficient Evidence",  GRAY_500, W / 4),
+        ], W / 4, W))
         story.append(Spacer(1, 5 * mm))
 
         exc_rows = []
@@ -1448,8 +1478,12 @@ def render_audit_package_pdf(context: dict) -> bytes:
             criteria_ids = ", ".join(crit_by_ctrl.get(category, [])) or "—"
             missing = ", ".join(ctrl["missing_types"]) if ctrl["missing_types"] else "evidence coverage"
 
-            badge_text = "FAIL" if status == "failing" else "EXCEPTION NOTED"
-            badge_style = "fail_badge" if status == "failing" else "warn_badge"
+            if status == "failing":
+                badge_text, badge_style = "FAIL", "fail_badge"
+            elif status == "warning":
+                badge_text, badge_style = "EXCEPTION NOTED", "warn_badge"
+            else:
+                badge_text, badge_style = "INSUFFICIENT EVIDENCE", "na_badge"
 
             exc_title_row = Table([[
                 Paragraph(ctrl["name"], ParagraphStyle(
@@ -1471,7 +1505,7 @@ def render_audit_package_pdf(context: dict) -> bytes:
                 f"<b>Control Domain:</b> {category.replace('_', ' ').title()}",
                 f"<b>Compliance Score:</b> {ctrl['score']}%  ·  <b>Evidence Collected:</b> {ctrl['evidence_count']} records",
                 f"<b>Missing Evidence Types:</b> {missing}",
-                f"<b>Auditor Conclusion:</b> {'Control failed evidence threshold — no operating effectiveness demonstrated.' if status == 'failing' else 'Control partially operating — exceptions noted in evidence coverage.'}",
+                f"<b>Auditor Conclusion:</b> {'Control failed evidence threshold — no operating effectiveness demonstrated.' if status == 'failing' else ('Control partially operating — exceptions noted in evidence coverage.' if status == 'warning' else 'No automated evidence collected for this control domain — INSUFFICIENT EVIDENCE. Connect the required integrations to provide evidence.')}",
                 f"<b>Management Response Required:</b> Assign a remediation owner, define a target completion date, and re-run evidence collection after remediation.",
             ]
             detail_body = Table(

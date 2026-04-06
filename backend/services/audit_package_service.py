@@ -22,6 +22,7 @@ FRAMEWORK_LABELS = {
     "cert_in":  "CERT-In Directions 2022",
     "lpdp":     "Serbian LPDP 2018",
     "nis2":     "NIS2 Directive 2022",
+    "iso42001": "ISO/IEC 42001:2023",
 }
 
 _INT_LABELS = {
@@ -337,35 +338,121 @@ def _framework_specific_context(framework: str) -> str:
 
 
 async def _generate_ai_narrative(data: dict) -> dict:
-    fallback_assertion = (
-        f"{data['company_name']} management is responsible for establishing and maintaining "
-        f"effective internal controls over {data['framework_label']} compliance. "
-        f"During the assessment period {data.get('period_start', 'N/A')} through "
-        f"{data.get('period_end', 'N/A')}, management asserts that the controls described "
-        f"in this report are suitably designed and operating with an overall compliance "
-        f"score of {data['score_data']['overall_score']}%."
-    )
-    fallback = {
-        "executive_summary": (
-            f"{data['company_name']} is pursuing {data['framework_label']} compliance. "
-            "Configure ANTHROPIC_API_KEY to enable AI-generated narrative."
-        ),
-        "gap_analysis": "",
-        "recommendations": [],
-        "management_assertion": fallback_assertion,
-    }
-
     from core.config import settings
-    if not settings.anthropic_api_key:
-        return fallback
 
     score_data = data["score_data"]
+    score = score_data["overall_score"]
+    controls = score_data["controls"]
+    num_controls = len(controls)
+    passing_c = sum(1 for c in controls if c["status"] == "passing")
+    failing_c = sum(1 for c in controls if c["status"] == "failing")
+    warning_c = sum(1 for c in controls if c["status"] == "warning")
+    no_ev_c   = num_controls - passing_c - failing_c - warning_c
+    integrations_detail = data.get("connected_integrations_detail", [])
+    int_names = ", ".join(i["label"] for i in integrations_detail) if integrations_detail else "no active integrations"
+    failing_names = [c["name"] for c in controls if c["status"] == "failing"]
+    warning_names = [c["name"] for c in controls if c["status"] == "warning"]
+    no_ev_names   = [c["name"] for c in controls if c["status"] not in ("passing", "failing", "warning")]
+    status_word = "satisfactory" if score >= 70 else ("developing" if score >= 40 else "early-stage")
+
+    def _template_fallback() -> dict:
+        p1 = (
+            f"{data['company_name']} achieved an overall {data['framework_label']} compliance score of "
+            f"{score}% during the assessment period {data.get('period_start', 'N/A')} through "
+            f"{data.get('period_end', 'N/A')}, based on {data['total_evidence']} automated evidence "
+            f"records collected across {num_controls} control domains. The overall posture reflects a "
+            f"{status_word} compliance programme."
+        )
+        p2 = (
+            f"Evidence was collected from {len(integrations_detail)} active integration(s): {int_names}. "
+            f"Of the {num_controls} control domains evaluated, {passing_c} passed automated evidence testing"
+            + (f", {warning_c} received exception-noted status" if warning_c else "")
+            + (f", {failing_c} failed" if failing_c else "")
+            + (f", and {no_ev_c} had insufficient evidence collected" if no_ev_c else "")
+            + "."
+        )
+        gap_parts: list[str] = []
+        if failing_names:
+            gap_parts.append(f"The following control domains failed automated evidence testing: {', '.join(failing_names)}.")
+        if warning_names:
+            gap_parts.append(f"Exception-noted domains requiring remediation: {', '.join(warning_names)}.")
+        if no_ev_names:
+            gap_parts.append(
+                f"The following domains had no automated evidence collected and require additional "
+                f"integrations or manual attestations: {', '.join(no_ev_names)}."
+            )
+        p3 = " ".join(gap_parts) if gap_parts else "No material control failures were identified."
+        p4 = (
+            f"To improve the {data['framework_label']} compliance score, management should prioritise "
+            f"connecting additional integrations to provide automated evidence for domains currently "
+            f"lacking coverage, addressing all failing and exception-noted controls, and ensuring "
+            f"continuous evidence collection throughout the next assessment period."
+        )
+        exec_summary = f"{p1}\n\n{p2}\n\n{p3}\n\n{p4}"
+
+        if gap_parts:
+            gp1 = (
+                f"The primary compliance gaps identified during the assessment period relate to "
+                + (f"insufficient automated evidence for {len(no_ev_names)} control domains " if no_ev_names else "")
+                + (f"{'and ' if no_ev_names and (failing_names or warning_names) else ''}"
+                   f"control failures in {', '.join(failing_names + warning_names)}"
+                   if failing_names or warning_names else "")
+                + ". Root causes include missing integrations and incomplete evidence collection pipelines."
+            )
+            gp2 = (
+                "The absence of automated evidence across multiple control domains creates material "
+                "compliance risk and would likely result in a qualified or adverse opinion in an "
+                "external audit. Immediate action is required to connect the missing integrations "
+                "and establish automated evidence collection."
+            )
+            gap_analysis = f"{gp1}\n\n{gp2}"
+        else:
+            gap_analysis = (
+                f"Evidence collection is functioning across all {num_controls} control domains. "
+                "The compliance programme appears to be operating effectively with no material gaps "
+                "identified. Continue monitoring to maintain this posture."
+            )
+
+        recs: list[str] = []
+        for c in sorted(controls, key=lambda x: x["score"]):
+            if c["status"] != "passing" and c.get("missing_types") and len(recs) < 5:
+                missing = ", ".join(c["missing_types"][:2])
+                recs.append(f"Connect integrations to provide {missing} evidence for the {c['name']} control domain.")
+        if len(recs) < 3:
+            recs += [
+                f"Review and adopt all required {data['framework_label']} compliance policies.",
+                "Complete security awareness training for all staff.",
+                "Conduct a comprehensive risk assessment and update the risk register.",
+            ]
+        recs = recs[:7]
+
+        score_q = (
+            "operating effectively" if score >= 70 else
+            "partially operating with material gaps identified" if score >= 30 else
+            "in early stages of implementation with significant gaps requiring remediation"
+        )
+        assertion = (
+            f"{data['company_name']} management is responsible for establishing and maintaining "
+            f"effective internal controls over {data['framework_label']} compliance. During the "
+            f"assessment period {data.get('period_start', 'N/A')} through {data.get('period_end', 'N/A')}, "
+            f"{data['total_evidence']} automated evidence records were collected via {int_names}. "
+            f"The overall compliance score of {score}% reflects controls that are {score_q}. "
+            + ("Management asserts that controls are suitably designed and operating effectively."
+               if score >= 70 else
+               "Management acknowledges the gaps identified in this report and commits to implementing "
+               "remediation measures to achieve full compliance in the next assessment period.")
+        )
+        return {"executive_summary": exec_summary, "gap_analysis": gap_analysis,
+                "recommendations": recs, "management_assertion": assertion}
+
+    if not settings.anthropic_api_key:
+        return _template_fallback()
+
     risks = data["risks"]
     training = data["training"]
     vendors = data["vendors"]
     pen_tests = data["pen_tests"]
     evidence_stats = data.get("evidence_stats", {})
-    integrations_detail = data.get("connected_integrations_detail", [])
 
     control_lines_parts = []
     for c in score_data["controls"]:
@@ -463,16 +550,17 @@ Rules: Use ONLY names from the actual data. Do not invent tools, metrics, or dat
         match = re.search(r"\{.*\}", content, re.DOTALL)
         if match:
             parsed = json.loads(match.group(0))
+            fb = _template_fallback()
             return {
                 "executive_summary": parsed.get("executive_summary", ""),
                 "gap_analysis": parsed.get("gap_analysis", ""),
                 "recommendations": parsed.get("recommendations", []),
-                "management_assertion": parsed.get("management_assertion", fallback_assertion),
+                "management_assertion": parsed.get("management_assertion", fb["management_assertion"]),
             }
     except Exception:
         logger.exception("Claude narrative generation failed")
 
-    return fallback
+    return _template_fallback()
 
 
 async def generate_audit_package(
@@ -584,8 +672,8 @@ async def generate_audit_package(
                 }
                 for v in data["vendors"]
             ],
-            "access_reviews": [
-                {
+            "access_reviews": list({
+                (ar.title, ar.period): {
                     "title": ar.title,
                     "period": ar.period,
                     "status": ar.status,
@@ -593,8 +681,8 @@ async def generate_audit_package(
                     "access_changes": ar.access_changes,
                     "completed_at": ar.completed_at.strftime("%Y-%m-%d") if ar.completed_at else "In progress",
                 }
-                for ar in data["access_reviews"]
-            ],
+                for ar in sorted(data["access_reviews"], key=lambda x: x.users_reviewed)
+            }.values()),
             "integrations": data["integrations"],
             "ai_executive_summary": ai["executive_summary"],
             "ai_gap_analysis": ai["gap_analysis"],
