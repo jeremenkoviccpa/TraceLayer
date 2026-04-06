@@ -1,7 +1,7 @@
 """Add PCI DSS, GDPR, and ISO 42001 certification columns to vendors table.
 
 Revision ID: 077_vendor_certs
-Revises: 076_full_coverage_soc2_hipaa_gdpr_pci_nist_ccpa
+Revises: 076_full_fw_coverage
 Create Date: 2026-04-06
 """
 
@@ -9,7 +9,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "077_vendor_certs"
-down_revision = "076_full_coverage_soc2_hipaa_gdpr_pci_nist_ccpa"
+down_revision = "076_full_fw_coverage"
 branch_labels = None
 depends_on = None
 
