@@ -669,13 +669,15 @@ def _criteria_test_table(framework: str, control_scores: list, W: float, st: dic
     passing = sum(1 for c in criteria if score_by_cat.get(c["control"], {}).get("status") == "passing")
     failing = sum(1 for c in criteria if score_by_cat.get(c["control"], {}).get("status") == "failing")
     warning = sum(1 for c in criteria if score_by_cat.get(c["control"], {}).get("status") == "warning")
+    no_ev   = len(criteria) - passing - failing - warning
 
     summary = _stats_row([
-        _stat_cell(str(len(criteria)), "Total Criteria", GRAY_900, W / 4),
-        _stat_cell(str(passing),       "Passing",        GREEN,    W / 4),
-        _stat_cell(str(warning),       "Exception Noted",AMBER,    W / 4),
-        _stat_cell(str(failing),       "Failing",        RED,      W / 4),
-    ], W / 4, W)
+        _stat_cell(str(len(criteria)), "Total Criteria",     GRAY_900, W / 5),
+        _stat_cell(str(passing),       "Passing",            GREEN,    W / 5),
+        _stat_cell(str(warning),       "Exception Noted",    AMBER,    W / 5),
+        _stat_cell(str(failing),       "Failing",            RED,      W / 5),
+        _stat_cell(str(no_ev),         "Insuff. Evidence",   GRAY_500, W / 5),
+    ], W / 5, W)
 
     return [summary, Spacer(1, 4 * mm), tbl, Spacer(1, 2 * mm)]
 
@@ -987,6 +989,7 @@ def render_audit_package_pdf(context: dict) -> bytes:
     passing = sum(1 for c in context["control_scores"] if c["status"] == "passing")
     failing = sum(1 for c in context["control_scores"] if c["status"] == "failing")
     warning = sum(1 for c in context["control_scores"] if c["status"] == "warning")
+    no_ev_c = sum(1 for c in context["control_scores"] if c["status"] == "no_evidence")
 
     score_card = Table([[
         Table([
@@ -998,11 +1001,12 @@ def render_audit_package_pdf(context: dict) -> bytes:
             [Paragraph(f"Evaluated across {len(context['control_scores'])} controls for {context['framework_label']}.", st["small"])],
             [Spacer(1, 2 * mm)],
             [Table([[
-                _stat_cell(str(context["total_evidence"]), "Evidence",  GRAY_900, 28 * mm),
-                _stat_cell(str(passing),                  "Passing",   GREEN,    28 * mm),
-                _stat_cell(str(warning),                  "Warning",   AMBER,    28 * mm),
-                _stat_cell(str(failing),                  "Failing",   RED,      28 * mm),
-            ]], colWidths=[28 * mm] * 4)],
+                _stat_cell(str(context["total_evidence"]), "Evidence",      GRAY_900, 22 * mm),
+                _stat_cell(str(passing),                  "Passing",        GREEN,    22 * mm),
+                _stat_cell(str(warning),                  "Warning",        AMBER,    22 * mm),
+                _stat_cell(str(failing),                  "Failing",        RED,      22 * mm),
+                _stat_cell(str(no_ev_c),                  "No Evidence",    GRAY_500, 22 * mm),
+            ]], colWidths=[22 * mm] * 5)],
         ], colWidths=[W - 38 * mm]),
     ]], colWidths=[38 * mm, W - 38 * mm])
     score_card.setStyle(TableStyle([
@@ -1020,7 +1024,12 @@ def render_audit_package_pdf(context: dict) -> bytes:
     story.append(Paragraph("Control Domain Summary", st["h3"]))
     ctrl_rows = []
     for c in context["control_scores"]:
-        missing = ", ".join(c["missing_types"]) if c["missing_types"] else "All covered"
+        if c["status"] == "passing":
+            missing = "Evidence sufficient"
+        elif c["missing_types"]:
+            missing = ", ".join(c["missing_types"])
+        else:
+            missing = "All covered"
         ctrl_rows.append([
             Paragraph(c["name"], st["td"]),
             _test_result_badge(c["status"], st),

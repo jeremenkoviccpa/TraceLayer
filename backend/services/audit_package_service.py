@@ -427,21 +427,43 @@ async def _generate_ai_narrative(data: dict) -> dict:
             ]
         recs = recs[:7]
 
+        policy_count = len(data.get("policies", []))
+        training_completed = sum(1 for t in data.get("training", []) if t.status == "completed") if data.get("training") else 0
+        pen_test_completed = any(pt.status == "completed" for pt in data.get("pen_tests", [])) if data.get("pen_tests") else False
+        program_gaps: list[str] = []
+        if policy_count == 0:
+            program_gaps.append("no formal security policies have been adopted")
+        if data.get("training") and training_completed == 0:
+            program_gaps.append("security awareness training completion is at 0%")
+        if data.get("pen_tests") and not pen_test_completed:
+            program_gaps.append("penetration testing has not been completed in the current period")
+
         score_q = (
             "operating effectively" if score >= 70 else
             "partially operating with material gaps identified" if score >= 30 else
             "in early stages of implementation with significant gaps requiring remediation"
         )
+        if score >= 70 and not program_gaps:
+            assertion_close = "Management asserts that controls are suitably designed and operating effectively."
+        elif score >= 70 and program_gaps:
+            gap_str = "; ".join(program_gaps)
+            assertion_close = (
+                f"While automated evidence controls are performing at {score}%, management acknowledges "
+                f"the following program gaps: {gap_str}. Management commits to addressing these items "
+                f"to achieve full operating effectiveness in the next assessment period."
+            )
+        else:
+            assertion_close = (
+                "Management acknowledges the gaps identified in this report and commits to implementing "
+                "remediation measures to achieve full compliance in the next assessment period."
+            )
         assertion = (
             f"{data['company_name']} management is responsible for establishing and maintaining "
             f"effective internal controls over {data['framework_label']} compliance. During the "
             f"assessment period {data.get('period_start', 'N/A')} through {data.get('period_end', 'N/A')}, "
             f"{data['total_evidence']} automated evidence records were collected via {int_names}. "
             f"The overall compliance score of {score}% reflects controls that are {score_q}. "
-            + ("Management asserts that controls are suitably designed and operating effectively."
-               if score >= 70 else
-               "Management acknowledges the gaps identified in this report and commits to implementing "
-               "remediation measures to achieve full compliance in the next assessment period.")
+            + assertion_close
         )
         return {"executive_summary": exec_summary, "gap_analysis": gap_analysis,
                 "recommendations": recs, "management_assertion": assertion}
@@ -533,7 +555,7 @@ Supporting Programs:
 Produce a formal audit package. Return valid JSON only with these exact keys:
 {{
   "executive_summary": "4-paragraph executive summary for board presentation. P1: overall {data['framework_label']} compliance posture with specific score and evidence count. P2: strengths — name the specific integrations providing evidence and which control domains they support. P3: gaps — name the specific failing/warning controls and what evidence types are missing. P4: recommended path forward. Formal audit language. Separate paragraphs with \\n\\n.",
-  "management_assertion": "1-paragraph formal management assertion. Start: '{data['company_name']} management is responsible for establishing and maintaining effective internal controls...' Include: what controls exist, which integrations provide automated evidence, the overall score, and the assessment period. End with management's assertion of operating effectiveness. Formal, signable tone. One paragraph only, no line breaks.",
+  "management_assertion": "1-paragraph formal management assertion. Start: '{data['company_name']} management is responsible for establishing and maintaining effective internal controls...' Include: what controls exist, which integrations provide automated evidence, the overall score, and the assessment period. IMPORTANT: calibrate the closing assertion to the actual evidence — only state 'controls are suitably designed and operating effectively' if the supporting program data supports it (policies adopted > 0, training completion > 0%, penetration testing completed). If policies = 0, training = 0%, or pen tests are not completed, instead acknowledge these gaps by name and state management's commitment to remediation. Do not overstate effectiveness when material program gaps are present. Formal, signable tone. One paragraph only, no line breaks.",
   "gap_analysis": "2-3 paragraphs. P1: technical root cause of failing controls — name each and what evidence types are absent. P2: impact and risk from these gaps referencing the risk register data. P3 (if applicable): warning controls needing remediation. Name specific controls and evidence types. Separate with \\n\\n.",
   "recommendations": ["7 specific, actionable steps. Each: action verb + specific control/integration name from the data + max 35 words. Prioritize by severity."]
 }}
