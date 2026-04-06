@@ -150,7 +150,7 @@ class GithubIntegration(IntegrationAdapter):
         return {
             "integration": "github",
             "control": "change_management",
-            "evidence_type": "repositories",
+            "evidence_type": "github_repositories",
             "source_id": str(raw["id"]),
             "timestamp": raw.get("created_at", datetime.now(timezone.utc).isoformat()),
             "data": {

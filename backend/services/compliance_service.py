@@ -309,7 +309,6 @@ EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
             "wiz_issues",
             "snyk_projects",
             "github_repositories",
-            "repositories",
         },
         # Art.37-39: DPO designation, tasks, and position
         "data_protection_officer": {
@@ -320,14 +319,12 @@ EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
         # Art.30: Records of processing activities (ROPA)
         "records_of_processing": {
             "github_repositories",
-            "repositories",
             "iam_policies",
             "cloudtrail_logs",
         },
         # Art.28: Data processing agreements with processors
         "processor_agreements": {
             "github_repositories",
-            "repositories",
             "snyk_projects",
             "iam_policies",
         },

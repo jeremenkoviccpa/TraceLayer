@@ -342,6 +342,7 @@ _EV_SCHEMA: dict[str, tuple] = {
     "github_members":         ("Username",     "username",          "Role",       "role",                 "MFA",          "two_factor_authentication"),
     "github_admin_members":   ("Username",     "username",          "Role",       "role"),
     "repositories":           ("Repository",   "name",              "Private",    "private",              "Default Branch","default_branch"),
+    "github_repositories":    ("Repository",   "name",              "Private",    "private",              "Default Branch","default_branch"),
     "github_repos":           ("Repository",   "name",              "Visibility", "visibility",           "Protected",    "branch_protection"),
     "slack_users":            ("Name",         "name",              "Email",      "email",                "Admin",        "is_admin"),
     "slack_workspace":        ("Workspace",    "name",              "Domain",     "domain"),
