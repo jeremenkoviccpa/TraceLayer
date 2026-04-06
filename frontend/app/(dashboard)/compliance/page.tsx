@@ -52,6 +52,7 @@ const FRAMEWORKS = [
   { value: "cert_in",  label: "CERT-In",   description: "India Cybersecurity Directions" },
   { value: "lpdp",     label: "Serbian LPDP", description: "Serbian Law on Personal Data Protection" },
   { value: "nis2",     label: "NIS2 Directive", description: "EU Network and Information Security" },
+  { value: "iso42001", label: "ISO 42001",    description: "AI Management System Standard" },
 ];
 
 type Status = "pending" | "compliant" | "not_applicable";

@@ -557,7 +557,7 @@ const INTEGRATION_LOGOS = [
 
 const STATS = [
   { value: "120+", label: "integrations, ready to connect" },
-  { value: "9",    label: "frameworks, one platform"       },
+  { value: "12",   label: "frameworks, one platform"       },
   { value: "3",    label: "AI engines, always running"     },
   { value: "24h",  label: "evidence collection cycle"      },
 ];
@@ -574,6 +574,7 @@ const FRAMEWORKS = [
   { name: "CERT-In",  desc: "Directions 2022",   detail: "CERT-In cyber security directions — incident reporting within 6 hours, log retention, IT infrastructure controls", color: "from-green-600 to-emerald-500" },
   { name: "LPDP",    desc: "Data Protection",    detail: "Personal data protection law — breach notification, ROPA, data subject rights, cross-border transfer safeguards", color: "from-blue-500 to-blue-600" },
   { name: "NIS2",     desc: "EU · 2022",         detail: "EU cybersecurity directive — 10 security measures, 3-stage incident reporting to CSIRT, supply chain security", color: "from-indigo-500 to-violet-500" },
+  { name: "ISO 42001", desc: "AI · 2023",        detail: "First international AI Management System standard — AI governance, risk assessment, human oversight, bias detection, model transparency", color: "from-violet-500 to-purple-600" },
 ];
 
 const FEATURES = [

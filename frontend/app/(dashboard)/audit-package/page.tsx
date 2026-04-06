@@ -40,6 +40,7 @@ const FRAMEWORKS = [
   { value: "cert_in",  label: "CERT-In",          desc: "India Cybersecurity Directions 2022" },
   { value: "lpdp",     label: "Serbian LPDP",     desc: "Serbian Law on Personal Data Protection" },
   { value: "nis2",     label: "NIS2 Directive",   desc: "EU cybersecurity directive for essential entities" },
+  { value: "iso42001", label: "ISO/IEC 42001",    desc: "International AI Management System standard" },
 ];
 
 const WHAT_IS_INCLUDED = [

@@ -322,6 +322,102 @@ EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
             "opsgenie_alerts",
         },
     },
+    # ── ISO/IEC 42001:2023 (AI Management System) ─────────────────────────────
+    "iso42001": {
+        # Cl.4-5, 6.2: AI governance policy, roles, objectives, management reviews
+        "ai_governance": {
+            "iam_policies",
+            "iam_users",
+            "github_repositories",
+            "okta_groups",
+            "azure_roles",
+        },
+        # Cl.6.1: AI risk assessment and treatment plan
+        "ai_risk_management": {
+            "vulnerability_scans",
+            "wiz_issues",
+            "snyk_projects",
+            "github_repositories",
+        },
+        # Cl.7: AI competence, training, and awareness programme
+        "ai_competence": {
+            "okta_users",
+            "azure_users",
+            "workspace_users",
+            "iam_users",
+        },
+        # Cl.8.3: AI system impact assessment before deployment
+        "ai_impact_assessment": {
+            "github_repositories",
+            "iam_policies",
+        },
+        # Cl.8.4: Training data governance — quality, provenance, bias, retention
+        "data_governance": {
+            "iam_policies",
+            "cloudtrail_logs",
+            "okta_policies",
+            "wiz_issues",
+        },
+        # Cl.8.5: AI system development, testing, and validation artefacts
+        "ai_development": {
+            "github_repositories",
+            "snyk_projects",
+            "vulnerability_scans",
+            "crowdstrike_policies",
+        },
+        # Cl.8.6: Human oversight mechanisms and intervention capabilities
+        "human_oversight": {
+            "iam_policies",
+            "iam_users",
+            "cloudtrail_logs",
+            "pagerduty_services",
+        },
+        # Cl.9: Performance monitoring, internal audit, management review
+        "ai_monitoring": {
+            "cloudtrail_logs",
+            "datadog_monitors", "datadog_logs",
+            "splunk_alerts",
+            "wiz_issues",
+        },
+        # Cl.10: Nonconformity handling and continual improvement records
+        "continual_improvement": {
+            "github_repositories",
+            "jira_projects",
+            "servicenow_changes",
+        },
+        # A.6.1: Transparency — model cards, explainability docs, disclosure notices
+        "transparency": {
+            "github_repositories",
+            "cloudtrail_logs",
+        },
+        # A.6.2: Bias detection and fairness metric monitoring
+        "fairness": {
+            "vulnerability_scans",
+            "cloudtrail_logs",
+            "datadog_monitors",
+        },
+        # A.8.2: Privacy-by-design, AI DPIA, data minimisation controls
+        "ai_privacy": {
+            "iam_policies",
+            "okta_policies",
+            "cloudtrail_logs",
+            "wiz_issues",
+        },
+        # A.9.1: AI incident detection, investigation, rollback capabilities
+        "ai_incident_management": {
+            "pagerduty_incidents", "pagerduty_services",
+            "servicenow_incidents",
+            "opsgenie_alerts",
+            "cloudtrail_logs",
+        },
+        # A.10.1: Third-party AI supplier risk assessment and contractual controls
+        "ai_supply_chain": {
+            "snyk_projects",
+            "github_repositories",
+            "wiz_issues",
+            "vulnerability_scans",
+        },
+    },
 }
 
 

@@ -24,6 +24,7 @@ const FRAMEWORK_LABELS: Record<string, string> = {
   cert_in: "CERT-In Directions 2022",
   lpdp: "Serbian LPDP 2018",
   nis2: "NIS2 Directive 2022",
+  iso42001: "ISO/IEC 42001:2023",
 };
 
 const STATUS_CONFIG = {

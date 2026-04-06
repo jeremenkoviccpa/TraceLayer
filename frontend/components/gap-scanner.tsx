@@ -383,16 +383,116 @@ const NIS2_CONTROLS: ControlDef[] = [
   },
 ];
 
+const ISO42001_CONTROLS: ControlDef[] = [
+  {
+    id: "iso42001_governance",
+    category: "AI Governance",
+    name: "AI Governance Policy and Leadership",
+    question: "A formal AI policy has been approved by top management, with defined roles, responsibilities, and AI objectives communicated across the organization",
+    risk: "critical",
+    audit_note: "Cl.4-5 ISO 42001. The AI policy is the foundation of the AIMS. Without it, no other clause can be assessed. Auditors will ask for board sign-off and evidence of communication.",
+  },
+  {
+    id: "iso42001_risk",
+    category: "AI Risk Management",
+    name: "AI Risk Assessment and Treatment Plan",
+    question: "A systematic AI risk assessment has been conducted covering risks to individuals, groups, and society, with a documented risk treatment plan addressing each identified risk",
+    risk: "critical",
+    audit_note: "Cl.6.1 ISO 42001. This is the most-cited gap in first-time ISO 42001 assessments. Risk assessment must be AI-specific — generic IT risk assessments are insufficient.",
+  },
+  {
+    id: "iso42001_impact",
+    category: "AI Impact Assessment",
+    name: "AI System Impact Assessment (AISIA)",
+    question: "Before deploying any AI system, an AI system impact assessment has been performed covering intended use, foreseeable misuse, and impact on affected individuals",
+    risk: "critical",
+    audit_note: "Cl.8.3 ISO 42001. AISIAs must be documented for each AI system. Deploying AI without an AISIA is a major nonconformity. Evidence must include sign-offs and stakeholder consultation records.",
+  },
+  {
+    id: "iso42001_data",
+    category: "Data Governance",
+    name: "Training Data Governance and Bias Controls",
+    question: "Data quality, provenance, and representativeness are assessed for all AI training datasets; bias audits are performed and documented before and after model training",
+    risk: "high",
+    audit_note: "Cl.8.4 ISO 42001. Data governance is where AI failures originate. Auditors look for data lineage records, bias audit reports, and labelling guidelines. Lack of bias documentation is a common high finding.",
+  },
+  {
+    id: "iso42001_development",
+    category: "AI Development",
+    name: "AI System Development, Testing, and Validation",
+    question: "AI systems are developed and tested per documented procedures; validation reports, model cards, performance benchmarks, and security testing results exist before production release",
+    risk: "high",
+    audit_note: "Cl.8.5 ISO 42001. Model cards and validation reports are the primary artefacts. Security testing must include adversarial robustness and prompt injection testing for LLM-based systems.",
+  },
+  {
+    id: "iso42001_oversight",
+    category: "Human Oversight",
+    name: "Human Oversight and Intervention Mechanisms",
+    question: "Human oversight mechanisms are designed into AI systems; operators can intervene, override, or shut down AI systems; accountability for AI decisions is traceable to named individuals",
+    risk: "critical",
+    audit_note: "Cl.8.6 ISO 42001. Aligned with EU AI Act Art. 9. High-risk AI systems with no human override capability are a critical nonconformity. Accountability matrices must name individuals, not just teams.",
+  },
+  {
+    id: "iso42001_monitoring",
+    category: "AI Monitoring",
+    name: "AI Performance Monitoring and Model Drift Detection",
+    question: "Production AI systems are continuously monitored for performance degradation, model drift, and unexpected outputs; internal AIMS audits are conducted at planned intervals",
+    risk: "high",
+    audit_note: "Cl.9 ISO 42001. Model drift is the most common post-deployment issue. Monitoring dashboards must show metrics relevant to the AI use case (accuracy, fairness, confidence scores). Audit frequency must be defined.",
+  },
+  {
+    id: "iso42001_transparency",
+    category: "Transparency",
+    name: "AI Transparency and Explainability",
+    question: "Affected parties are informed when AI is used in decisions affecting them; AI-driven decisions can be meaningfully explained; model cards document system purpose, limitations, and performance",
+    risk: "high",
+    audit_note: "A.6.1 ISO 42001. Transparency requirements increase with AI risk level. For high-risk AI, SHAP/LIME analyses or equivalent explainability artefacts are expected. Undisclosed AI use in consumer decisions is a critical gap.",
+  },
+  {
+    id: "iso42001_fairness",
+    category: "Fairness",
+    name: "Bias Detection and Fairness Monitoring",
+    question: "Fairness metrics are defined for AI systems; bias detection runs continuously in production; bias remediation procedures exist and have been exercised",
+    risk: "high",
+    audit_note: "A.6.2 ISO 42001. Fairness metrics must be documented before deployment. Common finding: organizations perform one-time pre-deployment bias checks but have no ongoing monitoring. Demographic parity and equalized odds are standard metrics.",
+  },
+  {
+    id: "iso42001_incidents",
+    category: "AI Incident Management",
+    name: "AI Incident Detection and Response",
+    question: "AI-specific incidents (unexpected outputs, performance failures, safety events, misuse) are tracked in an incident log with documented post-incident analyses and model rollback capabilities",
+    risk: "high",
+    audit_note: "A.9.1 ISO 42001. AI incidents differ from IT incidents — auditors look for AI-specific categories (hallucinations, bias events, safety failures). Rollback/recall capability for model versions must be demonstrated.",
+  },
+  {
+    id: "iso42001_supply_chain",
+    category: "AI Supply Chain",
+    name: "Third-Party AI Supplier Risk Management",
+    question: "Third-party AI models, APIs, and datasets have been assessed for AI governance maturity; supplier contracts include transparency, auditability, and incident notification requirements",
+    risk: "medium",
+    audit_note: "A.10.1 ISO 42001. Most organizations rely on foundation models or AI APIs. Auditors expect due diligence records for OpenAI, Anthropic, Google, etc. Contracts must include AI-specific clauses — standard DPA/MSA terms are insufficient.",
+  },
+  {
+    id: "iso42001_competence",
+    category: "AI Competence",
+    name: "AI Competence, Training, and Awareness",
+    question: "Personnel developing or operating AI systems have demonstrated competence; an AI awareness programme has been delivered to all staff covering AI policy, risks, and their responsibilities",
+    risk: "medium",
+    audit_note: "Cl.7 ISO 42001. Competency must be evidenced — job descriptions, training records, certifications. Awareness training must cover AI-specific risks, not just general security awareness. Management must complete training on AI governance obligations.",
+  },
+];
+
 type Status = "yes" | "partial" | "no";
 type Answers = Record<string, Status>;
-type Framework = "soc2" | "dpdp" | "cert_in" | "lpdp" | "nis2";
+type Framework = "soc2" | "dpdp" | "cert_in" | "lpdp" | "nis2" | "iso42001";
 
 const FRAMEWORK_OPTIONS: { id: Framework; label: string; flag: string; controls: ControlDef[]; desc: string }[] = [
-  { id: "soc2",     label: "SOC 2",        flag: "🇺🇸", controls: SOC2_CONTROLS,    desc: "10 critical controls — Type I & II" },
-  { id: "dpdp",     label: "DPDP Act",     flag: "🇮🇳", controls: DPDP_CONTROLS,    desc: "8 controls — India personal data law" },
-  { id: "cert_in",  label: "CERT-In",      flag: "🇮🇳", controls: CERTIN_CONTROLS,  desc: "8 controls — India cyber security directions" },
-  { id: "lpdp",     label: "Serbian LPDP", flag: "🇷🇸", controls: LPDP_CONTROLS,    desc: "8 controls — Serbia personal data law" },
-  { id: "nis2",     label: "NIS2",         flag: "🇪🇺", controls: NIS2_CONTROLS,    desc: "10 controls — EU cybersecurity directive" },
+  { id: "soc2",     label: "SOC 2",        flag: "🇺🇸", controls: SOC2_CONTROLS,      desc: "10 critical controls — Type I & II" },
+  { id: "dpdp",     label: "DPDP Act",     flag: "🇮🇳", controls: DPDP_CONTROLS,      desc: "8 controls — India personal data law" },
+  { id: "cert_in",  label: "CERT-In",      flag: "🇮🇳", controls: CERTIN_CONTROLS,    desc: "8 controls — India cyber security directions" },
+  { id: "lpdp",     label: "Serbian LPDP", flag: "🇷🇸", controls: LPDP_CONTROLS,      desc: "8 controls — Serbia personal data law" },
+  { id: "nis2",     label: "NIS2",         flag: "🇪🇺", controls: NIS2_CONTROLS,      desc: "10 controls — EU cybersecurity directive" },
+  { id: "iso42001", label: "ISO 42001",    flag: "🤖", controls: ISO42001_CONTROLS,   desc: "12 controls — AI management system" },
 ];
 
 // ── Scoring ───────────────────────────────────────────────────────────────────

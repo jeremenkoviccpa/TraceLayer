@@ -28,6 +28,7 @@ const FRAMEWORKS = [
   { id: "cert_in",  label: "CERT-In"   },
   { id: "lpdp",     label: "Serbian LPDP" },
   { id: "nis2",     label: "NIS2 Directive" },
+  { id: "iso42001", label: "ISO 42001" },
 ];
 
 const ACTION_ITEMS: { stage: string; items: { href: string; label: string; desc: string; icon: React.ElementType }[] }[] = [

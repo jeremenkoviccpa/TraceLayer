@@ -316,6 +316,22 @@ def _framework_specific_context(framework: str) -> str:
             "competent authority. Management bodies are personally liable (Art. 20). Address "
             "NIS2 proportionality between essential vs. important entity obligations."
         ),
+        "iso42001": (
+            "Framework Context: ISO/IEC 42001:2023 is the first international standard for AI "
+            "Management Systems (AIMS), published December 2023. It applies to any organization "
+            "that develops, provides, or uses AI-based products and services. The standard follows "
+            "Annex SL (aligned with ISO 27001/9001) covering: AIMS scope and context (Cl. 4), "
+            "AI policy and leadership (Cl. 5), AI risk assessment and objectives (Cl. 6), "
+            "competence and awareness (Cl. 7), AI lifecycle operations including impact assessment "
+            "(Cl. 8.3), data governance (Cl. 8.4), development/validation (Cl. 8.5), and human "
+            "oversight (Cl. 8.6), plus performance evaluation and continual improvement (Cl. 9-10). "
+            "Annex A provides 38 controls across 9 domains covering transparency (A.6.1), "
+            "bias/fairness (A.6.2), privacy (A.8.2), AI incident management (A.9.1), and "
+            "third-party AI supply chain (A.10.1). Use ISO audit language: 'conformance', "
+            "'nonconformity', 'corrective action'. Address AI-specific risks: model bias, "
+            "data poisoning, adversarial attacks, opaque decision-making, and regulatory "
+            "alignment with the EU AI Act. Reference clause numbers in all findings."
+        ),
     }
     return contexts.get(framework, f"Framework Context: {FRAMEWORK_LABELS.get(framework, framework.upper())} compliance assessment.")
 

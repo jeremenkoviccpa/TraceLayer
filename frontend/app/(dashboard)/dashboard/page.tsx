@@ -241,8 +241,9 @@ const FRAMEWORKS = [
   { value: "nist_csf", label: "NIST CSF",  region: "US"     },
   { value: "dpdp",     label: "DPDP Act",  region: "IN"     },
   { value: "cert_in",  label: "CERT-In",   region: "IN"     },
-  { value: "lpdp",     label: "Serbian LPDP", region: "RS"  },
-  { value: "nis2",     label: "NIS2",      region: "EU"     },
+  { value: "lpdp",     label: "Serbian LPDP", region: "RS"   },
+  { value: "nis2",     label: "NIS2",        region: "EU"   },
+  { value: "iso42001", label: "ISO 42001",   region: "INTL" },
 ];
 
 function timeAgo(dateStr: string) {

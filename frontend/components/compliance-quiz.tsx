@@ -45,6 +45,7 @@ const QUESTIONS = [
       { label: "CERT-In (India)", value: "cert_in" },
       { label: "Serbian LPDP", value: "lpdp" },
       { label: "NIS2 Directive (EU)", value: "nis2" },
+      { label: "ISO 42001 (AI Management)", value: "iso42001" },
       { label: "Multiple frameworks", value: "multiple" },
       { label: "Not sure yet", value: "unsure" },
     ],
@@ -106,6 +107,7 @@ function computeResult(answers: Answers) {
     cert_in: "CERT-In Directions 2022",
     lpdp: "Serbian LPDP 2018",
     nis2: "NIS2 Directive 2022",
+    iso42001: "ISO/IEC 42001:2023",
     multiple: "multiple frameworks",
     unsure: "your target framework",
   };
@@ -154,6 +156,11 @@ function computeResult(answers: Answers) {
     insights.push({
       type: "warn",
       text: "CERT-In Directions 2022 mandate 6-hour incident reporting, 180-day log retention, and NTP synchronization. TraceLayer collects and timestamps this evidence continuously so you're never scrambling during a CERT-In inquiry.",
+    });
+  } else if (answers.framework === "iso42001") {
+    insights.push({
+      type: "info",
+      text: "ISO 42001 is the world's first AI Management System standard. It requires AI risk assessments, impact assessments before deployment, human oversight mechanisms, bias audits, and model performance monitoring — TraceLayer automates evidence collection across all 15 control areas.",
     });
   } else if (urgency === "high") {
     insights.push({

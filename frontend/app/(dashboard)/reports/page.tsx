@@ -66,6 +66,7 @@ const FRAMEWORKS = [
   { value: "cert_in",  label: "CERT-In" },
   { value: "lpdp",     label: "Serbian LPDP" },
   { value: "nis2",     label: "NIS2 Directive" },
+  { value: "iso42001", label: "ISO 42001" },
 ];
 
 // Per-framework accent colours for report cards
@@ -81,6 +82,7 @@ const FRAMEWORK_ACCENT: Record<string, { bar: string; icon: string; badge: strin
   cert_in:  { bar: "bg-red-500",     icon: "text-red-500 bg-red-50",         badge: "bg-red-50 text-red-700 border-red-200"             },
   lpdp:     { bar: "bg-blue-500",    icon: "text-blue-500 bg-blue-50",       badge: "bg-blue-50 text-blue-700 border-blue-200"           },
   nis2:     { bar: "bg-indigo-500",  icon: "text-indigo-500 bg-indigo-50",   badge: "bg-indigo-50 text-indigo-700 border-indigo-200"     },
+  iso42001: { bar: "bg-violet-500",  icon: "text-violet-500 bg-violet-50",   badge: "bg-violet-50 text-violet-700 border-violet-200"     },
 };
 
 function defaultAccent() {

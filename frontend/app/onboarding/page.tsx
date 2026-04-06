@@ -116,6 +116,14 @@ const FRAMEWORKS = [
     color: "from-indigo-500 to-indigo-600",
     popular: false,
   },
+  {
+    id: "iso42001",
+    label: "ISO 42001",
+    description: "International AI Management System standard",
+    icon: Cpu,
+    color: "from-violet-500 to-violet-600",
+    popular: false,
+  },
 ];
 
 // ── Quick integrations ─────────────────────────────────────────────────────────
