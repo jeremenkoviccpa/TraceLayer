@@ -1335,6 +1335,34 @@ class ApiClient {
   async addPenTestFindingV2(testId: string, body: any): Promise<any> { return this.request("POST", `/pen-tests-v2/${testId}/findings`, body); }
   async updatePenTestFindingV2(testId: string, findingId: string, body: any): Promise<any> { return this.request("PATCH", `/pen-tests-v2/${testId}/findings/${findingId}`, body); }
   async deletePenTestFindingV2(testId: string, findingId: string): Promise<void> { return this.request("DELETE", `/pen-tests-v2/${testId}/findings/${findingId}`); }
+
+  // ── Custom frameworks ──────────────────────────────────────────────────────
+  async getCustomFrameworks(): Promise<any[]> { return this.request("GET", "/custom-frameworks"); }
+  async createCustomFramework(body: { name: string; description?: string; version?: string }): Promise<any> { return this.request("POST", "/custom-frameworks", body); }
+  async getCustomFramework(id: string): Promise<any> { return this.request("GET", `/custom-frameworks/${id}`); }
+  async updateCustomFramework(id: string, body: any): Promise<any> { return this.request("PATCH", `/custom-frameworks/${id}`, body); }
+  async deleteCustomFramework(id: string): Promise<void> { return this.request("DELETE", `/custom-frameworks/${id}`); }
+  async addCustomControl(frameworkId: string, body: any): Promise<any> { return this.request("POST", `/custom-frameworks/${frameworkId}/controls`, body); }
+  async updateCustomControl(frameworkId: string, controlId: string, body: any): Promise<any> { return this.request("PATCH", `/custom-frameworks/${frameworkId}/controls/${controlId}`, body); }
+  async deleteCustomControl(frameworkId: string, controlId: string): Promise<void> { return this.request("DELETE", `/custom-frameworks/${frameworkId}/controls/${controlId}`); }
+  async getCustomFrameworkScore(id: string): Promise<any> { return this.request("GET", `/custom-frameworks/${id}/score`); }
+
+  // ── Change management ──────────────────────────────────────────────────────
+  async getChangeRequests(params?: { status?: string; change_type?: string; risk_level?: string }): Promise<any[]> {
+    const q = params ? "?" + new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([, v]) => v))).toString() : "";
+    return this.request("GET", `/change-requests${q}`);
+  }
+  async getChangeRequestStats(): Promise<any> { return this.request("GET", "/change-requests/stats"); }
+  async createChangeRequest(body: any): Promise<any> { return this.request("POST", "/change-requests", body); }
+  async updateChangeRequest(id: string, body: any): Promise<any> { return this.request("PATCH", `/change-requests/${id}`, body); }
+  async submitChangeRequest(id: string): Promise<any> { return this.request("POST", `/change-requests/${id}/submit`); }
+  async approveChangeRequest(id: string, body: { approver_name: string; approver_email?: string }): Promise<any> { return this.request("POST", `/change-requests/${id}/approve`, body); }
+  async rejectChangeRequest(id: string, body: { rejection_reason: string }): Promise<any> { return this.request("POST", `/change-requests/${id}/reject`, body); }
+  async startChangeRequest(id: string): Promise<any> { return this.request("POST", `/change-requests/${id}/start`); }
+  async deployChangeRequest(id: string): Promise<any> { return this.request("POST", `/change-requests/${id}/deploy`); }
+  async failChangeRequest(id: string): Promise<any> { return this.request("POST", `/change-requests/${id}/fail`); }
+  async closeChangeRequest(id: string): Promise<any> { return this.request("POST", `/change-requests/${id}/close`); }
+  async deleteChangeRequest(id: string): Promise<void> { return this.request("DELETE", `/change-requests/${id}`); }
 }
 
 export const api = new ApiClient();

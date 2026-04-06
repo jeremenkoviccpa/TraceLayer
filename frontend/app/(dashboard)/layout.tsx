@@ -49,6 +49,8 @@ import {
   Compass,
   Bot,
   Monitor,
+  Layers,
+  GitMerge,
 } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
 import { api } from "@/lib/api";
@@ -101,9 +103,10 @@ const NAV_SECTIONS: NavSection[] = [
     number: "3",
     title: "Controls & Evidence",
     items: [
-      { href: "/compliance", label: "Controls",  icon: ShieldCheck },
-      { href: "/evidence",   label: "Evidence",  icon: Database    },
-      { href: "/readiness",  label: "Readiness", icon: Target      },
+      { href: "/compliance",        label: "Controls",          icon: ShieldCheck },
+      { href: "/evidence",          label: "Evidence",          icon: Database    },
+      { href: "/readiness",         label: "Readiness",         icon: Target      },
+      { href: "/custom-frameworks", label: "Custom Frameworks", icon: Layers      },
     ],
   },
   {
@@ -113,10 +116,11 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Risk & Security",
     tourNavId: "tour-nav-risk",
     items: [
-      { href: "/risks",           label: "Risk Register",   icon: AlertTriangle },
-      { href: "/incidents",       label: "Incidents",       icon: Siren         },
-      { href: "/vulnerabilities", label: "Vulnerabilities", icon: Bug           },
-      { href: "/pen-tests",       label: "Pen Tests",       icon: ShieldAlert   },
+      { href: "/risks",             label: "Risk Register",    icon: AlertTriangle },
+      { href: "/incidents",         label: "Incidents",        icon: Siren         },
+      { href: "/vulnerabilities",   label: "Vulnerabilities",  icon: Bug           },
+      { href: "/pen-tests",         label: "Pen Tests",        icon: ShieldAlert   },
+      { href: "/change-management", label: "Change Management", icon: GitMerge     },
     ],
   },
   {
