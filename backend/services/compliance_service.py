@@ -26,17 +26,113 @@ EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
         "change_management": {"repositories", "jira_projects"},
     },
     "iso27001": {
+        # A.5.15-18, A.8.2-3: Access control policy, user access mgmt, privileged access
         "access_control": {
             "iam_users", "iam_policies",
-            "github_members", "github_admin_members",
-            "slack_users",
-            "workspace_users", "workspace_admin_members",
-            "okta_users", "okta_groups",
+            "okta_users", "okta_groups", "okta_policies",
             "azure_users", "azure_roles",
+            "github_members", "github_admin_members",
+            "workspace_users", "workspace_admin_members",
+            "slack_users",
+            "jira_users",
         },
-        "operations_security": {"cloudtrail_logs"},
-        "communications_security": {"slack_workspace", "slack_users", "workspace_groups"},
-        "change_management": {"repositories", "jira_projects"},
+        # A.8.8, A.8.19: Technical vulnerability management and patch SLAs
+        "vulnerability_management": {
+            "snyk_projects",
+            "vulnerability_scans",
+            "wiz_issues",
+            "crowdstrike_detections",
+            "hackerone_reports", "hackerone_programs",
+            "detectify_findings",
+            "assets",
+        },
+        # A.8.15-17: Event logging, security monitoring, clock synchronisation
+        "logging_and_monitoring": {
+            "cloudtrail_logs",
+            "datadog_monitors", "datadog_logs",
+            "splunk_saved_searches", "splunk_alerts",
+            "grafana",
+            "elastic",
+        },
+        # A.8.1, A.8.7: Endpoint devices, malware protection, MDM compliance
+        "endpoint_security": {
+            "crowdstrike_devices", "crowdstrike_policies",
+            "sentinelone_agents",
+            "jamf_computers", "jamf_policies",
+            "kandji_devices", "kandji_blueprints",
+            "kolide",
+            "tailscale_devices",
+        },
+        # A.8.24: Cryptography policy, encryption, key management, certificates
+        "cryptography": {
+            "vault_secrets_engine", "vault_policy", "vault_auth_method",
+            "iam_policies",
+            "cloudtrail_logs",
+        },
+        # A.5.14, A.8.20-22: Network security, service security, segregation
+        "network_security": {
+            "cloudflare_security_settings", "cloudflare_zones",
+            "tailscale_acl", "tailscale_devices",
+            "network_policies",
+            "pods",
+        },
+        # A.5.19-23: Supplier agreements, cloud service security, ongoing monitoring
+        "supplier_security": {
+            "github_repositories",
+            "snyk_projects",
+            "wiz_issues",
+            "cloudtrail_logs",
+        },
+        # A.5.24-28: Incident classification, response, post-incident review, evidence
+        "incident_management": {
+            "pagerduty_incidents", "pagerduty_services", "pagerduty_escalation_policies",
+            "servicenow_incidents",
+            "opsgenie_alerts", "opsgenie_schedules", "opsgenie_escalations",
+        },
+        # A.5.29-30: BCM, ICT continuity, RTO/RPO, DR testing
+        "business_continuity": {
+            "pagerduty_services",
+            "datadog_slos", "datadog_monitors",
+            "servicenow_changes",
+            "vault_secrets_engine",
+        },
+        # A.8.32-33: Change management procedures, test information management
+        "change_management": {
+            "github_repositories",
+            "jira_projects",
+            "servicenow_changes",
+            "gitlab_repositories",
+        },
+        # A.8.25-31: Secure SDLC, secure coding, security testing, DAST/SAST
+        "secure_development": {
+            "github_repositories",
+            "snyk_projects",
+            "hackerone_reports",
+            "detectify_findings",
+            "wiz_issues",
+        },
+        # A.6.1-6.8: Screening, training, disciplinary, termination, remote working
+        "hr_security": {
+            "okta_users",
+            "azure_users",
+            "workspace_users",
+            "iam_users",
+            "slack_users",
+        },
+        # A.5.9-14: Asset inventory, acceptable use, classification, labelling
+        "asset_management": {
+            "github_repositories",
+            "assets",
+            "cloudtrail_logs",
+            "iam_policies",
+        },
+        # A.5.1-8: Security policy, roles, segregation of duties, project security
+        "organizational_controls": {
+            "iam_policies",
+            "okta_policies",
+            "github_repositories",
+            "azure_roles",
+        },
     },
     "hipaa": {
         "access_control": {
