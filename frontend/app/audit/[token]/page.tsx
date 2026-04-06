@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { api } from "@/lib/api";
-import type { AuditEngagementView, ControlScore } from "@/lib/types";
+import type { AuditComment, AuditEngagementView, ControlScore } from "@/lib/types";
 import {
   Shield, CheckCircle2, XCircle, AlertTriangle, Clock,
   FileText, Lock, Calendar, Building2, Loader2, AlertCircle,
-  ChevronDown, ChevronUp,
+  ChevronDown, ChevronUp, MessageSquare, Send,
 } from "lucide-react";
 
 const FRAMEWORK_LABELS: Record<string, string> = {
@@ -94,6 +94,13 @@ export default function AuditViewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Comments
+  const [comments, setComments] = useState<AuditComment[]>([]);
+  const [commentBody, setCommentBody] = useState("");
+  const [posting, setPosting] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
+  const commentsEndRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!token) return;
     api.getAuditEngagementView(token)
@@ -101,6 +108,29 @@ export default function AuditViewPage() {
       .catch((e) => setError(e.message ?? "Audit link not found or has expired"))
       .finally(() => setLoading(false));
   }, [token]);
+
+  useEffect(() => {
+    if (!token) return;
+    api.getEngagementCommentsPublic(token).then(setComments).catch(() => {});
+  }, [token]);
+
+  async function handlePostComment(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = commentBody.trim();
+    if (!trimmed || posting) return;
+    setPosting(true);
+    setCommentError(null);
+    try {
+      const c = await api.addEngagementCommentPublic(token as string, trimmed);
+      setComments((prev) => [...prev, c]);
+      setCommentBody("");
+      setTimeout(() => commentsEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+    } catch {
+      setCommentError("Failed to post comment. Please try again.");
+    } finally {
+      setPosting(false);
+    }
+  }
 
   const fmtDate = (d: string) => new Date(d).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
@@ -293,6 +323,76 @@ export default function AuditViewPage() {
             </div>
           </div>
         )}
+
+        {/* Comments */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-gray-400" />
+            <h2 className="text-sm font-semibold text-gray-900">Auditor comments</h2>
+            {comments.length > 0 && (
+              <span className="ml-auto text-xs text-gray-400">{comments.length} comment{comments.length !== 1 ? "s" : ""}</span>
+            )}
+          </div>
+
+          <div className="divide-y divide-gray-50">
+            {comments.length === 0 && (
+              <p className="text-sm text-gray-400 text-center py-8">No comments yet. Use the form below to leave a note for the team.</p>
+            )}
+            {comments.map((c) => (
+              <div key={c.id} className={`px-5 py-4 flex gap-3 ${c.author_role === "auditor" ? "bg-blue-50/30" : ""}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                  c.author_role === "auditor" ? "bg-blue-100 text-blue-700" : "bg-violet-100 text-violet-700"
+                }`}>
+                  {c.author_name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="text-sm font-semibold text-gray-900">{c.author_name}</span>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                      c.author_role === "auditor" ? "bg-blue-100 text-blue-600" : "bg-violet-100 text-violet-600"
+                    }`}>
+                      {c.author_role === "auditor" ? "Auditor" : "Team"}
+                    </span>
+                    <span className="text-xs text-gray-400 ml-auto">
+                      {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{c.body}</p>
+                  {c.item_ref && (
+                    <p className="text-xs text-gray-400 mt-1">Re: {c.item_ref}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+            <div ref={commentsEndRef} />
+          </div>
+
+          <form onSubmit={handlePostComment} className="px-5 py-4 border-t border-gray-100 bg-gray-50/50">
+            <p className="text-xs text-gray-500 mb-2 font-medium">Leave a comment as {data?.auditor_name || data?.auditor_email || "auditor"}</p>
+            <div className="flex gap-2">
+              <textarea
+                value={commentBody}
+                onChange={(e) => setCommentBody(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handlePostComment(e as unknown as React.FormEvent);
+                }}
+                placeholder="Add a comment or finding note…"
+                rows={2}
+                className="flex-1 text-sm border border-gray-200 rounded-xl px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-brand-300 focus:border-brand-400 bg-white"
+              />
+              <button
+                type="submit"
+                disabled={!commentBody.trim() || posting}
+                className="shrink-0 flex items-center gap-1.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2 rounded-xl transition-colors self-end"
+              >
+                {posting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                Post
+              </button>
+            </div>
+            {commentError && <p className="text-xs text-red-500 mt-1.5">{commentError}</p>}
+            <p className="text-[11px] text-gray-400 mt-1.5">⌘+Enter to post · Comments are visible to both auditor and the company team</p>
+          </form>
+        </div>
 
         {/* Footer */}
         <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex flex-col sm:flex-row items-center gap-4">
