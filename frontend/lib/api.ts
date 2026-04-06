@@ -1305,6 +1305,36 @@ class ApiClient {
   async generatePolicy(slug: string): Promise<{ content: string }> {
     return this.request("POST", `/policies/${slug}/generate`);
   }
+
+  // ── Access reviews v2 (campaign-based with per-user items) ───────────────
+
+  async getAccessReviewsV2(): Promise<any[]> { return this.request("GET", "/access-reviews-v2"); }
+  async createAccessReviewV2(body: { name: string; framework?: string; review_period?: string; due_date?: string }): Promise<any> { return this.request("POST", "/access-reviews-v2", body); }
+  async getAccessReviewV2(id: string): Promise<any> { return this.request("GET", `/access-reviews-v2/${id}`); }
+  async addAccessReviewItemV2(reviewId: string, body: { user_email: string; user_name?: string; system_name: string; role_or_permission?: string }): Promise<any> { return this.request("POST", `/access-reviews-v2/${reviewId}/items`, body); }
+  async updateAccessReviewItemV2(reviewId: string, itemId: string, body: { decision: string; notes?: string }): Promise<any> { return this.request("PATCH", `/access-reviews-v2/${reviewId}/items/${itemId}`, body); }
+  async deleteAccessReviewItemV2(reviewId: string, itemId: string): Promise<void> { return this.request("DELETE", `/access-reviews-v2/${reviewId}/items/${itemId}`); }
+  async completeAccessReviewV2(reviewId: string): Promise<any> { return this.request("POST", `/access-reviews-v2/${reviewId}/complete`); }
+  async deleteAccessReviewV2(id: string): Promise<void> { return this.request("DELETE", `/access-reviews-v2/${id}`); }
+
+  // ── Devices v2 (MDM-aware endpoint tracking) ────────────────────────────
+
+  async getDevicesV2(): Promise<any[]> { return this.request("GET", "/devices-v2"); }
+  async getDeviceStatsV2(): Promise<any> { return this.request("GET", "/devices-v2/stats"); }
+  async createDeviceV2(body: any): Promise<any> { return this.request("POST", "/devices-v2", body); }
+  async updateDeviceV2(id: string, body: any): Promise<any> { return this.request("PATCH", `/devices-v2/${id}`, body); }
+  async deleteDeviceV2(id: string): Promise<void> { return this.request("DELETE", `/devices-v2/${id}`); }
+
+  // ── Pen tests v2 (with per-finding tracking) ────────────────────────────
+
+  async getPenTestsV2(): Promise<any[]> { return this.request("GET", "/pen-tests-v2"); }
+  async createPenTestV2(body: any): Promise<any> { return this.request("POST", "/pen-tests-v2", body); }
+  async getPenTestV2(id: string): Promise<any> { return this.request("GET", `/pen-tests-v2/${id}`); }
+  async updatePenTestV2(id: string, body: any): Promise<any> { return this.request("PATCH", `/pen-tests-v2/${id}`, body); }
+  async deletePenTestV2(id: string): Promise<void> { return this.request("DELETE", `/pen-tests-v2/${id}`); }
+  async addPenTestFindingV2(testId: string, body: any): Promise<any> { return this.request("POST", `/pen-tests-v2/${testId}/findings`, body); }
+  async updatePenTestFindingV2(testId: string, findingId: string, body: any): Promise<any> { return this.request("PATCH", `/pen-tests-v2/${testId}/findings/${findingId}`, body); }
+  async deletePenTestFindingV2(testId: string, findingId: string): Promise<void> { return this.request("DELETE", `/pen-tests-v2/${testId}/findings/${findingId}`); }
 }
 
 export const api = new ApiClient();
