@@ -325,26 +325,50 @@ export default function AuditPackagePage() {
               <div ref={fwDropRef} className="relative">
                 <button
                   onClick={() => setFwOpen(o => !o)}
-                  className="w-full flex items-center justify-between gap-2 px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-sm font-semibold text-white hover:bg-white/20 transition-colors"
+                  className="w-full flex items-center justify-between gap-2 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-sm font-semibold text-white hover:bg-white/20 active:scale-[0.99] transition-all duration-150"
                 >
-                  {selectedFw.label}
-                  <ChevronDown className={`w-4 h-4 text-indigo-300 transition-transform ${fwOpen ? "rotate-180" : ""}`} />
+                  <div className="flex flex-col items-start text-left min-w-0">
+                    <span className="text-white font-semibold text-sm leading-tight">{selectedFw.label}</span>
+                    <span className="text-indigo-300 text-xs font-normal leading-tight mt-0.5 truncate max-w-[180px]">{selectedFw.desc}</span>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-indigo-300 shrink-0 transition-transform duration-200 ${fwOpen ? "rotate-180" : ""}`} />
                 </button>
                 {fwOpen && (
-                  <div className="absolute z-20 top-full mt-1.5 left-0 right-0 bg-white rounded-xl shadow-xl border border-gray-100 py-1 max-h-72 overflow-y-auto">
-                    {FRAMEWORKS.map(fw => (
-                      <button
-                        key={fw.value}
-                        onClick={() => { setFramework(fw.value); setFwOpen(false); }}
-                        className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${framework === fw.value ? "font-semibold text-indigo-600 bg-indigo-50" : "text-gray-700"}`}
-                      >
-                        {fw.label}
-                      </button>
-                    ))}
+                  <div className="absolute z-30 top-full mt-2 left-0 right-0 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden max-h-80 overflow-y-auto">
+                    <div className="px-3 py-2 border-b border-gray-50">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Select framework</p>
+                    </div>
+                    {FRAMEWORKS.map((fw, i) => {
+                      const isSelected = framework === fw.value;
+                      return (
+                        <button
+                          key={fw.value}
+                          onClick={() => { setFramework(fw.value); setFwOpen(false); }}
+                          className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-colors duration-100 ${
+                            isSelected
+                              ? "bg-indigo-50 border-l-2 border-indigo-500"
+                              : "hover:bg-gray-50 border-l-2 border-transparent"
+                          } ${i !== 0 ? "border-t border-gray-50" : ""}`}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-semibold leading-tight ${isSelected ? "text-indigo-700" : "text-gray-800"}`}>
+                              {fw.label}
+                            </p>
+                            <p className="text-xs text-gray-400 leading-snug mt-0.5 truncate">{fw.desc}</p>
+                          </div>
+                          {isSelected && (
+                            <div className="shrink-0 w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center">
+                              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 12 12">
+                                <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
-              <p className="mt-1.5 text-xs text-indigo-300">{selectedFw.desc}</p>
             </div>
 
             {/* Generate button */}
