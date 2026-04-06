@@ -23,6 +23,15 @@ depends_on = None
 
 
 def upgrade() -> None:
+    # Remove evidence_controls references first (FK constraint)
+    op.execute("""
+        DELETE FROM evidence_controls
+        WHERE control_id IN (
+            SELECT id FROM controls
+            WHERE framework IN ('soc2', 'hipaa', 'gdpr', 'pci_dss', 'nist_csf', 'ccpa')
+        );
+    """)
+
     # Delete all existing stub controls for these frameworks
     op.execute("""
         DELETE FROM controls
@@ -666,6 +675,13 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    op.execute("""
+        DELETE FROM evidence_controls
+        WHERE control_id IN (
+            SELECT id FROM controls
+            WHERE framework IN ('soc2', 'hipaa', 'gdpr', 'pci_dss', 'nist_csf', 'ccpa')
+        );
+    """)
     op.execute("""
         DELETE FROM controls
         WHERE framework IN ('soc2', 'hipaa', 'gdpr', 'pci_dss', 'nist_csf', 'ccpa');
