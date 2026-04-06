@@ -13,17 +13,98 @@ from models.score_snapshot import ScoreSnapshot
 # Coverage score = how many expected types are present in collected evidence.
 EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
     "soc2": {
+        # CC1-2: Control environment — entity-level controls, tone at top, COSO
+        "control_environment": {
+            "iam_policies",
+            "okta_policies",
+            "github_repositories",
+            "azure_roles",
+        },
+        # CC3, CC9.1: Risk assessment, risk management process
+        "risk_assessment": {
+            "vulnerability_scans",
+            "wiz_issues",
+            "snyk_projects",
+            "iam_policies",
+        },
+        # CC6.1: Logical and physical access controls — identity and access management
         "access_control": {
             "iam_users", "iam_policies",
             "github_members", "github_admin_members",
-            "slack_users", "slack_workspace",
+            "slack_users",
             "workspace_users", "workspace_admin_members",
-            "okta_users", "okta_groups",
+            "okta_users", "okta_groups", "okta_policies",
             "azure_users", "azure_roles",
             "jira_users",
         },
-        "logging_monitoring": {"cloudtrail_logs"},
-        "change_management": {"repositories", "jira_projects"},
+        # CC6.2-3: Privileged access, role-based access controls
+        "privileged_access": {
+            "iam_policies",
+            "okta_groups",
+            "azure_roles",
+            "github_admin_members",
+            "vault_policy", "vault_auth_method",
+        },
+        # CC4, CC7.1-2: Monitoring, SIEM, log management, anomaly detection
+        "logging_monitoring": {
+            "cloudtrail_logs",
+            "datadog_monitors", "datadog_logs",
+            "splunk_saved_searches", "splunk_alerts",
+            "crowdstrike_detections",
+            "sentinelone_threats",
+            "wiz_issues",
+        },
+        # CC7.3-5: Incident detection, response, and resolution
+        "incident_response": {
+            "pagerduty_incidents", "pagerduty_services", "pagerduty_escalation_policies",
+            "servicenow_incidents",
+            "opsgenie_alerts", "opsgenie_schedules", "opsgenie_escalations",
+        },
+        # CC8.1: Change management — authorised, tested, and approved changes
+        "change_management": {
+            "github_repositories",
+            "jira_projects",
+            "servicenow_changes",
+            "gitlab_repositories",
+        },
+        # CC6.6-7: Endpoint security — device management and malware protection
+        "endpoint_security": {
+            "crowdstrike_devices", "crowdstrike_policies",
+            "sentinelone_agents",
+            "jamf_computers", "jamf_policies",
+            "kandji_devices", "kandji_blueprints",
+            "kolide",
+        },
+        # CC5.3, CC7.1: Vulnerability identification and remediation
+        "vulnerability_management": {
+            "snyk_projects",
+            "vulnerability_scans",
+            "wiz_issues",
+            "crowdstrike_detections",
+            "hackerone_reports",
+            "detectify_findings",
+        },
+        # CC9.2: Vendor risk management — third-party supplier assessments
+        "vendor_risk": {
+            "github_repositories",
+            "snyk_projects",
+            "wiz_issues",
+            "cloudtrail_logs",
+        },
+        # A1.1-3: Availability — uptime SLOs, monitoring, DR, backup
+        "availability": {
+            "pagerduty_services",
+            "datadog_slos", "datadog_monitors",
+            "servicenow_changes",
+            "vault_secrets_engine",
+        },
+        # C1.1-2: Confidentiality — encryption at rest and in transit
+        "confidentiality": {
+            "iam_policies",
+            "vault_secrets_engine", "vault_policy",
+            "cloudtrail_logs",
+            "wiz_issues",
+        },
     },
     "iso27001": {
         # A.5.15-18, A.8.2-3: Access control policy, user access mgmt, privileged access
@@ -135,14 +216,335 @@ EXPECTED_TYPES: dict[str, dict[str, set[str]]] = {
         },
     },
     "hipaa": {
+        # §164.308(a)(1): Risk analysis, risk management, sanction policy, IS activity review
+        "security_management": {
+            "vulnerability_scans",
+            "wiz_issues",
+            "snyk_projects",
+            "cloudtrail_logs",
+            "iam_policies",
+        },
+        # §164.308(a)(3): Authorisation, supervision, workforce clearance, termination
+        "workforce_security": {
+            "okta_users", "okta_groups",
+            "azure_users", "azure_roles",
+            "workspace_users",
+            "iam_users",
+            "slack_users",
+        },
+        # §164.308(a)(4): Access authorisation, establishment and modification
+        "information_access_management": {
+            "iam_users", "iam_policies",
+            "okta_users", "okta_groups", "okta_policies",
+            "azure_users", "azure_roles",
+            "github_members", "github_admin_members",
+            "workspace_users",
+        },
+        # §164.308(a)(5): Security awareness training, protection from malicious software,
+        # log-in monitoring, password management
+        "security_awareness": {
+            "crowdstrike_devices", "crowdstrike_policies",
+            "sentinelone_agents",
+            "jamf_computers",
+            "kandji_devices",
+            "okta_users",
+        },
+        # §164.308(a)(6): Incident reporting, response, mitigation, documentation
+        "incident_procedures": {
+            "pagerduty_incidents", "pagerduty_services", "pagerduty_escalation_policies",
+            "servicenow_incidents",
+            "opsgenie_alerts", "opsgenie_schedules",
+            "cloudtrail_logs",
+        },
+        # §164.308(a)(7): Contingency plan — data backup, DR, emergency mode, testing
+        "contingency_plan": {
+            "pagerduty_services",
+            "datadog_slos", "datadog_monitors",
+            "servicenow_changes",
+            "vault_secrets_engine",
+        },
+        # §164.312(a): Unique user identification, emergency access, auto logoff, encryption
         "access_control": {
             "iam_users", "iam_policies",
-            "workspace_users", "okta_users", "azure_users",
+            "okta_users", "okta_policies",
+            "azure_users",
+            "vault_policy", "vault_auth_method",
         },
-        "audit_controls": {"cloudtrail_logs"},
-        "workforce_security": {
-            "github_members", "slack_users",
-            "workspace_users", "okta_users", "jira_users",
+        # §164.312(b): Audit controls — hardware, software, and procedural mechanisms
+        "audit_controls": {
+            "cloudtrail_logs",
+            "datadog_monitors", "datadog_logs",
+            "splunk_saved_searches", "splunk_alerts",
+        },
+        # §164.312(e): Transmission security — encryption and integrity controls
+        "transmission_security": {
+            "cloudflare_security_settings", "cloudflare_zones",
+            "iam_policies",
+            "vault_secrets_engine",
+            "network_policies",
+        },
+    },
+    # ── GDPR (EU 2016/679) ────────────────────────────────────────────────────────
+    "gdpr": {
+        # Art.6-9: Lawful basis for processing, consent management, special categories
+        "lawful_basis": {
+            "iam_users", "iam_policies",
+            "okta_users", "okta_policies",
+            "azure_users",
+            "workspace_users",
+            "dlp_policies",
+        },
+        # Art.15-22: Access, rectification, erasure, portability, objection rights
+        "data_subject_rights": {
+            "iam_users",
+            "okta_users", "azure_users",
+            "workspace_users",
+            "jira_projects",
+            "servicenow_incidents",
+        },
+        # Art.25: Data protection by design and by default
+        "privacy_by_design": {
+            "iam_policies",
+            "okta_policies",
+            "wiz_issues",
+            "snyk_projects",
+            "github_repositories",
+        },
+        # Art.37-39: DPO designation, tasks, and position
+        "data_protection_officer": {
+            "iam_users",
+            "okta_users",
+            "workspace_users",
+        },
+        # Art.30: Records of processing activities (ROPA)
+        "records_of_processing": {
+            "github_repositories",
+            "iam_policies",
+            "cloudtrail_logs",
+        },
+        # Art.28: Data processing agreements with processors
+        "processor_agreements": {
+            "github_repositories",
+            "snyk_projects",
+            "iam_policies",
+        },
+        # Art.33-34: 72-hour breach notification to supervisory authority
+        "breach_notification": {
+            "pagerduty_incidents", "pagerduty_escalation_policies",
+            "servicenow_incidents",
+            "opsgenie_alerts",
+            "cloudtrail_logs",
+            "datadog_monitors",
+        },
+        # Art.35-36: Data protection impact assessment, prior consultation
+        "data_protection_impact": {
+            "vulnerability_scans",
+            "wiz_issues",
+            "iam_policies",
+            "github_repositories",
+        },
+        # Art.44-49: Transfer to third countries — adequacy, SCCs, BCRs
+        "cross_border_transfers": {
+            "cloudflare_security_settings",
+            "iam_policies",
+            "cloudtrail_logs",
+            "network_policies",
+        },
+        # Art.32: Security of processing — encryption, pseudonymisation, resilience
+        "security_of_processing": {
+            "iam_policies", "iam_users",
+            "cloudtrail_logs",
+            "vulnerability_scans",
+            "wiz_issues",
+            "snyk_projects",
+            "crowdstrike_policies",
+            "vault_secrets_engine", "vault_policy",
+        },
+    },
+    # ── PCI DSS v4.0 ─────────────────────────────────────────────────────────────
+    "pci_dss": {
+        # Req.1-2: Network security controls — firewalls, network segmentation
+        "network_security_controls": {
+            "cloudflare_security_settings", "cloudflare_zones",
+            "network_policies",
+            "tailscale_acl", "tailscale_devices",
+            "wiz_issues",
+        },
+        # Req.2: Secure configuration — vendor defaults removed, hardening standards
+        "secure_configuration": {
+            "wiz_issues",
+            "crowdstrike_policies",
+            "iam_policies",
+            "github_repositories",
+        },
+        # Req.3: Protection of stored account data — encryption, masking, retention
+        "data_protection": {
+            "vault_secrets_engine", "vault_policy",
+            "iam_policies",
+            "wiz_issues",
+            "cloudtrail_logs",
+        },
+        # Req.4: Encryption of cardholder data in transit — TLS, certificates
+        "encryption_in_transit": {
+            "cloudflare_security_settings", "cloudflare_zones",
+            "iam_policies",
+            "vault_secrets_engine",
+            "network_policies",
+        },
+        # Req.6, 11.3: Vulnerability management — patching, dependency scanning
+        "vulnerability_management": {
+            "snyk_projects",
+            "vulnerability_scans",
+            "wiz_issues",
+            "crowdstrike_detections",
+            "hackerone_reports",
+            "detectify_findings",
+        },
+        # Req.7-8: Access control — least privilege, user ID management
+        "access_control": {
+            "iam_users", "iam_policies",
+            "okta_users", "okta_groups", "okta_policies",
+            "azure_users", "azure_roles",
+            "github_members", "github_admin_members",
+            "vault_policy", "vault_auth_method",
+        },
+        # Req.9: Restrict physical access to cardholder data
+        "physical_access": {
+            "crowdstrike_devices",
+            "jamf_computers",
+            "kandji_devices",
+            "iam_policies",
+        },
+        # Req.10: Log all access to network resources and cardholder data
+        "logging_monitoring": {
+            "cloudtrail_logs",
+            "datadog_monitors", "datadog_logs",
+            "splunk_saved_searches", "splunk_alerts",
+            "crowdstrike_detections",
+        },
+        # Req.11: Security testing — penetration testing, vulnerability scans
+        "security_testing": {
+            "hackerone_reports", "hackerone_programs",
+            "detectify_findings", "detectify_scan_profiles",
+            "snyk_projects",
+            "vulnerability_scans",
+            "wiz_issues",
+        },
+        # Req.12: Security policy — maintain, review, and communicate
+        "security_policy": {
+            "github_repositories",
+            "iam_policies",
+            "okta_policies",
+        },
+        # Req.12.8: Third-party/service provider management
+        "service_provider_management": {
+            "github_repositories",
+            "snyk_projects",
+            "wiz_issues",
+            "cloudtrail_logs",
+        },
+        # Req.8.4-5: Multi-factor authentication for all access
+        "mfa_and_authentication": {
+            "okta_users", "okta_policies",
+            "azure_users", "azure_roles",
+            "iam_policies",
+            "mfa_policies", "mfa_enrollments",
+        },
+    },
+    # ── NIST Cybersecurity Framework 2.0 ─────────────────────────────────────────
+    "nist_csf": {
+        # GV: Governance — cybersecurity strategy, roles, policy, oversight
+        "govern": {
+            "iam_policies",
+            "okta_policies",
+            "github_repositories",
+            "azure_roles",
+        },
+        # ID: Identify — asset management, risk assessment, supply chain risk
+        "identify": {
+            "assets",
+            "vulnerability_scans",
+            "wiz_issues",
+            "snyk_projects",
+            "cloudtrail_logs",
+            "github_repositories",
+        },
+        # PR: Protect — identity management, awareness training, data security
+        "protect": {
+            "iam_users", "iam_policies",
+            "okta_users", "okta_groups", "okta_policies",
+            "azure_users", "azure_roles",
+            "crowdstrike_devices", "crowdstrike_policies",
+            "jamf_computers",
+            "kandji_devices",
+            "vault_secrets_engine",
+        },
+        # DE: Detect — anomalies, events, continuous monitoring
+        "detect": {
+            "cloudtrail_logs",
+            "datadog_monitors", "datadog_logs",
+            "splunk_saved_searches", "splunk_alerts",
+            "crowdstrike_detections",
+            "sentinelone_threats",
+            "wiz_issues",
+        },
+        # RS: Respond — incident response planning, communications, mitigation
+        "respond": {
+            "pagerduty_incidents", "pagerduty_services", "pagerduty_escalation_policies",
+            "servicenow_incidents",
+            "opsgenie_alerts", "opsgenie_schedules",
+        },
+        # RC: Recover — recovery planning, improvements, communications
+        "recover": {
+            "pagerduty_services",
+            "datadog_slos",
+            "servicenow_changes",
+            "vault_secrets_engine",
+        },
+    },
+    # ── CCPA / CPRA (California Consumer Privacy Act) ────────────────────────────
+    "ccpa": {
+        # §1798.100-130: Consumer rights — know, delete, correct, portability
+        "consumer_rights": {
+            "iam_users",
+            "okta_users", "azure_users",
+            "workspace_users",
+            "jira_projects",
+            "servicenow_incidents",
+        },
+        # §1798.100(b): Privacy notice at collection — disclosure of categories
+        "privacy_notice": {
+            "github_repositories",
+            "iam_policies",
+            "cloudtrail_logs",
+        },
+        # §1798.140: Data inventory — categories of PI collected, sold, disclosed
+        "data_inventory": {
+            "iam_policies",
+            "cloudtrail_logs",
+            "wiz_issues",
+            "snyk_projects",
+            "assets",
+        },
+        # §1798.120, 1798.135: Opt-out of sale/sharing, do not sell links
+        "opt_out_mechanisms": {
+            "iam_policies",
+            "okta_policies",
+            "cloudtrail_logs",
+        },
+        # §1798.140(ag): Service provider/contractor data sharing agreements
+        "service_provider_contracts": {
+            "github_repositories",
+            "snyk_projects",
+            "iam_policies",
+        },
+        # §1798.121, 1798.100(d): Sensitive PI — use limitation and disclosure controls
+        "sensitive_personal_information": {
+            "iam_policies",
+            "vault_secrets_engine",
+            "wiz_issues",
+            "crowdstrike_policies",
+            "okta_policies",
         },
     },
     "dpdp": {
