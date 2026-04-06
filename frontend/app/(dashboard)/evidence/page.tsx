@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
-import type { Evidence, Page } from "@/lib/types";
+import type { Evidence, Integration, Page } from "@/lib/types";
 import {
   ChevronLeft,
   ChevronRight,
@@ -24,12 +24,6 @@ const CONTROLS = [
   { value: "change_management", label: "Change Management" },
 ];
 
-const INTEGRATIONS = [
-  { value: "", label: "All integrations" },
-  { value: "aws", label: "AWS" },
-  { value: "github", label: "GitHub" },
-  { value: "slack", label: "Slack" },
-];
 
 function IntegrationBadge({ name }: { name: string }) {
   const colors: Record<string, string> = {
@@ -145,6 +139,11 @@ export default function EvidencePage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [integrations, setIntegrations] = useState<Integration[]>([]);
+
+  useEffect(() => {
+    api.getIntegrations().then(setIntegrations).catch(console.error);
+  }, []);
 
   const load = () => {
     setLoading(true);
@@ -305,9 +304,10 @@ export default function EvidencePage() {
             onChange={(e) => setIntegration(e.target.value)}
             className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400 transition-colors"
           >
-            {INTEGRATIONS.map((i) => (
-              <option key={i.value} value={i.value}>
-                {i.label}
+            <option value="">All integrations</option>
+            {integrations.map((i) => (
+              <option key={i.integration_type} value={i.integration_type}>
+                {i.integration_type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
               </option>
             ))}
           </select>
