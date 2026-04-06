@@ -230,6 +230,96 @@ async def _gather_all_data(
     }
 
 
+def _framework_specific_context(framework: str) -> str:
+    """Return framework-specific regulatory context to inject into the AI prompt."""
+    contexts = {
+        "soc2": (
+            "Framework Context: SOC 2 Type II evaluates Trust Services Criteria (TSC): "
+            "Security, Availability, Processing Integrity, Confidentiality, and Privacy. "
+            "The auditor opinion must address whether controls were suitably designed AND "
+            "operating effectively over the audit period. Reference the AICPA TSC categories "
+            "in your analysis. Management assertion must use formal SOC 2 language."
+        ),
+        "iso27001": (
+            "Framework Context: ISO/IEC 27001:2022 requires demonstrating conformance to "
+            "Annex A controls and the ISMS scope. Address clauses 4–10 (context, leadership, "
+            "planning, support, operation, performance evaluation, improvement). Highlight "
+            "risk treatment decisions and the Statement of Applicability (SoA). Use ISO audit "
+            "language: 'conformance', 'nonconformity', 'corrective action'."
+        ),
+        "hipaa": (
+            "Framework Context: HIPAA Security Rule (45 CFR Part 164) requires safeguarding "
+            "ePHI through Administrative, Physical, and Technical Safeguards. Address the "
+            "required vs. addressable implementation specifications. Reference the annual "
+            "Security Risk Analysis requirement (§164.308(a)(1)). Use HIPAA terminology: "
+            "'covered entity', 'business associate', 'ePHI', 'minimum necessary standard'."
+        ),
+        "gdpr": (
+            "Framework Context: GDPR requires lawful basis for processing (Art. 6), data "
+            "subject rights fulfillment, 72-hour breach notification to supervisory authority "
+            "(Art. 33), and data protection by design and by default (Art. 25). Reference "
+            "Article numbers in findings. Address controller vs. processor responsibilities "
+            "and cross-border transfer mechanisms (SCCs, adequacy decisions)."
+        ),
+        "pci_dss": (
+            "Framework Context: PCI DSS v4.0 has 12 requirements covering network security, "
+            "cardholder data protection, vulnerability management, access control, monitoring, "
+            "and information security policy. Address the Shared Responsibility Model for "
+            "cloud environments. Reference SAQ type if applicable. Use PCI terminology: "
+            "'cardholder data environment (CDE)', 'compensating controls', 'ROC'."
+        ),
+        "ccpa": (
+            "Framework Context: CCPA/CPRA grants California consumers rights to know, delete, "
+            "opt-out of sale/sharing, and non-discrimination. Businesses must respond to "
+            "verifiable consumer requests within 45 days. Address the CPRA amendments: "
+            "sensitive personal information, right to correct, and data minimization. "
+            "Reference enforcement by the California Privacy Protection Agency (CPPA)."
+        ),
+        "nist_csf": (
+            "Framework Context: NIST CSF 2.0 organizes controls across six Functions: "
+            "Govern, Identify, Protect, Detect, Respond, Recover. Use maturity tiers "
+            "(Partial/Risk Informed/Repeatable/Adaptive) to characterize each function. "
+            "Reference applicable NIST SP 800-53 controls where relevant. Address the "
+            "Cybersecurity Supply Chain Risk Management (C-SCRM) component."
+        ),
+        "dpdp": (
+            "Framework Context: India's Digital Personal Data Protection Act 2023 designates "
+            "Data Fiduciaries and Data Processors. Key obligations: lawful processing with "
+            "consent or legitimate use, Data Principal rights (access, correction, erasure, "
+            "grievance redressal), breach notification to DPBI (Data Protection Board of India), "
+            "and Significant Data Fiduciary requirements. Reference the DPBI as the enforcement "
+            "authority. Use DPDP terminology: 'Data Fiduciary', 'Data Principal', 'DPBI'."
+        ),
+        "cert_in": (
+            "Framework Context: CERT-In Directions 2022 (MeitY) mandate 6-hour incident "
+            "reporting to CERT-In for 20 specified incident categories. Requirements include: "
+            "ICT infrastructure logging with 180-day retention in India, NTP synchronization "
+            "to NIC/NPL/government time servers, virtual asset exchange KYC records for 5 years, "
+            "and designated Point of Contact (PoC) registration with CERT-In. Assess compliance "
+            "against the 6-hour SLA and reference CERT-In reference numbers where available."
+        ),
+        "lpdp": (
+            "Framework Context: Serbian Law on Personal Data Protection (ZZPL/LPDP, Official "
+            "Gazette 87/2018) is Serbia's GDPR-equivalent supervised by the Poverenik "
+            "(Commissioner for Information of Public Importance). Key requirements: lawful "
+            "processing basis (Art. 5-11), 30-day DSR response, 72-hour breach notification "
+            "to Poverenik (Art. 53), DPO registration with Poverenik (Art. 57), ROPA maintenance "
+            "(Art. 40), and cross-border transfer mechanisms (Art. 65-74). Reference Poverenik "
+            "as the supervisory authority and use LPDP article numbers in findings."
+        ),
+        "nis2": (
+            "Framework Context: NIS2 Directive (EU 2022/2555) applies to essential and important "
+            "entities in 18 sectors. Art. 21 mandates 10 cybersecurity measures including risk "
+            "management, incident handling, BCP/DR, supply chain security, MFA, and cryptography. "
+            "Art. 23 requires 3-stage incident reporting: early warning within 24h, incident "
+            "notification within 72h, and final report within 1 month — to national CSIRT or "
+            "competent authority. Management bodies are personally liable (Art. 20). Address "
+            "NIS2 proportionality between essential vs. important entity obligations."
+        ),
+    }
+    return contexts.get(framework, f"Framework Context: {FRAMEWORK_LABELS.get(framework, framework.upper())} compliance assessment.")
+
+
 async def _generate_ai_narrative(data: dict) -> dict:
     fallback_assertion = (
         f"{data['company_name']} management is responsible for establishing and maintaining "
@@ -313,12 +403,16 @@ async def _generate_ai_narrative(data: dict) -> dict:
     failing_controls = [c["name"] for c in score_data["controls"] if c["status"] == "failing"]
     warning_controls = [c["name"] for c in score_data["controls"] if c["status"] == "warning"]
 
+    framework_context = _framework_specific_context(data["framework"])
+
     prompt = f"""You are a senior compliance auditor writing a formal AI Audit Package for {data['company_name']}.
 
 Assessment Period: {data.get('period_start', 'N/A')} through {data.get('period_end', 'N/A')}
 Framework: {data['framework_label']}
 Overall Compliance Score: {score_data['overall_score']}%
 Total Evidence Records: {data['total_evidence']}
+
+{framework_context}
 
 Connected Integrations: {int_summary}
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Policy } from "@/lib/types";
-import { BookOpen, Save, CheckCircle2, Clock, FileText, Sparkles, Copy, Check, Loader2, CalendarDays, AlertTriangle, X } from "lucide-react";
+import { BookOpen, Save, CheckCircle2, Clock, FileText, Sparkles, Copy, Check, Loader2, CalendarDays, AlertTriangle, X, Users, PenLine } from "lucide-react";
 
 // ── Expiry helpers ─────────────────────────────────────────────────────────────
 function getDaysRemaining(expires_at: string | null): number | null {
@@ -186,6 +186,125 @@ function ExpiryPanel({
   );
 }
 
+// ── Policy acknowledgment panel ────────────────────────────────────────────────
+function AcknowledgmentPanel({ policy, currentUserEmail }: { policy: Policy; currentUserEmail?: string }) {
+  const [data, setData] = useState<{
+    signed: Array<{ user_id: string; email: string; name: string; signed_at: string }>;
+    unsigned: Array<{ user_id: string; email: string; name: string }>;
+  } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [signing, setSigning] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const myEntry = data?.signed.find((s) => s.email === currentUserEmail);
+  const iSigned = !!myEntry;
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await api.getPolicyAcknowledgments(policy.slug);
+      setData(res);
+    } catch { /* ignore */ } finally { setLoading(false); }
+  };
+
+  useEffect(() => {
+    setData(null);
+    setOpen(false);
+  }, [policy.slug]);
+
+  const handleToggleSign = async () => {
+    setSigning(true);
+    try {
+      if (iSigned) {
+        await api.revokeAcknowledgement(policy.slug);
+      } else {
+        await api.acknowledgePolicy(policy.slug);
+      }
+      await load();
+    } catch { /* ignore */ } finally { setSigning(false); }
+  };
+
+  const handleOpen = async () => {
+    setOpen((v) => !v);
+    if (!data) await load();
+  };
+
+  const signedCount = data?.signed.length ?? 0;
+  const unsignedCount = data?.unsigned.length ?? 0;
+  const total = signedCount + unsignedCount;
+
+  return (
+    <div className="border-t border-gray-100">
+      <button
+        onClick={handleOpen}
+        className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-gray-50/60 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Users className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+          <span className="text-xs font-medium text-gray-600">Acknowledgments</span>
+          {data && (
+            <span className="text-xs text-gray-400">
+              {signedCount}/{total} signed
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {iSigned && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700">
+              <Check className="w-2.5 h-2.5" /> Acknowledged
+            </span>
+          )}
+          {open ? <X className="w-3.5 h-3.5 text-gray-400" /> : <PenLine className="w-3.5 h-3.5 text-gray-400" />}
+        </div>
+      </button>
+
+      {open && (
+        <div className="px-5 pb-4 space-y-3">
+          {/* My acknowledgment */}
+          <button
+            onClick={handleToggleSign}
+            disabled={signing}
+            className={`w-full flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-semibold transition-all ${
+              iSigned
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                : "bg-violet-600 text-white hover:bg-violet-700 shadow-sm shadow-violet-500/20"
+            }`}
+          >
+            {signing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : iSigned ? <CheckCircle2 className="w-3.5 h-3.5" /> : <PenLine className="w-3.5 h-3.5" />}
+            {signing ? "…" : iSigned ? "Acknowledged — click to withdraw" : "Acknowledge this policy"}
+          </button>
+
+          {/* Signature list */}
+          {loading ? (
+            <div className="flex justify-center py-2">
+              <Loader2 className="w-4 h-4 animate-spin text-gray-300" />
+            </div>
+          ) : data && (
+            <div className="space-y-1.5">
+              {data.signed.map((s) => (
+                <div key={s.user_id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-emerald-50/60">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                  <span className="text-xs font-medium text-gray-700 flex-1 truncate">{s.name || s.email}</span>
+                  <span className="text-[10px] text-gray-400 shrink-0">
+                    {new Date(s.signed_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                </div>
+              ))}
+              {data.unsigned.map((u) => (
+                <div key={u.user_id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-gray-50">
+                  <div className="w-3 h-3 rounded-full border border-gray-300 shrink-0" />
+                  <span className="text-xs text-gray-400 flex-1 truncate">{u.name || u.email}</span>
+                  <span className="text-[10px] text-gray-400 shrink-0">Pending</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── AI template generator ──────────────────────────────────────────────────────
 function PolicyTemplateGenerator({ policy, onInsert }: { policy: Policy | null; onInsert: (content: string) => void }) {
   const [generating, setGenerating] = useState(false);
@@ -299,6 +418,7 @@ export default function PoliciesPage() {
   const [loading, setLoading]   = useState(true);
   const [saving, setSaving]     = useState(false);
   const [saved, setSaved]       = useState(false);
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     api.getPolicies()
@@ -308,6 +428,7 @@ export default function PoliciesPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+    api.me().then((u) => setCurrentUserEmail(u.email)).catch(() => {});
   }, []);
 
   const selectPolicy = (p: Policy) => {
@@ -535,6 +656,9 @@ export default function PoliciesPage() {
 
               {/* Expiry panel */}
               <ExpiryPanel policy={selected} onUpdate={handleExpiryUpdate} />
+
+              {/* Acknowledgment panel */}
+              <AcknowledgmentPanel policy={selected} currentUserEmail={currentUserEmail} />
             </div>
           ) : (
             <div className="flex flex-1 items-center justify-center rounded-2xl border border-gray-100 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]" style={{ minHeight: "300px" }}>

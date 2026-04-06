@@ -141,6 +141,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/training",          label: "Training",          icon: GraduationCap },
       { href: "/background-checks", label: "Background Checks", icon: BadgeCheck    },
       { href: "/offboarding",       label: "Offboarding",       icon: UserMinus     },
+      { href: "/onboarding",        label: "Onboarding",        icon: UserCheck     },
     ],
   },
   {
@@ -151,6 +152,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: "/data-flows",       label: "Data Flow Map",    icon: Workflow   },
       { href: "/ropa",             label: "RoPA",             icon: Archive    },
+      { href: "/subprocessors",    label: "Subprocessors",    icon: Building2  },
       { href: "/data-breaches",    label: "Breach Register",  icon: ShieldX    },
       { href: "/subject-requests", label: "Subject Requests", icon: UserSearch },
     ],

@@ -537,6 +537,93 @@ def send_alert_digest(to: str, company_name: str, alerts: list[dict], frontend_u
     _send(to, subject, _layout(body, footer_note=f"TraceLayer &nbsp;&middot;&nbsp; Daily compliance alerts"))
 
 
+def send_vendor_questionnaire(
+    to: str,
+    vendor_name: str,
+    company_name: str,
+    sender_name: str,
+    response_url: str,
+    due_date,
+    question_count: int,
+) -> None:
+    """Send a security questionnaire link to a vendor."""
+    from datetime import datetime
+    due_str = due_date.strftime("%B %d, %Y") if hasattr(due_date, "strftime") else str(due_date)
+    subject = f"Security questionnaire from {company_name} — response requested by {due_str}"
+    body = f"""
+      <h2 style="margin:0 0 6px;color:{_TEXT_HEAD};font-size:22px;">Security Questionnaire</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 20px;font-size:14px;line-height:1.6;">
+        {sender_name} from <strong>{company_name}</strong> has sent you a security questionnaire as part of their
+        vendor risk management programme. Please complete it by <strong>{due_str}</strong>.
+      </p>
+      <div style="background:{_BRAND_LIGHT};border:1.5px solid {_BRAND_BORDER};border-radius:10px;padding:12px 18px;margin:0 0 24px;">
+        <p style="margin:0;font-size:13px;color:#0f766e;">
+          <strong>{question_count} questions</strong> covering encryption, incident response, access controls,
+          penetration testing, and data handling practices.
+        </p>
+      </div>
+      {_btn(response_url, "Complete Security Questionnaire")}
+      <p style="color:{_TEXT_MUTED};margin:24px 0 0;font-size:12px;line-height:1.6;">
+        This questionnaire is provided by {company_name} via TraceLayer.
+        If you have questions, please contact {sender_name} directly.
+        The link above is unique to your organisation — do not share it.
+      </p>
+    """
+    _send(to, subject, _layout(body, footer_note=f"Sent by {company_name} via TraceLayer"))
+
+
+def send_control_break_alert(
+    to: str,
+    company_name: str,
+    framework_label: str,
+    failing_controls: list[dict],  # [{"name": str, "score": int, "missing_types": list[str]}]
+    frontend_url: str,
+) -> None:
+    """Send an alert when compliance controls drop to failing status."""
+    subject = f"Control alert: {len(failing_controls)} failing control{'s' if len(failing_controls) != 1 else ''} — {company_name}"
+
+    rows_html = ""
+    for c in failing_controls[:10]:
+        missing = ", ".join(c.get("missing_types", [])[:3]) or "no evidence collected"
+        rows_html += f"""
+        <tr>
+          <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;font-size:13px;color:{_TEXT_HEAD};font-weight:600;">{c['name']}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;font-size:13px;color:{_RED};font-weight:700;white-space:nowrap;">{c['score']}%</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;font-size:12px;color:{_TEXT_MUTED};">{missing}</td>
+        </tr>"""
+
+    if len(failing_controls) > 10:
+        rows_html += f"""
+        <tr>
+          <td colspan="3" style="padding:8px 12px;font-size:12px;color:{_TEXT_MUTED};font-style:italic;">
+            ...and {len(failing_controls) - 10} more failing controls
+          </td>
+        </tr>"""
+
+    body = f"""
+      <div style="background:{_RED_BG};border:1.5px solid {_RED_BORDER};border-radius:10px;padding:12px 18px;margin:0 0 24px;">
+        <p style="margin:0;font-weight:700;color:#991b1b;font-size:14px;">&#9888; Compliance controls failing</p>
+      </div>
+      <h2 style="margin:0 0 6px;color:{_TEXT_HEAD};font-size:22px;">Control Break Alert</h2>
+      <p style="color:{_TEXT_BODY};margin:0 0 20px;font-size:14px;line-height:1.6;">
+        {company_name} has {len(failing_controls)} failing {framework_label} control{'s' if len(failing_controls) != 1 else ''}.
+        Immediate remediation is recommended to maintain your compliance posture.
+      </p>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin:0 0 24px;">
+        <thead>
+          <tr style="background:#f8fafc;">
+            <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:{_TEXT_MUTED};text-transform:uppercase;letter-spacing:0.05em;">Control</th>
+            <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:{_TEXT_MUTED};text-transform:uppercase;letter-spacing:0.05em;">Score</th>
+            <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:{_TEXT_MUTED};text-transform:uppercase;letter-spacing:0.05em;">Missing evidence</th>
+          </tr>
+        </thead>
+        <tbody>{rows_html}</tbody>
+      </table>
+      {_btn(frontend_url + "/compliance", "View compliance dashboard")}
+    """
+    _send(to, subject, _layout(body, footer_note="TraceLayer &nbsp;&middot;&nbsp; Control break alerts"))
+
+
 def send_weekly_compliance_report(
     to: str,
     company_name: str,

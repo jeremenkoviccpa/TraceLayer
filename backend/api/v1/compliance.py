@@ -1,6 +1,7 @@
 import logging
 import uuid
 from datetime import datetime, timezone
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
@@ -10,9 +11,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from core.deps import get_current_user
 from core.plan_gate import require_growth
+from models.control_exclusion import ControlExclusion
 from models.evidence import Evidence
 from models.integration import Integration
 from models.manual_control import ManualControl
+from models.risk_exception import RiskException
 from models.user import User
 from schemas.compliance import (
     ActionPlanResponse,
@@ -769,3 +772,185 @@ async def advisor_chat(
         logger.exception("Advisor chat failed for company=%s framework=%s", current_user.company_id, body.framework)
         raise HTTPException(status_code=503, detail="Advisor temporarily unavailable. Try again shortly.")
     return AdvisorChatResponse(reply=reply)
+
+
+# ── Risk Exceptions ───────────────────────────────────────────────────────────
+
+class RiskExceptionCreate(BaseModel):
+    framework: str
+    control_category: str
+    control_name: str
+    justification: str
+    owner_name: Optional[str] = None
+    owner_email: Optional[str] = None
+    expires_at: Optional[datetime] = None
+
+
+@router.get("/exceptions")
+async def list_exceptions(
+    framework: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    q = select(RiskException).where(RiskException.company_id == current_user.company_id)
+    if framework:
+        q = q.where(RiskException.framework == framework)
+    result = await db.execute(q.order_by(RiskException.created_at.desc()))
+    now = datetime.now(timezone.utc)
+    items = []
+    for e in result.scalars().all():
+        is_expired = e.expires_at and e.expires_at < now
+        items.append({
+            "id": str(e.id),
+            "framework": e.framework,
+            "control_category": e.control_category,
+            "control_name": e.control_name,
+            "justification": e.justification,
+            "owner_name": e.owner_name,
+            "owner_email": e.owner_email,
+            "expires_at": e.expires_at,
+            "status": "expired" if is_expired else e.status,
+            "created_at": e.created_at,
+        })
+    return items
+
+
+@router.post("/exceptions", status_code=201)
+async def create_exception(
+    body: RiskExceptionCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    now = datetime.now(timezone.utc)
+    exc = RiskException(
+        id=uuid.uuid4(),
+        company_id=current_user.company_id,
+        framework=body.framework,
+        control_category=body.control_category,
+        control_name=body.control_name,
+        justification=body.justification,
+        owner_name=body.owner_name,
+        owner_email=body.owner_email,
+        expires_at=body.expires_at,
+        status="active",
+        created_by_id=current_user.id,
+        created_at=now,
+    )
+    db.add(exc)
+    await db.commit()
+    await db.refresh(exc)
+    from services.audit_service import log_action
+    await log_action(db, current_user.company_id, "compliance.exception_created",
+                     user_id=current_user.id, user_email=current_user.email,
+                     resource_type="risk_exception", resource_id=str(exc.id),
+                     metadata={"framework": body.framework, "control": body.control_name})
+    return {"id": str(exc.id), "status": "active"}
+
+
+@router.delete("/exceptions/{exc_id}", status_code=204)
+async def delete_exception(
+    exc_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    exc = (await db.execute(
+        select(RiskException).where(
+            RiskException.id == exc_id,
+            RiskException.company_id == current_user.company_id,
+        )
+    )).scalar_one_or_none()
+    if not exc:
+        raise HTTPException(status_code=404, detail="Exception not found")
+    await db.delete(exc)
+    await db.commit()
+
+
+# ── Control Exclusions ────────────────────────────────────────────────────────
+
+class ControlExclusionCreate(BaseModel):
+    framework: str
+    control_category: str
+    control_name: str
+    justification: str
+    exclusion_type: str = "not_applicable"  # not_applicable | out_of_scope
+
+
+@router.get("/exclusions")
+async def list_exclusions(
+    framework: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    q = select(ControlExclusion).where(ControlExclusion.company_id == current_user.company_id)
+    if framework:
+        q = q.where(ControlExclusion.framework == framework)
+    result = await db.execute(q.order_by(ControlExclusion.created_at.desc()))
+    return [
+        {
+            "id": str(e.id),
+            "framework": e.framework,
+            "control_category": e.control_category,
+            "control_name": e.control_name,
+            "justification": e.justification,
+            "exclusion_type": e.exclusion_type,
+            "created_at": e.created_at,
+        }
+        for e in result.scalars().all()
+    ]
+
+
+@router.post("/exclusions", status_code=201)
+async def create_exclusion(
+    body: ControlExclusionCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    existing = (await db.execute(
+        select(ControlExclusion).where(
+            ControlExclusion.company_id == current_user.company_id,
+            ControlExclusion.framework == body.framework,
+            ControlExclusion.control_category == body.control_category,
+        )
+    )).scalar_one_or_none()
+    if existing:
+        raise HTTPException(status_code=409, detail="An exclusion already exists for this control.")
+
+    now = datetime.now(timezone.utc)
+    excl = ControlExclusion(
+        id=uuid.uuid4(),
+        company_id=current_user.company_id,
+        framework=body.framework,
+        control_category=body.control_category,
+        control_name=body.control_name,
+        justification=body.justification,
+        exclusion_type=body.exclusion_type,
+        created_by_id=current_user.id,
+        created_at=now,
+    )
+    db.add(excl)
+    await db.commit()
+    await db.refresh(excl)
+    from services.audit_service import log_action
+    await log_action(db, current_user.company_id, "compliance.exclusion_created",
+                     user_id=current_user.id, user_email=current_user.email,
+                     resource_type="control_exclusion", resource_id=str(excl.id),
+                     metadata={"framework": body.framework, "control": body.control_name, "type": body.exclusion_type})
+    return {"id": str(excl.id)}
+
+
+@router.delete("/exclusions/{excl_id}", status_code=204)
+async def delete_exclusion(
+    excl_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    excl = (await db.execute(
+        select(ControlExclusion).where(
+            ControlExclusion.id == excl_id,
+            ControlExclusion.company_id == current_user.company_id,
+        )
+    )).scalar_one_or_none()
+    if not excl:
+        raise HTTPException(status_code=404, detail="Exclusion not found")
+    await db.delete(excl)
+    await db.commit()

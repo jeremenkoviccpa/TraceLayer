@@ -28,6 +28,7 @@ DEFAULT_PREFS = {
     "vendor_needs_review": True,
     "evidence_stale": True,
     "weekly_digest": True,
+    "control_failing": True,
 }
 
 ALERT_LABELS = {
@@ -35,7 +36,10 @@ ALERT_LABELS = {
     "access_review_overdue": "Overdue Access Reviews",
     "vendor_needs_review": "Vendors Needing Review",
     "evidence_stale": "Stale Evidence Collection",
+    "control_failing": "Failing Compliance Controls",
 }
+
+MONITORED_FRAMEWORKS = ["soc2", "iso27001", "hipaa", "gdpr", "pci_dss", "ccpa", "nist_csf", "dpdp", "cert_in", "lpdp", "nis2"]
 
 
 async def _check_training_overdue(db: AsyncSession, company_id) -> list[str]:
@@ -101,6 +105,29 @@ async def _check_evidence_stale(db: AsyncSession, company_id) -> list[str]:
     )
     records = result.scalars().all()
     return [r.integration_type for r in records]
+
+
+async def _check_failing_controls(db: AsyncSession, company_id) -> list[dict]:
+    """Return failing controls across all frameworks for this company."""
+    from services.compliance_service import get_compliance_score
+    from services.audit_package_service import FRAMEWORK_LABELS
+
+    failing = []
+    for fw in MONITORED_FRAMEWORKS:
+        try:
+            score_data = await get_compliance_score(company_id, fw, db)
+            for c in score_data.get("controls", []):
+                if c["status"] == "failing":
+                    failing.append({
+                        "name": c["name"],
+                        "score": c["score"],
+                        "missing_types": c.get("missing_types", []),
+                        "framework": fw,
+                        "framework_label": FRAMEWORK_LABELS.get(fw, fw.upper()),
+                    })
+        except Exception:
+            pass
+    return failing
 
 
 async def send_slack_alert(webhook_url: str, company_name: str, alerts: list[dict]) -> None:
@@ -200,6 +227,30 @@ async def run_daily_alerts(db: AsyncSession) -> None:
                         "count": len(items),
                         "items": items,
                     })
+
+            # Check failing controls and send dedicated alerts (not bundled in digest)
+            if prefs.get("control_failing"):
+                failing_controls = await _check_failing_controls(db, company.id)
+                if failing_controls:
+                    from services.email_service import send_control_break_alert
+                    from services.audit_package_service import FRAMEWORK_LABELS
+                    # Group by framework
+                    by_fw: dict[str, list] = {}
+                    for c in failing_controls:
+                        by_fw.setdefault(c["framework"], []).append(c)
+                    for fw, fw_controls in by_fw.items():
+                        fw_label = FRAMEWORK_LABELS.get(fw, fw.upper())
+                        for admin in admins:
+                            try:
+                                send_control_break_alert(
+                                    to=admin.email,
+                                    company_name=company.name,
+                                    framework_label=fw_label,
+                                    failing_controls=fw_controls,
+                                    frontend_url=settings.app_frontend_url,
+                                )
+                            except Exception as exc:
+                                logger.warning("Failed to send control break alert to %s: %s", admin.email, exc)
 
             if not alerts:
                 continue

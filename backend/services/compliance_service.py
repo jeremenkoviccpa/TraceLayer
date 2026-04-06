@@ -389,7 +389,6 @@ async def get_compliance_score(
             entry["latest"] = row.latest
 
     control_scores = []
-    total = 0
 
     for control in controls:
         ev = by_control.get(control.category, {"types": set(), "count": 0, "latest": None})
@@ -419,9 +418,60 @@ async def get_compliance_score(
             "missing_types": sorted(expected - covered),
             "last_collected": latest.isoformat() if latest else None,
         })
-        total += score
 
-    overall = int(total / len(control_scores)) if control_scores else 0
+    # Apply risk exceptions and control exclusions
+    now = datetime.now(timezone.utc)
+    try:
+        from models.risk_exception import RiskException
+        from models.control_exclusion import ControlExclusion
+
+        exceptions = (await db.execute(
+            select(RiskException).where(
+                RiskException.company_id == company_id,
+                RiskException.framework == framework,
+                RiskException.status == "active",
+            )
+        )).scalars().all()
+        active_exceptions = {
+            e.control_category: e for e in exceptions
+            if not e.expires_at or e.expires_at > now
+        }
+
+        exclusions = (await db.execute(
+            select(ControlExclusion).where(
+                ControlExclusion.company_id == company_id,
+                ControlExclusion.framework == framework,
+            )
+        )).scalars().all()
+        excluded_categories = {e.control_category: e for e in exclusions}
+
+        for cs in control_scores:
+            cat = cs["category"]
+            if cat in excluded_categories:
+                excl = excluded_categories[cat]
+                cs["status"] = "excluded"
+                cs["exclusion"] = {
+                    "justification": excl.justification,
+                    "type": excl.exclusion_type,
+                    "id": str(excl.id),
+                }
+            elif cs["status"] == "failing" and cat in active_exceptions:
+                exc = active_exceptions[cat]
+                cs["status"] = "exception"
+                cs["exception"] = {
+                    "justification": exc.justification,
+                    "owner_name": exc.owner_name,
+                    "owner_email": exc.owner_email,
+                    "expires_at": exc.expires_at.isoformat() if exc.expires_at else None,
+                    "id": str(exc.id),
+                }
+    except Exception:
+        pass  # Tables may not exist yet during migration
+
+    # Overall score excludes "excluded" controls
+    scoring = [cs for cs in control_scores if cs["status"] != "excluded"]
+    total = sum(cs["score"] for cs in scoring)
+    overall = int(total / len(scoring)) if scoring else 0
 
     # Snapshot at most once per hour per company+framework
     cutoff = datetime.now(timezone.utc) - timedelta(hours=1)

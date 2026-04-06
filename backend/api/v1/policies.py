@@ -1,13 +1,16 @@
 import logging
 import uuid
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
 from core.deps import get_current_user
 from models.policy import Policy
+from models.policy_signature import PolicySignature
 from models.user import User
 from schemas.policy import PolicyResponse, PolicySaveRequest, PolicySetExpiryRequest
 
@@ -286,6 +289,143 @@ async def set_policy_expiry(
     await db.commit()
     await db.refresh(policy)
     return _build_response(slug, policy)
+
+
+class SignatureResponse(BaseModel):
+    policy_slug: str
+    user_id: str
+    user_email: str
+    signed_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+@router.post("/{slug}/sign", status_code=201)
+async def sign_policy(
+    slug: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Record the current user's acknowledgment/signature on this policy."""
+    if slug not in POLICY_TEMPLATES:
+        raise HTTPException(status_code=404, detail="Policy not found")
+
+    # Ensure the policy row exists (create from template if not saved yet)
+    result = await db.execute(
+        select(Policy).where(Policy.company_id == current_user.company_id, Policy.slug == slug)
+    )
+    policy = result.scalar_one_or_none()
+    if not policy:
+        template = POLICY_TEMPLATES[slug]
+        policy = Policy(
+            id=uuid.uuid4(),
+            company_id=current_user.company_id,
+            slug=slug,
+            content=template["default_content"],
+            updated_by_id=current_user.id,
+        )
+        db.add(policy)
+        await db.flush()
+
+    # Check for existing signature
+    existing = (await db.execute(
+        select(PolicySignature).where(
+            PolicySignature.policy_id == policy.id,
+            PolicySignature.user_id == current_user.id,
+        )
+    )).scalar_one_or_none()
+
+    if existing:
+        return {"detail": "Already signed", "signed_at": existing.signed_at.isoformat()}
+
+    sig = PolicySignature(
+        id=uuid.uuid4(),
+        policy_id=policy.id,
+        user_id=current_user.id,
+        company_id=current_user.company_id,
+    )
+    db.add(sig)
+    await db.commit()
+    await db.refresh(sig)
+    return {"detail": "Signed", "signed_at": sig.signed_at.isoformat()}
+
+
+@router.delete("/{slug}/sign", status_code=200)
+async def unsign_policy(
+    slug: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Remove current user's signature from this policy."""
+    if slug not in POLICY_TEMPLATES:
+        raise HTTPException(status_code=404, detail="Policy not found")
+
+    result = await db.execute(
+        select(Policy).where(Policy.company_id == current_user.company_id, Policy.slug == slug)
+    )
+    policy = result.scalar_one_or_none()
+    if not policy:
+        return {"detail": "No signature to remove"}
+
+    sig = (await db.execute(
+        select(PolicySignature).where(
+            PolicySignature.policy_id == policy.id,
+            PolicySignature.user_id == current_user.id,
+        )
+    )).scalar_one_or_none()
+
+    if sig:
+        await db.delete(sig)
+        await db.commit()
+    return {"detail": "Signature removed"}
+
+
+@router.get("/{slug}/signatures")
+async def get_policy_signatures(
+    slug: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """List all user signatures for this policy, plus users who haven't signed."""
+    if slug not in POLICY_TEMPLATES:
+        raise HTTPException(status_code=404, detail="Policy not found")
+
+    policy = (await db.execute(
+        select(Policy).where(Policy.company_id == current_user.company_id, Policy.slug == slug)
+    )).scalar_one_or_none()
+
+    # All company members
+    all_users = (await db.execute(
+        select(User).where(User.company_id == current_user.company_id)
+    )).scalars().all()
+
+    if not policy:
+        return {
+            "signed": [],
+            "unsigned": [{"user_id": str(u.id), "email": u.email, "name": u.full_name or u.email} for u in all_users],
+        }
+
+    sigs = (await db.execute(
+        select(PolicySignature).where(PolicySignature.policy_id == policy.id)
+    )).scalars().all()
+
+    signed_user_ids = {s.user_id for s in sigs}
+    sig_map = {s.user_id: s for s in sigs}
+
+    signed = []
+    unsigned = []
+    for u in all_users:
+        if u.id in signed_user_ids:
+            signed.append({
+                "user_id": str(u.id),
+                "email": u.email,
+                "name": u.full_name or u.email,
+                "signed_at": sig_map[u.id].signed_at.isoformat(),
+            })
+        else:
+            unsigned.append({"user_id": str(u.id), "email": u.email, "name": u.full_name or u.email})
+
+    return {"signed": signed, "unsigned": unsigned}
 
 
 @router.post("/{slug}/generate")

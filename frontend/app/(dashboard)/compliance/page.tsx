@@ -35,6 +35,9 @@ import {
   Zap,
   ArrowRight,
   RefreshCw,
+  ShieldOff,
+  ShieldAlert,
+  Ban,
 } from "lucide-react";
 
 const FRAMEWORKS = [
@@ -74,9 +77,12 @@ function AutoBadge({ status }: { status: string }) {
     warning:     "bg-amber-50   text-amber-700",
     failing:     "bg-red-50     text-red-600",
     no_evidence: "bg-gray-100   text-gray-500",
+    exception:   "bg-amber-50   text-amber-700 border border-amber-200",
+    excluded:    "bg-gray-100   text-gray-400",
   };
   const labels: Record<string, string> = {
     passing: "Passing", warning: "Warning", failing: "Failing", no_evidence: "No data",
+    exception: "Risk accepted", excluded: "N/A",
   };
   return (
     <span className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full ${styles[status] ?? "bg-gray-100 text-gray-500"}`}>
@@ -586,20 +592,148 @@ function ManualControlRow({
   );
 }
 
+// ── Exception / Exclusion modals ─────────────────────────────────────────────
+function RiskExceptionModal({ control, framework, onClose, onSaved }: {
+  control: ControlScore; framework: string; onClose: () => void; onSaved: () => void;
+}) {
+  const [form, setForm] = useState({ justification: "", owner_name: "", owner_email: "", expires_at: "" });
+  const [saving, setSaving] = useState(false);
+  const handleSave = async () => {
+    if (!form.justification) return;
+    setSaving(true);
+    try {
+      await api.createException({
+        framework,
+        control_category: control.category,
+        control_name: control.name,
+        justification: form.justification,
+        owner_name: form.owner_name || undefined,
+        owner_email: form.owner_email || undefined,
+        expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : undefined,
+      });
+      onSaved();
+      onClose();
+    } catch { } finally { setSaving(false); }
+  };
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4" onClick={e => e.stopPropagation()}>
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="font-bold text-gray-900">Accept Risk</h3>
+            <p className="text-xs text-gray-400 mt-0.5">{control.name}</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">Justification *</label>
+          <textarea value={form.justification} onChange={e => setForm(f => ({ ...f, justification: e.target.value }))} rows={3} placeholder="Explain why this risk is being accepted and what compensating controls exist…" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 resize-none" />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Owner name</label>
+            <input value={form.owner_name} onChange={e => setForm(f => ({ ...f, owner_name: e.target.value }))} placeholder="Jane Smith" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Owner email</label>
+            <input value={form.owner_email} onChange={e => setForm(f => ({ ...f, owner_email: e.target.value }))} placeholder="jane@company.com" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">Exception expiry</label>
+          <input type="date" value={form.expires_at} onChange={e => setForm(f => ({ ...f, expires_at: e.target.value }))} min={new Date().toISOString().slice(0, 10)} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
+        </div>
+        <div className="flex gap-2 pt-1">
+          <button onClick={onClose} className="flex-1 border border-gray-200 rounded-xl py-2 text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
+          <button onClick={handleSave} disabled={saving || !form.justification} className="flex-1 bg-amber-500 text-white rounded-xl py-2 text-sm font-semibold hover:bg-amber-600 disabled:opacity-50">{saving ? "Saving…" : "Accept risk"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ControlExclusionModal({ control, framework, onClose, onSaved }: {
+  control: ControlScore; framework: string; onClose: () => void; onSaved: () => void;
+}) {
+  const [justification, setJustification] = useState("");
+  const [exclusionType, setExclusionType] = useState("not_applicable");
+  const [saving, setSaving] = useState(false);
+  const handleSave = async () => {
+    if (!justification) return;
+    setSaving(true);
+    try {
+      await api.createExclusion({ framework, control_category: control.category, control_name: control.name, justification, exclusion_type: exclusionType });
+      onSaved();
+      onClose();
+    } catch { } finally { setSaving(false); }
+  };
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4" onClick={e => e.stopPropagation()}>
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="font-bold text-gray-900">Mark as Not Applicable</h3>
+            <p className="text-xs text-gray-400 mt-0.5">{control.name}</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1.5">Exclusion type</label>
+          <div className="flex gap-2">
+            {[["not_applicable", "Not applicable"], ["out_of_scope", "Out of scope"]].map(([val, label]) => (
+              <button key={val} onClick={() => setExclusionType(val)} className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-all ${exclusionType === val ? "bg-gray-800 text-white border-gray-800" : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"}`}>{label}</button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">Justification *</label>
+          <textarea value={justification} onChange={e => setJustification(e.target.value)} rows={3} placeholder="Explain why this control does not apply to your environment…" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500/30 resize-none" />
+        </div>
+        <div className="flex gap-2 pt-1">
+          <button onClick={onClose} className="flex-1 border border-gray-200 rounded-xl py-2 text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
+          <button onClick={handleSave} disabled={saving || !justification} className="flex-1 bg-gray-700 text-white rounded-xl py-2 text-sm font-semibold hover:bg-gray-800 disabled:opacity-50">{saving ? "Saving…" : "Mark N/A"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Automated control row ─────────────────────────────────────────────────────
-function AutoControlRow({ control }: { control: ControlScore }) {
-  const isGood  = control.status === "passing";
-  const isWarn  = control.status === "warning";
-  const isBad   = control.status === "failing";
-  const noData  = control.status === "no_evidence";
+function AutoControlRow({ control, framework, onRefresh }: { control: ControlScore; framework: string; onRefresh: () => void }) {
+  const isGood     = control.status === "passing";
+  const isWarn     = control.status === "warning";
+  const isBad      = control.status === "failing";
+  const noData     = control.status === "no_evidence";
+  const isExcept   = (control as any).status === "exception";
+  const isExcluded = (control as any).status === "excluded";
 
   // Failing + warning start expanded so users immediately see what needs fixing
   const [expanded, setExpanded] = useState(isBad || isWarn);
+  const [showException, setShowException]   = useState(false);
+  const [showExclusion, setShowExclusion]   = useState(false);
+  const [removingException, setRemovingException] = useState(false);
+  const [removingExclusion, setRemovingExclusion] = useState(false);
 
-  const borderColor = isGood ? "border-l-emerald-300" : isWarn ? "border-l-amber-400" : isBad ? "border-l-red-400" : "border-l-gray-200";
-  const bgColor     = isGood ? "" : isWarn ? "bg-amber-50/40" : isBad ? "bg-red-50/20" : "";
-  const iconBg      = isGood ? "bg-emerald-50" : isWarn ? "bg-amber-50" : isBad ? "bg-red-50" : "bg-gray-50";
-  const dotColor    = isGood ? "bg-emerald-400" : isWarn ? "bg-amber-400" : isBad ? "bg-red-400" : "bg-gray-300";
+  const handleRemoveException = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const exc = (control as any).exception;
+    if (!exc?.id) return;
+    setRemovingException(true);
+    try { await api.deleteException(exc.id); onRefresh(); } catch { } finally { setRemovingException(false); }
+  };
+
+  const handleRemoveExclusion = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const excl = (control as any).exclusion;
+    if (!excl?.id) return;
+    setRemovingExclusion(true);
+    try { await api.deleteExclusion(excl.id); onRefresh(); } catch { } finally { setRemovingExclusion(false); }
+  };
+
+  const borderColor = isGood ? "border-l-emerald-300" : isWarn ? "border-l-amber-400" : isBad ? "border-l-red-400" : isExcept ? "border-l-amber-300" : isExcluded ? "border-l-gray-200" : "border-l-gray-200";
+  const bgColor     = isGood ? "" : isWarn ? "bg-amber-50/40" : isBad ? "bg-red-50/20" : isExcept ? "bg-amber-50/20" : isExcluded ? "bg-gray-50/40" : "";
+  const iconBg      = isGood ? "bg-emerald-50" : isWarn ? "bg-amber-50" : isBad ? "bg-red-50" : isExcept ? "bg-amber-50" : "bg-gray-50";
+  const dotColor    = isGood ? "bg-emerald-400" : isWarn ? "bg-amber-400" : isBad ? "bg-red-400" : isExcept ? "bg-amber-300" : "bg-gray-200";
 
   return (
     <div className={`bg-white rounded-2xl border border-gray-100 border-l-4 ${borderColor} shadow-sm overflow-hidden ${bgColor}`}>
@@ -613,12 +747,12 @@ function AutoControlRow({ control }: { control: ControlScore }) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className={`text-sm font-semibold leading-snug ${isGood ? "text-gray-600" : "text-gray-900"}`}>
+            <span className={`text-sm font-semibold leading-snug ${isGood || isExcluded ? "text-gray-500" : "text-gray-900"}`}>
               {control.name}
             </span>
             <AutoBadge status={control.status} />
           </div>
-          {!isGood && (
+          {!isGood && !isExcluded && (
             <div className="mt-1.5 h-1 bg-gray-100 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${scoreBarColor(control.score)}`}
@@ -629,9 +763,20 @@ function AutoControlRow({ control }: { control: ControlScore }) {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className={`font-bold ${isGood ? "text-xs text-emerald-600" : "text-sm " + scoreColor(control.score)}`}>
-            {control.score}%
-          </span>
+          {control.last_collected && (() => {
+            const daysOld = Math.floor((Date.now() - new Date(control.last_collected).getTime()) / 86_400_000);
+            if (daysOld > 30) return (
+              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200">
+                Stale {daysOld}d
+              </span>
+            );
+            return null;
+          })()}
+          {!isExcluded && (
+            <span className={`font-bold ${isGood ? "text-xs text-emerald-600" : "text-sm " + scoreColor(control.score)}`}>
+              {control.score}%
+            </span>
+          )}
           {expanded
             ? <ChevronUp className="w-4 h-4 text-gray-300" />
             : <ChevronDown className="w-4 h-4 text-gray-300" />}
@@ -642,13 +787,89 @@ function AutoControlRow({ control }: { control: ControlScore }) {
         <div className={`border-t px-4 sm:px-5 pb-4 pt-3 ${
           isWarn ? "border-amber-100/60 bg-amber-50/30" :
           isBad  ? "border-red-100/60 bg-red-50/20" :
+          isExcept ? "border-amber-100/60 bg-amber-50/20" :
           "border-gray-50 bg-gray-50/30"
         }`}>
-          <EvidenceDots covered={control.covered_types} missing={control.missing_types} />
-          {!isGood && (
-            <RemediationPanel missingTypes={control.missing_types} category={control.category} />
+          {isExcluded ? (
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-0.5">Exclusion reason</p>
+                <p className="text-xs text-gray-400">{(control as any).exclusion?.justification || "No justification provided"}</p>
+                <p className="text-xs text-gray-300 mt-1 capitalize">{(control as any).exclusion?.exclusion_type?.replace(/_/g, " ")}</p>
+              </div>
+              <button
+                onClick={handleRemoveExclusion}
+                disabled={removingExclusion}
+                className="shrink-0 text-xs text-red-400 hover:text-red-600 font-medium disabled:opacity-50"
+              >
+                {removingExclusion ? "Removing…" : "Remove exclusion"}
+              </button>
+            </div>
+          ) : isExcept ? (
+            <>
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div>
+                  <p className="text-xs font-semibold text-amber-700 mb-0.5">Risk accepted</p>
+                  <p className="text-xs text-gray-500">{(control as any).exception?.justification || "No justification provided"}</p>
+                  {(control as any).exception?.owner_name && (
+                    <p className="text-xs text-gray-400 mt-0.5">Owner: {(control as any).exception.owner_name}</p>
+                  )}
+                  {(control as any).exception?.expires_at && (
+                    <p className="text-xs text-gray-400">Expires: {new Date((control as any).exception.expires_at).toLocaleDateString()}</p>
+                  )}
+                </div>
+                <button
+                  onClick={handleRemoveException}
+                  disabled={removingException}
+                  className="shrink-0 text-xs text-red-400 hover:text-red-600 font-medium disabled:opacity-50"
+                >
+                  {removingException ? "Removing…" : "Remove exception"}
+                </button>
+              </div>
+              <EvidenceDots covered={control.covered_types} missing={control.missing_types} />
+            </>
+          ) : (
+            <>
+              <EvidenceDots covered={control.covered_types} missing={control.missing_types} />
+              {!isGood && (
+                <RemediationPanel missingTypes={control.missing_types} category={control.category} />
+              )}
+              <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100/80">
+                {isBad && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setShowException(true); }}
+                    className="flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2.5 py-1.5 rounded-lg transition-colors"
+                  >
+                    <ShieldAlert className="w-3 h-3" /> Accept risk
+                  </button>
+                )}
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShowExclusion(true); }}
+                  className="flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-gray-50 hover:bg-gray-100 border border-gray-200 px-2.5 py-1.5 rounded-lg transition-colors"
+                >
+                  <Ban className="w-3 h-3" /> Mark N/A
+                </button>
+              </div>
+            </>
           )}
         </div>
+      )}
+
+      {showException && (
+        <RiskExceptionModal
+          control={control}
+          framework={framework}
+          onClose={() => setShowException(false)}
+          onSaved={() => { setShowException(false); onRefresh(); }}
+        />
+      )}
+      {showExclusion && (
+        <ControlExclusionModal
+          control={control}
+          framework={framework}
+          onClose={() => setShowExclusion(false)}
+          onSaved={() => { setShowExclusion(false); onRefresh(); }}
+        />
       )}
     </div>
   );
@@ -1119,7 +1340,7 @@ export default function CompliancePage() {
             </div>
             <div className="space-y-2">
               {score?.controls.map((c) => (
-                <AutoControlRow key={c.category} control={c} />
+                <AutoControlRow key={c.category} control={c} framework={framework} onRefresh={() => load(framework)} />
               ))}
             </div>
           </section>

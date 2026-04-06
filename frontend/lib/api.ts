@@ -473,6 +473,82 @@ class ApiClient {
     return this.request<Policy>("PATCH", `/policies/${slug}/expiry`, { expires_at });
   }
 
+  // ── Risk exceptions ──────────────────────────────────────────────────────
+  async getExceptions(framework: string): Promise<any[]> {
+    return this.request("GET", `/compliance/exceptions?framework=${framework}`);
+  }
+  async createException(body: { framework: string; control_category: string; control_name: string; justification: string; owner_name?: string; owner_email?: string; expires_at?: string }): Promise<{ id: string }> {
+    return this.request("POST", "/compliance/exceptions", body);
+  }
+  async deleteException(id: string): Promise<void> {
+    return this.request("DELETE", `/compliance/exceptions/${id}`);
+  }
+
+  // ── Control exclusions ────────────────────────────────────────────────────
+  async getExclusions(framework: string): Promise<any[]> {
+    return this.request("GET", `/compliance/exclusions?framework=${framework}`);
+  }
+  async createExclusion(body: { framework: string; control_category: string; control_name: string; justification: string; exclusion_type?: string }): Promise<{ id: string }> {
+    return this.request("POST", "/compliance/exclusions", body);
+  }
+  async deleteExclusion(id: string): Promise<void> {
+    return this.request("DELETE", `/compliance/exclusions/${id}`);
+  }
+
+  // ── Onboarding ────────────────────────────────────────────────────────────
+  async getOnboarding(): Promise<any[]> {
+    return this.request("GET", "/onboarding");
+  }
+  async createOnboarding(body: { employee_email: string; employee_name?: string; hired_at?: string; department?: string; role_title?: string }): Promise<any> {
+    return this.request("POST", "/onboarding", body);
+  }
+  async updateOnboardingTaskStatus(taskId: string, field: string, status: string): Promise<any> {
+    return this.request("PATCH", `/onboarding/${taskId}/status`, { field, status });
+  }
+  async deleteOnboarding(taskId: string): Promise<void> {
+    return this.request("DELETE", `/onboarding/${taskId}`);
+  }
+
+  // ── Subprocessors ─────────────────────────────────────────────────────────
+  async getSubprocessors(): Promise<any[]> {
+    return this.request("GET", "/subprocessors");
+  }
+  async createSubprocessor(body: any): Promise<any> {
+    return this.request("POST", "/subprocessors", body);
+  }
+  async updateSubprocessor(id: string, body: any): Promise<any> {
+    return this.request("PATCH", `/subprocessors/${id}`, body);
+  }
+  async deleteSubprocessor(id: string): Promise<void> {
+    return this.request("DELETE", `/subprocessors/${id}`);
+  }
+
+  // ── Vendor questionnaires ─────────────────────────────────────────────────
+  async getVendorQuestionnaires(): Promise<any[]> {
+    return this.request("GET", "/vendor-questionnaires");
+  }
+  async getVendorQuestionnairesForVendor(vendorId: string): Promise<any[]> {
+    return this.request("GET", `/vendor-questionnaires/by-vendor/${vendorId}`);
+  }
+  async sendVendorQuestionnaire(body: { vendor_id?: string; vendor_name: string; sent_to_email: string; due_days?: number }): Promise<any> {
+    return this.request("POST", "/vendor-questionnaires", body);
+  }
+
+  async acknowledgePolicy(slug: string): Promise<{ detail: string; signed_at: string }> {
+    return this.request("POST", `/policies/${slug}/sign`);
+  }
+
+  async revokeAcknowledgement(slug: string): Promise<{ detail: string }> {
+    return this.request("DELETE", `/policies/${slug}/sign`);
+  }
+
+  async getPolicyAcknowledgments(slug: string): Promise<{
+    signed: Array<{ user_id: string; email: string; name: string; signed_at: string }>;
+    unsigned: Array<{ user_id: string; email: string; name: string }>;
+  }> {
+    return this.request("GET", `/policies/${slug}/signatures`);
+  }
+
   // ── Agentic compliance ───────────────────────────────────────────────────
   async setControlDueDate(controlId: string, framework: string, due_date: string | null): Promise<ManualControl> {
     return this.request<ManualControl>("PATCH", `/compliance/manual-controls/${controlId}/due-date?framework=${framework}`, { due_date });
