@@ -503,7 +503,7 @@ export default function SubjectRequestsPage() {
 
               {/* SLA note */}
               <p className="text-xs text-amber-600 bg-amber-50 p-3 rounded-xl">
-                Response deadline: {SLA_DAYS[form.regulation] ?? 30} days (auto-calculated from received date).
+                Response deadline: {SLA_DAYS[form.regulation ?? ""] ?? 30} days (auto-calculated from received date).
               </p>
 
               <div className="grid grid-cols-2 gap-4">
