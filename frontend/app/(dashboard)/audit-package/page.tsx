@@ -331,7 +331,7 @@ export default function AuditPackagePage() {
                   <ChevronDown className={`w-4 h-4 text-indigo-300 transition-transform ${fwOpen ? "rotate-180" : ""}`} />
                 </button>
                 {fwOpen && (
-                  <div className="absolute z-20 top-full mt-1.5 left-0 right-0 bg-white rounded-xl shadow-xl border border-gray-100 py-1 overflow-hidden">
+                  <div className="absolute z-20 top-full mt-1.5 left-0 right-0 bg-white rounded-xl shadow-xl border border-gray-100 py-1 max-h-72 overflow-y-auto">
                     {FRAMEWORKS.map(fw => (
                       <button
                         key={fw.value}
