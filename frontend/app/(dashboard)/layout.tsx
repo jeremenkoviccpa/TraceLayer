@@ -141,7 +141,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/training",          label: "Training",          icon: GraduationCap },
       { href: "/background-checks", label: "Background Checks", icon: BadgeCheck    },
       { href: "/offboarding",       label: "Offboarding",       icon: UserMinus     },
-      { href: "/onboarding",        label: "Onboarding",        icon: UserCheck     },
+      { href: "/new-hires",          label: "New Hires",         icon: UserCheck     },
     ],
   },
   {
