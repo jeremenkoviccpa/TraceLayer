@@ -350,7 +350,7 @@ function PolicyTemplateGenerator({ policy, onInsert }: { policy: Policy | null; 
           <p className="text-sm font-semibold text-white leading-none">AI Policy Template Generator</p>
           <p className="text-[10px] text-violet-200 mt-0.5">Generate a full {policy.title} document tailored to your stack</p>
         </div>
-        <span className="text-xs text-violet-200">Llama 3.3 · Groq</span>
+        <span className="text-xs text-violet-200">Claude · Anthropic</span>
       </div>
 
       <div className="p-4 space-y-3">

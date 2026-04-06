@@ -232,25 +232,19 @@ Rules:
 
 
 async def generate_compliance_summary(framework: str, score_data: dict) -> str:
-    if not settings.groq_api_key:
-        raise ValueError("GROQ_API_KEY is not configured on this server.")
+    if not settings.anthropic_api_key:
+        raise ValueError("ANTHROPIC_API_KEY is not configured on this server.")
 
-    try:
-        from groq import AsyncGroq
-    except ImportError as exc:
-        raise RuntimeError("groq package not installed — add it to requirements.txt") from exc
-
-    client = AsyncGroq(api_key=settings.groq_api_key)
+    from anthropic import AsyncAnthropic
+    client = AsyncAnthropic(api_key=settings.anthropic_api_key)
     prompt = _build_prompt(framework, score_data)
 
-    completion = await client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,
+    message = await client.messages.create(
+        model="claude-sonnet-4-6",
         max_tokens=220,
+        messages=[{"role": "user", "content": prompt}],
     )
-
-    return completion.choices[0].message.content.strip()
+    return message.content[0].text.strip()
 
 
 # ── Advisor chat ──────────────────────────────────────────────────────────────
@@ -262,14 +256,9 @@ async def chat_with_advisor(
     history: list[dict],
     connected_integrations: list[str] | None = None,
 ) -> str:
-    """Multi-turn compliance advisor chat powered by Groq."""
-    if not settings.groq_api_key:
-        raise ValueError("GROQ_API_KEY is not configured on this server.")
-
-    try:
-        from groq import AsyncGroq
-    except ImportError as exc:
-        raise RuntimeError("groq package not installed") from exc
+    """Multi-turn compliance advisor chat powered by Claude."""
+    if not settings.anthropic_api_key:
+        raise ValueError("ANTHROPIC_API_KEY is not configured on this server.")
 
     label = FRAMEWORK_LABELS_FULL.get(framework, framework.upper())
     connected = connected_integrations or []
@@ -325,19 +314,20 @@ RESPONSE RULES:
 - Be concise (≤200 words) unless the user asks to elaborate
 - Tone: friendly, direct, expert — like a senior compliance engineer on their team"""
 
-    msgs: list[dict] = [{"role": "system", "content": system_prompt}]
+    msgs: list[dict] = []
     for h in history[-14:]:
         msgs.append({"role": h["role"], "content": h["content"]})
     msgs.append({"role": "user", "content": message})
 
-    client = AsyncGroq(api_key=settings.groq_api_key)
-    completion = await client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=msgs,
-        temperature=0.1,
+    from anthropic import AsyncAnthropic
+    client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+    response = await client.messages.create(
+        model="claude-haiku-4-5-20251001",
         max_tokens=500,
+        system=system_prompt,
+        messages=msgs,
     )
-    return completion.choices[0].message.content.strip()
+    return response.content[0].text.strip()
 
 
 # ── General compliance advisor (global chat) ─────────────────────────────────
@@ -348,13 +338,8 @@ async def chat_with_general_advisor(
     company_context: dict | None = None,
 ) -> str:
     """General-purpose compliance advisor chat for the global chatbot."""
-    if not settings.groq_api_key:
-        raise ValueError("GROQ_API_KEY is not configured on this server.")
-
-    try:
-        from groq import AsyncGroq
-    except ImportError as exc:
-        raise RuntimeError("groq package not installed") from exc
+    if not settings.anthropic_api_key:
+        raise ValueError("ANTHROPIC_API_KEY is not configured on this server.")
 
     # Build context block from company data if available
     ctx_lines = []
@@ -398,19 +383,20 @@ RESPONSE RULES:
 - Keep answers concise (≤250 words) unless asked to elaborate
 - Tone: expert, friendly, like a senior compliance engineer on the team"""
 
-    msgs: list[dict] = [{"role": "system", "content": system_prompt}]
+    msgs: list[dict] = []
     for h in history[-20:]:
         msgs.append({"role": h["role"], "content": h["content"]})
     msgs.append({"role": "user", "content": message})
 
-    client = AsyncGroq(api_key=settings.groq_api_key)
-    completion = await client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=msgs,
-        temperature=0.1,
+    from anthropic import AsyncAnthropic
+    client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+    response = await client.messages.create(
+        model="claude-haiku-4-5-20251001",
         max_tokens=600,
+        system=system_prompt,
+        messages=msgs,
     )
-    return completion.choices[0].message.content.strip()
+    return response.content[0].text.strip()
 
 
 # ── Policy template generator ─────────────────────────────────────────────────
@@ -422,13 +408,8 @@ async def generate_policy_template(
     connected_integrations: list[str],
 ) -> str:
     """Generate a full policy document for the given policy type."""
-    if not settings.groq_api_key:
-        raise ValueError("GROQ_API_KEY is not configured on this server.")
-
-    try:
-        from groq import AsyncGroq
-    except ImportError as exc:
-        raise RuntimeError("groq package not installed") from exc
+    if not settings.anthropic_api_key:
+        raise ValueError("ANTHROPIC_API_KEY is not configured on this server.")
 
     integrations_str = ", ".join(connected_integrations) if connected_integrations else "standard security tools"
 
@@ -448,14 +429,14 @@ Requirements:
 
 Output ONLY the Markdown policy document. No preamble or explanation."""
 
-    client = AsyncGroq(api_key=settings.groq_api_key)
-    completion = await client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,
+    from anthropic import AsyncAnthropic
+    client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+    message = await client.messages.create(
+        model="claude-sonnet-4-6",
         max_tokens=2000,
+        messages=[{"role": "user", "content": prompt}],
     )
-    return completion.choices[0].message.content.strip()
+    return message.content[0].text.strip()
 
 
 # ── Questionnaire autofill ────────────────────────────────────────────────────
@@ -839,27 +820,22 @@ async def autofill_questionnaire(
     db: AsyncSession,
 ) -> tuple[list[dict], str, dict]:
     """Returns (answers, detected_type, context_summary)."""
-    if not settings.groq_api_key:
-        raise ValueError("GROQ_API_KEY is not configured on this server.")
-
-    try:
-        from groq import AsyncGroq
-    except ImportError as exc:
-        raise RuntimeError("groq package not installed — add it to requirements.txt") from exc
+    if not settings.anthropic_api_key:
+        raise ValueError("ANTHROPIC_API_KEY is not configured on this server.")
 
     ctx = await _gather_company_context(company_id, db)
     detected_type = _detect_questionnaire_type(questions)
     prompt = _build_autofill_prompt(ctx, questions, detected_type)
 
-    client = AsyncGroq(api_key=settings.groq_api_key)
-    completion = await client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.2,
+    from anthropic import AsyncAnthropic
+    client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+    message = await client.messages.create(
+        model="claude-sonnet-4-6",
         max_tokens=6000,
+        messages=[{"role": "user", "content": prompt}],
     )
 
-    content = completion.choices[0].message.content.strip()
+    content = message.content[0].text.strip()
 
     # Extract JSON array from response
     match = re.search(r"\[.*\]", content, re.DOTALL)
@@ -908,12 +884,8 @@ async def suggest_control_remediation(
     """Return AI-generated remediation steps for a specific pending/failing control."""
     from schemas.compliance import RemediationResponse, RemediationStep
 
-    if not settings.groq_api_key:
-        raise ValueError("GROQ_API_KEY is not configured.")
-    try:
-        from groq import AsyncGroq
-    except ImportError as exc:
-        raise RuntimeError("groq package not installed") from exc
+    if not settings.anthropic_api_key:
+        raise ValueError("ANTHROPIC_API_KEY is not configured.")
 
     fw_label = FRAMEWORK_LABELS_FULL.get(framework, framework.upper())
     connected_str = ", ".join(connected_integrations) if connected_integrations else "none"
@@ -946,14 +918,14 @@ Rules:
 - missing_integrations must be real integration names not in the connected list
 - suggested_sla_days: quick fixes = 3-7, moderate = 14-30, complex = 30-60"""
 
-    client = AsyncGroq(api_key=settings.groq_api_key)
-    completion = await client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.2,
+    from anthropic import AsyncAnthropic
+    client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+    message = await client.messages.create(
+        model="claude-sonnet-4-6",
         max_tokens=1500,
+        messages=[{"role": "user", "content": prompt}],
     )
-    content = completion.choices[0].message.content.strip()
+    content = message.content[0].text.strip()
     match = re.search(r"\{.*\}", content, re.DOTALL)
     if not match:
         raise ValueError("AI response did not contain valid JSON")
@@ -983,12 +955,8 @@ async def generate_action_plan(
     from schemas.compliance import ActionPlanItem, ActionPlanResponse
     from services.compliance_service import get_compliance_score
 
-    if not settings.groq_api_key:
-        raise ValueError("GROQ_API_KEY is not configured.")
-    try:
-        from groq import AsyncGroq
-    except ImportError as exc:
-        raise RuntimeError("groq package not installed") from exc
+    if not settings.anthropic_api_key:
+        raise ValueError("ANTHROPIC_API_KEY is not configured.")
 
     fw_label = FRAMEWORK_LABELS_FULL.get(framework, framework.upper())
 
@@ -1053,14 +1021,14 @@ Rules:
 - control_refs should use the framework's native numbering (e.g. CC6.1 for SOC 2, A.9.1 for ISO 27001)
 - Be specific — name tools, settings, and exact steps"""
 
-    client = AsyncGroq(api_key=settings.groq_api_key)
-    completion = await client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,
+    from anthropic import AsyncAnthropic
+    client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+    message = await client.messages.create(
+        model="claude-sonnet-4-6",
         max_tokens=2500,
+        messages=[{"role": "user", "content": prompt}],
     )
-    content = completion.choices[0].message.content.strip()
+    content = message.content[0].text.strip()
     match = re.search(r"\{.*\}", content, re.DOTALL)
     if not match:
         raise ValueError("AI response did not contain valid JSON")

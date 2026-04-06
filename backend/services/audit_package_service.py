@@ -348,7 +348,7 @@ async def _generate_ai_narrative(data: dict) -> dict:
     fallback = {
         "executive_summary": (
             f"{data['company_name']} is pursuing {data['framework_label']} compliance. "
-            "Configure GROQ_API_KEY to enable AI-generated narrative."
+            "Configure ANTHROPIC_API_KEY to enable AI-generated narrative."
         ),
         "gap_analysis": "",
         "recommendations": [],
@@ -356,12 +356,7 @@ async def _generate_ai_narrative(data: dict) -> dict:
     }
 
     from core.config import settings
-    if not settings.groq_api_key:
-        return fallback
-
-    try:
-        from groq import AsyncGroq
-    except ImportError:
+    if not settings.anthropic_api_key:
         return fallback
 
     score_data = data["score_data"]
@@ -456,15 +451,15 @@ Produce a formal audit package. Return valid JSON only with these exact keys:
 
 Rules: Use ONLY names from the actual data. Do not invent tools, metrics, or dates. Write for an experienced auditor. Return only the JSON object with no other text."""
 
-    client = AsyncGroq(api_key=settings.groq_api_key)
+    from anthropic import AsyncAnthropic
+    client = AsyncAnthropic(api_key=settings.anthropic_api_key)
     try:
-        completion = await client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.15,
+        message = await client.messages.create(
+            model="claude-sonnet-4-6",
             max_tokens=2500,
+            messages=[{"role": "user", "content": prompt}],
         )
-        content = completion.choices[0].message.content.strip()
+        content = message.content[0].text.strip()
         match = re.search(r"\{.*\}", content, re.DOTALL)
         if match:
             parsed = json.loads(match.group(0))
@@ -475,7 +470,7 @@ Rules: Use ONLY names from the actual data. Do not invent tools, metrics, or dat
                 "management_assertion": parsed.get("management_assertion", fallback_assertion),
             }
     except Exception:
-        logger.exception("Groq narrative generation failed")
+        logger.exception("Claude narrative generation failed")
 
     return fallback
 

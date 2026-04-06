@@ -303,7 +303,7 @@ export default function AuditPackagePage() {
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold text-teal-300 mb-5">
               <Sparkles className="w-3.5 h-3.5" />
-              AI-Powered · Groq llama-3.3-70b
+              AI-Powered · Claude Sonnet
             </div>
             <h1 className="text-3xl md:text-4xl font-bold leading-tight tracking-tight mb-3">
               AI Audit Package

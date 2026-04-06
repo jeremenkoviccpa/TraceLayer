@@ -217,7 +217,7 @@ export default function GlobalChat() {
             <p className="text-[13px] font-semibold text-white leading-none truncate">
               {activeConv?.title ?? "AI Compliance Advisor"}
             </p>
-            <p className="text-[10px] text-slate-500 mt-0.5">Powered by Llama 3.3 · Groq</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Powered by Claude · Anthropic</p>
           </div>
           <button
             onClick={() => setOpen(false)}

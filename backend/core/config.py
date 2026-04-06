@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     resend_api_key: str = ""
     email_from: str = "TraceLayer <hello@tracelayer.it.com>"
     seed_demo: bool = False
-    groq_api_key: str = ""
+    anthropic_api_key: str = ""
     # Paddle billing
     paddle_sk: str = ""           # was PADDLE_API_KEY — renamed to PADDLE_SK to avoid Railway caching bug
     paddle_growth_price_id: str = ""        # pri_xxxx  (Growth monthly subscription)

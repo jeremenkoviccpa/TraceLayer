@@ -6,7 +6,6 @@ and produce a structured diff of control changes.
 """
 import json
 import logging
-import os
 
 import httpx
 
@@ -77,8 +76,9 @@ async def extract_controls_from_content(
     Send document content to Claude and get back a structured control diff.
     Returns the parsed JSON dict, or raises on failure.
     """
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
+    from anthropic import AsyncAnthropic
+    from core.config import settings
+    if not settings.anthropic_api_key:
         raise RuntimeError("ANTHROPIC_API_KEY not set")
 
     prompt = EXTRACTION_PROMPT.format(
@@ -87,26 +87,13 @@ async def extract_controls_from_content(
         content=content[:40000],  # Truncate to avoid context limits
     )
 
-    async with httpx.AsyncClient(timeout=120) as client:
-        response = await client.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
-            json={
-                "model": "claude-opus-4-6",
-                "max_tokens": 8192,
-                "messages": [
-                    {"role": "user", "content": prompt}
-                ],
-            },
-        )
-        response.raise_for_status()
-        data = response.json()
-
-    raw_text = data["content"][0]["text"]
+    client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+    message = await client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=8192,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    raw_text = message.content[0].text
 
     # Parse JSON from response
     try:

@@ -166,7 +166,7 @@ export default function DpaPage() {
                   ["Vercel", "Frontend hosting and CDN", "Global edge network"],
                   ["Resend", "Transactional email delivery", "USA"],
                   ["Sentry", "Error monitoring (no PII in payloads)", "USA"],
-                  ["Groq", "AI report generation (anonymised inputs)", "USA"],
+                  ["Anthropic", "AI report generation (anonymised inputs)", "USA"],
                   ["LemonSqueezy", "Payment processing (billing data only)", "USA"],
                 ].map(([name, purpose, location]) => (
                   <tr key={name} className="hover:bg-gray-50">
