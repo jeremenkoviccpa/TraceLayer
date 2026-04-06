@@ -96,12 +96,18 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 const FW_LABELS: Record<string, string> = {
-  soc2:     "SOC 2",
+  soc2:     "SOC 2 Type II",
   iso27001: "ISO 27001",
   hipaa:    "HIPAA",
   gdpr:     "GDPR",
   pci_dss:  "PCI DSS",
-  nist_csf: "NIST CSF",
+  ccpa:     "CCPA / CPRA",
+  nist_csf: "NIST CSF 2.0",
+  dpdp:     "DPDP Act 2023",
+  cert_in:  "CERT-In",
+  lpdp:     "Serbian LPDP",
+  nis2:     "NIS2 Directive",
+  iso42001: "ISO/IEC 42001",
 };
 
 // ── Package card ─────────────────────────────────────────────────────────────

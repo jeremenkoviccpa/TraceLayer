@@ -444,6 +444,24 @@ export default function DashboardPage() {
         setPrimaryFrameworks(c.primary_frameworks);
         try { sessionStorage.setItem("tl_primary_frameworks", JSON.stringify(c.primary_frameworks)); }
         catch { /* ignore */ }
+        // If the framework state is still on the "soc2" fallback but the user's
+        // actual primary framework is different, switch and re-fetch the data.
+        const first = c.primary_frameworks[0];
+        if (first && first !== "soc2" && FRAMEWORKS.some(f => f.value === first)) {
+          setFramework(first);
+          // Fetch correct framework data — runs in parallel with the initial Promise.all
+          // and will overwrite whatever the initial load returns.
+          Promise.all([
+            api.getComplianceScore(first),
+            api.getScoreHistory(first, 30),
+            api.getReadiness(first),
+          ]).then(([score, history, readinessData]) => {
+            setCompliance(score);
+            setAllScores(prev => ({ ...prev, [first]: score.overall_score }));
+            setScoreHistory(history);
+            setReadiness(readinessData);
+          }).catch(() => {});
+        }
       }
     }).catch(() => {});
 
