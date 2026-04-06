@@ -76,7 +76,7 @@ const PHASES: Phase[] = [
         href: "/integrations",
         label: "Integrations",
         icon: Plug,
-        description: "Connect 50+ tools — GitHub, AWS, Okta, Google Workspace, Slack, and more. Evidence flows in automatically.",
+        description: "Connect 100+ tools — GitHub, AWS, Okta, Google Workspace, Slack, OpenAI, Anthropic, and more. Evidence flows in automatically.",
       },
       {
         href: "/soa",
@@ -122,7 +122,7 @@ const PHASES: Phase[] = [
         href: "/compliance",
         label: "Controls",
         icon: ShieldCheck,
-        description: "200+ controls mapped to SOC 2, ISO 27001, HIPAA, GDPR, PCI DSS, and more. See pass/fail status at a glance.",
+        description: "250+ controls mapped to 12 frameworks — SOC 2, ISO 27001, ISO 42001, HIPAA, GDPR, NIS2, LPDP, and more. Pass/fail at a glance.",
       },
       {
         href: "/evidence",
@@ -173,6 +173,13 @@ const PHASES: Phase[] = [
         label: "Pen Tests",
         icon: ShieldAlert,
         description: "Upload pen test reports and track finding remediation. Re-test verification included.",
+      },
+      {
+        href: "/change-management",
+        label: "Change Management",
+        icon: RefreshCw,
+        description: "RFC lifecycle from draft → approval → deployment. Required for SOC 2 CC8.1 and ISO 27001 A.8.32.",
+        badge: "New",
       },
     ],
   },
@@ -294,34 +301,54 @@ const PHASES: Phase[] = [
   {
     number: 8,
     label: "AI Governance",
-    title: "Govern your AI tools",
-    subtitle: "Register and risk-score the AI tools your team uses. Increasingly required by enterprise buyers and regulators.",
+    title: "Govern your AI systems — ISO 42001",
+    subtitle: "If your organisation develops or uses AI, ISO/IEC 42001:2023 is the global standard for AI Management Systems. Connect OpenAI, Anthropic, or Gemini to collect evidence automatically across all 15 control areas.",
     timeline: "Week 3",
-    accent: "border-indigo-300",
-    markerBg: "bg-indigo-600",
+    accent: "border-violet-300",
+    markerBg: "bg-violet-600",
     markerText: "text-white",
-    cardBg: "bg-indigo-50/50 border-indigo-100",
-    milestone: "AI inventory complete, risk questionnaire done",
+    cardBg: "bg-violet-50/50 border-violet-100",
+    milestone: "ISO 42001 framework selected, AI providers connected, impact assessments documented",
     features: [
+      {
+        href: "/compliance",
+        label: "ISO 42001 Framework",
+        icon: ShieldCheck,
+        description: "15 controls covering AI governance (Cl. 4–5), risk assessment, human oversight, bias detection, transparency, and AI supply chain (A.10.1).",
+        badge: "New",
+      },
+      {
+        href: "/integrations",
+        label: "AI Provider Integrations",
+        icon: Plug,
+        description: "Connect OpenAI, Anthropic, and Google Gemini. Model inventory, API key audit, and workspace config count as A.10.1 supply chain evidence.",
+        badge: "New",
+      },
+      {
+        href: "/custom-frameworks",
+        label: "Custom Frameworks",
+        icon: Database,
+        description: "Build internal control frameworks with your own controls and evidence types. Scores in the dashboard alongside built-in frameworks.",
+        badge: "New",
+      },
       {
         href: "/questionnaire",
         label: "AI Questionnaire",
         icon: ClipboardList,
-        description: "Answer security questionnaires with AI assistance. Pre-fill from your compliance data automatically.",
+        description: "Answer vendor security questionnaires with AI assistance. Pre-fills from your live compliance data automatically.",
       },
       {
         href: "/audit-package",
         label: "AI Audit Package",
         icon: Sparkles,
-        description: "One-click AI-generated PDF with narrative, evidence index, and gap analysis for your auditor.",
+        description: "One-click AI-generated PDF with executive narrative, evidence index, and gap analysis — ready for your auditor.",
         badge: "AI",
       },
       {
         href: "/ai-agents",
         label: "Agent Monitor",
         icon: Bot,
-        description: "Autonomous agents that monitor your compliance posture 24/7 and flag issues before auditors find them.",
-        badge: "New",
+        description: "Autonomous agents monitor your compliance posture 24/7 and flag issues before auditors find them.",
       },
     ],
   },
@@ -338,7 +365,7 @@ export default function GuidePage() {
         </div>
         <h1 className="text-2xl font-extrabold text-gray-900 mb-2">Your path to audit-ready</h1>
         <p className="text-sm text-gray-500 max-w-xl leading-relaxed">
-          Follow these 8 steps in order — they match the navigation on the left. Most teams are audit-ready in 2–3 weeks.
+          Follow these 8 steps in order — they match the navigation on the left. Most teams are audit-ready in 2–3 weeks. Supports 12 frameworks including SOC 2, ISO 27001, ISO 42001, HIPAA, GDPR, and NIS2.
         </p>
       </div>
 
