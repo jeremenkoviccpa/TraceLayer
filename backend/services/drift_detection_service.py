@@ -30,7 +30,10 @@ STATUS_ORDER: dict[str, int] = {
     "no_evidence": 3,
 }
 
-FRAMEWORKS = ["soc2", "iso27001", "hipaa", "gdpr", "pci_dss", "ccpa", "nist_csf"]
+FRAMEWORKS = [
+    "soc2", "iso27001", "hipaa", "gdpr", "pci_dss", "ccpa", "nist_csf",
+    "dpdp", "cert_in", "lpdp", "nis2", "iso42001",
+]
 
 DEFAULT_PREFS = {"compliance_drift": True}
 

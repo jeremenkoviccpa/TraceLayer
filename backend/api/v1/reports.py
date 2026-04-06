@@ -280,9 +280,18 @@ async def weekly_report_preview(
     from core.config import settings
 
     FRAMEWORKS = [
-        {"value": "soc2",     "label": "SOC 2"},
-        {"value": "iso27001", "label": "ISO 27001"},
-        {"value": "hipaa",    "label": "HIPAA"},
+        {"value": "soc2",      "label": "SOC 2"},
+        {"value": "iso27001",  "label": "ISO 27001"},
+        {"value": "hipaa",     "label": "HIPAA"},
+        {"value": "gdpr",      "label": "GDPR"},
+        {"value": "pci_dss",   "label": "PCI DSS"},
+        {"value": "ccpa",      "label": "CCPA"},
+        {"value": "nist_csf",  "label": "NIST CSF"},
+        {"value": "dpdp",      "label": "DPDP Act"},
+        {"value": "cert_in",   "label": "CERT-In"},
+        {"value": "lpdp",      "label": "Serbian LPDP"},
+        {"value": "nis2",      "label": "NIS2"},
+        {"value": "iso42001",  "label": "ISO 42001"},
     ]
 
     # Build week label identical to the scheduled job
