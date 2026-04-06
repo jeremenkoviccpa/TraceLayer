@@ -411,25 +411,32 @@ export default function DashboardPage() {
   const [tmPickerOpen, setTmPickerOpen] = useState(false);
   const [tmInputDate, setTmInputDate] = useState("");
   const [allScores, setAllScores] = useState<Record<string, number>>({});
+  const [customFrameworks, setCustomFrameworks] = useState<{ id: string; name: string }[]>([]);
   const [onboardingStatus, setOnboardingStatus] = useState<{
     has_integration: boolean; has_evidence: boolean; has_vendor: boolean;
     has_member: boolean; has_training: boolean; has_report: boolean; has_risk: boolean;
   } | null>(null);
 
-  // Ordered frameworks: pinned ones first, then the rest in default order
+  // Ordered frameworks: pinned ones first, then the rest, then custom frameworks
   const orderedFrameworks = useMemo(() => {
-    if (!primaryFrameworks.length) return FRAMEWORKS;
+    const customEntries = customFrameworks.map(cf => ({
+      value: `custom:${cf.id}`,
+      label: cf.name,
+      region: "CUSTOM" as const,
+    }));
+    if (!primaryFrameworks.length) return [...FRAMEWORKS, ...customEntries];
     const pinnedSet = new Set(primaryFrameworks);
     const primary = primaryFrameworks
       .map(v => FRAMEWORKS.find(f => f.value === v))
       .filter((f): f is NonNullable<typeof f> => f != null);
     const rest = FRAMEWORKS.filter(f => !pinnedSet.has(f.value));
-    return [...primary, ...rest];
-  }, [primaryFrameworks]);
+    return [...primary, ...rest, ...customEntries];
+  }, [primaryFrameworks, customFrameworks]);
 
   useEffect(() => {
     api.getOnboardingStatus().then(setOnboardingStatus).catch(() => {});
     api.driftEvents(20).then(setDriftEvents).catch(() => {});
+    api.getCustomFrameworks().then(setCustomFrameworks).catch(() => {});
     // Sync primary frameworks from DB (authoritative over sessionStorage)
     api.getCompany().then(c => {
       if (c.primary_frameworks?.length) {
@@ -484,15 +491,32 @@ export default function DashboardPage() {
     setFramework(fw);
     setScoreLoading(true);
     try {
-      const [score, history, readinessData] = await Promise.all([
-        api.getComplianceScore(fw),
-        api.getScoreHistory(fw, 30),
-        api.getReadiness(fw),
-      ]);
-      setCompliance(score);
-      setAllScores(prev => ({ ...prev, [fw]: score.overall_score }));
-      setScoreHistory(history);
-      setReadiness(readinessData);
+      if (fw.startsWith("custom:")) {
+        const id = fw.slice(7);
+        const score = await api.getCustomFrameworkScore(id);
+        const synth = {
+          overall_score: score.overall_score,
+          controls: score.controls?.map((c: any) => ({
+            name: c.name, category: c.category, score: c.status === "passing" ? 100 : 0,
+            status: c.status, covered_types: [], missing_types: [],
+          })) ?? [],
+          framework: fw,
+        } as any;
+        setCompliance(synth);
+        setAllScores(prev => ({ ...prev, [fw]: score.overall_score }));
+        setScoreHistory([]);
+        setReadiness(null);
+      } else {
+        const [score, history, readinessData] = await Promise.all([
+          api.getComplianceScore(fw),
+          api.getScoreHistory(fw, 30),
+          api.getReadiness(fw),
+        ]);
+        setCompliance(score);
+        setAllScores(prev => ({ ...prev, [fw]: score.overall_score }));
+        setScoreHistory(history);
+        setReadiness(readinessData);
+      }
     } catch { /* ignore */ }
     finally { setScoreLoading(false); }
   };
@@ -528,8 +552,15 @@ export default function DashboardPage() {
         .then(s => setAllScores(prev => ({ ...prev, [fw.value]: s.overall_score })))
         .catch(() => {});
     }
+    for (const cf of customFrameworks) {
+      const key = `custom:${cf.id}`;
+      if (key === framework) continue;
+      api.getCustomFrameworkScore(cf.id)
+        .then(s => setAllScores(prev => ({ ...prev, [key]: s.overall_score })))
+        .catch(() => {});
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
+  }, [loading, customFrameworks]);
 
   if (loading) {
     return (
@@ -949,7 +980,7 @@ export default function DashboardPage() {
           icon={Activity}
           label="Controls monitored"
           value={activeCompliance?.controls.length ?? 0}
-          sub={`${FRAMEWORKS.find(f => f.value === framework)?.label ?? framework} framework`}
+          sub={`${orderedFrameworks.find(f => f.value === framework)?.label ?? framework} framework`}
           color="brand"
           tooltip="Number of compliance controls being tracked for this framework"
         />
@@ -981,7 +1012,7 @@ export default function DashboardPage() {
               </span>
             )}
           </div>
-          <p className="text-[11px] text-gray-400 mb-4 ml-9">Last 30 days · {FRAMEWORKS.find(f => f.value === framework)?.label}</p>
+          <p className="text-[11px] text-gray-400 mb-4 ml-9">Last 30 days · {orderedFrameworks.find(f => f.value === framework)?.label}</p>
           {historyData.length > 1 ? (
             <ResponsiveContainer width="100%" height={160}>
               <AreaChart data={historyData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
@@ -1130,9 +1161,10 @@ export default function DashboardPage() {
             const isPinned = primaryFrameworks.includes(fw.value);
             const displayScore = isActive ? activeScore : allScores[fw.value];
             const regionClass =
-              fw.region === "IN"   ? "bg-orange-50 text-orange-400 border-orange-100" :
-              fw.region === "EU"   ? "bg-sky-50 text-sky-400 border-sky-100" :
-              fw.region === "INTL" ? "bg-purple-50 text-purple-400 border-purple-100" :
+              fw.region === "IN"     ? "bg-orange-50 text-orange-400 border-orange-100" :
+              fw.region === "EU"     ? "bg-sky-50 text-sky-400 border-sky-100" :
+              fw.region === "INTL"   ? "bg-purple-50 text-purple-400 border-purple-100" :
+              fw.region === "CUSTOM" ? "bg-violet-50 text-violet-500 border-violet-100" :
               "bg-brand-50 text-brand-500 border-brand-100";
             return (
               <button
