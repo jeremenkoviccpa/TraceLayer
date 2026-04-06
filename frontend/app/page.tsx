@@ -570,9 +570,9 @@ const FRAMEWORKS = [
   { name: "PCI DSS",  desc: "v4.0",              detail: "12 requirements for organizations that process, store, or transmit cardholder data", color: "from-amber-500 to-orange-500" },
   { name: "CCPA",     desc: "California Privacy", detail: "Consumer rights, data inventory, opt-out mechanisms, and service provider controls", color: "from-rose-500 to-pink-500" },
   { name: "NIST CSF", desc: "Framework 2.0",     detail: "Identify, protect, detect, respond, and recover — the cybersecurity lifecycle", color: "from-cyan-500 to-teal-500" },
-  { name: "DPDP Act", desc: "India · 2023",      detail: "Digital Personal Data Protection Act — data fiduciary obligations, consent, breach notification, cross-border transfers", color: "from-orange-500 to-amber-500" },
+  { name: "DPDP Act", desc: "Asia · 2023",        detail: "Digital Personal Data Protection Act — data fiduciary obligations, consent, breach notification, cross-border transfers", color: "from-orange-500 to-amber-500" },
   { name: "CERT-In",  desc: "Directions 2022",   detail: "CERT-In cyber security directions — incident reporting within 6 hours, log retention, IT infrastructure controls", color: "from-green-600 to-emerald-500" },
-  { name: "Serbian LPDP", desc: "Serbia · 2018", detail: "Serbian personal data protection law — Poverenik breach notification, ROPA, data subject rights, cross-border transfer safeguards", color: "from-blue-500 to-blue-600" },
+  { name: "LPDP",    desc: "Data Protection",    detail: "Personal data protection law — breach notification, ROPA, data subject rights, cross-border transfer safeguards", color: "from-blue-500 to-blue-600" },
   { name: "NIS2",     desc: "EU · 2022",         detail: "EU cybersecurity directive — 10 security measures, 3-stage incident reporting to CSIRT, supply chain security", color: "from-indigo-500 to-violet-500" },
 ];
 
@@ -595,7 +595,7 @@ const FEATURES = [
   {
     icon: RefreshCw,
     title: "AI framework version monitor",
-    desc: "TraceLayer monitors official regulation sources weekly. When any of the 11 frameworks updates — including DPDP Act, CERT-In, Serbian LPDP, and NIS2 — AI extracts the changed controls and queues them for your review — so you're never caught off guard.",
+    desc: "TraceLayer monitors official regulation sources weekly. When any of the 11 frameworks updates — SOC 2, ISO 27001, GDPR, NIS2, HIPAA, and more — AI extracts the changed controls and queues them for your review — so you're never caught off guard.",
   },
   {
     icon: Sparkles,
@@ -697,11 +697,11 @@ const FAQ = [
   },
   {
     q: "Which compliance frameworks are supported?",
-    a: "SOC 2 Type I & II, ISO 27001 (2022), HIPAA, GDPR, PCI DSS v4.0, CCPA, NIST CSF 2.0, DPDP Act 2023, CERT-In Directions 2022, Serbian LPDP 2018, and NIS2 Directive 2022. The same evidence you collect maps to all eleven at once — connect your tools once and switch between framework views without doing any extra work.",
+    a: "SOC 2 Type I & II, ISO 27001 (2022), HIPAA, GDPR, PCI DSS v4.0, CCPA, NIST CSF 2.0, NIS2 Directive 2022, and more. The same evidence you collect maps to all eleven at once — connect your tools once and switch between framework views without doing any extra work.",
   },
   {
-    q: "Does TraceLayer support DPDP Act and CERT-In compliance for Indian companies?",
-    a: "Yes. TraceLayer has full coverage for India's Digital Personal Data Protection Act 2023 and CERT-In Directions 2022. DPDP Act controls cover lawful processing, data fiduciary obligations, data principal rights, breach notification (72-hour timeline), and cross-border transfer controls. CERT-In covers the 6-hour incident reporting requirement, IT infrastructure controls, log retention, identity verification, and endpoint security. Both frameworks are monitored weekly for regulatory updates.",
+    q: "Does TraceLayer support GDPR and NIS2 for companies operating in the EU?",
+    a: "Yes. TraceLayer has full coverage for GDPR — data processing principles, data subject rights (Art. 15-22), DPO requirements, breach notification (72-hour timeline), DPIA, and ROPA auto-generation. NIS2 covers all 10 security measures including incident handling, supply chain security, access control, cryptography, and 3-stage CSIRT reporting. Both frameworks are monitored weekly for regulatory updates.",
   },
   {
     q: "What does my readiness score mean?",
@@ -729,7 +729,7 @@ const FAQ = [
   },
   {
     q: "Is there really a free plan?",
-    a: "Yes — no credit card, no time limit. The free plan includes SOC 2, automated evidence collection, risk register, policy templates, training tracker, vendor hub, and JSON reports for up to 3 integrations and 3 team members. Upgrade to Growth ($149/mo) for all 11 frameworks incl. DPDP Act, CERT-In, Serbian LPDP & NIS2, PDF reports, AI features, and Trust Center.",
+    a: "Yes — no credit card, no time limit. The free plan includes SOC 2, automated evidence collection, risk register, policy templates, training tracker, vendor hub, and JSON reports for up to 3 integrations and 3 team members. Upgrade to Growth ($149/mo) for all 11 frameworks incl. GDPR, HIPAA, NIS2, PCI DSS & NIST CSF, PDF reports, AI features, and Trust Center.",
   },
   {
     q: "What does the AI actually do?",
@@ -1098,7 +1098,7 @@ export default function LandingPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            Full compliance platform — SOC 2, ISO 27001, DPDP Act, CERT-In & 5 more
+            Full compliance platform — SOC 2, ISO 27001, GDPR, NIS2 & 7 more frameworks
           </div>
 
           <h1 data-animate data-delay="100" className="text-4xl sm:text-5xl md:text-[56px] font-extrabold leading-[1.1] mb-4 tracking-tight">
@@ -1109,7 +1109,7 @@ export default function LandingPage() {
           </h1>
 
           <p data-animate data-delay="200" className="text-base sm:text-lg text-[var(--muted)] max-w-2xl mx-auto mb-6 leading-relaxed">
-            Connect your tools once — evidence collects itself across SOC 2, ISO 27001, DPDP Act, CERT-In and 5 more frameworks. Alerts fire the moment something breaks, audit report is one click away.
+            Connect your tools once — evidence collects itself across SOC 2, ISO 27001, GDPR, HIPAA, NIS2 and 6 more frameworks. Alerts fire the moment something breaks, audit report is one click away.
           </p>
 
           <div data-animate data-delay="300" className="flex items-center justify-center gap-3 flex-wrap mb-4">
@@ -1131,7 +1131,7 @@ export default function LandingPage() {
             </a>
           </div>
 
-          <p className="text-xs text-[var(--muted)] mb-5">Free to start · Growth plan from <span className="font-semibold text-[var(--ink)]">$149/mo</span> · Not $20,000/year like Vanta</p>
+          <p className="text-xs text-[var(--muted)] mb-5">Free to start · Growth plan from <span className="font-semibold text-[var(--ink)]">$149/mo</span> · Not $20,000/year like Vanta or Drata</p>
 
           {/* Trust strip */}
           <div className="flex items-center justify-center flex-wrap gap-x-6 gap-y-1.5 text-xs text-[var(--muted)] mb-6">
@@ -1141,7 +1141,7 @@ export default function LandingPage() {
             </span>
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-              SOC 2 free — upgrade for all 11 frameworks incl. DPDP Act, CERT-In, Serbian LPDP & NIS2
+              SOC 2 free — upgrade for all 11 frameworks incl. GDPR, HIPAA, NIS2 & PCI DSS
             </span>
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -1153,9 +1153,9 @@ export default function LandingPage() {
           <div className="inline-flex flex-wrap items-center justify-center gap-2 mb-8">
             {[
               "Seed & Series A/B CTOs",
-              "Indian startups & SaaS",
-              "DPDP Act compliance",
+              "Global IT & SaaS companies",
               "No compliance team yet",
+              "First SOC 2 or ISO 27001",
               "Tired of $20K Vanta quotes",
             ].map((tag) => (
               <span key={tag} className="text-[11px] font-semibold text-[var(--accent)] bg-[var(--accent)]/8 border border-[var(--accent)]/20 px-3 py-1 rounded-full">
@@ -1221,7 +1221,7 @@ export default function LandingPage() {
                           <span className="text-[9px] font-bold bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full">+0% vs prev</span>
                         </div>
                         <div className="flex gap-1 flex-wrap">
-                          {["SOC 2","ISO 27001","HIPAA","GDPR","PCI DSS","CCPA","NIST CSF","DPDP","CERT-In"].map((fw,i) => (
+                          {["SOC 2","ISO 27001","HIPAA","GDPR","PCI DSS","CCPA","NIST CSF","NIS2","LPDP"].map((fw,i) => (
                             <span key={fw} className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-md whitespace-nowrap ${i===0?"bg-white text-slate-900":"text-white/40"}`}>{fw}</span>
                           ))}
                         </div>
@@ -1363,18 +1363,18 @@ export default function LandingPage() {
             {[
               {
                 icon: Building2,
-                heading: "An enterprise prospect asked for SOC 2, ISO 27001, or DPDP Act",
+                heading: "An enterprise prospect asked for SOC 2, ISO 27001, or GDPR",
                 body: "Your deal is on hold until security review clears. You need to get certified fast — not in 9 months, not for $20K.",
               },
               {
                 icon: Users,
-                heading: "You're a CTO or founder at an Indian SaaS or global startup",
-                body: "Selling to enterprises in India or abroad — DPDP Act, CERT-In, ISO 27001, SOC 2. One platform covers all of them simultaneously.",
+                heading: "You're a CTO or founder at a global IT or SaaS company",
+                body: "Selling to enterprises anywhere in the world — SOC 2, ISO 27001, GDPR, HIPAA, NIS2. One platform covers all of them simultaneously.",
               },
               {
                 icon: Zap,
                 heading: "You need results without a consultant",
-                body: "No ₹25,000/hr vCISO, no months-long implementation project. Connect your tools today, evidence starts collecting tonight.",
+                body: "No $300/hr vCISO, no months-long implementation project. Connect your tools today, evidence starts collecting tonight.",
               },
             ].map(({ icon: Icon, heading, body }) => (
               <div key={heading} className="flex gap-4 p-5 rounded-2xl border border-black/5 bg-[var(--card)] shadow-[0_2px_12px_rgba(15,23,42,0.04)]">
@@ -1470,7 +1470,7 @@ export default function LandingPage() {
                 bg: "bg-amber-900/20 border-amber-700/20",
                 title: "Framework Monitor",
                 subtitle: "Weekly, automated",
-                desc: "AI monitors official sources for SOC 2, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, NIST CSF, DPDP Act, CERT-In, Serbian LPDP, and NIS2 every week. When a framework updates, AI extracts the changed controls, summarizes what changed, and queues a review — so you're always on the latest version.",
+                desc: "AI monitors official sources for SOC 2, ISO 27001, HIPAA, GDPR, PCI DSS, CCPA, NIST CSF, NIS2, and all supported frameworks every week. When a framework updates, AI extracts the changed controls, summarizes what changed, and queues a review — so you're always on the latest version.",
                 bullets: ["Monitors 11 regulatory sources", "AI-extracts control changes", "Human review before applying"],
               },
             ].map((engine, i) => (
@@ -1645,7 +1645,7 @@ export default function LandingPage() {
             {/* Region */}
             <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 md:p-5 w-full md:flex-1 md:max-w-[165px]">
               <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-3">Region</p>
-              {[["United States", "🇺🇸"], ["European Union", "🇪🇺"], ["India", "🇮🇳"], ["Global", "🌐"]].map(([r, flag]) => (
+              {[["United States", "🇺🇸"], ["European Union", "🇪🇺"], ["United Kingdom", "🇬🇧"], ["Global", "🌐"]].map(([r, flag]) => (
                 <div key={r} className="flex items-center gap-1.5 mb-2.5">
                   <span className="text-sm leading-none">{flag}</span>
                   <span className="text-xs text-amber-800 font-medium">{r}</span>
@@ -1675,7 +1675,7 @@ export default function LandingPage() {
             {/* Regulations */}
             <div className="bg-purple-50 border border-purple-100 rounded-2xl p-4 md:p-5 w-full md:flex-1 md:max-w-[150px]">
               <p className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mb-3">Regulations</p>
-              {["GDPR", "CCPA", "HIPAA", "PCI DSS", "DPDP Act", "CERT-In"].map((r) => (
+              {["GDPR", "CCPA", "HIPAA", "PCI DSS", "NIS2", "NIST CSF"].map((r) => (
                 <div key={r} className="flex items-center gap-1.5 mb-2">
                   <CheckCircle2 className="w-3 h-3 text-purple-500 shrink-0" />
                   <span className="text-xs text-purple-800 font-semibold">{r}</span>
@@ -1740,9 +1740,9 @@ export default function LandingPage() {
               },
               {
                 icon: Shield,
-                market: "Indian enterprise & government",
-                tag: "DPDP Act · CERT-In",
-                desc: "Indian enterprises and government-adjacent contracts increasingly require DPDP Act compliance and CERT-In adherence. Non-compliant SaaS vendors are blocked from procurement and face penalty exposure under the Act.",
+                market: "EU & regulated markets",
+                tag: "GDPR · NIS2 · ISO 27001",
+                desc: "EU enterprises and regulated sectors require GDPR compliance and, for critical infrastructure, NIS2 adherence. Non-compliant vendors are blocked from procurement and face significant penalty exposure.",
               },
               {
                 icon: Lock,
@@ -1937,7 +1937,7 @@ export default function LandingPage() {
           <p className="text-xs font-bold text-[var(--accent)] uppercase tracking-widest mb-2">Frameworks</p>
           <h2 className="text-2xl md:text-4xl font-extrabold">Eleven frameworks, one platform</h2>
           <p className="text-[var(--muted)] mt-3 text-sm max-w-lg mx-auto leading-relaxed">
-            Connect your tools once and your evidence maps to every framework simultaneously — SOC 2, ISO 27001, DPDP Act, CERT-In, Serbian LPDP, NIS2, GDPR, HIPAA, PCI DSS, CCPA, NIST CSF. Switch views without reconnecting anything.
+            Connect your tools once and your evidence maps to every framework simultaneously — SOC 2, ISO 27001, GDPR, HIPAA, PCI DSS, CCPA, NIST CSF, NIS2, and more. Switch views without reconnecting anything.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -2021,7 +2021,7 @@ export default function LandingPage() {
               Start free. Upgrade when you&apos;re ready.
             </h2>
             <p className="text-[var(--muted)] mt-3 text-sm max-w-xl mx-auto leading-relaxed">
-              Built for seed, Series A, and Series B startups — not enterprises with six-figure compliance budgets. Start free, upgrade when you need AI, PDF reports, and all 11 frameworks including DPDP Act, CERT-In, Serbian LPDP, and NIS2. $149/mo is literally one hour with a compliance consultant.
+              Built for IT and SaaS companies — not enterprises with six-figure compliance budgets. Start free, upgrade when you need AI, PDF reports, and all 11 frameworks including GDPR, HIPAA, NIS2, PCI DSS, and NIST CSF. $149/mo is literally one hour with a compliance consultant.
             </p>
           </div>
 
@@ -2078,15 +2078,15 @@ export default function LandingPage() {
                 <span className="text-4xl font-black text-white">$149</span>
                 <span className="text-sm text-white/40">/mo</span>
               </div>
-              <p className="text-xs text-white/30 mb-1.5">≈ <span className="text-white/45 font-semibold">₹12,400/mo</span> · vs ₹75,000/mo for Sprinto</p>
+              <p className="text-xs text-white/30 mb-1.5">vs $1,000+/mo for Vanta or Drata</p>
               <div className="inline-flex items-center gap-1.5 bg-teal-500/15 text-teal-300 text-[10px] font-semibold px-2.5 py-1 rounded-full mb-3 border border-teal-500/20">
                 <TrendingUp className="w-3 h-3" /> ≈ 30 min with a $300/hr consultant
               </div>
-              <p className="text-xs mb-6 leading-relaxed text-white/45">AI features, PDF reports, all 11 frameworks incl. DPDP Act, CERT-In, Serbian LPDP & NIS2, Trust Center, unlimited integrations and team members.</p>
+              <p className="text-xs mb-6 leading-relaxed text-white/45">AI features, PDF reports, all 11 frameworks incl. GDPR, HIPAA, NIS2, PCI DSS & NIST CSF, Trust Center, unlimited integrations and team members.</p>
               <div className="space-y-2.5 mb-7 flex-1">
                 {[
                   "Unlimited integrations (120+)",
-                  "All 11 frameworks (incl. GDPR, DPDP Act, CERT-In, Serbian LPDP, NIS2, PCI DSS, NIST CSF)",
+                  "All 11 frameworks (incl. GDPR, HIPAA, NIS2, PCI DSS, CCPA, NIST CSF, ISO 27001)",
                   "PDF & CSV audit reports",
                   "AI Compliance Advisor",
                   "AI Questionnaire Autofill (17 data sources)",
