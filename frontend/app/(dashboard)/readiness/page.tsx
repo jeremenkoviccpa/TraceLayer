@@ -43,9 +43,9 @@ const ACTION_ITEMS: { stage: string; items: { href: string; label: string; desc:
     { href: "/training",     label: "Assign security training", desc: "Ensure all staff complete awareness training", icon: TrendingUp },
   ]},
   { stage: "in_progress", items: [
-    { href: "/pen-tests",      label: "Schedule a pen test",  desc: "Annual pen test required for SOC 2",          icon: Target },
-    { href: "/vendors",        label: "Review vendors",       desc: "Assess third-party vendors for CC9.2",        icon: CheckCircle2 },
-    { href: "/access-reviews", label: "Run access reviews",   desc: "Quarterly reviews satisfy CC6.3",             icon: TrendingUp },
+    { href: "/pen-tests",      label: "Schedule a pen test",  desc: "Annual penetration test demonstrates security posture to auditors", icon: Target },
+    { href: "/vendors",        label: "Review vendors",       desc: "Assess third-party vendors and document risk levels",               icon: CheckCircle2 },
+    { href: "/access-reviews", label: "Run access reviews",   desc: "Periodic access reviews satisfy access control requirements",       icon: TrendingUp },
   ]},
   { stage: "final_push", items: [
     { href: "/audit-log",  label: "Check audit log",        desc: "Ensure all actions are being logged",            icon: Clock },

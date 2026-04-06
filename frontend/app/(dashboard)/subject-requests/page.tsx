@@ -318,7 +318,7 @@ export default function SubjectRequestsPage() {
           <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
           <p className="text-sm text-amber-800">
             <span className="font-semibold">{overdueCount} request{overdueCount !== 1 ? "s" : ""} past their response deadline.</span>
-            {" "}GDPR requires response within 30 days. CCPA requires 45 days.
+            {" "}GDPR/DPDP/LPDP: 30-day response deadline. CCPA: 45 days.
           </p>
         </div>
       )}
@@ -503,7 +503,7 @@ export default function SubjectRequestsPage() {
 
               {/* SLA note */}
               <p className="text-xs text-amber-600 bg-amber-50 p-3 rounded-xl">
-                GDPR: 30 days to respond. CCPA: 45 days. Deadline is auto-calculated from received date.
+                Response deadline: {SLA_DAYS[form.regulation] ?? 30} days (auto-calculated from received date).
               </p>
 
               <div className="grid grid-cols-2 gap-4">

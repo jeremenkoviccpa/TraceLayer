@@ -256,6 +256,141 @@ _MANUAL_CONTROLS: dict[str, list[dict]] = {
         {"control_id": "certin_device_management", "name": "Unauthorised Device Prevention and Encryption",
          "description": "Unauthorised devices blocked from connecting to organisational networks (NAC or equivalent). All endpoints storing sensitive or organisational data encrypted with full-disk encryption. Mobile device management (MDM) policy enforced. BYOD devices scoped and controlled (Dir. 11)."},
     ],
+    # ── Serbian LPDP (Zakon o zaštiti podataka o ličnosti, Official Gazette 87/2018) ──
+    "lpdp": [
+        # Art. 5-11: Lawful Processing
+        {"control_id": "lpdp_lawful_basis", "name": "Lawful Basis Documented for All Processing Activities",
+         "description": "A documented lawful basis (consent, contract, legal obligation, vital interests, public interest, or legitimate interests) exists for every personal data processing activity and is recorded in the ROPA. Lawful basis reviewed when processing purposes change (Art. 5-11 LPDP)."},
+        {"control_id": "lpdp_consent_mechanism", "name": "Consent Collection and Withdrawal Mechanism",
+         "description": "Where consent is the lawful basis: consent obtained in a freely given, specific, informed, and unambiguous manner. Consent records maintained. Withdrawal mechanism as easy as giving consent. Consent renewed when processing purposes change (Art. 15-16 LPDP)."},
+        {"control_id": "lpdp_privacy_notice", "name": "Privacy Notice Provided at Collection",
+         "description": "Clear and plain-language privacy notice provided to data subjects at or before collection of their personal data. Notice contains: identity of controller, processing purposes, lawful basis, recipients, retention periods, data subject rights, and right to lodge complaint with Poverenik (Art. 23-25 LPDP)."},
+        # Art. 26-39: Data Subject Rights
+        {"control_id": "lpdp_dsr_procedure", "name": "Data Subject Rights Request Procedure",
+         "description": "Written procedure exists for handling requests to access, rectify, erase, restrict processing, and port personal data. Requests responded to within 30 days (extendable to 90 days for complex cases with notification). Request log maintained with dates and outcomes (Art. 26-39 LPDP)."},
+        {"control_id": "lpdp_right_to_erasure", "name": "Right to Erasure (Right to be Forgotten)",
+         "description": "Process in place to erase personal data on request where: the data is no longer needed, consent is withdrawn, or the processing is unlawful. Erasure propagated to processors and notified to third parties where feasible. Erasure exceptions documented (Art. 30 LPDP)."},
+        {"control_id": "lpdp_right_to_object", "name": "Right to Object and Restrict Processing",
+         "description": "Process to honour objections to processing based on legitimate interests and direct marketing. Processing restricted upon request while objection is considered. Right to object communicated clearly in privacy notice (Art. 37-39 LPDP)."},
+        # Art. 40-50: Controller Obligations
+        {"control_id": "lpdp_ropa", "name": "Records of Processing Activities (ROPA) Maintained",
+         "description": "ROPA maintained listing all processing activities with: controller details, processing purposes, lawful basis, data categories, recipients, cross-border transfer details, retention schedules, and security measures. ROPA available to Poverenik on request. Reviewed and updated at least annually (Art. 40-42 LPDP)."},
+        {"control_id": "lpdp_dpa_contracts", "name": "Data Processing Agreements with All Processors",
+         "description": "Written data processing agreement (DPA) containing all required Art. 45 LPDP clauses signed with every processor before processing begins. DPA covers: processing scope, instructions, confidentiality, security, sub-processor management, audit rights, and post-contract data deletion. Processor list maintained (Art. 44-45 LPDP)."},
+        {"control_id": "lpdp_privacy_by_design", "name": "Data Protection by Design and by Default",
+         "description": "Data protection principles embedded into processing systems from design phase. Default settings collect minimum necessary personal data. Privacy impact considered for all new or changed processing activities. Data minimisation, pseudonymisation, and storage limitation implemented by default (Art. 43 LPDP)."},
+        # Art. 54-56: DPIA
+        {"control_id": "lpdp_dpia", "name": "Data Protection Impact Assessment (DPIA)",
+         "description": "DPIA conducted before commencing high-risk processing: systematic profiling, large-scale processing of special categories, or large-scale systematic monitoring of public areas. Poverenik consulted before processing if residual risk remains high. DPIA documents maintained (Art. 54-56 LPDP)."},
+        # Art. 49: Security Measures
+        {"control_id": "lpdp_security_measures", "name": "Technical and Organisational Security Measures",
+         "description": "Appropriate technical and organisational security measures implemented considering state of the art, cost, and risk: pseudonymisation, encryption, ongoing confidentiality/integrity/availability/resilience of systems, ability to restore data after incident, regular security testing. Measures documented (Art. 49 LPDP)."},
+        # Art. 53: Breach Notification
+        {"control_id": "lpdp_breach_detection", "name": "Personal Data Breach Detection Capability",
+         "description": "Technical controls in place to detect personal data breaches including: SIEM monitoring, DLP alerts, anomaly detection, and endpoint threat detection. Breach detection process documented with escalation path to the person responsible for notifying Poverenik (Art. 53 LPDP)."},
+        {"control_id": "lpdp_breach_poverenik", "name": "72-Hour Breach Notification to Poverenik",
+         "description": "Process in place to notify the Poverenik (Commissioner for Information of Public Importance and Personal Data Protection) within 72 hours of becoming aware of a personal data breach that is likely to result in risk to individuals. Notification contains: nature of breach, categories and approximate number of individuals affected, and measures taken. Breach register maintained (Art. 53 LPDP)."},
+        {"control_id": "lpdp_breach_individual", "name": "High-Risk Breach Notification to Individuals",
+         "description": "Process to notify affected individuals without undue delay when a breach is likely to result in high risk to their rights and freedoms. Communication in clear and plain language. Exceptions documented (law enforcement exemption, technical measures rendering data unintelligible, disproportionate effort). Poverenik consulted when individual notification is deferred (Art. 53 LPDP)."},
+        # Art. 57-61: DPO
+        {"control_id": "lpdp_dpo", "name": "Data Protection Officer Appointed and Registered",
+         "description": "DPO appointed where mandatory (public authorities, large-scale systematic monitoring, large-scale special category processing). DPO contact details published and communicated to data subjects. DPO registered with Poverenik. DPO provided with resources and access to data. DPO not given other tasks causing conflict of interest (Art. 57-61 LPDP)."},
+        # Art. 65-74: Cross-border Transfers
+        {"control_id": "lpdp_transfer_safeguards", "name": "Cross-Border Data Transfer Safeguards",
+         "description": "Personal data transferred outside Serbia only to countries/organisations with adequate protection (Poverenik adequacy list), or using appropriate safeguards: standard contractual clauses, binding corporate rules, or approved codes of conduct. Transfer impact assessment conducted for high-risk transfers. Data flow inventory documents all cross-border transfers (Art. 65-74 LPDP)."},
+    ],
+    # ── NIS2 Directive (EU 2022/2555) ────────────────────────────────────────────
+    "nis2": [
+        # Art. 20-21: Management Accountability and Risk Management
+        {"control_id": "nis2_management_accountability", "name": "Management Body Cybersecurity Accountability",
+         "description": "Management body has approved the organisation's cybersecurity risk management approach. Members of the management body have completed cybersecurity training. Management body can be held personally liable for NIS2 non-compliance. Accountability documented and evidenced (Art. 20 NIS2)."},
+        {"control_id": "nis2_risk_policy", "name": "Cybersecurity Risk Management Policy",
+         "description": "Formal cybersecurity risk management policy adopted and approved by the management body. Policy covers: risk analysis methodology, risk treatment options, acceptable risk levels, and review cycle. Policy reviewed at least annually and after significant incidents (Art. 21.2a NIS2)."},
+        {"control_id": "nis2_risk_assessment", "name": "Regular Cybersecurity Risk Assessment",
+         "description": "Systematic risk assessments conducted at least annually and after significant changes. Assessment covers: asset inventory, threat identification, vulnerability identification, risk scoring, and risk treatment decisions. Risk register maintained and reviewed by management (Art. 21.2a NIS2)."},
+        # Art. 21.2b: Incident Handling
+        {"control_id": "nis2_incident_procedures", "name": "Incident Handling Procedures",
+         "description": "Documented incident handling procedures covering: detection and classification, initial triage, analysis, containment, eradication, recovery, and post-incident review. On-call escalation procedures defined. Procedures tested at least annually via tabletop exercise. Roles and responsibilities assigned (Art. 21.2b NIS2)."},
+        # Art. 23: Incident Reporting
+        {"control_id": "nis2_incident_reporting_procedure", "name": "Significant Incident 3-Stage Reporting Procedure",
+         "description": "Documented procedure for 3-stage NIS2 significant incident reporting: (1) early warning to national CSIRT/authority within 24 hours — nature, initial scope; (2) incident notification within 72 hours — update, initial assessment, indicators of compromise; (3) final report within 1 month — full incident description, severity, impact, root cause, measures taken. CSIRT reference numbers tracked (Art. 23 NIS2)."},
+        {"control_id": "nis2_significant_incident_criteria", "name": "Significant Incident Classification Criteria",
+         "description": "Criteria defined for classifying incidents as 'significant' requiring NIS2 reporting: incidents causing severe operational disruption, financial loss, or affecting other organisations. Classification criteria documented and communicated to all incident response staff. Competent authority guidance on national threshold criteria reviewed (Art. 23 NIS2)."},
+        # Art. 21.2c: Business Continuity
+        {"control_id": "nis2_bcp", "name": "Business Continuity Plan with RTO and RPO",
+         "description": "Business continuity plan covering: backup management, disaster recovery procedures, crisis management, and defined RTO and RPO for critical systems and services. BCP tested at least annually. Test results documented with gaps identified and remediated (Art. 21.2c NIS2)."},
+        {"control_id": "nis2_backup_testing", "name": "Backup Management and Restoration Testing",
+         "description": "Automated backups of all critical systems and data. Backups encrypted and stored separately from production. Restoration tested at minimum quarterly for critical systems. Backup coverage documented. Retention periods aligned with RPO requirements (Art. 21.2c NIS2)."},
+        # Art. 21.2d: Supply Chain Security
+        {"control_id": "nis2_supplier_assessment", "name": "Supplier and Service Provider Security Assessments",
+         "description": "Security assessments conducted for all direct suppliers and key service providers that could affect the security of network and information systems. Assessment covers: security policies, incident response capability, data protection, and access controls. Assessments documented and repeated at least every 2 years (Art. 21.2d NIS2)."},
+        {"control_id": "nis2_supplier_contracts", "name": "Security Requirements in Supplier Contracts",
+         "description": "Supplier and service provider contracts include specific security requirements: security standards compliance, right to audit, incident notification obligations, data protection, access control requirements, and security contact. Contract clauses reviewed against NIS2 supply chain risk guidance (Art. 21.2d NIS2)."},
+        # Art. 21.2e: Network and System Security
+        {"control_id": "nis2_vulnerability_management", "name": "Vulnerability Management Programme",
+         "description": "Formal vulnerability management programme: asset inventory, regular vulnerability scanning, severity-based remediation SLAs (critical: 7 days, high: 30 days), patch management process, and tracking to closure. Vulnerability disclosure policy published. ENISA vulnerability database monitored (Art. 21.2e NIS2)."},
+        {"control_id": "nis2_network_security", "name": "Network and Information System Security Controls",
+         "description": "Network security controls implemented: network segmentation, firewall rules, intrusion detection/prevention, web application firewall, zero-trust architecture (where applicable). Security configurations documented and reviewed. Production environments isolated from development (Art. 21.2e NIS2)."},
+        # Art. 21.2g: Cyber Hygiene
+        {"control_id": "nis2_staff_training", "name": "Cybersecurity Awareness Training for All Staff",
+         "description": "Annual cybersecurity awareness training programme covering: phishing recognition, password hygiene, incident reporting, social engineering, and remote working security. Management body members complete cybersecurity training meeting Art. 20 NIS2 requirements. Training completion records maintained (Art. 21.2g NIS2)."},
+        # Art. 21.2h: Cryptography
+        {"control_id": "nis2_cryptography_policy", "name": "Cryptography and Encryption Policy",
+         "description": "Documented cryptography policy covering: approved encryption algorithms, key management lifecycle (generation, distribution, storage, rotation, revocation, destruction), certificate management, and use of encryption for data at rest and in transit. Policy reviewed annually and when cryptographic standards change (Art. 21.2h NIS2)."},
+        # Art. 21.2i: Access Control and MFA
+        {"control_id": "nis2_access_control", "name": "Access Control and Least Privilege",
+         "description": "Formal access control policy enforcing least privilege. Access provisioned based on documented business need, revoked promptly on role change or departure. Privileged access managed separately with additional controls. Access reviews conducted at minimum every 6 months (Art. 21.2i NIS2)."},
+        {"control_id": "nis2_mfa", "name": "Multi-Factor Authentication Enforced",
+         "description": "MFA enforced for all user accounts accessing network and information systems, without exception. Privileged accounts subject to phishing-resistant MFA (e.g., FIDO2/hardware keys). MFA bypass procedures require documented approval. MFA coverage audited quarterly (Art. 21.2i NIS2)."},
+    ],
+    # ── ISO/IEC 42001:2023 (AI Management System) ─────────────────────────────
+    "iso42001": [
+        # Cl. 4-5: Context and Leadership
+        {"control_id": "iso42001_ai_policy", "name": "AI Policy Approved by Top Management",
+         "description": "A formal AI policy has been approved by top management, is appropriate to the organisation's AI activities, includes commitments to responsible AI and continual improvement, and is communicated throughout the organisation and to relevant interested parties. Policy reviewed at least annually (Cl. 5.2 ISO 42001)."},
+        {"control_id": "iso42001_ai_roles", "name": "AI Management Roles and Responsibilities Defined",
+         "description": "Roles, responsibilities, and authorities for AI management assigned and documented: AI system owner, AI risk officer, data governance lead, and human oversight coordinator. Accountability matrix maps each AI system to responsible individuals. Reporting lines to management body defined (Cl. 5.3 ISO 42001)."},
+        {"control_id": "iso42001_interested_parties", "name": "Interested Parties and AI Context Analysis",
+         "description": "Internal and external interested parties relevant to the AIMS identified. Their requirements and expectations documented. External context (regulatory, societal, ethical standards) and internal context (organisational capabilities, culture, existing management systems) assessed and used to define AIMS scope (Cl. 4.2 ISO 42001)."},
+        # Cl. 6.1: AI Risk Assessment
+        {"control_id": "iso42001_ai_risk_assessment", "name": "AI Risk Assessment Methodology and Process",
+         "description": "Documented AI risk assessment process covering: identification of risks to individuals, groups, and society; risk evaluation criteria; likelihood and impact scoring; risk owners. Risk assessment conducted before deploying AI systems and when systems change significantly. Risk assessment results documented (Cl. 6.1 ISO 42001)."},
+        {"control_id": "iso42001_ai_risk_treatment", "name": "AI Risk Treatment Plan",
+         "description": "Risk treatment plan developed for all identified AI risks above acceptance threshold. Treatment options selected (mitigate, transfer, accept, avoid). Residual risk assessed. Treatment actions assigned to owners with due dates. Progress tracked. Management approval obtained for accepted residual risks (Cl. 6.1 ISO 42001)."},
+        # Cl. 7: Support
+        {"control_id": "iso42001_ai_competence", "name": "AI Competence and Training Programme",
+         "description": "Competence requirements defined for personnel developing, deploying, and operating AI systems. Competence gaps assessed and addressed through training or hiring. AI awareness programme delivered to all staff. Management body members trained on AI governance obligations. Training records maintained (Cl. 7.2-7.3 ISO 42001)."},
+        # Cl. 8.3: AI Impact Assessment
+        {"control_id": "iso42001_aisia", "name": "AI System Impact Assessment Before Deployment",
+         "description": "AI System Impact Assessment (AISIA) completed for every AI system before deployment. Assessment covers: intended use, reasonably foreseeable misuse, potential impacts on individuals/groups/society, vulnerable populations, and safeguards. Stakeholder consultation documented. AISIA signed off by accountable owner. Reassessed when system changes (Cl. 8.3 ISO 42001)."},
+        # Cl. 8.4: Data Governance
+        {"control_id": "iso42001_data_governance", "name": "AI Training Data Governance",
+         "description": "Data governance controls applied to all AI training, validation, and test datasets: data quality assessment, provenance documentation, representativeness evaluation, bias testing, and retention policy. Data lineage tracked from source to model. Documentation maintained for each dataset used in each model version (Cl. 8.4 ISO 42001)."},
+        {"control_id": "iso42001_bias_audit", "name": "Bias Detection and Fairness Evaluation",
+         "description": "Bias detection conducted on training data and model outputs before deployment. Fairness metrics defined for each AI system (demographic parity, equalized odds, or appropriate alternatives). Bias audits repeated at defined intervals in production. Bias remediation procedures documented and tested (Cl. 8.4, A.6.2 ISO 42001)."},
+        # Cl. 8.5: AI Development
+        {"control_id": "iso42001_development_procedures", "name": "AI Development and Testing Procedures",
+         "description": "Documented procedures govern AI system development: requirements specification, data selection, model architecture selection, training, testing, validation, and acceptance criteria. Security testing covers adversarial robustness and prompt injection (for LLM systems). Model cards produced for each deployed system (Cl. 8.5 ISO 42001)."},
+        # Cl. 8.6: Human Oversight
+        {"control_id": "iso42001_human_oversight", "name": "Human Oversight Mechanisms",
+         "description": "Human oversight mechanisms designed into AI systems: ability to monitor AI decisions, intervene in automated processes, override AI outputs, and shut down AI systems. Accountability matrices name individuals responsible for each AI decision domain. High-risk AI decisions require human review before action (Cl. 8.6 ISO 42001)."},
+        {"control_id": "iso42001_rollback", "name": "AI System Version Control and Rollback Capability",
+         "description": "All AI model versions tracked in a model registry with deployment history. Rollback to a previous stable version achievable within a defined timeframe. Rollback procedures documented and tested. Rollback triggered by: performance degradation, safety incidents, regulatory direction, or fairness failures (Cl. 8.5, A.9.1 ISO 42001)."},
+        # Cl. 9: Performance Evaluation
+        {"control_id": "iso42001_monitoring", "name": "AI System Performance and Drift Monitoring",
+         "description": "Production AI systems monitored continuously for: performance metrics (accuracy, precision, recall), model drift, distribution shift, anomalous outputs, and safety events. Alerting configured for threshold breaches. Monitoring dashboards reviewed at defined intervals. Monitoring results documented (Cl. 9.1 ISO 42001)."},
+        {"control_id": "iso42001_internal_audit", "name": "AIMS Internal Audit Programme",
+         "description": "Internal audit programme defined and executed at planned intervals to verify AIMS conformance. Audit scope covers all AI systems, processes, and controls. Findings documented with nonconformity classifications. Corrective actions tracked to closure. Audit results reported to management body (Cl. 9.2 ISO 42001)."},
+        # A.6.1: Transparency
+        {"control_id": "iso42001_transparency", "name": "AI Transparency and Explainability",
+         "description": "Affected individuals informed when AI is used in decisions that affect them significantly. AI-generated decisions can be explained in meaningful terms. Model cards document: system purpose, training data summary, performance metrics, limitations, and intended use cases. Explainability approach proportionate to risk of the AI system (A.6.1 ISO 42001)."},
+        # A.9.1: AI Incident Management
+        {"control_id": "iso42001_ai_incidents", "name": "AI Incident Detection and Response",
+         "description": "AI-specific incident categories defined: unexpected outputs, performance failures, safety events, fairness failures, and misuse. AI incidents logged in a dedicated register. Post-incident analysis identifies root cause and remediation. Serious incidents escalated to management body. Lessons learned used to update risk assessments and controls (A.9.1 ISO 42001)."},
+        # A.10.1: Supply Chain
+        {"control_id": "iso42001_ai_supply_chain", "name": "Third-Party AI Supplier Risk Management",
+         "description": "Due diligence conducted on all third-party AI models, APIs, and datasets before use: transparency on training data, safety testing results, usage policies, and incident notification capabilities. Supplier contracts include AI-specific clauses: auditability, usage restrictions, bias disclosure, and breach notification. Annual review of AI supplier risk posture (A.10.1 ISO 42001)."},
+    ],
 }
 
 router = APIRouter(prefix="/compliance", tags=["compliance"])

@@ -10,6 +10,9 @@ import { toast } from "@/lib/toast";
 
 const FRAMEWORK_LABELS: Record<string, string> = {
   soc2: "SOC 2", iso27001: "ISO 27001", gdpr: "GDPR", hipaa: "HIPAA",
+  pci_dss: "PCI DSS", ccpa: "CCPA", nist_csf: "NIST CSF",
+  dpdp: "DPDP Act", cert_in: "CERT-In", lpdp: "Serbian LPDP",
+  nis2: "NIS2", iso42001: "ISO 42001",
 };
 const PERIOD_LABELS: Record<string, string> = {
   monthly: "Monthly", quarterly: "Quarterly", semi_annual: "Semi-annual", annual: "Annual",
