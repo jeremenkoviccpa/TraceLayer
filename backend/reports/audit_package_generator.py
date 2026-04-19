@@ -184,6 +184,7 @@ def _ai_block(text: str, st: dict, W: float) -> list:
     if not paragraphs:
         return []
 
+    # Badge and body are separate flowables so the body can split across page breaks.
     badge = Table([[Paragraph("AI GENERATED", st["ai_badge"])]], colWidths=[W])
     badge.setStyle(TableStyle([
         ("BACKGROUND",    (0, 0), (-1, -1), TEAL_LIGHT),
@@ -191,29 +192,25 @@ def _ai_block(text: str, st: dict, W: float) -> list:
         ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
         ("LEFTPADDING",   (0, 0), (-1, -1), 12),
         ("RIGHTPADDING",  (0, 0), (-1, -1), 8),
+        ("LINEABOVE",     (0, 0), (-1, 0),  0.5, TEAL),
+        ("LINEBEFORE",    (0, 0), (0, -1),  3,   TEAL),
+        ("LINEAFTER",     (0, 0), (-1, -1), 0.5, TEAL),
     ]))
 
     body_rows = [[Paragraph(p, st["body_ai"])] for p in paragraphs]
-    body = Table(body_rows, colWidths=[W])
+    body = Table(body_rows, colWidths=[W], splitByRow=1)
     body.setStyle(TableStyle([
         ("BACKGROUND",    (0, 0), (-1, -1), TEAL_LIGHT),
         ("TOPPADDING",    (0, 0), (-1, -1), 3),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
         ("LEFTPADDING",   (0, 0), (-1, -1), 12),
         ("RIGHTPADDING",  (0, 0), (-1, -1), 12),
+        ("LINEBEFORE",    (0, 0), (0, -1),  3,   TEAL),
+        ("LINEAFTER",     (0, 0), (-1, -1), 0.5, TEAL),
+        ("LINEBELOW",     (0, -1), (-1, -1), 0.5, TEAL),
     ]))
 
-    wrapper = Table([[badge], [body]], colWidths=[W])
-    wrapper.setStyle(TableStyle([
-        ("BOX",           (0, 0), (-1, -1), 0.5, TEAL),
-        ("LINEBEFORE",    (0, 0), (0, -1), 3, TEAL),
-        ("TOPPADDING",    (0, 0), (-1, -1), 0),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
-        ("LEFTPADDING",   (0, 0), (-1, -1), 0),
-        ("RIGHTPADDING",  (0, 0), (-1, -1), 0),
-        ("BOTTOMPADDING", (0, 1), (-1, 1), 10),
-    ]))
-    return [wrapper, Spacer(1, 4 * mm)]
+    return [badge, body, Spacer(1, 4 * mm)]
 
 
 def _data_table(headers: list, rows: list, col_widths: list, st: dict) -> Table:
@@ -811,25 +808,23 @@ def render_audit_package_pdf(context: dict) -> bytes:
             ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
             ("LEFTPADDING",   (0, 0), (-1, -1), 12),
             ("RIGHTPADDING",  (0, 0), (-1, -1), 8),
+            ("LINEABOVE",     (0, 0), (-1, 0),  1.5, TEAL),
+            ("LINEBEFORE",    (0, 0), (0, -1),  4,   TEAL),
+            ("LINEAFTER",     (0, 0), (-1, -1), 1.5, TEAL),
         ]))
-        body_assertion = Table([[Paragraph(assertion_text, st["body_formal"])]], colWidths=[W])
+        body_assertion = Table([[Paragraph(assertion_text, st["body_formal"])]], colWidths=[W], splitByRow=1)
         body_assertion.setStyle(TableStyle([
             ("BACKGROUND",    (0, 0), (-1, -1), WHITE),
             ("TOPPADDING",    (0, 0), (-1, -1), 10),
             ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
             ("LEFTPADDING",   (0, 0), (-1, -1), 12),
             ("RIGHTPADDING",  (0, 0), (-1, -1), 12),
+            ("LINEBEFORE",    (0, 0), (0, -1),  4,   TEAL),
+            ("LINEAFTER",     (0, 0), (-1, -1), 1.5, TEAL),
+            ("LINEBELOW",     (0, -1), (-1, -1), 1.5, TEAL),
         ]))
-        assertion_wrapper = Table([[badge], [body_assertion]], colWidths=[W])
-        assertion_wrapper.setStyle(TableStyle([
-            ("BOX",           (0, 0), (-1, -1), 1.5, TEAL),
-            ("LINEBEFORE",    (0, 0), (0, -1), 4, TEAL),
-            ("TOPPADDING",    (0, 0), (-1, -1), 0),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
-            ("LEFTPADDING",   (0, 0), (-1, -1), 0),
-            ("RIGHTPADDING",  (0, 0), (-1, -1), 0),
-        ]))
-        story.append(assertion_wrapper)
+        story.append(badge)
+        story.append(body_assertion)
     else:
         story.append(Paragraph(
             f"{context['company_name']} management asserts that controls are designed and "

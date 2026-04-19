@@ -47,14 +47,28 @@ def upload_bytes(
     data: bytes,
     content_type: str,
 ) -> dict[str, Any]:
+    import httpx
+
     client = _get_client()
     _ensure_bucket(client, bucket)
     storage = client.storage.from_(bucket)
-    response = storage.upload(
-        path,
-        data,
-        {"content-type": content_type, "upsert": "true"},
-    )
+    try:
+        response = storage.upload(
+            path,
+            data,
+            {"content-type": content_type, "upsert": "true"},
+        )
+    except (httpx.ConnectError, httpx.TimeoutException) as exc:
+        raise RuntimeError(
+            f"Supabase storage unreachable — check SUPABASE_URL env var: {exc}"
+        ) from exc
+    except Exception as exc:
+        # storage3 raises UnboundLocalError when connection fails before response is set
+        if isinstance(exc, UnboundLocalError) and "response" in str(exc):
+            raise RuntimeError(
+                f"Supabase storage connection failed — check SUPABASE_URL env var"
+            ) from exc
+        raise
     return response
 
 
