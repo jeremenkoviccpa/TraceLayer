@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Bot,
   Edit2,
@@ -16,6 +16,76 @@ import { api } from "@/lib/api";
 import type { ChatConversation, ChatMessage } from "@/lib/types";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+function renderMarkdown(text: string): React.ReactNode[] {
+  const lines = text.split("\n");
+  const nodes: React.ReactNode[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Bullet list item
+    if (/^[-*•]\s+/.test(line)) {
+      const items: string[] = [];
+      while (i < lines.length && /^[-*•]\s+/.test(lines[i])) {
+        items.push(lines[i].replace(/^[-*•]\s+/, ""));
+        i++;
+      }
+      nodes.push(
+        <ul key={`ul-${i}`} className="list-disc list-inside space-y-0.5 my-1">
+          {items.map((item, j) => (
+            <li key={j}>{inlineMarkdown(item)}</li>
+          ))}
+        </ul>
+      );
+      continue;
+    }
+
+    // Numbered list item
+    if (/^\d+\.\s+/.test(line)) {
+      const items: string[] = [];
+      while (i < lines.length && /^\d+\.\s+/.test(lines[i])) {
+        items.push(lines[i].replace(/^\d+\.\s+/, ""));
+        i++;
+      }
+      nodes.push(
+        <ol key={`ol-${i}`} className="list-decimal list-inside space-y-0.5 my-1">
+          {items.map((item, j) => (
+            <li key={j}>{inlineMarkdown(item)}</li>
+          ))}
+        </ol>
+      );
+      continue;
+    }
+
+    // Empty line → spacing
+    if (line.trim() === "") {
+      nodes.push(<div key={`br-${i}`} className="h-1" />);
+      i++;
+      continue;
+    }
+
+    // Regular paragraph line
+    nodes.push(<p key={`p-${i}`} className="leading-relaxed">{inlineMarkdown(line)}</p>);
+    i++;
+  }
+
+  return nodes;
+}
+
+function inlineMarkdown(text: string): React.ReactNode {
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**"))
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith("*") && part.endsWith("*"))
+      return <em key={i}>{part.slice(1, -1)}</em>;
+    if (part.startsWith("`") && part.endsWith("`"))
+      return <code key={i} className="bg-white/10 rounded px-1 text-[12px] font-mono">{part.slice(1, -1)}</code>;
+    return part;
+  });
+}
 
 export default function GlobalChat() {
   const [open, setOpen] = useState(false);
@@ -366,13 +436,16 @@ export default function GlobalChat() {
                   </div>
                 )}
                 <div
-                  className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed whitespace-pre-wrap
+                  className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-[13px]
                     ${msg.role === "user"
                       ? "bg-brand-600 text-white rounded-br-sm shadow-sm shadow-brand-600/20"
                       : "bg-slate-800 text-slate-200 rounded-bl-sm border border-white/5"
                     }`}
                 >
-                  {msg.content}
+                  {msg.role === "assistant"
+                    ? renderMarkdown(msg.content)
+                    : <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                  }
                 </div>
               </div>
             ))
