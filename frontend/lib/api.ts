@@ -625,9 +625,12 @@ class ApiClient {
     return this.requestPublic<TrainingCertificate>("GET", `/training/certificate/${token}`);
   }
 
-  // ── Integration OAuth ──────────────────────────────────────────────────────
-  async getIntegrationOAuthUrl(provider: string): Promise<{ url: string }> {
-    return this.request<{ url: string }>("GET", `/integrations/oauth/${provider}/authorize`);
+  // ── Nango OAuth ────────────────────────────────────────────────────────────
+  async nangoComplete(integrationType: string, connectionId: string): Promise<void> {
+    await this.request("POST", "/integrations/nango/complete", {
+      integration_type: integrationType,
+      connection_id: connectionId,
+    });
   }
 
   // ── Pen Tests ─────────────────────────────────────────────────────────────

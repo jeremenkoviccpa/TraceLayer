@@ -37,6 +37,18 @@ async def run_collection(
 
     try:
         credentials = decrypt_credentials(integration.credentials_enc)
+
+        if credentials.get("auth_type") == "nango":
+            from utils.nango import build_credentials
+            extra = {k: v for k, v in credentials.items()
+                     if k not in ("auth_type", "connection_id", "provider_config_key")}
+            credentials = await build_credentials(
+                integration_type,
+                credentials["connection_id"],
+                credentials["provider_config_key"],
+                extra=extra,
+            )
+
         adapter = get_adapter(integration_type)
         await adapter.connect(credentials)
 

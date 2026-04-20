@@ -1,7 +1,8 @@
 "use client";
 
+import Nango from "@nangohq/frontend";
 import { useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { openPaddleCheckout } from "@/lib/paddle";
 import type { BillingInfo, Integration, SimulationResult } from "@/lib/types";
@@ -843,7 +844,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
     title: "Identity & Access",
     integrations: [
       {
-        type: "google_workspace", label: "Google Workspace", core: true,
+        type: "google_workspace", label: "Google Workspace", core: true, oauth: true,
         description: "Collect users, admin accounts, and groups via Admin SDK",
         fields: [
           { key: "admin_email", label: "Admin Email", placeholder: "admin@yourcompany.com" },
@@ -1021,7 +1022,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "heroku", label: "Heroku",
+        type: "heroku", label: "Heroku", oauth: true,
         description: "Collect app inventory, collaborator access, config var encryption, and release audit trail",
         fields: [
           { key: "api_key", label: "API Key", placeholder: "••••••••-••••-••••-••••-••••••••••••", type: "password", hint: "Heroku Dashboard → Account Settings → API Key" },
@@ -1073,7 +1074,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "gitlab", label: "GitLab", core: true,
+        type: "gitlab", label: "GitLab", core: true, oauth: true,
         description: "Collect projects, members, and merge request approval settings",
         fields: [
           { key: "token", label: "Personal Access Token", placeholder: "glpat-••••••••", type: "password", hint: "Starts with glpat-" },
@@ -1081,7 +1082,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "bitbucket", label: "Bitbucket",
+        type: "bitbucket", label: "Bitbucket", oauth: true,
         description: "Collect repositories, branch protection rules, and workspace members for change management evidence",
         fields: [
           { key: "username", label: "Username", placeholder: "your-username" },
@@ -1095,7 +1096,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
     title: "Project Management",
     integrations: [
       {
-        type: "jira", label: "Jira", core: true,
+        type: "jira", label: "Jira", core: true, oauth: true,
         description: "Collect projects, users, and change tickets for change management evidence",
         fields: [
           { key: "domain", label: "Domain", placeholder: "mycompany.atlassian.net" },
@@ -1118,7 +1119,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "confluence", label: "Confluence",
+        type: "confluence", label: "Confluence", oauth: true,
         description: "Collect policy pages, runbooks, and space permissions as documentation evidence",
         fields: [
           { key: "domain", label: "Confluence Domain", placeholder: "mycompany.atlassian.net" },
@@ -1136,7 +1137,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "asana", label: "Asana",
+        type: "asana", label: "Asana", oauth: true,
         description: "Collect projects, tasks, and team member access for change management and workflow evidence",
         fields: [
           { key: "access_token", label: "Personal Access Token", placeholder: "1/••••••••••••", type: "password", hint: "Asana → My Profile → Apps → Manage Developer Apps → New Access Token" },
@@ -1144,14 +1145,14 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "monday", label: "Monday.com",
+        type: "monday", label: "Monday.com", oauth: true,
         description: "Collect boards, users, and workspace permissions for project governance evidence",
         fields: [
           { key: "api_token", label: "API Token", placeholder: "eyJhbGci••••••••", type: "password", hint: "Monday.com → Profile → Administration → API → Copy Personal Token" },
         ],
       },
       {
-        type: "shortcut", label: "Shortcut",
+        type: "shortcut", label: "Shortcut", oauth: true,
         description: "Collect stories, epics, member access, and workflow states for change management evidence",
         fields: [
           { key: "api_token", label: "API Token", placeholder: "••••••••-••••-••••-••••-••••••••••••", type: "password", hint: "Shortcut → Profile → API Tokens → Generate Token" },
@@ -1185,7 +1186,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "microsoft_teams", label: "Microsoft Teams",
+        type: "microsoft_teams", label: "Microsoft Teams", oauth: true,
         description: "Collect team members, admin roles, and messaging policies",
         fields: [
           { key: "tenant_id", label: "Tenant ID", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
@@ -1194,7 +1195,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "zendesk", label: "Zendesk",
+        type: "zendesk", label: "Zendesk", oauth: true,
         description: "Collect support agents, SLA policies, and ticket workflow controls for availability and process evidence",
         fields: [
           { key: "subdomain", label: "Subdomain", placeholder: "mycompany", hint: "The part before .zendesk.com" },
@@ -1203,7 +1204,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "zoom", label: "Zoom",
+        type: "zoom", label: "Zoom", oauth: true,
         description: "Collect meeting security settings, user roles, and recording retention policies for communication evidence",
         fields: [
           { key: "account_id", label: "Account ID", placeholder: "xxxxxxxxxxxxxxxxxxxxxxxx" },
@@ -1212,7 +1213,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "intercom", label: "Intercom",
+        type: "intercom", label: "Intercom", oauth: true,
         description: "Collect workspace members, data access controls, and security settings for customer data handling evidence",
         fields: [
           { key: "access_token", label: "Access Token", placeholder: "dG9r••••••••", type: "password", hint: "Intercom → Settings → Developers → Your Apps → Access Token" },
@@ -1250,7 +1251,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "datadog", label: "Datadog", core: true,
+        type: "datadog", label: "Datadog", core: true, oauth: true,
         description: "Pull audit logs, alert rules, and monitoring coverage as evidence",
         fields: [
           { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password" },
@@ -1259,14 +1260,14 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "pagerduty", label: "PagerDuty",
+        type: "pagerduty", label: "PagerDuty", oauth: true,
         description: "Collect on-call schedules and incident response records",
         fields: [
           { key: "api_key", label: "API Key", placeholder: "••••••••••••", type: "password" },
         ],
       },
       {
-        type: "sentry", label: "Sentry",
+        type: "sentry", label: "Sentry", oauth: true,
         description: "Collect error monitoring configuration and team access records",
         fields: [
           { key: "auth_token", label: "Auth Token", placeholder: "••••••••••••", type: "password" },
@@ -1274,14 +1275,14 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "stripe", label: "Stripe",
+        type: "stripe", label: "Stripe", oauth: true,
         description: "Collect payment security settings and access controls for PCI DSS evidence",
         fields: [
           { key: "api_key", label: "Restricted API Key", placeholder: "rk_live_••••••••", type: "password", hint: "Starts with rk_live_ (live) or rk_test_ (test)" },
         ],
       },
       {
-        type: "snyk", label: "Snyk",
+        type: "snyk", label: "Snyk", oauth: true,
         description: "Pull dependency vulnerability findings and fix rates as continuous security evidence",
         fields: [
           { key: "api_token", label: "API Token", placeholder: "••••••••••••", type: "password" },
@@ -1350,7 +1351,7 @@ const INTEGRATION_GROUPS: IntegrationGroup[] = [
         ],
       },
       {
-        type: "opsgenie", label: "Opsgenie",
+        type: "opsgenie", label: "Opsgenie", oauth: true,
         description: "Collect on-call schedules, alert policies, and incident escalation chains for availability evidence",
         fields: [
           { key: "api_key", label: "API Key", placeholder: "••••••••-••••-••••-••••-••••••••••••", type: "password", hint: "Opsgenie → Settings → API key management" },
@@ -2932,8 +2933,8 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
 }
 
 // ── Connect Modal ─────────────────────────────────────────────────────────────
-function ConnectModal({ def, onClose, onConnected, onUpgradeNeeded }: {
-  def: IntegrationDef; onClose: () => void; onConnected: () => void; onUpgradeNeeded: () => void;
+function ConnectModal({ def, companyId, onClose, onConnected, onUpgradeNeeded }: {
+  def: IntegrationDef; companyId: string; onClose: () => void; onConnected: () => void; onUpgradeNeeded: () => void;
 }) {
   const [fields, setFields] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -2948,12 +2949,17 @@ function ConnectModal({ def, onClose, onConnected, onUpgradeNeeded }: {
     setOauthLoading(true);
     setError("");
     try {
-      const { url } = await api.getIntegrationOAuthUrl(def.type);
-      window.location.href = url;
+      const nango = new Nango({ publicKey: process.env.NEXT_PUBLIC_NANGO_PUBLIC_KEY! });
+      const connectionId = `${companyId}-${def.type}`;
+      await nango.auth(def.type, connectionId);
+      await api.nangoComplete(def.type, connectionId);
+      onConnected();
+      onClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Authorization failed";
       if (msg.toLowerCase().includes("free plan") || msg.toLowerCase().includes("upgrade")) { onClose(); onUpgradeNeeded(); }
       else setError(msg);
+    } finally {
       setOauthLoading(false);
     }
   };
@@ -3001,7 +3007,7 @@ function ConnectModal({ def, onClose, onConnected, onUpgradeNeeded }: {
               className="w-full flex items-center justify-center gap-2.5 bg-gray-900 hover:bg-gray-800 disabled:opacity-60 text-white font-semibold rounded-xl px-4 py-3 text-sm transition-colors"
             >
               {oauthLoading ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting…</>
+                <><Loader2 className="w-4 h-4 animate-spin" /> Connecting…</>
               ) : (
                 <>{OAUTH_LABELS[def.type] ?? `Authorize with ${def.label}`}</>
               )}
@@ -3196,6 +3202,7 @@ function IntegrationCard({ def, connected, canConnect, collecting, onConnect, on
 export default function IntegrationsPage() {
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [billing, setBilling] = useState<BillingInfo | null>(null);
+  const [companyId, setCompanyId] = useState("");
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState<string | null>(null);
   const [collecting, setCollecting] = useState<string | null>(null);
@@ -3207,7 +3214,6 @@ export default function IntegrationsPage() {
   const [showOnlyConnected, setShowOnlyConnected] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const tabsContainerRef = useRef<HTMLDivElement | null>(null);
-  const searchParams = useSearchParams();
   const router = useRouter();
 
   const load = () =>
@@ -3216,24 +3222,11 @@ export default function IntegrationsPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
 
-  useEffect(() => { load(); }, []);
-
-  // Handle OAuth callback redirects
   useEffect(() => {
-    const success = searchParams.get("oauth_success");
-    const errorParam = searchParams.get("oauth_error");
-    const reason = searchParams.get("reason");
-    if (success) {
-      const label = success.charAt(0).toUpperCase() + success.slice(1);
-      showToast(`${label} connected successfully via OAuth!`);
-      load();
-      router.replace("/integrations");
-    } else if (errorParam) {
-      const msg = reason ? `OAuth failed: ${reason.replace(/_/g, " ")}` : "OAuth authorization failed";
-      showToast(msg);
-      router.replace("/integrations");
-    }
-  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+    api.me().then(u => setCompanyId(u.company_id)).catch(() => {});
+  }, []);
+
+  useEffect(() => { load(); }, []);
 
   // Auto-highlight active section via IntersectionObserver
   useEffect(() => {
@@ -3339,7 +3332,7 @@ export default function IntegrationsPage() {
 
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)}/>}
       {connecting && connectingDef && (
-        <ConnectModal def={connectingDef} onClose={() => setConnecting(null)} onConnected={load} onUpgradeNeeded={() => setShowUpgrade(true)}/>
+        <ConnectModal def={connectingDef} companyId={companyId} onClose={() => setConnecting(null)} onConnected={load} onUpgradeNeeded={() => setShowUpgrade(true)}/>
       )}
       {simulating && (
         <SimulationModal

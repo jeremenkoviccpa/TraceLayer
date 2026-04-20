@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     linear_oauth_client_secret: str = ""
     notion_oauth_client_id: str = ""
     notion_oauth_client_secret: str = ""
+    # Nango OAuth infrastructure
+    nango_secret_key: str = ""
+    nango_public_key: str = ""
     # Observability
     sentry_dsn: str = ""
     # Internal accounts that bypass billing checks (comma-separated emails in env)

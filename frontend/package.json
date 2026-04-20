@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@nangohq/frontend": "^0.70.1",
     "@paddle/paddle-js": "^1.6.2",
     "@sentry/nextjs": "^8.0.0",
     "@types/qrcode": "^1.5.6",
