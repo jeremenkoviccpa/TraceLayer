@@ -25,6 +25,35 @@ function renderMarkdown(text: string): React.ReactNode[] {
   while (i < lines.length) {
     const line = lines[i];
 
+    // H2: ## heading
+    if (/^##\s+/.test(line)) {
+      nodes.push(
+        <p key={`h2-${i}`} className="font-semibold text-white text-[13px] mt-2 mb-0.5">
+          {inlineMarkdown(line.replace(/^##\s+/, ""))}
+        </p>
+      );
+      i++;
+      continue;
+    }
+
+    // H3: ### heading
+    if (/^###\s+/.test(line)) {
+      nodes.push(
+        <p key={`h3-${i}`} className="font-medium text-slate-300 text-[12px] mt-1.5 mb-0.5 uppercase tracking-wide">
+          {inlineMarkdown(line.replace(/^###\s+/, ""))}
+        </p>
+      );
+      i++;
+      continue;
+    }
+
+    // Horizontal rule
+    if (/^---+$/.test(line.trim())) {
+      nodes.push(<hr key={`hr-${i}`} className="border-white/10 my-2" />);
+      i++;
+      continue;
+    }
+
     // Bullet list item
     if (/^[-*•]\s+/.test(line)) {
       const items: string[] = [];
@@ -477,7 +506,7 @@ export default function GlobalChat() {
         {activeId && (
           <div className="shrink-0 p-3 border-t border-white/5 bg-slate-900">
             <div className="flex items-end gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2
-              focus-within:border-brand-500/50 focus-within:bg-white/8 focus-within:ring-2 focus-within:ring-brand-600/20
+              focus-within:border-brand-500/40 focus-within:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]
               transition-all duration-150">
               <textarea
                 ref={inputRef}
