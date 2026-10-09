@@ -3,13 +3,11 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-import httpx
 from fastapi import APIRouter, Depends, Form, HTTPException, Query, UploadFile
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.config import settings
 from core.database import get_db
 from core.deps import get_current_user
 from models.document import Document
@@ -43,7 +41,7 @@ async def upload_document(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Upload a file as a document attachment and store it in Supabase Storage."""
+    """Upload a file as a document attachment and store it in object storage."""
     file_bytes = await file.read()
     file_name = file.filename or "upload"
     file_size = len(file_bytes)
@@ -54,30 +52,14 @@ async def upload_document(
         f"{current_user.company_id}/{resource_type}/"
         f"{resource_id or 'general'}/{unique_id}/{file_name}"
     )
-    storage_url = (
-        f"{settings.supabase_url.rstrip('/')}/storage/v1/object/"
-        f"{DOCUMENTS_BUCKET}/{storage_path}"
-    )
-
-    async with httpx.AsyncClient() as client:
-        resp = await client.post(
-            storage_url,
-            content=file_bytes,
-            headers={
-                "Authorization": f"Bearer {settings.supabase_service_key}",
-                "Content-Type": content_type,
-                "x-upsert": "true",
-            },
-        )
-
-    if resp.status_code not in (200, 201):
-        logger.error("Supabase Storage upload failed: %s %s", resp.status_code, resp.text)
+    try:
+        storage_service.upload_bytes(DOCUMENTS_BUCKET, storage_path, file_bytes, content_type)
+    except Exception as exc:
+        logger.error("Storage upload failed: %s", exc)
         raise HTTPException(status_code=502, detail="File upload to storage failed")
 
-    public_url = (
-        f"{settings.supabase_url.rstrip('/')}/storage/v1/object/public/"
-        f"{DOCUMENTS_BUCKET}/{storage_path}"
-    )
+    # Downloads go through GET /documents/{id}/url (signed URL); keep a stable reference here.
+    public_url = f"storage://{DOCUMENTS_BUCKET}/{storage_path}"
 
     doc = Document(
         company_id=current_user.company_id,

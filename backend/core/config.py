@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     storage_endpoint: str = ""
     storage_access_key: str = ""
     storage_secret_key: str = ""
+    storage_s3_bucket: str = ""   # S3-compatible bucket (e.g. Railway Bucket); takes precedence over Supabase
+    storage_region: str = "auto"
     cors_origins: str = "http://localhost:3000,https://tracelayer.it.com"
     app_frontend_url: str = "http://localhost:3000"
     resend_api_key: str = ""

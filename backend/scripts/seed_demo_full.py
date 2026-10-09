@@ -10,6 +10,7 @@ Safe to re-run — uses upsert for evidence, skips existing rows for everything 
 
 import asyncio
 import json
+import os
 import sys
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -43,7 +44,7 @@ from models.vendor import Vendor
 from models.vulnerability import Vulnerability
 
 DEMO_EMAIL = "admin@tracelayer.it.com"
-DEMO_PASSWORD = "admin"
+DEMO_PASSWORD = os.environ.get("DEMO_PASSWORD", "admin")
 DEMO_COMPANY = "Acme Corp (Demo)"
 
 NOW = datetime.now(timezone.utc)
@@ -760,6 +761,8 @@ async def seed():
                 select(Company).where(Company.id == user.company_id)
             )
             company = company_result.scalar_one()
+            # Keep the demo password in sync with DEMO_PASSWORD so it can be rotated via env
+            user.password_hash = hash_password(DEMO_PASSWORD)
             await db.execute(
                 update(Company)
                 .where(Company.id == company.id)

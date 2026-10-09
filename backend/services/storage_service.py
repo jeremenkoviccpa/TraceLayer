@@ -8,6 +8,36 @@ from core.config import settings
 logger = logging.getLogger(__name__)
 
 _client = None
+_s3_client = None
+
+
+def _use_s3() -> bool:
+    """S3-compatible storage (e.g. Railway Buckets) takes precedence over Supabase."""
+    return bool(settings.storage_s3_bucket and settings.storage_endpoint)
+
+
+def _get_s3_client():
+    global _s3_client
+    if _s3_client is not None:
+        return _s3_client
+
+    import boto3
+    from botocore.config import Config
+
+    _s3_client = boto3.client(
+        "s3",
+        endpoint_url=settings.storage_endpoint,
+        aws_access_key_id=settings.storage_access_key,
+        aws_secret_access_key=settings.storage_secret_key,
+        region_name=settings.storage_region or "auto",
+        config=Config(signature_version="s3v4", s3={"addressing_style": "virtual"}),
+    )
+    return _s3_client
+
+
+def _s3_key(bucket: str, path: str) -> str:
+    # Logical buckets (reports, documents, …) become key prefixes in the single S3 bucket.
+    return f"{bucket.strip('/')}/{path.lstrip('/')}" if bucket else path.lstrip("/")
 
 
 def _get_client():
@@ -16,7 +46,7 @@ def _get_client():
         return _client
 
     if not settings.supabase_url or not settings.supabase_service_key:
-        raise RuntimeError("Supabase credentials are not configured")
+        raise RuntimeError("Storage is not configured (set STORAGE_S3_BUCKET or Supabase credentials)")
 
     try:
         from supabase import create_client
@@ -47,6 +77,16 @@ def upload_bytes(
     data: bytes,
     content_type: str,
 ) -> dict[str, Any]:
+    if _use_s3():
+        key = _s3_key(bucket, path)
+        _get_s3_client().put_object(
+            Bucket=settings.storage_s3_bucket,
+            Key=key,
+            Body=data,
+            ContentType=content_type,
+        )
+        return {"path": key}
+
     import httpx
 
     client = _get_client()
@@ -73,6 +113,13 @@ def upload_bytes(
 
 
 def create_signed_url(bucket: str, path: str, expires_in: int = 3600) -> str:
+    if _use_s3():
+        return _get_s3_client().generate_presigned_url(
+            "get_object",
+            Params={"Bucket": settings.storage_s3_bucket, "Key": _s3_key(bucket, path)},
+            ExpiresIn=expires_in,
+        )
+
     client = _get_client()
     storage = client.storage.from_(bucket)
     response = storage.create_signed_url(path, expires_in)
@@ -98,7 +145,10 @@ def create_signed_url(bucket: str, path: str, expires_in: int = 3600) -> str:
 
 
 def delete_object(bucket: str, path: str) -> None:
-    client = _get_client()
-    storage = client.storage.from_(bucket)
-    storage.remove([path])
+    if _use_s3():
+        _get_s3_client().delete_object(Bucket=settings.storage_s3_bucket, Key=_s3_key(bucket, path))
+    else:
+        client = _get_client()
+        storage = client.storage.from_(bucket)
+        storage.remove([path])
     logger.info("Deleted storage object: %s/%s", bucket, path)

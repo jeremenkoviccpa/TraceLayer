@@ -6,7 +6,6 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
-import httpx
 from fastapi import APIRouter, Depends, Form, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -20,6 +19,7 @@ from models.associations import evidence_controls
 from models.evidence import Evidence
 from models.user import User
 from schemas.evidence import EvidenceResponse
+from services import storage_service
 from services.evidence_service import list_evidence
 from utils.pagination import Page
 
@@ -62,36 +62,22 @@ async def upload_evidence_file(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Upload a file as evidence and store it in Supabase Storage."""
+    """Upload a file as evidence and store it in object storage."""
     file_bytes = await file.read()
     file_name = file.filename or "upload"
     file_size = len(file_bytes)
 
     storage_path = f"evidence/{current_user.company_id}/{uuid.uuid4()}/{file_name}"
-    storage_url = (
-        f"{settings.supabase_url.rstrip('/')}/storage/v1/object/"
-        f"{settings.storage_bucket}/{storage_path}"
-    )
-
-    async with httpx.AsyncClient() as client:
-        resp = await client.post(
-            storage_url,
-            content=file_bytes,
-            headers={
-                "Authorization": f"Bearer {settings.supabase_service_key}",
-                "Content-Type": file.content_type or "application/octet-stream",
-                "x-upsert": "true",
-            },
+    bucket = settings.storage_bucket or "evidence"
+    try:
+        storage_service.upload_bytes(
+            bucket, storage_path, file_bytes, file.content_type or "application/octet-stream"
         )
-
-    if resp.status_code not in (200, 201):
-        logger.error("Supabase Storage upload failed: %s %s", resp.status_code, resp.text)
+        # Max S3 presign lifetime is 7 days
+        public_url = storage_service.create_signed_url(bucket, storage_path, expires_in=7 * 24 * 3600)
+    except Exception as exc:
+        logger.error("Storage upload failed: %s", exc)
         raise HTTPException(status_code=502, detail="File upload to storage failed")
-
-    public_url = (
-        f"{settings.supabase_url.rstrip('/')}/storage/v1/object/public/"
-        f"{settings.storage_bucket}/{storage_path}"
-    )
 
     evidence = Evidence(
         company_id=current_user.company_id,
@@ -102,6 +88,7 @@ async def upload_evidence_file(
         timestamp=datetime.now(timezone.utc),
         data={
             "file_url": public_url,
+            "storage_path": storage_path,
             "file_name": file_name,
             "file_size": file_size,
             "uploaded_by": current_user.email,
