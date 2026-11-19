@@ -30,7 +30,30 @@ Show the Mermaid diagram in `docs/harness/README.md`.
 
 ## 3. Live walkthrough: `docs/plans/tl-f001-rate-limit-logging/` (6–7 min)
 
-<!-- filled from the real run -->
+This ran this morning, intake to ship in about 17 minutes. Open the folder and go file by file:
+
+1. **`ticket.md`**: the source is audit finding TL-F001 (Medium). Point out the "found during intake" line: the 429
+   body used `error`, the frontend reads `detail`, so users saw "Request failed". Intake found a real bug the audit hadn't.
+2. **`plan.md`**: goal, steps, risks, test plan. Scroll to **Open questions** and the **Plan checkpoint**.
+   - The planner proposed marking the finding "Resolved" inside the assessor's signed report.
+   - A human said no.
+   - *This is the point of the checkpoint: the agent proposes, a person decides.*
+3. **`review.md`**: the strongest slide. Round 1 asked for changes.
+   - The must-fix: if someone reverted the one line that turns the feature on, **all 75 tests would still have
+     passed**. The reviewer proved it by breaking a scratch copy of the code.
+   - Read out the Fixes section, then Round 2: clean.
+   - *An implementer reviewing its own work wouldn't have caught this. A separate reviewer with fresh context did.*
+4. **`screenshots/`**: before and after, on desktop and iPhone. "Request failed" becomes "Too many attempts. Please wait a minute…".
+   - The skill said "test it on mobile". It didn't list screen widths; Playwright's device profiles handled that.
+5. **`test-report.md`**: what was run, the counts, and the actual log line, with no secrets in it. It also lists what
+   *wasn't* tested and why.
+6. **`pr.md`**: the PR description writes itself from the folder.
+7. Close on `docs/harness/demo-run.md`: the timeline, roughly $3–6 of tokens, and the bonus. Before starting, the
+   baseline check found `main`'s CI red three ways (every test erroring, 2,500 lint errors, the frontend build
+   needing a secret). Nobody had noticed.
+
+Likely question: *"Would a human reviewer have caught the wiring gap?"* Maybe. The point is that the AI review runs on
+**every** PR, in CI, before a human looks.
 
 ## 4. Your personal system plus the shared harness (3 min)
 

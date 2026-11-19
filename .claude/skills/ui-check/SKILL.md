@@ -15,6 +15,12 @@ cd frontend && NEXT_PUBLIC_API_URL=http://localhost:8000 npm run dev -- -p 3000
 ```
 
 If those ports are taken, pick others and set `NEXT_PUBLIC_API_URL` to match. Add the frontend origin to `CORS_ORIGINS` for that run.
+
+**Agents:** `core/config.py` auto-loads `.env` from the working directory, and startup runs migrations and schedulers.
+So an agent should never start the backend from `backend/` with your real `.env`. Run uvicorn from a scratch directory
+with `--app-dir <repo>/backend` and `PYTHONPATH=<repo>/backend`, using `env -i` and explicit dummy values
+(`APP_ENV=development`, `DATABASE_URL` pointing at a throwaway Postgres, a generated `FERNET_KEY`). Put an `alembic.ini` in
+that scratch directory whose `script_location` is the absolute path to the migrations folder.
 Use your own local test account. Never paste credentials into scripts or docs. Read them from env vars.
 
 ## 2. Screenshot desktop and mobile

@@ -5,6 +5,7 @@ argument-hint: <id>
 
 Build `docs/plans/$ARGUMENTS/` with this loop:
 
+0. **Baseline:** run the backend tests and lint on the starting commit. If they're already red, stop and tell me. Don't build on a red base.
 1. **implementer** follows `plan.md`, committing after each step.
 2. **reviewer** reviews `git diff main...HEAD` and writes `review.md`.
 3. If `review.md` has open must-fix items, the **implementer** fixes them, then go back to step 2. Stop after 3 rounds and ask me.
