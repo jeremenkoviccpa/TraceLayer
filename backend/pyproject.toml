@@ -9,6 +9,8 @@ filterwarnings = [
 line-length = 120
 
 [tool.ruff.lint]
+# Pinned to ruff's classic defaults so a new ruff release can't turn CI red overnight.
+select = ["E4", "E7", "E9", "F"]
 ignore = [
     "F821",   # SQLAlchemy forward-reference strings are valid at runtime
     "E402",   # conftest.py must set env vars before importing app modules

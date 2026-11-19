@@ -9,7 +9,6 @@ Revises: 051_backfill_trust_pages
 Create Date: 2026-03-29
 """
 import uuid
-from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
