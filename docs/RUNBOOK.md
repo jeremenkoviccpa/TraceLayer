@@ -305,6 +305,11 @@ Every HTTP 429 from the API rate limiter (the limited routes are in `backend/api
 `WARNING` log line from `core.limiter` (handler: `rate_limit_exceeded_handler` in `backend/core/limiter.py`).
 This is the remediation for security audit finding **TL-F001**.
 
+slowapi also logs its own line for the same event, from logger `slowapi`:
+`WARNING slowapi ratelimit 10 per 1 minute (203.0.113.7) exceeded at endpoint: <scope>`. So each 429 shows up as
+**two** lines. When counting or alerting, match only `rate_limit_exceeded` and ignore the `slowapi` line, which has
+no tenant and no route template.
+
 ```
 2026-11-19 09:30:12,345 WARNING core.limiter rate_limit_exceeded {"route": "/v1/auth/login", "method": "POST", "limit": "10 per 1 minute", "client_ip": "203.0.113.7", "company_id": null, "user_id": null}
 ```
@@ -331,7 +336,7 @@ and a `Retry-After` header (seconds).
 
 **Querying (Railway):**
 ```bash
-# All rate-limit events
+# All rate-limit events (one line per 429; skips slowapi's duplicate line)
 railway logs | grep 'rate_limit_exceeded '
 
 # Count by route and tenant

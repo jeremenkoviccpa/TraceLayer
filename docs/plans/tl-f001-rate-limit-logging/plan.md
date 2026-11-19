@@ -56,3 +56,7 @@ None. This is a local handler change, not a lasting design choice.
 - **Plan detail corrected in code:** slowapi stores `request.state.view_rate_limit` as `(RateLimitItem, [key, scope])`,
   so the call is `get_window_stats(item, *args)`, not `get_window_stats(*view_rate_limit)`.
 - **Route count:** `api/v1/auth.py` has 7 `@rate_limit` routes, not 8 as the Scope says. No code impact.
+- **429 message assumes per-minute limits (review round 1, nice-to-have 2):** `RATE_LIMIT_DETAIL` in
+  `backend/core/limiter.py` always says "wait a minute". True for all 7 current limits (all `/minute`), but an hourly
+  limit added later would contradict its `Retry-After`. Build the text from the computed `Retry-After`, or tie it to
+  per-minute limits, when that happens.
