@@ -22,6 +22,10 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run build
+        env:
+          # app/api/capture-lead/route.ts constructs Resend at import time and throws without a key.
+          # Placeholder only, not a secret. Follow-up: construct the client lazily, then drop this.
+          RESEND_API_KEY: re_ci_build_placeholder
 
   backend:
     name: Backend lint & syntax
