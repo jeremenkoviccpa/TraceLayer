@@ -6,8 +6,10 @@ FastAPI app with a fresh Limiter and our handler to get a real 429.
 """
 import json
 import logging
+import time
 import uuid
 from datetime import datetime, timedelta, timezone
+from types import SimpleNamespace
 
 import pytest
 import pytest_asyncio
@@ -18,6 +20,7 @@ from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
+import core.limiter
 from core.limiter import RATE_LIMIT_DETAIL, rate_limit_exceeded_handler
 from core.security import create_access_token
 
@@ -39,9 +42,14 @@ def _build_app() -> FastAPI:
     return app
 
 
+@pytest.fixture
+def limited_app() -> FastAPI:
+    return _build_app()
+
+
 @pytest_asyncio.fixture
-async def limited_client():
-    async with AsyncClient(transport=ASGITransport(app=_build_app()), base_url="http://test") as c:
+async def limited_client(limited_app):
+    async with AsyncClient(transport=ASGITransport(app=limited_app), base_url="http://test") as c:
         yield c
 
 
@@ -142,3 +150,29 @@ async def test_429_response_body_and_retry_after(limited_client):
     assert body["error"] == "Rate limit exceeded: 1 per 1 minute"
     retry_after = int(res.headers["Retry-After"])
     assert 0 < retry_after <= 60
+
+
+async def test_retry_after_uses_time_left_in_window(limited_client, monkeypatch):
+    # Pretend 45 s of the 60 s window have passed when the handler computes Retry-After.
+    # Only the handler's clock moves; the limiter storage keeps the real one.
+    monkeypatch.setattr(core.limiter, "time", SimpleNamespace(time=lambda: time.time() + 45))
+    res = await _hit_limit(limited_client)
+
+    assert 14 <= int(res.headers["Retry-After"]) <= 16
+
+
+async def test_retry_after_falls_back_to_limit_period(limited_app, limited_client, monkeypatch):
+    def broken_window_stats(*args, **kwargs):
+        raise RuntimeError("storage unavailable")
+
+    monkeypatch.setattr(limited_app.state.limiter.limiter, "get_window_stats", broken_window_stats)
+    monkeypatch.setattr(core.limiter, "time", SimpleNamespace(time=lambda: time.time() + 45))
+    res = await _hit_limit(limited_client)
+
+    assert res.headers["Retry-After"] == "60"
+
+
+def test_production_app_uses_custom_429_handler():
+    from main import app
+
+    assert app.exception_handlers[RateLimitExceeded] is rate_limit_exceeded_handler
