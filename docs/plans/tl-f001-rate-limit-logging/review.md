@@ -1,4 +1,4 @@
-## Verdict: changes requested
+## Verdict: clean
 
 Scope: `git diff 376659a..HEAD` (8367e90, d6a8f18, 8e6284c). Checked against `plan.md`, including the plan checkpoint, `ticket.md` and `AGENTS.md`.
 Backend `pytest tests/ -q`: 75 passed. `ruff check .`: clean.
@@ -36,3 +36,13 @@ Not part of this review: the ticket's "login page shows the message on desktop a
   endpoint` WARNING from logger `slowapi` also fires, so each 429 shows up as two lines. It says to count or alert
   only on `rate_limit_exceeded`.
 - **Results:** `pytest tests/ -q` 78 passed (was 75). `ruff check .` all checks passed.
+
+## Round 2 (reviewer)
+Re-reviewed c936242, c359b09 and 0586863 (`git diff 8e6284c..HEAD`). Backend `pytest tests/ -q`: 78 passed. `ruff check .`: clean.
+I checked each fix by mutating a scratch copy (repo untouched):
+- **Must-fix (wiring):** fixed. With `main.py:152` put back to slowapi's `_rate_limit_exceeded_handler`, `test_production_app_uses_custom_429_handler` (`backend/tests/test_rate_limit.py:175`) fails.
+- **Nice-to-have 1 (Retry-After):** fixed. Both the plan's original `get_window_stats(*request.state.view_rate_limit)` call and a hard-coded `"60"` now fail `test_retry_after_uses_time_left_in_window` (`test_rate_limit.py:155-161`). With the fallback changed to `return 1`, or the `try/except` removed, `test_retry_after_falls_back_to_limit_period` (`test_rate_limit.py:164-172`) fails.
+- **Nice-to-have 2 ("wait a minute"):** left open on purpose and recorded as a follow-up in `plan.md`. Fine for now, since every current limit is per-minute.
+- **Nice-to-have 3 (runbook):** fixed. `docs/RUNBOOK.md:308-311` matches the format slowapi actually logs under `main.py`'s `basicConfig`, and the `grep 'rate_limit_exceeded '` query doesn't match the slowapi line.
+- **New problems in the round-2 commits:** none found. They add no secrets, routes, queries or log fields. Patching `core.limiter.time` with a `SimpleNamespace` is safe, because `limiter.py` uses only `time.time()`.
+- **Process note:** the implementer ticked the boxes in this file. reviewer.md says the reviewer ticks them. I verified each ticked box above, and the ticks stand.
