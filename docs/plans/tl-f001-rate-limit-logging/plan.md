@@ -48,3 +48,11 @@ None. This is a local handler change, not a lasting design choice.
 - **OQ4 overridden:** the audit report is a third-party assessor's signed attestation, so we don't edit its findings
   register. Record the remediation in `docs/RUNBOOK.md` and the PR; the owner tells the assessor.
 - Follow-up ticket to open: the 2FA `totp_token` is a full access token (`auth.py:137`).
+
+## Follow-ups (implementer)
+- **Client IP behind the proxy:** Railway/Procfile/Dockerfile start uvicorn without `--forwarded-allow-ips`, so uvicorn
+  ignores `X-Forwarded-For` from Railway's proxy. `client_ip` in the new log line (and the per-IP limit key itself) is
+  then likely the proxy's address. Out of scope here (see **Out**); worth its own ticket. Noted in `docs/RUNBOOK.md`.
+- **Plan detail corrected in code:** slowapi stores `request.state.view_rate_limit` as `(RateLimitItem, [key, scope])`,
+  so the call is `get_window_stats(item, *args)`, not `get_window_stats(*view_rate_limit)`.
+- **Route count:** `api/v1/auth.py` has 7 `@rate_limit` routes, not 8 as the Scope says. No code impact.
