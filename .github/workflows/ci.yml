@@ -52,7 +52,6 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-      id-token: write
     env:
       # Repo secret ANTHROPIC_API_KEY (Settings → Secrets and variables → Actions). Not committed anywhere.
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
