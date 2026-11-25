@@ -22,6 +22,10 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run build
+        env:
+          # app/api/capture-lead/route.ts constructs Resend at import time and throws without a key.
+          # Placeholder only, not a secret. Follow-up: construct the client lazily, then drop this.
+          RESEND_API_KEY: re_ci_build_placeholder
 
   backend:
     name: Backend lint & syntax
@@ -35,5 +39,42 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-      - run: pip install ruff
+      - run: pip install ruff==0.4.10
       - run: ruff check .
+
+  # Backend pytest runs in test.yml on every PR (it needs a Postgres service), so it isn't repeated here.
+
+  ai-review:
+    name: AI review
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    env:
+      # Repo secret ANTHROPIC_API_KEY (Settings → Secrets and variables → Actions). Not committed anywhere.
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Skip when the secret is not configured
+        if: env.ANTHROPIC_API_KEY == ''
+        run: echo "::notice::ANTHROPIC_API_KEY is not set; AI review skipped."
+      - name: Reviewer subagent
+        if: env.ANTHROPIC_API_KEY != ''
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            You are the reviewer defined in .claude/agents/reviewer.md. Follow it and AGENTS.md.
+            Review PR #${{ github.event.pull_request.number }} (git diff origin/${{ github.base_ref }}...HEAD).
+            If the PR has a docs/plans/<id>/plan.md, review against it. Use .claude/skills/security-check.
+            Post exactly one PR comment with `gh pr comment ${{ github.event.pull_request.number }} --body-file <file>`
+            containing the review.md checklist (Verdict, Must-fix, Nice-to-have). Do not edit code.
+          claude_args: >-
+            --max-turns 20
+            --allowedTools "Read,Grep,Glob,Write,Bash(git diff:*),Bash(git log:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"

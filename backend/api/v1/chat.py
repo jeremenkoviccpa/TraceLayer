@@ -257,7 +257,6 @@ async def send_message(
     # Call AI
     from services.ai_service import chat_with_general_advisor
     from models.company import Company
-    from models.score_snapshot import ScoreSnapshot
 
     company_result = await db.execute(
         select(Company).where(Company.id == current_user.company_id)

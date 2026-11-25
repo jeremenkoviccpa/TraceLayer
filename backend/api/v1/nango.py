@@ -1,6 +1,5 @@
 """Nango OAuth completion — called by the frontend after the Nango popup succeeds."""
 import logging
-import uuid
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
