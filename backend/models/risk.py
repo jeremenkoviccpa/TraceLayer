@@ -6,7 +6,6 @@ from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import TIMESTAMP
-from datetime import datetime
 
 from models.base import Base
 

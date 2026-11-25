@@ -86,7 +86,6 @@ async def complete_onboarding(
     db: AsyncSession = Depends(get_db),
 ):
     """Mark onboarding as completed. Optionally save the user's selected frameworks."""
-    from fastapi import Body
     result = await db.execute(select(Company).where(Company.id == current_user.company_id))
     company = result.scalar_one_or_none()
     if not company:

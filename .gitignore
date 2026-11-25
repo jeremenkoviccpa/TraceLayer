@@ -54,3 +54,6 @@ Thumbs.db
 
 # Docker volumes (local only)
 postgres_data/
+
+# Claude Code personal settings
+.claude/settings.local.json

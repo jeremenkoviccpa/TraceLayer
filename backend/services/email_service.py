@@ -547,7 +547,6 @@ def send_vendor_questionnaire(
     question_count: int,
 ) -> None:
     """Send a security questionnaire link to a vendor."""
-    from datetime import datetime
     due_str = due_date.strftime("%B %d, %Y") if hasattr(due_date, "strftime") else str(due_date)
     subject = f"Security questionnaire from {company_name} — response requested by {due_str}"
     body = f"""
