@@ -19,6 +19,7 @@
 6. [Deployment Process](#deployment-process)
 7. [Incident Response Checklist](#incident-response-checklist)
 8. [Sentry Error Monitoring](#sentry-error-monitoring)
+9. [Rate-Limit Events](#rate-limit-events)
 
 ---
 
@@ -295,3 +296,58 @@ curl -X POST https://api.tracelayer.it.com/sentry-test  # if endpoint exists
 
 # Frontend test: add ?sentry_test=1 to any URL and check the Sentry dashboard
 ```
+
+---
+
+## Rate-Limit Events
+
+Every HTTP 429 from the API rate limiter (the limited routes are in `backend/api/v1/auth.py`) writes one
+`WARNING` log line from `core.limiter` (handler: `rate_limit_exceeded_handler` in `backend/core/limiter.py`).
+This is the remediation for security audit finding **TL-F001**.
+
+slowapi also logs its own line for the same event, from logger `slowapi`:
+`WARNING slowapi ratelimit 10 per 1 minute (203.0.113.7) exceeded at endpoint: <scope>`. So each 429 shows up as
+**two** lines. When counting or alerting, match only `rate_limit_exceeded` and ignore the `slowapi` line, which has
+no tenant and no route template.
+
+```
+2026-11-19 09:30:12,345 WARNING core.limiter rate_limit_exceeded {"route": "/v1/auth/login", "method": "POST", "limit": "10 per 1 minute", "client_ip": "203.0.113.7", "company_id": null, "user_id": null}
+```
+
+| Field        | Meaning                                                                                   |
+|--------------|-------------------------------------------------------------------------------------------|
+| `route`      | Route template, e.g. `/v1/auth/login` (IDs are not expanded); `null` if no route matched   |
+| `method`     | HTTP method                                                                               |
+| `limit`      | The limit that was hit, e.g. `10 per 1 minute`                                            |
+| `client_ip`  | Client IP as the limiter sees it (the key the limit is counted on); see the note below      |
+| `company_id` | Tenant from a **valid** access token (signature, expiry and `type: access` checked), else `null` |
+| `user_id`    | User (`sub`) from the same valid token, else `null`                                       |
+
+**Note on `client_ip`:** it is the socket peer address. uvicorn only trusts `X-Forwarded-For` from
+`--forwarded-allow-ips` (default `127.0.0.1`), so behind Railway's proxy this may be the proxy's address rather than
+the real client. Fixing proxy-header handling is a separate ticket.
+
+The line never contains the `Authorization` header, tokens, emails, query strings or request bodies.
+A forged or expired token is logged as `null`, so a non-null `company_id` is trustworthy.
+The same fields are also attached to the log record as `extra={"rate_limit": {...}}` for structured handlers.
+
+The client gets a 429 with `{"detail": "Too many attempts. Please wait a minute and try again.", "error": "Rate limit exceeded: <limit>"}`
+and a `Retry-After` header (seconds).
+
+**Querying (Railway):**
+```bash
+# All rate-limit events (one line per 429; skips slowapi's duplicate line)
+railway logs | grep 'rate_limit_exceeded '
+
+# Count by route and tenant
+railway logs | grep -o 'rate_limit_exceeded {.*}' | sed 's/^rate_limit_exceeded //' \
+  | jq -r '[.route, (.company_id // "anonymous")] | @tsv' | sort | uniq -c | sort -rn
+
+# Top source IPs hitting one route
+railway logs | grep -o 'rate_limit_exceeded {.*}' | sed 's/^rate_limit_exceeded //' \
+  | jq -r 'select(.route == "/v1/auth/login") | .client_ip' | sort | uniq -c | sort -rn | head
+```
+
+**Reading it:** many events from one `client_ip` with `company_id: null` on `/v1/auth/login` points to credential
+stuffing; treat it under the [Incident Response Checklist](#incident-response-checklist) if it persists. Many events for
+one `company_id` points to a misbehaving client or integration in that tenant.

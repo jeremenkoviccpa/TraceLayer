@@ -15,7 +15,6 @@ from core.database import get_db
 from core.deps import get_current_user
 from models.company import Company
 from models.user import User
-from models.vendor import Vendor
 from models.vendor_questionnaire import VendorQuestionnaire
 from services.audit_service import log_action
 

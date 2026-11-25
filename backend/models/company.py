@@ -33,7 +33,7 @@ class Company(Base):
 
     # Onboarding
     onboarding_completed: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
-    primary_frameworks: Mapped[list] = mapped_column(JSONB, nullable=False, server_default="'[]'::jsonb")
+    primary_frameworks: Mapped[list] = mapped_column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))
 
     # Partner tier
     is_partner_account: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))

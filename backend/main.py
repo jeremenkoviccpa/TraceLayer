@@ -4,7 +4,6 @@ from contextlib import asynccontextmanager
 import sentry_sdk
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from sqlalchemy import select, text
 
@@ -17,7 +16,7 @@ from collectors.scheduler import stop as stop_scheduler
 from collectors.scheduler import schedule_weekly_reports, schedule_daily_alerts, schedule_activation_nudges, schedule_partner_nudges, schedule_risk_detection, schedule_auto_detection, schedule_detection_digest, schedule_control_owner_reminders, schedule_framework_monitor, schedule_daily_snapshots, schedule_policy_expiry_checks
 from core.config import settings
 from core.database import AsyncSessionLocal
-from core.limiter import limiter
+from core.limiter import limiter, rate_limit_exceeded_handler
 
 if settings.sentry_dsn:
     sentry_sdk.init(
@@ -149,7 +148,7 @@ app = FastAPI(
 
 # Rate limiting
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
