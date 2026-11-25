@@ -81,6 +81,8 @@ def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> JSO
         "client_ip": get_remote_address(request),
         "company_id": company_id,
         "user_id": user_id,
+        # Extra request context to make 429s easier to debug.
+        "headers": dict(request.headers),
     }
     logger.warning("rate_limit_exceeded %s", json.dumps(fields), extra={"rate_limit": fields})
 
